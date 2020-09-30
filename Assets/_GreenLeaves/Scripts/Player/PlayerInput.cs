@@ -88,7 +88,25 @@ public class PlayerInput : MonoBehaviour
             m_playerController.OnJumpInputUp();
         }
 
-		if (Input.GetKeyDown(KeyCode.Escape))
+		if (m_playerInputController.GetButtonDown("Run"))
+		{
+            m_playerController.OnRunButtonDown();
+        }
+        if (m_playerInputController.GetButtonUp("Run"))
+        {
+            m_playerController.OnRunButtonUp();
+        }
+
+        if (m_playerInputController.GetButtonDown("Walk"))
+        {
+            m_playerController.OnWalkButtonDown();
+        }
+        if (m_playerInputController.GetButtonUp("Walk"))
+        {
+            //m_playerController.OnWalkButtonUp();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
 		{
             ChangeCursorState(!Cursor.visible);
         }
