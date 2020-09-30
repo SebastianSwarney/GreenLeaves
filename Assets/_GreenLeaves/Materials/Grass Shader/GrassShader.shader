@@ -7,15 +7,22 @@
 		_ParametersGrass("Parameters grass", Vector) = (1,1,1,1)
 		_Wind("Wind direction", Vector) = (1,1,1,1)
 
+		_MinDis("Min Dis", Float) = 20
+		_MaxDis("Max Dis", Float) = 30
+		_StopAnimDis("Stop Anim Dis", Float) = 10
+
 	}
 		SubShader
 	{
 		Tags{ "Queue" = "AlphaTest" "IgnoreProjector" = "True" "RenderType" = "TransparentCutout" }
+		
 		LOD 100
 
 		Pass
 		{
+		Blend SrcAlpha OneMinusSrcAlpha
 			Cull Off
+			
 			Tags{"LightMode" = "ForwardBase"}
 			CGPROGRAM
 			#pragma vertex vert
@@ -31,6 +38,9 @@
 			half4 _Wind;
 			half4 _ParametersGrass;
 
+			float _MinDis;
+			float _MaxDis;
+			float _StopAnimDis;
 
 			struct appdata
 			{
@@ -76,117 +86,142 @@
 			void geom(point v2g IN[1], inout TriangleStream <g2f> ts)
 			{
 
-				float3 d = (float3(1.,0.,0.) * IN[0].direction + (1. - IN[0].direction) * float3(0.,0.,1.)) * _ParametersGrass.x * IN[0].scale * _ParametersGrass.z;
-				float3 h = float3(0,1.,0) * _ParametersGrass.y * IN[0].scale * _ParametersGrass.z;
+				float dist = distance(IN[0].scale, _WorldSpaceCameraPos);
 
-				float3 w = normalize(_Wind.xyz) * _Wind.w * sin(_Time[2] * _ParametersGrass.w + IN[0].vertex.x);
-				float3 v1 = IN[0].vertex.xyz + d;
-				float3 v2 = v1 + h;
-				float3 v3 = v2 - d;
 
-				float3 v4 = v2 + h + w * 0.2;
-				float3 v5 = v3 + h + w * 0.2;
+					if (dist > _StopAnimDis) {
+						//discard;
+					}
+					else {
 
-				// float3 v6 = v4  + h + w*0.2; 
-				// float3 v7 = v5  + h + w*0.2; 
 
-				float3 v8 = v4 + h / 2 - d / 2. + w * 0.25;
 
-				float3 normal = IN[0].normal; //UnityObjectToWorldNormal(IN[0].normal);
-				g2f o;
 
-				o.pos = UnityObjectToClipPos(IN[0].vertex.xyz);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 0.);
-				ts.Append(o);
+						float3 d = (float3(1., 0., 0.) * IN[0].direction + (1. - IN[0].direction) * float3(0., 0., 1.)) * _ParametersGrass.x * IN[0].scale * _ParametersGrass.z;
+						float3 h = float3(0, 1., 0) * _ParametersGrass.y * IN[0].scale * _ParametersGrass.z;
 
-				o.pos = UnityObjectToClipPos(v1);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 0.);
-				ts.Append(o);
+						float3 w = normalize(_Wind.xyz) * _Wind.w * sin(_Time[2] * _ParametersGrass.w + IN[0].vertex.x);
+						float3 v1 = IN[0].vertex.xyz + d;
+						float3 v2 = v1 + h;
+						float3 v3 = v2 - d;
 
-				o.pos = UnityObjectToClipPos(v3);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 1 / 3.);
-				ts.Append(o);
+						float3 v4 = v2 + h + w * 0.2;
+						float3 v5 = v3 + h + w * 0.2;
 
-				ts.RestartStrip();
+						// float3 v6 = v4  + h + w*0.2; 
+						// float3 v7 = v5  + h + w*0.2; 
 
-				o.pos = UnityObjectToClipPos(v1);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 0.);
-				ts.Append(o);
+						float3 v8 = v4 + h / 2 - d / 2. + w * 0.25;
 
-				o.pos = UnityObjectToClipPos(v2);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 1 / 3.);
-				ts.Append(o);
+						float3 normal = IN[0].normal; //UnityObjectToWorldNormal(IN[0].normal);
+						g2f o;
 
-				o.pos = UnityObjectToClipPos(v3);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 1 / 3.);
-				ts.Append(o);
+						o.pos = UnityObjectToClipPos(IN[0].vertex.xyz);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 0.);
+						ts.Append(o);
 
-				ts.RestartStrip();
+						o.pos = UnityObjectToClipPos(v1);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 0.);
+						ts.Append(o);
 
-				o.pos = UnityObjectToClipPos(v3);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 1 / 3.);
-				ts.Append(o);
+						o.pos = UnityObjectToClipPos(v3);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 1 / 3.);
+						ts.Append(o);
 
-				o.pos = UnityObjectToClipPos(v2);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 1 / 3.);
-				ts.Append(o);
+						ts.RestartStrip();
 
-				o.pos = UnityObjectToClipPos(v5);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 2 / 3.);
-				ts.Append(o);
+						o.pos = UnityObjectToClipPos(v1);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 0.);
+						ts.Append(o);
 
-				ts.RestartStrip();
+						o.pos = UnityObjectToClipPos(v2);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 1 / 3.);
+						ts.Append(o);
 
-				o.pos = UnityObjectToClipPos(v2);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 1 / 3.);
-				ts.Append(o);
+						o.pos = UnityObjectToClipPos(v3);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 1 / 3.);
+						ts.Append(o);
 
-				o.pos = UnityObjectToClipPos(v4);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 2 / 3.);
-				ts.Append(o);
+						ts.RestartStrip();
 
-				o.pos = UnityObjectToClipPos(v5);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color,2 / 3.);
-				ts.Append(o);
+						o.pos = UnityObjectToClipPos(v3);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 1 / 3.);
+						ts.Append(o);
 
-				ts.RestartStrip();
+						o.pos = UnityObjectToClipPos(v2);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 1 / 3.);
+						ts.Append(o);
 
-				o.pos = UnityObjectToClipPos(v5);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 2 / 3.);
-				ts.Append(o);
+						o.pos = UnityObjectToClipPos(v5);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 2 / 3.);
+						ts.Append(o);
 
-				o.pos = UnityObjectToClipPos(v4);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 2 / 3.);
-				ts.Append(o);
+						ts.RestartStrip();
 
-				o.pos = UnityObjectToClipPos(v8);
-				o.normal = normal;
-				o.color = lerp(_Color2, _Color, 1.);
-				ts.Append(o);
+						o.pos = UnityObjectToClipPos(v2);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 1 / 3.);
+						ts.Append(o);
+
+						o.pos = UnityObjectToClipPos(v4);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 2 / 3.);
+						ts.Append(o);
+
+						o.pos = UnityObjectToClipPos(v5);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 2 / 3.);
+						ts.Append(o);
+
+						ts.RestartStrip();
+
+						o.pos = UnityObjectToClipPos(v5);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 2 / 3.);
+						ts.Append(o);
+
+						o.pos = UnityObjectToClipPos(v4);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 2 / 3.);
+						ts.Append(o);
+
+						o.pos = UnityObjectToClipPos(v8);
+						o.normal = normal;
+						o.color = lerp(_Color2, _Color, 1.);
+						ts.Append(o);
+					}
 			}
 
 			fixed4 frag(g2f i) : COLOR
 			{
+
+				float dist = distance(i.normal, _WorldSpaceCameraPos);
+				fixed4 c = i.color;
+				if (dist > _MinDis) {
+
+					
+					if (dist > _MaxDis) {
+						discard;
+					}
+					c.a = 1 - ((dist - _MinDis) / (_MaxDis - _MinDis));
+
+				}
+
 				float3 norm = UnityObjectToWorldNormal(i.normal);
 				fixed3 diffuseLight = saturate(dot(norm, _WorldSpaceLightPos0.xyz)) * _LightColor0;  //UnityWorldSpaceLightDir(i.pos)
 
-				fixed4 c = i.color;
-				c.rgb *= diffuseLight;
 
+
+				c.rgb *= diffuseLight;
 				return c;
 			}
 			ENDCG
