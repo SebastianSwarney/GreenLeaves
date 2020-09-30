@@ -593,7 +593,7 @@ public class PlayerController : MonoBehaviour
 
                     if (slopeCross < -0.8f)
 					{
-                        //StartCoroutine(RunSlide());
+                        StartCoroutine(RunSlide());
                     }
                 }
             }
@@ -674,6 +674,8 @@ public class PlayerController : MonoBehaviour
 
             yield return new WaitForFixedUpdate();
         }
+
+        m_groundMovementVelocity = m_slopeVelocity + m_slopeShiftVelocity;
 
         m_slopeVelocity = Vector3.zero;
         m_slideVelocity = Vector3.zero;
