@@ -71,7 +71,10 @@ public class PlayerController : MonoBehaviour
     [System.Serializable]
     public struct BaseMovementProperties
     {
-        public float m_baseMovementSpeed;
+        public float m_jogSpeed;
+        public float m_runSpeed;
+        public float m_walkSpeed;
+
         public float m_accelerationTimeGrounded;
         public float m_accelerationTimeAir;
         public float m_slopeFriction;
@@ -153,15 +156,11 @@ public class PlayerController : MonoBehaviour
     private Vector2 m_lookInput;
 
     public Transform referenceCamera;
-
-    public float turnSpeed;
-
+    public float m_playerTurnSpeed;
     private float turnSmoothingVelocity;
 
     public Animator playerAnimator;
-
     public Transform m_modelTransform;
-    public float m_maxTiltAngle;
 
     private float m_slopeAngle;
 
@@ -176,10 +175,6 @@ public class PlayerController : MonoBehaviour
 
     public float m_speedToStartSlide;
 
-    public float m_runSpeed;
-
-    public float m_walkSpeed;
-
     private bool m_isRunning;
     private bool m_isWalking;
 
@@ -189,7 +184,7 @@ public class PlayerController : MonoBehaviour
 
         CalculateJump();
 
-        m_currentMovementSpeed = m_baseMovementProperties.m_baseMovementSpeed;
+        m_currentMovementSpeed = m_baseMovementProperties.m_jogSpeed;
         m_jumpBufferTimer = m_jumpingProperties.m_jumpBufferTime;
     }
 
@@ -202,9 +197,9 @@ public class PlayerController : MonoBehaviour
     {
         PerformController();
 
-        //SetSlideSlopeVariables();
-        //OnSlideStart();
-        //CalculateSlope();
+        SetSlideSlopeVariables();
+        OnSlideStart();
+        CalculateSlope();
 
         
         //playerAnimator.SetFloat("AirMovement", -m_gravityVelocity.y);
@@ -240,15 +235,15 @@ public class PlayerController : MonoBehaviour
 
             if (m_isWalking)
 			{
-                baseHorizontalSpeed = m_walkSpeed;
+                baseHorizontalSpeed = m_baseMovementProperties.m_walkSpeed;
             }
 			else if (m_isRunning)
 			{
-                baseHorizontalSpeed = m_runSpeed;
+                baseHorizontalSpeed = m_baseMovementProperties.m_runSpeed;
             }
 			else
 			{
-                baseHorizontalSpeed = m_baseMovementProperties.m_baseMovementSpeed;
+                baseHorizontalSpeed = m_baseMovementProperties.m_jogSpeed;
             }
 
             Vector3 actualMovementDir = Vector3.zero;
@@ -256,7 +251,7 @@ public class PlayerController : MonoBehaviour
             if (targetHorizontalMovementDirection.magnitude != 0)
 			{
                 float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + referenceCamera.eulerAngles.y;
-                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothingVelocity, turnSpeed);
+                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothingVelocity, m_playerTurnSpeed);
                 transform.rotation = Quaternion.Euler(0, angle, 0);
 
                 actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
@@ -287,7 +282,7 @@ public class PlayerController : MonoBehaviour
             if (slopeCross < 0)
             {
                 float currentSlopePercent = Mathf.InverseLerp(0, 45, m_slopeAngle);
-                float currentSlopeSpeed = Mathf.Lerp(m_baseMovementProperties.m_baseMovementSpeed, m_additionalSlopeDecendSpeed, currentSlopePercent);
+                float currentSlopeSpeed = Mathf.Lerp(0, m_additionalSlopeDecendSpeed, currentSlopePercent);
                 m_currentHorizontalMovementSpeed = currentSlopeSpeed;
 
                 float currentSlopeAccel = Mathf.Lerp(m_baseMovementProperties.m_accelerationTimeGrounded, 0.4f, currentSlopePercent);
@@ -296,16 +291,18 @@ public class PlayerController : MonoBehaviour
             else if (slopeCross > 0)
             {
                 float currentSlopePercent = Mathf.InverseLerp(0, 45, m_slopeAngle);
-                float currentSlopeSpeed = Mathf.Lerp(m_baseMovementProperties.m_baseMovementSpeed, m_additionalSlopeAccendSpeed, currentSlopePercent);
+                float currentSlopeSpeed = Mathf.Lerp(0, m_additionalSlopeAccendSpeed, currentSlopePercent);
                 m_currentHorizontalMovementSpeed = currentSlopeSpeed;
 
                 float currentSlopeAccel = Mathf.Lerp(m_baseMovementProperties.m_accelerationTimeGrounded, 0.07f, currentSlopePercent);
                 m_currentHorizontalAccelerationSpeed = currentSlopeAccel;
             }
+
+
 		}
 		else
 		{
-            m_currentHorizontalMovementSpeed = m_baseMovementProperties.m_baseMovementSpeed;
+            m_currentHorizontalMovementSpeed = 0;
             m_currentHorizontalAccelerationSpeed = m_baseMovementProperties.m_accelerationTimeGrounded;
         }
     }
@@ -694,7 +691,7 @@ public class PlayerController : MonoBehaviour
             if (slopeInfo.m_onSlope)
             {
                 float currentSlopePercent = Mathf.InverseLerp(m_slideStartAngle, m_maximumSlopeAngle, m_slopeAngle);
-                float currentSlopeSpeed = Mathf.Lerp(m_baseMovementProperties.m_baseMovementSpeed, m_slideProperties.m_slideAngleBoostMax, currentSlopePercent);
+                float currentSlopeSpeed = Mathf.Lerp(m_baseMovementProperties.m_jogSpeed, m_slideProperties.m_slideAngleBoostMax, currentSlopePercent);
                 Vector3 targetSlopeVelocity = m_slideProperties.m_slopeTransform.forward * currentSlopeSpeed;
                 m_slopeVelocity = targetSlopeVelocity;
                 
