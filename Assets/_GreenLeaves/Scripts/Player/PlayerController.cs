@@ -157,6 +157,10 @@ public class PlayerController : MonoBehaviour
         m_characterController = GetComponent<CharacterController>();
         m_playerAnimator = GetComponentInChildren<Animator>();
 
+        m_baseMovementProperties = m_currentBaseMovementSettings.m_baseMovementSettings;
+        m_jumpingProperties = m_currentJumpingSettings.m_jumpingSettings;
+        m_slideProperties = m_currentSlidingSettings.m_slidingSettings;
+
         CalculateJump();
 
         m_jumpBufferTimer = m_jumpingProperties.m_jumpBufferTime;
