@@ -1,4 +1,8 @@
-﻿Shader "Unlit/UltimateGrassShader"
+﻿// Upgrade NOTE: replaced '_CameraToWorld' with 'unity_CameraToWorld'
+
+// Upgrade NOTE: replaced '_CameraToWorld' with 'unity_CameraToWorld'
+
+Shader "Unlit/UltimateGrassShader"
 {
 	Properties
 	{
@@ -10,7 +14,7 @@
 		_MinDis("Min Dis", Float) = 20
 		_MaxDis("Max Dis", Float) = 30
 		_StopAnimDis("Stop Anim Dis", Float) = 10
-
+		[Toggle]_ToggleFade("Toggle Fade", Float) = 1
 	}
 		SubShader
 	{
@@ -41,6 +45,7 @@
 			float _MinDis;
 			float _MaxDis;
 			float _StopAnimDis;
+			float _ToggleFade;
 
 			struct appdata
 			{
@@ -51,6 +56,7 @@
 			struct v2g
 			{
 				float4 vertex : SV_POSITION;
+
 				float3 normal: TEXCOORD0;
 				float scale : TEXCOORD1;
 				half direction : TEXCOORD2;
@@ -59,6 +65,7 @@
 			struct g2f
 			{
 				float4 pos: SV_POSITION;
+				
 				float3 normal: TEXCOORD1;
 				float4 color : TEXCOORD0;
 			};
@@ -86,15 +93,14 @@
 			void geom(point v2g IN[1], inout TriangleStream <g2f> ts)
 			{
 
-				float dist = distance(IN[0].scale, _WorldSpaceCameraPos);
+				//float dist = distance(IN[0].vertex, _WorldSpaceCameraPos);
+				float dist = distance(mul(unity_ObjectToWorld,IN[0].vertex), _WorldSpaceCameraPos);
 
-
+				if (_ToggleFade > .5) {
 					if (dist > _StopAnimDis) {
-						//discard;
+						return;
 					}
-					else {
-
-
+				}
 
 
 						float3 d = (float3(1., 0., 0.) * IN[0].direction + (1. - IN[0].direction) * float3(0., 0., 1.)) * _ParametersGrass.x * IN[0].scale * _ParametersGrass.z;
@@ -198,23 +204,23 @@
 						o.normal = normal;
 						o.color = lerp(_Color2, _Color, 1.);
 						ts.Append(o);
-					}
+					
 			}
 
 			fixed4 frag(g2f i) : COLOR
 			{
 
-				float dist = distance(i.normal, _WorldSpaceCameraPos);
+				float dist = distance(mul(unity_CameraToWorld,i.normal), _WorldSpaceCameraPos);
 				fixed4 c = i.color;
-				if (dist > _MinDis) {
+				/*if (dist > _MinDis) {
 
 					
 					if (dist > _MaxDis) {
 						discard;
 					}
 					c.a = 1 - ((dist - _MinDis) / (_MaxDis - _MinDis));
-
-				}
+					//c.a = 1;
+				}*/
 
 				float3 norm = UnityObjectToWorldNormal(i.normal);
 				fixed3 diffuseLight = saturate(dot(norm, _WorldSpaceLightPos0.xyz)) * _LightColor0;  //UnityWorldSpaceLightDir(i.pos)

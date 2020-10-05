@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: MAT_Gra
   m_Shader: {fileID: 4800000, guid: b0638289f14dad34c9cbf562439e35d1, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _TOGGLEFADE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -20,9 +20,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
-    - _MaxDis: 15
-    - _MinDis: 10
-    - _StopAnimDis: 15
+    - _MaxDis: 20
+    - _MinDis: 15
+    - _StopAnimDis: 20
+    - _ToggleFade: 1
+    - _toggleFade: 1
     m_Colors:
     - _Color: {r: 0.08884287, g: 1, b: 0, a: 1}
     - _Color2: {r: 0, g: 0.2830189, b: 0.08708529, a: 1}

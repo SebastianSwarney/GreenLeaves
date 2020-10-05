@@ -32,18 +32,6 @@ public class GrassDisperser : MonoBehaviour
         }
     }
     // Use this for initialization
-    void Start()
-    {
-
-        //FillTerrain();
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     public List<Vector3> hitPoints, posPoints;
     public Vector3 m_origin;
@@ -83,7 +71,6 @@ public class GrassDisperser : MonoBehaviour
                 if (/*Physics.Raycast(ray, out hit)*/hits.Length > 0)
                 {
                     hit = hits[0];
-                    Debug.Log("Hit: " + hit.transform.gameObject.name, hit.transform.gameObject);
                     pos = hit.point;
                     hitPoints.Add(pos);
                     positions.Add(pos - transform.position);
