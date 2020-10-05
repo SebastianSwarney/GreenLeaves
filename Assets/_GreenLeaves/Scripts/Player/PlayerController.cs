@@ -24,43 +24,22 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Player Events
-    public PlayerControllerEvents m_events;
     [System.Serializable]
     public struct PlayerControllerEvents
     {
         [Header("Basic Events")]
         public PlayerControllerEvent m_onLandedEvent;
         public PlayerControllerEvent m_onJumpEvent;
-        public PlayerControllerEvent m_onRespawnEvent;
-
-        [Header("Wall Run Events")]
-        public PlayerControllerEvent m_onWallRunBeginEvent;
-        public PlayerControllerEvent m_onWallRunEndEvent;
-        public PlayerControllerEvent m_onWallRunJumpEvent;
-
-        [Header("Wall Climb Events")]
-        public PlayerControllerEvent m_onWallClimbBeginEvent;
-        public PlayerControllerEvent m_onWallClimbEndEvent;
-        public PlayerControllerEvent m_onWallClimbJumpEvent;
-
-        [Header("Wall Jump Events")]
-        public PlayerControllerEvent m_onWallJumpEvent;
-
-        [Header("Leap Events")]
-        public PlayerControllerEvent m_onLeapEvent;
-
     }
+
+    public PlayerControllerEvents m_events;
     #endregion
 
     #region Camera Properties
     [System.Serializable]
     public struct CameraProperties
     {
-        public float m_mouseSensitivity;
-        public float m_maxCameraAng;
-        public bool m_inverted;
-        public Camera m_camera;
-        public Transform m_cameraMain;
+        public Transform m_viewCameraTransform;
     }
 
     [Header("Camera Properties")]
@@ -74,22 +53,24 @@ public class PlayerController : MonoBehaviour
         public float m_jogSpeed;
         public float m_runSpeed;
         public float m_walkSpeed;
+        public float m_playerTurnSpeed;
 
         public float m_accelerationTimeGrounded;
         public float m_accelerationTimeAir;
-        public float m_slopeFriction;
     }
+    private BaseMovementProperties m_baseMovementProperties;
 
     [Header("Base Movement Properties")]
-    public BaseMovementProperties m_baseMovementProperties;
+    public PlayerBaseMovementSettings m_currentBaseMovementSettings;
 
-    private float m_currentMovementSpeed;
-    [HideInInspector]
-    public Vector3 m_groundMovementVelocity;
-    private Vector3 m_velocitySmoothing;
+    private Vector3 m_groundMovementVelocity;
+    private Vector3 m_groundMovementVelocitySmoothing;
     private CharacterController m_characterController;
     private Coroutine m_jumpBufferCoroutine;
     private Coroutine m_graceBufferCoroutine;
+    private float m_playerTurnSmoothingVelocity;
+    private bool m_isRunning;
+    private bool m_isWalking;
     #endregion
 
     #region Jumping Properties
@@ -106,8 +87,10 @@ public class PlayerController : MonoBehaviour
         public float m_jumpBufferTime;
     }
 
+    private JumpingProperties m_jumpingProperties;
+
     [Header("Jumping Properties")]
-    public JumpingProperties m_jumpingProperties;
+    public PlayerJumpingSettings m_currentJumpingSettings;
 
     private bool m_hasJumped;
 
@@ -135,56 +118,47 @@ public class PlayerController : MonoBehaviour
         [Header("Slope Side Shift Properties")]
         public float m_slideSideShiftMaxSpeed;
         public float m_slideSideShiftAcceleration;
-        public Transform m_slopeTransform;
+
+        public float m_slideStartAngle;
+        public float m_maximumSlopeAngle;
+
+        public float m_additionalSlopeDecendSpeed;
+        public float m_additionalSlopeAccendSpeed;
+
+        public float m_speedToStartSlide;
     }
 
-    [Header("Slide Properties")]
-    public SlideProperties m_slideProperties;
+    private SlideProperties m_slideProperties;
 
+    [Header("Slide Properties")]
+    public PlayerSlidingSettings m_currentSlidingSettings;
+
+    public Transform m_slopeTransform;
+
+    private float m_slopeAngle;
     private bool m_isSliding;
     private float m_slideTimer;
     private Vector3 m_slideVelocity;
     private Vector3 m_slopeVelocity;
     private Vector3 m_slopeShiftVelocity;
-
-    private Coroutine m_slideCooldownCoroutine;
-    private float m_slideCooldownTimer;
-    #endregion
-
-    [HideInInspector]
-    public Vector2 m_movementInput;
-    private Vector2 m_lookInput;
-
-    public Transform referenceCamera;
-    public float m_playerTurnSpeed;
-    private float turnSmoothingVelocity;
-
-    public Animator playerAnimator;
-    public Transform m_modelTransform;
-
-    private float m_slopeAngle;
-
-    public float m_slideStartAngle;
-    public float m_maximumSlopeAngle;
-
-    public float m_additionalSlopeDecendSpeed;
-    public float m_additionalSlopeAccendSpeed;
-
     private float m_currentHorizontalMovementSpeed;
     private float m_currentHorizontalAccelerationSpeed;
+    #endregion
 
-    public float m_speedToStartSlide;
+    private Vector2 m_movementInput;
+    private Animator m_playerAnimator;
 
-    private bool m_isRunning;
-    private bool m_isWalking;
+    [Space]
+
+    public Transform m_modelTransform;
 
     private void Start()
     {
         m_characterController = GetComponent<CharacterController>();
+        m_playerAnimator = GetComponentInChildren<Animator>();
 
         CalculateJump();
 
-        m_currentMovementSpeed = m_baseMovementProperties.m_jogSpeed;
         m_jumpBufferTimer = m_jumpingProperties.m_jumpBufferTime;
     }
 
@@ -196,15 +170,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         PerformController();
-
-        SetSlideSlopeVariables();
-        OnSlideStart();
-        CalculateSlope();
-
-        
-        //playerAnimator.SetFloat("AirMovement", -m_gravityVelocity.y);
-        //playerAnimator.SetBool("IsGrounded", IsGrounded());
-        playerAnimator.SetBool("IsSliding", m_isSliding);
+        m_playerAnimator.SetBool("IsSliding", m_isSliding);
     }
 
     public void PerformController()
@@ -216,130 +182,31 @@ public class PlayerController : MonoBehaviour
         SlopePhysics();
 
         ZeroOnGroundCeiling();
+
+        SetSlideSlopeVariables();
+        OnSlideStart();
+        CalculateSlopeSpeed();
     }
 
-    private void CalculateVelocity()
-    {
-        if (m_states.m_gravityControllState == GravityState.GravityEnabled)
-        {
-            m_gravityVelocity.y += m_gravity * Time.deltaTime;
-        }
-
-        if (m_states.m_movementControllState == MovementControllState.MovementEnabled)
-        {
-            Vector3 targetHorizontalMovementDirection = new Vector3(m_movementInput.x, 0, m_movementInput.y);
-
-            Vector3 targetHorizontalMovement = Vector3.zero;
-
-            float baseHorizontalSpeed = 0;
-
-            if (m_isWalking)
-			{
-                baseHorizontalSpeed = m_baseMovementProperties.m_walkSpeed;
-            }
-			else if (m_isRunning)
-			{
-                baseHorizontalSpeed = m_baseMovementProperties.m_runSpeed;
-            }
-			else
-			{
-                baseHorizontalSpeed = m_baseMovementProperties.m_jogSpeed;
-            }
-
-            Vector3 actualMovementDir = Vector3.zero;
-
-            if (targetHorizontalMovementDirection.magnitude != 0)
-			{
-                float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + referenceCamera.eulerAngles.y;
-                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothingVelocity, m_playerTurnSpeed);
-                transform.rotation = Quaternion.Euler(0, angle, 0);
-
-                actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
-                targetHorizontalMovement = actualMovementDir * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
-            }
-
-            Vector3 currentNormalMovement = actualMovementDir * (baseHorizontalSpeed);
-            playerAnimator.SetFloat("ForwardMovement", currentNormalMovement.magnitude);
-
-            //float currentAcceleration = IsGrounded() ? m_baseMovementProperties.m_accelerationTimeGrounded : m_baseMovementProperties.m_accelerationTimeAir;
-            float currentAcceleration = m_currentHorizontalAccelerationSpeed;
-            Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_velocitySmoothing, currentAcceleration);
-            m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
-		}
-		else
-		{
-            m_groundMovementVelocity = Vector3.zero;
-		}
-
-    }
-
-    private void CalculateSlope()
-	{
-		if (OnSlope().m_onSlope)
-		{
-            float slopeCross = Vector3.Cross(m_slideProperties.m_slopeTransform.right, transform.forward).y;
-
-            if (slopeCross < 0)
-            {
-                float currentSlopePercent = Mathf.InverseLerp(0, 45, m_slopeAngle);
-                float currentSlopeSpeed = Mathf.Lerp(0, m_additionalSlopeDecendSpeed, currentSlopePercent);
-                m_currentHorizontalMovementSpeed = currentSlopeSpeed;
-
-                float currentSlopeAccel = Mathf.Lerp(m_baseMovementProperties.m_accelerationTimeGrounded, 0.4f, currentSlopePercent);
-                m_currentHorizontalAccelerationSpeed = currentSlopeAccel;
-            }
-            else if (slopeCross > 0)
-            {
-                float currentSlopePercent = Mathf.InverseLerp(0, 45, m_slopeAngle);
-                float currentSlopeSpeed = Mathf.Lerp(0, m_additionalSlopeAccendSpeed, currentSlopePercent);
-                m_currentHorizontalMovementSpeed = currentSlopeSpeed;
-
-                float currentSlopeAccel = Mathf.Lerp(m_baseMovementProperties.m_accelerationTimeGrounded, 0.07f, currentSlopePercent);
-                m_currentHorizontalAccelerationSpeed = currentSlopeAccel;
-            }
-
-
-		}
-		else
-		{
-            m_currentHorizontalMovementSpeed = 0;
-            m_currentHorizontalAccelerationSpeed = m_baseMovementProperties.m_accelerationTimeGrounded;
-        }
-    }
-
-    public void OnRunButtonDown()
-	{
-        m_isRunning = true;
-
-    }
-
-    public void OnRunButtonUp()
-	{
-        m_isRunning = false;
-	}
-
-    public void OnWalkButtonDown()
-    {
-        //m_isWalking = true;
-
-        m_isWalking = !m_isWalking;
-    }
-
-    public void OnWalkButtonUp()
-    {
-        m_isWalking = false;
-    }
-
-    #region Input Code
-    public void SetMovementInput(Vector2 p_input)
+	#region Input Code
+	public void SetMovementInput(Vector2 p_input)
     {
         m_movementInput = p_input;
     }
 
-    public void SetLookInput(Vector2 p_input, float p_sensitivity)
+    public void OnRunButtonDown()
     {
-        m_lookInput = p_input;
-        m_cameraProperties.m_mouseSensitivity = p_sensitivity;
+        m_isRunning = true;
+    }
+
+    public void OnRunButtonUp()
+    {
+        m_isRunning = false;
+    }
+
+    public void OnWalkButtonDown()
+    {
+        m_isWalking = !m_isWalking;
     }
     #endregion
 
@@ -391,6 +258,63 @@ public class PlayerController : MonoBehaviour
         }
 
         m_bufferTimerRef(p_bufferTime);
+    }
+    #endregion
+
+    #region Basic Movement Code
+    private void CalculateVelocity()
+    {
+        if (m_states.m_gravityControllState == GravityState.GravityEnabled)
+        {
+            m_gravityVelocity.y += m_gravity * Time.deltaTime;
+        }
+
+        if (m_states.m_movementControllState == MovementControllState.MovementEnabled)
+        {
+            Vector3 targetHorizontalMovementDirection = new Vector3(m_movementInput.x, 0, m_movementInput.y);
+
+            Vector3 targetHorizontalMovement = Vector3.zero;
+
+            float baseHorizontalSpeed = 0;
+
+            if (m_isWalking)
+            {
+                baseHorizontalSpeed = m_baseMovementProperties.m_walkSpeed;
+            }
+            else if (m_isRunning)
+            {
+                baseHorizontalSpeed = m_baseMovementProperties.m_runSpeed;
+            }
+            else
+            {
+                baseHorizontalSpeed = m_baseMovementProperties.m_jogSpeed;
+            }
+
+            Vector3 actualMovementDir = Vector3.zero;
+
+            if (targetHorizontalMovementDirection.magnitude != 0)
+            {
+                float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
+                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
+                transform.rotation = Quaternion.Euler(0, angle, 0);
+
+                actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
+                targetHorizontalMovement = actualMovementDir * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
+            }
+
+            Vector3 currentNormalMovement = actualMovementDir * (baseHorizontalSpeed);
+            m_playerAnimator.SetFloat("ForwardMovement", currentNormalMovement.magnitude);
+
+            //float currentAcceleration = IsGrounded() ? m_baseMovementProperties.m_accelerationTimeGrounded : m_baseMovementProperties.m_accelerationTimeAir;
+            float currentAcceleration = m_currentHorizontalAccelerationSpeed;
+            Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
+            m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
+        }
+        else
+        {
+            m_groundMovementVelocity = Vector3.zero;
+        }
+
     }
     #endregion
 
@@ -630,19 +554,53 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Slide Code
+    private void CalculateSlopeSpeed()
+    {
+        if (OnSlope().m_onSlope)
+        {
+            float slopeCross = Vector3.Cross(m_slopeTransform.right, transform.forward).y;
+
+            if (slopeCross < 0)
+            {
+                float currentSlopePercent = Mathf.InverseLerp(0, 45, m_slopeAngle);
+                float currentSlopeSpeed = Mathf.Lerp(0, m_slideProperties.m_additionalSlopeDecendSpeed, currentSlopePercent);
+                m_currentHorizontalMovementSpeed = currentSlopeSpeed;
+
+                float currentSlopeAccel = Mathf.Lerp(m_baseMovementProperties.m_accelerationTimeGrounded, 0.4f, currentSlopePercent);
+                m_currentHorizontalAccelerationSpeed = currentSlopeAccel;
+            }
+            else if (slopeCross > 0)
+            {
+                float currentSlopePercent = Mathf.InverseLerp(0, 45, m_slopeAngle);
+                float currentSlopeSpeed = Mathf.Lerp(0, m_slideProperties.m_additionalSlopeAccendSpeed, currentSlopePercent);
+                m_currentHorizontalMovementSpeed = currentSlopeSpeed;
+
+                float currentSlopeAccel = Mathf.Lerp(m_baseMovementProperties.m_accelerationTimeGrounded, 0.07f, currentSlopePercent);
+                m_currentHorizontalAccelerationSpeed = currentSlopeAccel;
+            }
+
+
+        }
+        else
+        {
+            m_currentHorizontalMovementSpeed = 0;
+            m_currentHorizontalAccelerationSpeed = m_baseMovementProperties.m_accelerationTimeGrounded;
+        }
+    }
+
     private void OnSlideStart()
     {
         if (!m_isSliding)
         {
             if (IsGrounded() || OnSlope().m_onSlope)
             {
-                if (m_slopeAngle > m_slideStartAngle)
+                if (m_slopeAngle > m_slideProperties.m_slideStartAngle)
 				{
-                    float slopeCross = Vector3.Cross(m_slideProperties.m_slopeTransform.right, transform.forward).y;
+                    float slopeCross = Vector3.Cross(m_slopeTransform.right, transform.forward).y;
 
                     if (slopeCross < -0.8f)
 					{
-						if (m_groundMovementVelocity.magnitude > m_speedToStartSlide)
+						if (m_groundMovementVelocity.magnitude > m_slideProperties.m_speedToStartSlide)
 						{
                             StartCoroutine(RunSlide());
                         }
@@ -668,7 +626,7 @@ public class PlayerController : MonoBehaviour
 
             Vector3 slopeDir = new Vector3(normalX * Mathf.Sign(slopeInfo.m_slopeNormal.x), 0, normalZ * Mathf.Sign(slopeInfo.m_slopeNormal.z));
 
-            m_slideProperties.m_slopeTransform.rotation = Quaternion.LookRotation(slopeDir);
+            m_slopeTransform.rotation = Quaternion.LookRotation(slopeDir);
             m_slopeAngle = Vector3.Angle(Vector3.up, slopeInfo.m_slopeNormal);
         }
     }
@@ -682,7 +640,7 @@ public class PlayerController : MonoBehaviour
         Vector3 slopeVelocitySmoothing = Vector3.zero;
         Vector3 slopeShiftVelocitySmoothing = Vector3.zero;
 
-        while (m_slopeAngle > m_slideStartAngle && IsGrounded())
+        while (m_slopeAngle > m_slideProperties.m_slideStartAngle && IsGrounded())
         {
             #region Slope Slide Code
 
@@ -690,15 +648,15 @@ public class PlayerController : MonoBehaviour
 
             if (slopeInfo.m_onSlope)
             {
-                float currentSlopePercent = Mathf.InverseLerp(m_slideStartAngle, m_maximumSlopeAngle, m_slopeAngle);
+                float currentSlopePercent = Mathf.InverseLerp(m_slideProperties.m_slideStartAngle, m_slideProperties.m_maximumSlopeAngle, m_slopeAngle);
                 float currentSlopeSpeed = Mathf.Lerp(m_baseMovementProperties.m_jogSpeed, m_slideProperties.m_slideAngleBoostMax, currentSlopePercent);
-                Vector3 targetSlopeVelocity = m_slideProperties.m_slopeTransform.forward * currentSlopeSpeed;
+                Vector3 targetSlopeVelocity = m_slopeTransform.forward * currentSlopeSpeed;
                 m_slopeVelocity = targetSlopeVelocity;
                 
                 //Vector3 targetShiftVelocity = m_slideProperties.m_slopeTransform.right * m_movementInput.x * m_slideProperties.m_slideSideShiftMaxSpeed;
 
-                Vector3 rightInput = m_slideProperties.m_slopeTransform.right * m_movementInput.x;
-                Vector3 forwardInput = m_slideProperties.m_slopeTransform.forward * m_movementInput.y;
+                Vector3 rightInput = m_slopeTransform.right * m_movementInput.x;
+                Vector3 forwardInput = m_slopeTransform.forward * m_movementInput.y;
 
                 Vector3 fullInput = Vector3.ClampMagnitude(rightInput + forwardInput, 1f);
 
@@ -709,18 +667,6 @@ public class PlayerController : MonoBehaviour
 
                 transform.rotation = Quaternion.LookRotation(m_slopeVelocity);
                 m_modelTransform.localRotation = Quaternion.AngleAxis(m_slopeAngle, Vector3.right);
-
-                //Debug.Log(m_slopeVelocity.magnitude);
-
-                if (m_slopeVelocity.magnitude > 25)
-                {
-                    Debug.LogError("Fall over fool");
-                }
-
-                if (m_slopeAngle > m_maximumSlopeAngle)
-				{
-
-				}
             }
             #endregion
 
@@ -739,12 +685,6 @@ public class PlayerController : MonoBehaviour
         m_isSliding = false;
     }
     #endregion
-
-    float Map(float min, float max, float t)
-    {
-        return min + t * (max - min);
-    }
-
 
     public bool CheckCollisionLayer(LayerMask p_layerMask, GameObject p_object)
     {

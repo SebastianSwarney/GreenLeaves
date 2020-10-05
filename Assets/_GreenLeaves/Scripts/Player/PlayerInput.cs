@@ -73,7 +73,6 @@ public class PlayerInput : MonoBehaviour
         if (!m_lockLooking)
         {
             Vector2 lookInput = new Vector2(m_playerInputController.GetAxis("LookHorizontal"), m_playerInputController.GetAxis("LookVertical"));
-            m_playerController.SetLookInput(lookInput, m_currentSensitivity);
 
             //freeLookCam.m_XAxis.m_InputAxisValue = lookInput.x;
             //freeLookCam.m_YAxis.m_InputAxisValue = lookInput.y;
@@ -100,10 +99,6 @@ public class PlayerInput : MonoBehaviour
         if (m_playerInputController.GetButtonDown("Walk"))
         {
             m_playerController.OnWalkButtonDown();
-        }
-        if (m_playerInputController.GetButtonUp("Walk"))
-        {
-            //m_playerController.OnWalkButtonUp();
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))

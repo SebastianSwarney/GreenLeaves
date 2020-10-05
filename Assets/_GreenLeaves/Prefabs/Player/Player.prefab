@@ -269,70 +269,37 @@ MonoBehaviour:
     m_onJumpEvent:
       m_PersistentCalls:
         m_Calls: []
-    m_onRespawnEvent:
-      m_PersistentCalls:
-        m_Calls: []
-    m_onWallRunBeginEvent:
-      m_PersistentCalls:
-        m_Calls: []
-    m_onWallRunEndEvent:
-      m_PersistentCalls:
-        m_Calls: []
-    m_onWallRunJumpEvent:
-      m_PersistentCalls:
-        m_Calls: []
-    m_onWallClimbBeginEvent:
-      m_PersistentCalls:
-        m_Calls: []
-    m_onWallClimbEndEvent:
-      m_PersistentCalls:
-        m_Calls: []
-    m_onWallClimbJumpEvent:
-      m_PersistentCalls:
-        m_Calls: []
-    m_onWallJumpEvent:
-      m_PersistentCalls:
-        m_Calls: []
-    m_onLeapEvent:
-      m_PersistentCalls:
-        m_Calls: []
   m_cameraProperties:
-    m_mouseSensitivity: 0
-    m_maxCameraAng: 0
-    m_inverted: 0
-    m_camera: {fileID: 0}
-    m_cameraMain: {fileID: 0}
+    m_viewCameraTransform: {fileID: 8243094455889403908}
   m_baseMovementProperties:
     m_jogSpeed: 15
     m_runSpeed: 20
     m_walkSpeed: 7
+    m_playerTurnSpeed: 0.1
     m_accelerationTimeGrounded: 0.1
     m_accelerationTimeAir: 0.3
-    m_slopeFriction: 50
-  m_groundMovementVelocity: {x: 0, y: 0, z: 0}
+  m_currentBaseMovementSettings: {fileID: 11400000, guid: b3418034755435e478afe92f1d5e1e26, type: 2}
   m_jumpingProperties:
     m_maxJumpHeight: 3
     m_minJumpHeight: 0.5
     m_timeToJumpApex: 0.3
     m_graceTime: 0.1
     m_jumpBufferTime: 0.1
+  m_currentJumpingSettings: {fileID: 11400000, guid: 1af36d9d73d25d54a93b7fa422dac92f, type: 2}
   m_slideProperties:
     m_slideAngleBoostMax: 20
     m_slopeSlideAccelerationTime: 1
     m_slopeTolerence: 0.1
     m_slideSideShiftMaxSpeed: 10
     m_slideSideShiftAcceleration: 0.5
-    m_slopeTransform: {fileID: 404267587}
-  m_movementInput: {x: 0, y: 0}
-  referenceCamera: {fileID: 8243094455889403908}
-  m_playerTurnSpeed: 0.1
-  playerAnimator: {fileID: 6092941526371354757}
+    m_slideStartAngle: 20
+    m_maximumSlopeAngle: 50
+    m_additionalSlopeDecendSpeed: 5
+    m_additionalSlopeAccendSpeed: -5
+    m_speedToStartSlide: 19
+  m_currentSlidingSettings: {fileID: 11400000, guid: 69a90220c2bb5944f90316f31dc9459c, type: 2}
+  m_slopeTransform: {fileID: 404267587}
   m_modelTransform: {fileID: 6092941526361548573}
-  m_slideStartAngle: 20
-  m_maximumSlopeAngle: 50
-  m_additionalSlopeDecendSpeed: 5
-  m_additionalSlopeAccendSpeed: -5
-  m_speedToStartSlide: 19
 --- !u!1 &2987350526820947539
 GameObject:
   m_ObjectHideFlags: 0
@@ -3249,7 +3216,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 4
-  m_FollowOffset: {x: 0, y: 0.5, z: -6.2}
+  m_FollowOffset: {x: 0, y: 3.7308085, z: -5.9331512}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -3269,7 +3236,7 @@ MonoBehaviour:
     m_LegacyHeadingDefinition: -1
     m_LegacyVelocityFilterStrength: -1
   m_XAxis:
-    Value: 0
+    Value: 102.036064
     m_SpeedMode: 0
     m_MaxSpeed: 300
     m_AccelTime: 0.1
@@ -3341,7 +3308,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094454564951609}
-  m_LocalRotation: {x: 0.04016306, y: 0.055237047, z: -0.0022236865, w: 0.9976627}
+  m_LocalRotation: {x: 0.16275069, y: 0.7775196, z: -0.22413927, w: 0.56456804}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -3449,7 +3416,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 4
-  m_FollowOffset: {x: 0, y: 0.5, z: -6.2}
+  m_FollowOffset: {x: 0, y: 3.7308085, z: -5.9331512}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -3469,7 +3436,7 @@ MonoBehaviour:
     m_LegacyHeadingDefinition: -1
     m_LegacyVelocityFilterStrength: -1
   m_XAxis:
-    Value: 0
+    Value: 102.036064
     m_SpeedMode: 0
     m_MaxSpeed: 300
     m_AccelTime: 0.1
@@ -3541,7 +3508,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455187865214}
-  m_LocalRotation: {x: 0.04016306, y: 0.055237047, z: -0.0022236865, w: 0.9976627}
+  m_LocalRotation: {x: 0.16275069, y: 0.7775196, z: -0.22413927, w: 0.56456804}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -3615,7 +3582,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455440212644}
-  m_LocalRotation: {x: 0.04016306, y: 0.055237047, z: -0.0022236865, w: 0.9976627}
+  m_LocalRotation: {x: 0.16275069, y: 0.7775196, z: -0.22413927, w: 0.56456804}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -3723,7 +3690,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 4
-  m_FollowOffset: {x: 0, y: 0.5, z: -6.2}
+  m_FollowOffset: {x: 0, y: 3.7308085, z: -5.9331512}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -3743,7 +3710,7 @@ MonoBehaviour:
     m_LegacyHeadingDefinition: -1
     m_LegacyVelocityFilterStrength: -1
   m_XAxis:
-    Value: 0
+    Value: 102.036064
     m_SpeedMode: 0
     m_MaxSpeed: 300
     m_AccelTime: 0.1
@@ -3817,7 +3784,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455659847259}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: -6.200012}
+  m_LocalPosition: {x: -5.8027344, y: 3.7308044, z: 1.2372437}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8243094455440212651}
@@ -3862,7 +3829,7 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_YAxis:
-    Value: 0.5
+    Value: 0.7346413
     m_SpeedMode: 0
     m_MaxSpeed: 2
     m_AccelTime: 0.2
@@ -3886,7 +3853,7 @@ MonoBehaviour:
     m_LegacyHeadingDefinition: -1
     m_LegacyVelocityFilterStrength: -1
   m_XAxis:
-    Value: 0
+    Value: 102.036064
     m_SpeedMode: 0
     m_MaxSpeed: 300
     m_AccelTime: 0.1
@@ -3983,8 +3950,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455889403909}
-  m_LocalRotation: {x: 0.040163063, y: 0.055237044, z: -0.0022236865, w: 0.99766266}
-  m_LocalPosition: {x: 0, y: 0.5, z: -6.200012}
+  m_LocalRotation: {x: 0.16275072, y: 0.77751964, z: -0.2241393, w: 0.56456804}
+  m_LocalPosition: {x: -5.8027344, y: 3.7308044, z: 1.2372437}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2987350526598319848}
