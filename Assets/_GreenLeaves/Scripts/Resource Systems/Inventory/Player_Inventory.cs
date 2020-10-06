@@ -9,12 +9,16 @@ public class Player_Inventory : MonoBehaviour
     public KeyCode m_pickupKeycode;
     private bool m_isPickingUp;
     public LayerMask m_interactableLayer;
-    public float m_capsuleDetectHeight, m_capsuleCollectForward, m_capsuleCollectRadius;
+    //public float m_capsuleDetectHeight, m_capsuleCollectForward, m_capsuleCollectRadius;
+    public float m_spherecastRadius;
+    public KeyCode m_toggleMenu;
 
-    public KeyCode m_dropKeycode;
+    public enum PickupType { ClosestToPlayer, ClosestToPlayerForward }
+    [Tooltip("Changes how the system decides which item to pickup first if there is more than 1 item")]
+    public PickupType m_currentPickupType;
 
-    [Header("Inventory")]
-    public BackpackInventory m_backpack;
+
+
 
     [Header("Debugging")]
     public bool m_debugging;
@@ -32,40 +36,98 @@ public class Player_Inventory : MonoBehaviour
                 Pickup(hitObj);
             }
         }
-        if (Input.GetKeyDown(m_dropKeycode))
+        if (Input.GetKeyDown(m_toggleMenu))
         {
-            DropObject();
+            Inventory_2DMenu.Instance.ToggleInventory();
         }
     }
 
+    #region 3d pickup & drop Logic
+
+    /// <summary>
+    /// Checks around the player for items that can be picked up, and returns true if there is an availabe item.
+    /// The logic for which item to pickup is in this function
+    /// Returns p_detectItem as the item that can be picked up
+    /// </summary>
     public bool CheckForPickup(out GameObject p_detectedItem)
     {
-        Collider[] cols = Physics.OverlapCapsule(transform.position + transform.forward * m_capsuleCollectForward + Vector3.up * m_capsuleDetectHeight / 2,
-                                transform.position + transform.forward * m_capsuleCollectForward + Vector3.up * -m_capsuleDetectHeight / 2,
-                                m_capsuleCollectRadius, m_interactableLayer);
+        Collider[] cols = Physics.OverlapSphere(transform.position, m_spherecastRadius, m_interactableLayer);
 
-        if (cols.Length > 0)
+
+        /*Physics.OverlapCapsule(transform.position + transform.forward * m_capsuleCollectForward + Vector3.up * m_capsuleDetectHeight / 2,
+                            transform.position + transform.forward * m_capsuleCollectForward + Vector3.up * -m_capsuleDetectHeight / 2,
+                            m_capsuleCollectRadius, m_interactableLayer);*/
+
+        /*if (cols.Length > 0)
         {
             p_detectedItem = cols[0].gameObject;
             return true;
+        }*/
+
+
+        if (cols.Length > 0)
+        {
+            GameObject closest = null;
+            for (int i = 0; i < cols.Length; i++)
+            {
+                if (i == 0)
+                {
+                    closest = cols[0].transform.gameObject;
+                    continue;
+                }
+
+                switch (m_currentPickupType)
+                {
+                    case PickupType.ClosestToPlayer:
+                        ///Use closest item to player
+                        if (Vector3.Distance(closest.transform.position, transform.position) > Vector3.Distance(cols[i].transform.position, transform.position))
+                        {
+                            closest = cols[i].transform.gameObject;
+                        }
+                        break;
+
+                    case PickupType.ClosestToPlayerForward:
+                        ///Use closest to forward
+                        if (Vector3.Angle(transform.forward, closest.transform.position - transform.position) > Vector3.Angle(transform.forward, cols[i].transform.position - transform.position))
+                        {
+                            closest = cols[i].transform.gameObject;
+                        }
+                        break;
+                }
+
+            }
+
+            p_detectedItem = closest;
+            return true;
         }
+
         p_detectedItem = null;
         return false;
     }
 
+    /// <summary>
+    /// Adds the item to the inventory
+    /// This is where the animation should thereotically be called
+    /// </summary>
     private void Pickup(GameObject newItem)
     {
+        //Debug.LogError("Hit Object: " + newItem.name, newItem);
         ResourceData newData = new ResourceData(newItem.GetComponent<Resource_Pickup>().m_myData);
-        m_backpack.AddNewResource(newData);
-        ObjectPooler.Instance.ReturnToPool(newItem);
+        Inventory_2DMenu.Instance.AddItemToInventory(newItem);
+
+        /*
+        ObjectPooler.Instance.ReturnToPool(newItem);*/
+
     }
-    private void DropObject(int p_backpackSlot = 0)
+
+    /// <summary>
+    /// Drops the object into the physical game world
+    /// </summary>
+    public void DropObject(GameObject p_dropItem)
     {
-        if (m_backpack.CanDropItem(p_backpackSlot))
-        {
-            ObjectPooler.Instance.NewObject(m_backpack.DropItem(p_backpackSlot), transform.position + transform.forward * m_capsuleCollectForward, Quaternion.identity);
-        }
+        ObjectPooler.Instance.NewObject(p_dropItem, transform.position + transform.forward * 2, Quaternion.identity);
     }
+
 
     private void OnDrawGizmos()
     {
@@ -73,108 +135,11 @@ public class Player_Inventory : MonoBehaviour
 
         Gizmos.color = m_debugColor;
         Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.DrawWireSphere((transform.forward * m_capsuleCollectForward) + Vector3.up *  (m_capsuleDetectHeight/2), m_capsuleCollectRadius);
-        Gizmos.DrawWireSphere((transform.forward * m_capsuleCollectForward) - Vector3.up * (m_capsuleDetectHeight / 2), m_capsuleCollectRadius);
+        Gizmos.DrawWireSphere(Vector3.zero, m_spherecastRadius);
+        /*Gizmos.DrawWireSphere((transform.forward * m_capsuleCollectForward) + Vector3.up *  (m_capsuleDetectHeight/2), m_capsuleCollectRadius);
+        Gizmos.DrawWireSphere((transform.forward * m_capsuleCollectForward) - Vector3.up * (m_capsuleDetectHeight / 2), m_capsuleCollectRadius);*/
     }
-}
-
-
-[System.Serializable]
-public class BackpackInventory
-{
-    public List<ResourceBackpackSlot> m_resourceBackpackSlots;
-    public void AddNewResource(ResourceData p_newResource)
-    {
-        foreach (ResourceBackpackSlot slot in m_resourceBackpackSlots)
-        {
-            if (slot.m_heldResource.m_resourceName == p_newResource.m_resourceName)
-            {
-                slot.m_quantity++;
-                return;
-            }
-        }
-
-        m_resourceBackpackSlots.Add(new ResourceBackpackSlot(p_newResource));
-    }
-
-    public GameObject DropItem(ResourceBackpackSlot p_selectedSlot)
-    {
-        GameObject retrievedItem = p_selectedSlot.m_heldResource.m_resourceObject;
-        if (p_selectedSlot.RemoveResource())
-        {
-            m_resourceBackpackSlots.Remove(p_selectedSlot);
-        }
-        return retrievedItem;
-    }
-
-    public GameObject DropItem(int p_selectedSlot)
-    {
-        GameObject retrievedItem = m_resourceBackpackSlots[p_selectedSlot].m_heldResource.m_resourceObject;
-        if (m_resourceBackpackSlots[p_selectedSlot].RemoveResource())
-        {
-            m_resourceBackpackSlots.Remove(m_resourceBackpackSlots[p_selectedSlot]);
-        }
-        return retrievedItem;
-    }
-
-    public bool CanDropItem(int p_selectedSlot)
-    {
-        if (m_resourceBackpackSlots.Count > p_selectedSlot)
-        {
-            if(m_resourceBackpackSlots[p_selectedSlot] != null)
-            {
-                if (m_resourceBackpackSlots[p_selectedSlot].m_quantity > 0)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
-}
-
-[System.Serializable]
-public class ResourceData
-{
-    public string m_resourceName;
-    public string m_resourceDetails;
-    public Sprite m_resourceSprite;
-    public GameObject m_resourceObject;
-
-    public ResourceData(ResourceData p_newData = null)
-    {
-        if (p_newData != null)
-        {
-            m_resourceName = p_newData.m_resourceName;
-            m_resourceSprite = p_newData.m_resourceSprite;
-            m_resourceObject = p_newData.m_resourceObject;
-        }
-    }
-}
-
-[System.Serializable]
-public class ResourceBackpackSlot
-{
-    public ResourceData m_heldResource;
-    public int m_quantity;
-
-    public ResourceBackpackSlot(ResourceData p_heldResource)
-    {
-        m_heldResource = p_heldResource;
-        m_quantity = 1;
-    }
-
-    public bool RemoveResource()
-    {
-        m_quantity -= 1;
-        if (m_quantity == 0)
-        {
-            return true;
-        }
-        return false;
-    }
+    #endregion
 }
 
 
