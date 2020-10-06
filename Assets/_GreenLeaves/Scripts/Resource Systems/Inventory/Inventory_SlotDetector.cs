@@ -2,11 +2,12 @@
 
 public class Inventory_SlotDetector : MonoBehaviour
 {
-    private int m_childIndex;
-    public Inventory_Grid m_associatedRow;
-    private void Start()
+
+    public Vector2Int m_gridPos;
+
+    public void InitializeSlot(Vector2Int p_gridPos)
     {
-        m_childIndex = transform.GetSiblingIndex();
+        m_gridPos = p_gridPos;
     }
 
     public void UpdatePositioning(Inventory_Icon p_icon, Inventory_2DMenu.RotationType p_currentRotationType, out bool p_itemPlaced)

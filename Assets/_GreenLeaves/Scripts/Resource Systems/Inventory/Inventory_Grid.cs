@@ -19,6 +19,14 @@ public class Inventory_Grid : MonoBehaviour
     {
         m_maxCapacity = m_rowSlots[0].m_gridCells.Count * m_rowSlots.Count;
         m_gridIconSize = m_rowSlots[0].m_gridCells[0].GetComponent<RectTransform>().sizeDelta;
+
+        for (int y = 0; y < m_rowSlots.Count; y++)
+        {
+            for (int x = 0; x < m_rowSlots[y].m_gridCells.Count; x++)
+            {
+                m_rowSlots[y].m_gridCells[x].GetComponent<Inventory_SlotDetector>().m_gridPos = new Vector2Int(x, y);
+            }
+        }
     }
 
 
@@ -82,44 +90,76 @@ public class Inventory_Grid : MonoBehaviour
     }
 
     #region Adding a new icon
-    public void AddNewIcon(ResourceData p_data, Inventory_2DMenu.RotationType p_rotationType, Transform p_iconParent)
+    public void AddNewIcon(ResourceData p_data, Inventory_2DMenu.RotationType p_rotationType, Inventory_Icon p_iconObject, out Vector2Int p_placement)
     {
+        p_iconObject.UpdateIcon(p_data);
 
-        Inventory_Icon createdIcon = ObjectPooler.Instance.NewObject(p_data.m_resourceIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
-        createdIcon.transform.parent = p_iconParent;
-        createdIcon.UpdateIcon(p_data);
-
-        createdIcon.transform.parent = transform;
-        createdIcon.transform.localScale = Vector3.one;
-        createdIcon.transform.localPosition = Vector3.zero;
-        createdIcon.transform.localRotation = Quaternion.identity;
+        p_iconObject.transform.localScale = Vector3.one;
+        p_iconObject.transform.localPosition = Vector3.zero;
+        p_iconObject.transform.localRotation = Quaternion.identity;
 
 
-
-        Vector2 pos = m_rowSlots[m_newPlacement.y].m_gridCells[m_newPlacement.x].transform.position;
-
-        pos = new Vector2(pos.x +(Mathf.Sign(pos.x))* (m_gridIconSize.x * (p_data.m_inventoryWeight.x - 1) * .5f), 
-                          pos.y + (Mathf.Sign(-pos.y)) * (m_gridIconSize.y * (p_data.m_inventoryWeight.y - 1) * .5f));
-
-        createdIcon.transform.position = pos;
-
-        for (int y = m_newPlacement.y; y < m_newPlacement.y+ p_data.m_inventoryWeight.y; y++)
-        {
-            for (int x = m_newPlacement.x; x < m_newPlacement.x + p_data.m_inventoryWeight.x; x++)
-            {
-                m_itemGrids[y].m_itemGrids[x] = createdIcon.GetComponent<Inventory_Icon>();
-            }
-        }
+        p_placement = m_newPlacement;
+        PlaceIcon(p_iconObject,p_placement,p_data, p_rotationType);
 
         m_currentAmount += (p_data.m_inventoryWeight.x * p_data.m_inventoryWeight.y);
 
     }
 
+
+    public void PlaceIcon(Inventory_Icon p_icon, Vector2Int p_placement,ResourceData p_data, Inventory_2DMenu.RotationType p_rotateType)
+    {
+        Vector2 pos = m_rowSlots[p_placement.y].m_gridCells[p_placement.x].transform.position;
+
+        pos = new Vector2(pos.x + (Mathf.Sign(pos.x)) * (m_gridIconSize.x * (p_data.m_inventoryWeight.x - 1) * .5f),
+                          pos.y + (Mathf.Sign(-pos.y)) * (m_gridIconSize.y * (p_data.m_inventoryWeight.y - 1) * .5f));
+
+        p_icon.transform.position = pos;
+
+        for (int y = p_placement.y; y < p_placement.y + p_data.m_inventoryWeight.y; y++)
+        {
+            for (int x = p_placement.x; x < p_placement.x + p_data.m_inventoryWeight.x; x++)
+            {
+                
+                m_itemGrids[y].m_itemGrids[x] = p_icon.GetComponent<Inventory_Icon>();
+            }
+        }
+    }
+    
+    
+    
     #endregion
 
     #region Grid Dragging
 
-    
+    public bool CanPlaceHere(Vector2Int p_gridPos, Vector2Int p_gridWeight)
+    {
+        if (p_gridPos.y + p_gridWeight.y > m_itemGrids.Count || p_gridPos.x + p_gridWeight.x > m_itemGrids[0].m_itemGrids.Count) return false;
+
+        for (int y = p_gridPos.y; y < p_gridPos.y + p_gridWeight.y; y++)
+        {
+            for (int x = p_gridPos.x; x < p_gridPos.x + p_gridWeight.y; x++)
+            {
+                if(m_itemGrids[y].m_itemGrids[x] != null)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void ClearOldPos(Vector2Int p_gridPos, Vector2Int p_gridWeight, Inventory_2DMenu.RotationType p_rotatedDir)
+    {
+        for (int y = p_gridPos.y; y < p_gridPos.y + p_gridWeight.y; y++)
+        {
+            for (int x = p_gridPos.x; x < p_gridPos.x + p_gridWeight.x; x++)
+            {
+                Debug.Log("Placement: " + x + " | " + y);
+                m_itemGrids[y].m_itemGrids[x] = null;
+            }
+        }
+    }
 
     #endregion
 }
