@@ -17,24 +17,24 @@ public class Inventory_2DMenu : MonoBehaviour
 
     [Header("Inventory")]
     public BackpackInventory m_backpack;
-    public enum MenuType { None, Resource, Equipment }
-    public MenuType m_currentMenuType;
+    public enum RotationType { Right, Down, Left, Up }
+    public RotationType m_currentRotationType = RotationType.Left;
+    public KeyCode m_rotateKey = KeyCode.R;
+    public bool m_isDraggingObject;
 
+    private bool m_isOpen;
 
     [Header("UI Elements")]
     public Inventory_Grid m_inventoryGrid;
     public Transform m_gameIconsParent;
+    public Transform m_cantFitIconPos;
+    public Transform m_itemTransferParent;
 
     /// <summary>
     /// Used to determine where the player can drop the item until it snaps back automatically
     /// </summary>
     public GameObject m_backpackImageUi;
-    public enum RotationType { Right, Down, Left, Up }
-    public RotationType m_currentRotationType = RotationType.Left;
 
-
-
-    private bool m_isOpen;
     private void Awake()
     {
         Instance = this;
@@ -50,7 +50,15 @@ public class Inventory_2DMenu : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             CheckInventoryMouseDown();
+        }else if (Input.GetKeyDown(m_rotateKey))
+        {
+            if (m_currentSelectedIcon == null) return;
+            m_currentSelectedIcon.transform.Rotate(Vector3.forward, 90);
+            m_currentSelectedIcon.RotateDir();
         }
+        
+
+        
     }
 
     #region Inventory Toggle
@@ -59,6 +67,12 @@ public class Inventory_2DMenu : MonoBehaviour
         if (m_isOpen)
         {
             m_isOpen = false;
+            if (m_isDraggingObject)
+            {
+                m_currentSelectedIcon.ForceIconDrop();
+                CloseWhileHoldinObject(m_currentSelectedIcon);
+            }
+
             CloseInventoryMenu();
             PlayerInputToggle.Instance.ToggleInput(true);
             Cursor.lockState = CursorLockMode.Confined;
@@ -76,29 +90,15 @@ public class Inventory_2DMenu : MonoBehaviour
     public void OpenInventoryMenu()
     {
         m_currentSelectedIcon = null;
-        m_currentMenuType = MenuType.None;
+        m_isDraggingObject = false;
         m_canvasObject.SetActive(true);
-        UpdateInventoryUI();
     }
 
-    /// <summary>
-    /// Updates the UI for the Inventory Menu
-    /// </summary>
-    public void UpdateInventoryUI()
-    {
-        switch (m_currentMenuType)
-        {
-            case MenuType.None:
-                break;
-            case MenuType.Equipment:
-                break;
-            case MenuType.Resource:
-                break;
-        }
-    }
+
 
     public void CloseInventoryMenu()
     {
+        DropAnyOutsideIcons();
         m_canvasObject.SetActive(false);
     }
     #endregion
@@ -112,33 +112,68 @@ public class Inventory_2DMenu : MonoBehaviour
         ResourceData pickedUpResource = p_pickedUp.GetComponent<Resource_Pickup>().m_myData;
 
         m_currentRotationType = RotationType.Left;
-        if (m_inventoryGrid.CanAddToRow(pickedUpResource, m_currentRotationType))
-        {
-            m_backpack.m_itemsInBackpack.Add(pickedUpResource);
-            Inventory_Icon newIcon = ObjectPooler.Instance.NewObject(pickedUpResource.m_resourceIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
-            newIcon.transform.parent = m_gameIconsParent;
 
+
+        BackpackSlot newSlot = new BackpackSlot();
+        Inventory_Icon newIcon = ObjectPooler.Instance.NewObject(pickedUpResource.m_resourceIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
+        newIcon.m_rotatedDir = RotationType.Left;
+        newIcon.transform.parent = m_gameIconsParent;
+        newIcon.UpdateIcon(pickedUpResource);
+
+        
+        newSlot.m_currentData = pickedUpResource;
+        newSlot.m_associatedIcon = newIcon;
+        m_backpack.m_itemsInBackpack.Add(newSlot);
+        m_inventoryGrid.AddWeight(pickedUpResource);
+
+
+        if (m_inventoryGrid.CanAddToRow(pickedUpResource, RotationType.Left))
+        {
+            Debug.Log("Fit Item");
+            newIcon.m_inBackpack = true;
             Vector2Int placedPos;
             m_inventoryGrid.AddNewIcon(pickedUpResource, m_currentRotationType, newIcon, out placedPos);
-            newIcon.m_previousPosition = placedPos;
+            newIcon.m_previousGridPos = placedPos;
+            newIcon.m_startingCoordPos = newIcon.transform.localPosition;
+            
         }
         else
         {
-            Debug.Log("Cannot Pickup");
+            Debug.Log("Cant Fit Item: " + newIcon.gameObject.name, newIcon.gameObject);
+            newIcon.m_inBackpack = false;
+            newIcon.transform.localPosition = m_cantFitIconPos.localPosition;
+            newIcon.m_startingCoordPos = newIcon.transform.localPosition;
+            ToggleInventory();
         }
     }
 
-    /// <summary>
-    /// Drops the item into the world
-    /// </summary>
-    public void DropItem()
+    
+    public void DropAnyOutsideIcons()
     {
-        m_playerInventory.DropObject(m_currentSelectedIcon.m_itemData.m_resourcePrefab);
-        ObjectPooler.Instance.ReturnToPool(m_currentSelectedIcon.gameObject);
-        m_currentSelectedIcon = null;
-        m_currentMenuType = MenuType.None;
-        UpdateInventoryUI();
+        List<int> removeList = new List<int>();
+
+        for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
+        {
+            if (!m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inBackpack)
+            {
+                removeList.Add(i);
+            }
+        }
+
+        removeList.Reverse();
+
+        for (int i = 0; i < removeList.Count; i++)
+        {
+            m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData.m_resourcePrefab);
+            ObjectPooler.Instance.ReturnToPool(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.gameObject);
+
+            m_inventoryGrid.RemoveWeight(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData);
+
+            m_backpack.m_itemsInBackpack.RemoveAt(removeList[i]);
+        }
     }
+
+
 
     public void EquipItem()
     {
@@ -148,7 +183,9 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public void IconTappedOn(Inventory_Icon p_tappedOn)
     {
+        p_tappedOn.transform.parent = m_itemTransferParent;
         m_currentSelectedIcon = p_tappedOn;
+        m_isDraggingObject = true;
     }
 
     public void CheckInventoryMouseDown()
@@ -163,8 +200,8 @@ public class Inventory_2DMenu : MonoBehaviour
 
         EventSystem.current.RaycastAll(pointerData, hitUI);
 
-        
-        foreach(RaycastResult res in hitUI)
+
+        foreach (RaycastResult res in hitUI)
         {
             if (res.gameObject.GetComponent<Inventory_Icon>() != null)
             {
@@ -173,8 +210,31 @@ public class Inventory_2DMenu : MonoBehaviour
             }
         }
     }
+
+
+    public void CloseWhileHoldinObject(Inventory_Icon p_holdingIcon)
+    {
+        m_isDraggingObject = false;
+        m_currentSelectedIcon = null;
+
+        if (p_holdingIcon.m_inBackpack)
+        {
+            p_holdingIcon.m_inBackpack = true;
+            //Remember to re-rotate the icon back to it's og rotation
+            m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData, p_holdingIcon.m_rotatedDir);
+        }
+        else
+        {
+            p_holdingIcon.m_inBackpack = false;
+
+            p_holdingIcon.transform.localPosition = p_holdingIcon.m_startingCoordPos;
+        }
+    }
+
     public void CheckIconPlacePosition(Inventory_Icon p_holdingIcon)
     {
+        m_isDraggingObject = false;
+        m_currentSelectedIcon = null;
         List<RaycastResult> hitUI = new List<RaycastResult>();
 
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
@@ -189,6 +249,8 @@ public class Inventory_2DMenu : MonoBehaviour
         bool placedIcon = false;
 
         bool snapBack = false;
+
+
 
         foreach (RaycastResult res in hitUI)
         {
@@ -205,11 +267,12 @@ public class Inventory_2DMenu : MonoBehaviour
                 ///If the player lets go on the grid
                 if (res.gameObject.GetComponent<Inventory_SlotDetector>() != null)
                 {
-
+                    
                     ///Checks if the item can fit there
-                    if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_holdingIcon.m_itemData.m_inventoryWeight))
+                    if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_holdingIcon.m_itemData.m_inventoryWeight, p_holdingIcon.m_rotatedDir))
                     {
                         newPlace = res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos;
+                        Debug.Log("Icon Hit");
                         placedIcon = true;
                     }
                 }
@@ -218,23 +281,45 @@ public class Inventory_2DMenu : MonoBehaviour
                 if (res.gameObject == m_backpackImageUi)
                 {
                     snapBack = true;
+
                 }
             }
         }
 
+        p_holdingIcon.transform.parent = m_gameIconsParent;
         if (!placedIcon)
         {
 
             if (snapBack)
             {
-                //Remember to re-rotate the icon back to it's og rotation
-                m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousPosition, p_holdingIcon.m_itemData, m_currentRotationType);
+                if (p_holdingIcon.m_inBackpack)
+                {
+                    p_holdingIcon.m_inBackpack = true;
+                    //Remember to re-rotate the icon back to it's og rotation
+                    Debug.LogError("Start Here");
+                    m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData, p_holdingIcon.m_rotatedDir);
+                }
+                else
+                {
+                    Debug.LogError("Failed");
+                    p_holdingIcon.m_inBackpack = false;
+                    p_holdingIcon.ForceIconDrop();
+                    p_holdingIcon.transform.localPosition = p_holdingIcon.m_startingCoordPos;
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed");
+                p_holdingIcon.m_inBackpack = false;
             }
             return;
         }
 
-        m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_holdingIcon.m_itemData, m_currentRotationType);
-        p_holdingIcon.m_previousPosition = newPlace;
+        p_holdingIcon.m_inBackpack = true;
+        Debug.LogError("Start Here");
+        m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_holdingIcon.m_itemData, p_holdingIcon.m_rotatedDir);
+        p_holdingIcon.m_previousGridPos = newPlace;
+        p_holdingIcon.m_startingCoordPos = p_holdingIcon.transform.localPosition;
 
 
     }
@@ -249,9 +334,14 @@ public class Inventory_2DMenu : MonoBehaviour
 [System.Serializable]
 public class BackpackInventory
 {
-    public List<ResourceData> m_itemsInBackpack;
+    public List<BackpackSlot> m_itemsInBackpack;
+}
 
-    public List<HeldIcons> m_currentIcons;
+[System.Serializable]
+public class BackpackSlot
+{
+    public ResourceData m_currentData;
+    public Inventory_Icon m_associatedIcon;
 }
 
 [System.Serializable]
