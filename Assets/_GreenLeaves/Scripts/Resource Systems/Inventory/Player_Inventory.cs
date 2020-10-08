@@ -1,29 +1,35 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// This class is specifically for detecting and picking up the resources in the 3d world
+/// This interacts with the Inventory_2DMenu singleton, and adds the items to the inventory
+/// Additionally, this class is called to drop the items from the 2d item menu
+/// </summary>
 public class Player_Inventory : MonoBehaviour
 {
 
 
     [Header("Pickup Raycast")]
     public KeyCode m_pickupKeycode;
-    private bool m_isPickingUp;
     public LayerMask m_interactableLayer;
-    //public float m_capsuleDetectHeight, m_capsuleCollectForward, m_capsuleCollectRadius;
     public float m_spherecastRadius;
     public KeyCode m_toggleMenu;
 
+    /// <summary>
+    /// Will be used to delay pickup while in an animation
+    /// </summary>
+    private bool m_isPickingUp;
+
+    /// <summary>
+    /// The detection type for determining which item is picked up first in the radius
+    /// </summary>
     public enum PickupType { ClosestToPlayer, ClosestToPlayerForward }
     [Tooltip("Changes how the system decides which item to pickup first if there is more than 1 item")]
     public PickupType m_currentPickupType;
 
-
-
-
     [Header("Debugging")]
     public bool m_debugging;
     public Color m_debugColor = Color.red;
-
 
     private void Update()
     {
@@ -53,18 +59,6 @@ public class Player_Inventory : MonoBehaviour
     {
         Collider[] cols = Physics.OverlapSphere(transform.position, m_spherecastRadius, m_interactableLayer);
 
-
-        /*Physics.OverlapCapsule(transform.position + transform.forward * m_capsuleCollectForward + Vector3.up * m_capsuleDetectHeight / 2,
-                            transform.position + transform.forward * m_capsuleCollectForward + Vector3.up * -m_capsuleDetectHeight / 2,
-                            m_capsuleCollectRadius, m_interactableLayer);*/
-
-        /*if (cols.Length > 0)
-        {
-            p_detectedItem = cols[0].gameObject;
-            return true;
-        }*/
-
-
         if (cols.Length > 0)
         {
             GameObject closest = null;
@@ -87,6 +81,7 @@ public class Player_Inventory : MonoBehaviour
                         break;
 
                     case PickupType.ClosestToPlayerForward:
+
                         ///Use closest to forward
                         if (Vector3.Angle(transform.forward, closest.transform.position - transform.position) > Vector3.Angle(transform.forward, cols[i].transform.position - transform.position))
                         {
@@ -111,13 +106,8 @@ public class Player_Inventory : MonoBehaviour
     /// </summary>
     private void Pickup(GameObject newItem)
     {
-        //Debug.LogError("Hit Object: " + newItem.name, newItem);
-        ResourceData newData = new ResourceData(newItem.GetComponent<Resource_Pickup>().m_myData);
+        ResourceData newData = new ResourceData(newItem.GetComponent<Resource_Pickup>().m_resourceInfo.m_resourceData);
         Inventory_2DMenu.Instance.AddItemToInventory(newItem);
-
-        /*
-        ObjectPooler.Instance.ReturnToPool(newItem);*/
-
     }
 
     /// <summary>
@@ -136,8 +126,6 @@ public class Player_Inventory : MonoBehaviour
         Gizmos.color = m_debugColor;
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.DrawWireSphere(Vector3.zero, m_spherecastRadius);
-        /*Gizmos.DrawWireSphere((transform.forward * m_capsuleCollectForward) + Vector3.up *  (m_capsuleDetectHeight/2), m_capsuleCollectRadius);
-        Gizmos.DrawWireSphere((transform.forward * m_capsuleCollectForward) - Vector3.up * (m_capsuleDetectHeight / 2), m_capsuleCollectRadius);*/
     }
     #endregion
 }
