@@ -11,7 +11,7 @@ public class Inventory_2DMenu : MonoBehaviour
 {
     public static Inventory_2DMenu Instance;
     ///Used to determine which way the icon is currently facing
-    public enum RotationType { Right, Down, Left, Up }
+    public enum RotationType { Left, Right, Down,  Up }
 
     [Header("World References")]
     public Player_Inventory m_playerInventory;

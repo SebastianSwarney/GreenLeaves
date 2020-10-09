@@ -108,6 +108,8 @@ public class Player_Inventory : MonoBehaviour
     {
         ResourceData newData = new ResourceData(newItem.GetComponent<Resource_Pickup>().m_resourceInfo.m_resourceData);
         Inventory_2DMenu.Instance.AddItemToInventory(newItem);
+
+        ObjectPooler.Instance.ReturnToPool(newItem);
     }
 
     /// <summary>
