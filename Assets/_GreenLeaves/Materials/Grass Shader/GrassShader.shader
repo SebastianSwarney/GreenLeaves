@@ -19,14 +19,14 @@ Shader "Unlit/UltimateGrassShader"
 		SubShader
 	{
 		Tags{ "Queue" = "AlphaTest" "IgnoreProjector" = "True" "RenderType" = "TransparentCutout" }
-		
+
 		LOD 100
 
 		Pass
 		{
 		Blend SrcAlpha OneMinusSrcAlpha
 			Cull Off
-			
+
 			Tags{"LightMode" = "ForwardBase"}
 			CGPROGRAM
 			#pragma vertex vert
@@ -65,7 +65,7 @@ Shader "Unlit/UltimateGrassShader"
 			struct g2f
 			{
 				float4 pos: SV_POSITION;
-				
+
 				float3 normal: TEXCOORD1;
 				float4 color : TEXCOORD0;
 			};
@@ -204,17 +204,17 @@ Shader "Unlit/UltimateGrassShader"
 						o.normal = normal;
 						o.color = lerp(_Color2, _Color, 1.);
 						ts.Append(o);
-					
+
 			}
 
 			fixed4 frag(g2f i) : COLOR
 			{
 
-				float dist = distance(mul(unity_CameraToWorld,i.normal), _WorldSpaceCameraPos);
+				//float dist = distance(mul(unity_CameraToWorld,i.normal), _WorldSpaceCameraPos);
 				fixed4 c = i.color;
 				/*if (dist > _MinDis) {
 
-					
+
 					if (dist > _MaxDis) {
 						discard;
 					}
