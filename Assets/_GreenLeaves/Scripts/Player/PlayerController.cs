@@ -52,6 +52,7 @@ public class PlayerController : MonoBehaviour
     {
         public float m_jogSpeed;
         public float m_runSpeed;
+        public float m_runEnergyDepletionTime;
         public float m_walkSpeed;
         public float m_playerTurnSpeed;
 
@@ -152,10 +153,13 @@ public class PlayerController : MonoBehaviour
 
     public Transform m_modelTransform;
 
+    private EnergyController m_energyController;
+
     private void Start()
     {
         m_characterController = GetComponent<CharacterController>();
         m_playerAnimator = GetComponentInChildren<Animator>();
+        m_energyController = GetComponent<EnergyController>();
 
         m_baseMovementProperties = m_currentBaseMovementSettings.m_baseMovementSettings;
         m_jumpingProperties = m_currentJumpingSettings.m_jumpingSettings;
@@ -187,9 +191,14 @@ public class PlayerController : MonoBehaviour
 
         ZeroOnGroundCeiling();
 
-        SetSlideSlopeVariables();
-        OnSlideStart();
-        CalculateSlopeSpeed();
+		if (m_isRunning)
+		{
+            m_energyController.DepleteEnergy(m_baseMovementProperties.m_runEnergyDepletionTime);
+		}
+
+        //SetSlideSlopeVariables();
+        //OnSlideStart();
+        //CalculateSlopeSpeed();
     }
 
 	#region Input Code
@@ -285,7 +294,7 @@ public class PlayerController : MonoBehaviour
             {
                 baseHorizontalSpeed = m_baseMovementProperties.m_walkSpeed;
             }
-            else if (m_isRunning)
+            else if (m_isRunning && m_energyController.m_hasEnergy)
             {
                 baseHorizontalSpeed = m_baseMovementProperties.m_runSpeed;
             }
