@@ -155,11 +155,21 @@ public class PlayerController : MonoBehaviour
 
     private EnergyController m_energyController;
 
+    private bool m_isAiming;
+
+    private Vector2 m_animInput;
+    private Vector2 m_animInputSmoothing;
+
+    private LadderPlacement m_ladderPlacement;
+
+    private Vector2 m_animInputTarget;
+
     private void Start()
     {
         m_characterController = GetComponent<CharacterController>();
         m_playerAnimator = GetComponentInChildren<Animator>();
         m_energyController = GetComponent<EnergyController>();
+        m_ladderPlacement = GetComponentInChildren<LadderPlacement>();
 
         m_baseMovementProperties = m_currentBaseMovementSettings.m_baseMovementSettings;
         m_jumpingProperties = m_currentJumpingSettings.m_jumpingSettings;
@@ -178,7 +188,14 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         PerformController();
+
+        m_animInput = Vector2.SmoothDamp(m_animInput, m_animInputTarget, ref m_animInputSmoothing, m_baseMovementProperties.m_playerTurnSpeed);
+        m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
+        m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
+
+
         m_playerAnimator.SetBool("IsSliding", m_isSliding);
+        m_playerAnimator.SetBool("IsAiming", m_isAiming);
     }
 
     public void PerformController()
@@ -195,6 +212,11 @@ public class PlayerController : MonoBehaviour
 		{
             m_energyController.DepleteEnergy(m_baseMovementProperties.m_runEnergyDepletionTime);
 		}
+
+		if (m_isAiming)
+		{
+            m_ladderPlacement.RunLadderPlacement();
+        }
 
         //SetSlideSlopeVariables();
         //OnSlideStart();
@@ -220,6 +242,16 @@ public class PlayerController : MonoBehaviour
     public void OnWalkButtonDown()
     {
         m_isWalking = !m_isWalking;
+    }
+
+    public void OnAimingInputDown()
+	{
+        m_isAiming = true;
+    }
+
+    public void OnAimingInputUp()
+    {
+        m_isAiming = false;
     }
     #endregion
 
@@ -305,20 +337,36 @@ public class PlayerController : MonoBehaviour
 
             Vector3 actualMovementDir = Vector3.zero;
 
-            if (targetHorizontalMovementDirection.magnitude != 0)
+            m_animInputTarget = new Vector2(0, m_groundMovementVelocity.magnitude);
+
+            if (m_isAiming)
             {
-                float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
+                float targetAngle = m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
                 float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
                 transform.rotation = Quaternion.Euler(0, angle, 0);
 
-                actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
-                targetHorizontalMovement = actualMovementDir * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
+                Vector3 forwardMovement = transform.forward * m_movementInput.y;
+                Vector3 rightMovement = transform.right * m_movementInput.x;
+
+                targetHorizontalMovement = Vector3.ClampMagnitude(forwardMovement + rightMovement, 1.0f) * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
+
+                m_animInputTarget = m_movementInput;
+
             }
 
-            Vector3 currentNormalMovement = actualMovementDir * (baseHorizontalSpeed);
-            m_playerAnimator.SetFloat("ForwardMovement", currentNormalMovement.magnitude);
+            if (targetHorizontalMovementDirection.magnitude != 0)
+            {
+				if (!m_isAiming)
+				{
+                    float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
+                    float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
+                    transform.rotation = Quaternion.Euler(0, angle, 0);
 
-            //float currentAcceleration = IsGrounded() ? m_baseMovementProperties.m_accelerationTimeGrounded : m_baseMovementProperties.m_accelerationTimeAir;
+                    actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
+                    targetHorizontalMovement = actualMovementDir * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
+				}
+            }
+
             float currentAcceleration = m_currentHorizontalAccelerationSpeed;
             Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
             m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);

@@ -78,6 +78,16 @@ public class PlayerInput : MonoBehaviour
             //freeLookCam.m_YAxis.m_InputAxisValue = lookInput.y;
         }
 
+		if (Input.GetMouseButtonDown(1))
+		{
+            m_playerController.OnAimingInputDown();
+		}
+
+        if (Input.GetMouseButtonUp(1))
+        {
+            m_playerController.OnAimingInputUp();
+        }
+
         if (m_playerInputController.GetButtonDown("Jump"))
         {
             m_playerController.OnJumpInputDown();
