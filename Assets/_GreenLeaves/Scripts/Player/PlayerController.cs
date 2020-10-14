@@ -203,13 +203,17 @@ public class PlayerController : MonoBehaviour
     {
         PerformController();
 
+        Vector3 reletiveVelocity = transform.InverseTransformDirection(m_groundMovementVelocity);
+
+        m_animInputTarget = new Vector2(reletiveVelocity.x / m_baseMovementProperties.m_runSpeed, reletiveVelocity.z / m_baseMovementProperties.m_runSpeed);
+
         m_animInput = Vector2.SmoothDamp(m_animInput, m_animInputTarget, ref m_animInputSmoothing, m_baseMovementProperties.m_playerTurnSpeed);
         m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
         m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
 
 
-        m_playerAnimator.SetBool("IsSliding", m_isSliding);
-        m_playerAnimator.SetBool("IsAiming", m_isAiming);
+        //m_playerAnimator.SetBool("IsSliding", m_isSliding);
+        //m_playerAnimator.SetBool("IsAiming", m_isAiming);
     }
 
 	public void PerformController()
@@ -226,21 +230,6 @@ public class PlayerController : MonoBehaviour
 		{
             m_energyController.DepleteEnergy(m_baseMovementProperties.m_runEnergyDepletionTime);
 		}
-
-		if (m_isAiming)
-		{
-            m_ladderPlacement.RunLadderPlacement();
-        }
-
-        FindEdge();
-
-        Debug.DrawLine(transform.position, m_edgeSweepPoint.position);
-
-        Debug.DrawLine(transform.position, transform.position + m_movementDirection, Color.magenta);
-
-        //SetSlideSlopeVariables();
-        //OnSlideStart();
-        //CalculateSlopeSpeed();
     }
 
     private void FindEdge()
@@ -440,7 +429,7 @@ public class PlayerController : MonoBehaviour
 
             Vector3 actualMovementDir = Vector3.zero;
 
-            m_animInputTarget = new Vector2(0, m_groundMovementVelocity.magnitude);
+            //m_animInputTarget = new Vector2(0, m_groundMovementVelocity.magnitude);
 
             if (m_isAiming)
             {
@@ -453,7 +442,7 @@ public class PlayerController : MonoBehaviour
 
                 targetHorizontalMovement = Vector3.ClampMagnitude(forwardMovement + rightMovement, 1.0f) * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
 
-                m_animInputTarget = m_movementInput;
+                //m_animInputTarget = m_movementInput;
 
             }
 
@@ -512,7 +501,7 @@ public class PlayerController : MonoBehaviour
 		{
 			if (horizontalOffset < 0.5f)
 			{
-                m_characterController.Move(-m_groundMovementVelocity * Time.deltaTime);
+                //m_characterController.Move(-m_groundMovementVelocity * Time.deltaTime);
             }
         }
     }
