@@ -153,16 +153,30 @@ public class PlayerController : MonoBehaviour
 
     public Transform m_modelTransform;
 
+    [Space]
+
+    public Transform m_edgeSweepPoint;
+    public Transform m_edgePoint;
+
+    public float m_edgeAngle;
+    public float m_edgeCheckDistance;
+
+    public float m_placementStep;
+
+    public LayerMask m_groundMask;
+
+    private float m_currentEdgeSweepDistance;
     private EnergyController m_energyController;
-
     private bool m_isAiming;
-
     private Vector2 m_animInput;
     private Vector2 m_animInputSmoothing;
-
     private LadderPlacement m_ladderPlacement;
-
     private Vector2 m_animInputTarget;
+
+    private bool m_hasFoundEdge;
+
+    private Vector3 m_movementDirection;
+    private Vector3 m_lastMovementDirection;
 
     private void Start()
     {
@@ -198,7 +212,7 @@ public class PlayerController : MonoBehaviour
         m_playerAnimator.SetBool("IsAiming", m_isAiming);
     }
 
-    public void PerformController()
+	public void PerformController()
     {
         CalculateVelocity();
         CaculateTotalVelocity();
@@ -218,10 +232,97 @@ public class PlayerController : MonoBehaviour
             m_ladderPlacement.RunLadderPlacement();
         }
 
+        FindEdge();
+
+        Debug.DrawLine(transform.position, m_edgeSweepPoint.position);
+
+        Debug.DrawLine(transform.position, transform.position + m_movementDirection, Color.magenta);
+
         //SetSlideSlopeVariables();
         //OnSlideStart();
         //CalculateSlopeSpeed();
     }
+
+    private void FindEdge()
+	{
+        m_currentEdgeSweepDistance = 0f;
+        m_edgeSweepPoint.position = transform.position;
+
+        bool overAnEdge = false;
+        bool foundStartOfEdge = false;
+
+        Vector3 topOfEdgePos = Vector3.zero;
+        Vector3 oldTopOfEdgePos = Vector3.zero;
+
+        float edgeDrop = 0;
+
+        m_hasFoundEdge = false;
+
+        while (!overAnEdge && m_currentEdgeSweepDistance <= m_edgeCheckDistance)
+        {
+			if (!foundStartOfEdge)
+			{
+                RaycastHit edgeHit;
+                Physics.Raycast(m_edgeSweepPoint.position, Vector3.down, out edgeHit, Mathf.Infinity, m_groundMask);
+
+                oldTopOfEdgePos = edgeHit.point;
+
+                m_currentEdgeSweepDistance += m_placementStep;
+                m_edgeSweepPoint.position = transform.position + (transform.forward * m_currentEdgeSweepDistance);
+
+                Physics.Raycast(m_edgeSweepPoint.position, Vector3.down, out edgeHit, Mathf.Infinity, m_groundMask);
+
+                float slopeAngle = Vector3.Angle(Vector3.up, edgeHit.normal);
+
+
+                if (slopeAngle > m_edgeAngle || slopeAngle == 0)
+                {
+                    if (oldTopOfEdgePos.y > edgeHit.point.y)
+                    {
+                        topOfEdgePos = oldTopOfEdgePos;
+
+                        Debug.DrawLine(m_edgeSweepPoint.position, topOfEdgePos, Color.cyan);
+
+                        foundStartOfEdge = true;
+                    }
+                }
+            }
+			else
+			{
+                RaycastHit edgeHit;
+                Physics.Raycast(m_edgeSweepPoint.position, Vector3.down, out edgeHit, Mathf.Infinity, m_groundMask);
+
+                float slopeAngle = Vector3.Angle(Vector3.up, edgeHit.normal);
+
+                if (slopeAngle > m_edgeAngle || slopeAngle == 0)
+                {
+					if (edgeHit.point.y < topOfEdgePos.y)
+					{
+                        edgeDrop += topOfEdgePos.y - edgeHit.point.y;
+                        //edgeDrop += Mathf.Round(topOfEdgePos.y) - Mathf.Round(edgeHit.point.y);
+                        Debug.DrawLine(m_edgeSweepPoint.position, edgeHit.point, Color.red);
+                    }
+				}
+				else
+				{
+                    Debug.DrawLine(m_edgeSweepPoint.position, edgeHit.point, Color.blue);
+                }
+
+				if (edgeDrop > 1f)
+				{
+                    overAnEdge = true;
+                    m_hasFoundEdge = true;
+
+                    m_edgePoint.position = topOfEdgePos;
+
+                    Debug.DrawLine(m_edgeSweepPoint.position, edgeHit.point, Color.green);
+                }
+
+                m_currentEdgeSweepDistance += m_placementStep;
+                m_edgeSweepPoint.position = transform.position + (transform.forward * m_currentEdgeSweepDistance);
+            }
+		}
+	}
 
 	#region Input Code
 	public void SetMovementInput(Vector2 p_input)
@@ -252,6 +353,8 @@ public class PlayerController : MonoBehaviour
     public void OnAimingInputUp()
     {
         m_isAiming = false;
+
+        m_ladderPlacement.PlaceLadder();
     }
     #endregion
 
@@ -375,7 +478,6 @@ public class PlayerController : MonoBehaviour
         {
             m_groundMovementVelocity = Vector3.zero;
         }
-
     }
     #endregion
 
@@ -391,6 +493,28 @@ public class PlayerController : MonoBehaviour
         velocity += m_slopeShiftVelocity;
 
         m_characterController.Move(velocity * Time.deltaTime);
+
+		if (m_groundMovementVelocity.magnitude > 0.1f)
+		{
+            m_movementDirection = m_groundMovementVelocity.normalized;
+            m_lastMovementDirection = m_movementDirection;
+		}
+		else
+		{
+            m_movementDirection = m_lastMovementDirection;
+        }
+
+        Vector3 relativePos = transform.InverseTransformPoint(m_edgePoint.position);
+        float cosAngle = Mathf.Atan2(relativePos.z, relativePos.x);
+        float horizontalOffset = Mathf.Sin(cosAngle) * relativePos.magnitude;
+
+        if (m_hasFoundEdge)
+		{
+			if (horizontalOffset < 0.5f)
+			{
+                m_characterController.Move(-m_groundMovementVelocity * Time.deltaTime);
+            }
+        }
     }
 
     public bool IsGrounded()

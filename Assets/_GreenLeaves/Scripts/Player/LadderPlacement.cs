@@ -5,23 +5,23 @@ using UnityEngine;
 public class LadderPlacement : MonoBehaviour
 {
 	public Transform m_upwardPlacementCastPoint;
-
 	public Transform m_edgeSweepPoint;
-
 	public Transform m_edgePlacementCastPoint;
 
 	public LayerMask m_groundMask;
 
 	public float m_ladderLength;
 
-	public float m_edgePlacementRange;
-
 	public float m_minMaxAngle;
 
-	public float m_placementStep = 0.1f;
+	public float m_placementStep;
+	public float m_ladderTiltPercent;
+	public float m_edgeAngle;
+
+	public Transform m_ladder;
+	public GameObject m_ladderPrefab;
 
 	private float m_currentUpwardPlacementAngle;
-
 	private float m_currentEdgePlacementAngle;
 
 	private Vector3 m_lastPosition;
@@ -31,15 +31,18 @@ public class LadderPlacement : MonoBehaviour
 
 	private float m_currentEdgeSweepDistance;
 
-	public Transform m_ladder;
+	//Remember to bring up the up and down search methods
 
-	public float m_ladderTiltPercent;
-
-	public float m_edgeAngle;
+	private bool m_searchDown;
 
 	private void Update()
 	{
-		Debug.DrawLine(m_ladderStartPoint, m_ladderEndPoint, Color.red);
+		if (Input.GetKeyDown(KeyCode.E))
+		{
+			m_searchDown = !m_searchDown;
+		}
+
+		//Debug.DrawLine(transform.position, m_edgePlacementCastPoint.position);
 	}
 
 	public void RunLadderPlacement()
@@ -54,27 +57,35 @@ public class LadderPlacement : MonoBehaviour
 		m_ladder.position = m_ladderStartPoint;
 		m_ladder.LookAt(m_ladderEndPoint);
 	}
+
+	public void PlaceLadder()
+	{
+		Instantiate(m_ladderPrefab, m_ladder.position, m_ladder.rotation);
+	}
+
 	private void FindLadderPlacementMode()
 	{
-		PlaceLadderUpwards();
+		PlaceLadderTopDown();
+
 		FindEdge();
 	}
 
-	private void PlaceLadderUpwards()
+	private void PlaceLadderTopDown()
 	{
-		m_currentUpwardPlacementAngle = 89;
+		m_currentUpwardPlacementAngle = -m_minMaxAngle;
 		m_upwardPlacementCastPoint.transform.localRotation = Quaternion.AngleAxis(m_currentUpwardPlacementAngle, Vector3.right);
 
 		RaycastHit groundingHit;
 
 		if (Physics.Raycast(transform.position, Vector3.down, out groundingHit, Mathf.Infinity, m_groundMask))
 		{
+			//m_upwardPlacementCastPoint.position = groundingHit.point;
 			m_upwardPlacementCastPoint.position = groundingHit.point + (Vector3.up * 0.01f);
 		}
 
-		while (Physics.Raycast(m_upwardPlacementCastPoint.position, m_upwardPlacementCastPoint.forward, m_ladderLength, m_groundMask) && CheckMinMaxAngle(m_currentUpwardPlacementAngle))
+		while (!Physics.Raycast(m_upwardPlacementCastPoint.position, m_upwardPlacementCastPoint.forward, m_ladderLength, m_groundMask) && CheckMinMaxAngle(m_currentUpwardPlacementAngle))
 		{
-			m_currentUpwardPlacementAngle -= m_placementStep;
+			m_currentUpwardPlacementAngle += m_placementStep;
 			m_upwardPlacementCastPoint.transform.localRotation = Quaternion.AngleAxis(m_currentUpwardPlacementAngle, Vector3.right);
 		}
 
@@ -88,7 +99,6 @@ public class LadderPlacement : MonoBehaviour
 		m_edgeSweepPoint.position = transform.position;
 
 		bool overAnEdge = false;
-
 		float yPosition = 0;
 
 		while (!overAnEdge && m_currentEdgeSweepDistance <= m_ladderLength)
@@ -111,7 +121,6 @@ public class LadderPlacement : MonoBehaviour
 			if (slopeAngle > m_edgeAngle)
 			{
 				Vector3 notFlatPos = new Vector3(m_edgeSweepPoint.position.x, yPosition, m_edgeSweepPoint.position.z);
-
 				m_edgeSweepPoint.position = notFlatPos;
 				overAnEdge = true;
 			}
@@ -136,16 +145,18 @@ public class LadderPlacement : MonoBehaviour
 
 	private void PlaceLadderFromLedge(float p_remainingLength)
 	{
-		m_edgePlacementCastPoint.position = m_edgeSweepPoint.position;
-		//m_edgePlacementCastPoint.position = m_edgeSweepPoint.position + (m_edgeSweepPoint.forward * 0.5f);
+		//m_edgePlacementCastPoint.position = m_edgeSweepPoint.position;
+		m_edgePlacementCastPoint.position = m_edgeSweepPoint.position + (m_edgeSweepPoint.forward * 0.1f);
 
-		m_currentEdgePlacementAngle = 89;
+		m_currentEdgePlacementAngle = m_minMaxAngle;
 		m_edgePlacementCastPoint.transform.localRotation = Quaternion.AngleAxis(m_currentEdgePlacementAngle, Vector3.right);
 
-		while (Physics.Raycast(m_edgePlacementCastPoint.position, m_edgePlacementCastPoint.forward, p_remainingLength, m_groundMask) && CheckMinMaxAngleNeg(m_currentEdgePlacementAngle))
+		while (Physics.Raycast(m_edgePlacementCastPoint.position, m_edgePlacementCastPoint.forward, p_remainingLength, m_groundMask) && CheckMinMaxAngle(m_currentEdgePlacementAngle))
 		{
 			m_currentEdgePlacementAngle -= m_placementStep;
 			m_edgePlacementCastPoint.transform.localRotation = Quaternion.AngleAxis(m_currentEdgePlacementAngle, Vector3.right);
+
+			Debug.DrawRay(m_edgePlacementCastPoint.position, m_edgePlacementCastPoint.forward * p_remainingLength);
 		}
 
 		m_ladderStartPoint = m_edgePlacementCastPoint.position + (m_edgePlacementCastPoint.forward * p_remainingLength);
