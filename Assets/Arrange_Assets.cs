@@ -18,8 +18,6 @@ public class Arrange_Assets : MonoBehaviour
     void Start()
     {
         spacer();
-
-        print("length: " + objs_to_sort.Length);
     }
 
     void spacer() {
