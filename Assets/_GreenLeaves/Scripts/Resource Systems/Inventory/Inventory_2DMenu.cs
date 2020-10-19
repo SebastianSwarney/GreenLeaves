@@ -370,6 +370,7 @@ public class Inventory_2DMenu : MonoBehaviour
                 {
                     p_holdingIcon.m_inBackpack = false;
                     p_holdingIcon.ForceIconDrop();
+                    p_holdingIcon.ResetRotation();
                     p_holdingIcon.transform.localPosition = p_holdingIcon.m_startingCoordPos;
                 }
             }
