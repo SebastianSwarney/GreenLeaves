@@ -407,6 +407,26 @@ public class Inventory_Grid : MonoBehaviour
 
     }
 
+    public List<Inventory_Icon> GetExistingIconsOfResource(ResourceData p_dataType)
+    {
+        List<Inventory_Icon> m_currentIcons = new List<Inventory_Icon>();
+        for (int y = 0; y < m_itemGrids.Count; y++)
+        {
+            for (int x = 0; x < m_itemGrids[y].m_itemGrids.Count; x++)
+            {
+                if (m_itemGrids[y].m_itemGrids[x] == null) continue;
+                if(m_itemGrids[y].m_itemGrids[x].m_itemData.m_resourceName == p_dataType.m_resourceName)
+                {
+                    if (!m_currentIcons.Contains(m_itemGrids[y].m_itemGrids[x]))
+                    {
+                        m_currentIcons.Add(m_itemGrids[y].m_itemGrids[x]);
+                    }
+                }
+            }
+        }
+
+        return m_currentIcons;
+    }
     #endregion
 
 }

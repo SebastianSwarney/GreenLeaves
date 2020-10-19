@@ -64,6 +64,14 @@ public class Player_Inventory : MonoBehaviour
             GameObject closest = null;
             for (int i = 0; i < cols.Length; i++)
             {
+                if(cols[i].GetComponent<Resource_Pickup>() == null)
+                {
+                    continue;
+                }
+                if (!cols[i].GetComponent<Resource_Pickup>().m_canPickup)
+                {
+                    continue;
+                }
                 if (i == 0)
                 {
                     closest = cols[0].transform.gameObject;
@@ -93,7 +101,14 @@ public class Player_Inventory : MonoBehaviour
             }
 
             p_detectedItem = closest;
-            return true;
+            if (p_detectedItem != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         p_detectedItem = null;
@@ -107,17 +122,17 @@ public class Player_Inventory : MonoBehaviour
     private void Pickup(GameObject newItem)
     {
         ResourceData newData = new ResourceData(newItem.GetComponent<Resource_Pickup>().m_resourceInfo.m_resourceData);
-        Inventory_2DMenu.Instance.AddItemToInventory(newItem);
-
-        ObjectPooler.Instance.ReturnToPool(newItem);
+        int amount = newItem.GetComponent<Resource_Pickup>().m_resourceAmount;
+        Inventory_2DMenu.Instance.AddItemToInventory(newItem,amount);
     }
 
     /// <summary>
     /// Drops the object into the physical game world
     /// </summary>
-    public void DropObject(GameObject p_dropItem)
+    public void DropObject(GameObject p_dropItem, int p_resourceAmount)
     {
-        ObjectPooler.Instance.NewObject(p_dropItem, transform.position + transform.forward * 2, Quaternion.identity);
+        GameObject newResource = ObjectPooler.Instance.NewObject(p_dropItem, transform.position + transform.forward * 2, Quaternion.identity);
+        newResource.GetComponent<Resource_Pickup>().m_resourceAmount = p_resourceAmount;
     }
 
 

@@ -9,6 +9,7 @@ public class Inventory_Icon : MonoBehaviour
 {
     public ResourceData m_itemData;
     public Image m_itemIcon;
+    public RectTransform m_iconTransform;
 
     public Inventory_2DMenu.RotationType m_rotatedDir = Inventory_2DMenu.RotationType.Left;
     public bool m_inBackpack = false;
@@ -18,6 +19,12 @@ public class Inventory_Icon : MonoBehaviour
     [HideInInspector] public Inventory_2DMenu.RotationType m_previousRotType;
     private Vector3 m_dragOffset;
 
+    public int m_currentResourceAmount;
+
+    [Header("Number UI")]
+    
+    public Text m_numberText;
+    public RectTransform m_numberTransform;
     /// <summary>
     /// Changes the rotation of the icon to match it's current rotation type
     /// </summary>
@@ -28,20 +35,53 @@ public class Inventory_Icon : MonoBehaviour
         {
             case Inventory_2DMenu.RotationType.Left:
                 transform.localEulerAngles = new Vector3(0, 0, 0);
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, 0);
+                m_numberTransform.anchoredPosition = new Vector2(0,0);
                 break;
             case Inventory_2DMenu.RotationType.Down:
                 transform.localEulerAngles = new Vector3(0, 0, 90);
+
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, -90);
+                m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, 0);
                 break;
             case Inventory_2DMenu.RotationType.Right:
                 transform.localEulerAngles = new Vector3(0, 0, 180);
+
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, -180);
+                m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, -m_iconTransform.sizeDelta.y);
                 break;
             case Inventory_2DMenu.RotationType.Up:
                 transform.localEulerAngles = new Vector3(0, 0, 270);
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, 90);
+                m_numberTransform.anchoredPosition = new Vector2(0, -m_iconTransform.sizeDelta.y);
                 break;
         }
         AdjustedDraggingOffset();
     }
 
+
+    public void SetNumberRotation()
+    {
+        switch (m_rotatedDir)
+        {
+            case Inventory_2DMenu.RotationType.Left:
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, 0);
+                m_numberTransform.anchoredPosition = new Vector2(0, 0);
+                break;
+            case Inventory_2DMenu.RotationType.Down:
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, -90);
+                m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, 0);
+                break;
+            case Inventory_2DMenu.RotationType.Right:
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, -180);
+                m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, m_iconTransform.sizeDelta.y);
+                break;
+            case Inventory_2DMenu.RotationType.Up:
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, 90);
+                m_numberTransform.anchoredPosition = new Vector2(0, m_iconTransform.sizeDelta.y);
+                break;
+        }
+    }
     /// <summary>
     /// Adjusts the offset from the mouse while being dragged
     /// The offset changes depending on the rotation type
@@ -84,7 +124,12 @@ public class Inventory_Icon : MonoBehaviour
         m_rotatedDir = m_previousRotType = p_startingRotation;
 
         ResetRotation();
+    }
 
+    public void UpdateIconNumber()
+    {
+        m_numberText.text = "x" + m_currentResourceAmount.ToString();
+        Debug.Log("Current Amount: " + m_currentResourceAmount);
     }
 
     /// <summary>
@@ -163,6 +208,7 @@ public class Inventory_Icon : MonoBehaviour
                 m_rotatedDir = Inventory_2DMenu.RotationType.Left;
                 break;
         }
+        SetNumberRotation();
         AdjustedDraggingOffset();
     }
 

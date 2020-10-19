@@ -19,7 +19,7 @@
 		_ItemHeight("Height", float) = 0.0
 
 		//Changes how much is currently effected
-		_EffectAmount("Effect amount", Range(0.0, 1.0)) = 1
+		[PerRendererData]_EffectAmount("Effect amount", Range(0.0, 1.0)) = 1
 
 		
 		_ScrollXSpeed ("ScrollXSpeed", float) = 0.0
