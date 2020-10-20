@@ -11,14 +11,10 @@ public class Mat_Toon_Instance : MonoBehaviour
 
     public Material material;
 
-    Renderer rend;
 
     // Start is called before the first frame update
     void Start()
     {
-        //rend = GetComponent<Renderer>();
-        //rend.material.shader = Shader.Find("Ambient Color");
-
         go = this.gameObject;
         material = go.GetComponent<MeshRenderer>().material;
         

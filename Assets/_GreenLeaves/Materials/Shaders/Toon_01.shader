@@ -1,4 +1,4 @@
-﻿Shader "Roystan/Toon"
+﻿Shader "GreenLeaves_Custom/Toon"
 {
 	Properties
 	{
@@ -107,7 +107,7 @@
 				float shadow = SHADOW_ATTENUATION(i);
 				// Partition the intensity into light and dark, smoothly interpolated
 				// between the two to avoid a jagged break.
-				float lightIntensity = smoothstep(0, 0.01, NdotL * shadow);
+				float lightIntensity = smoothstep(0, .01, NdotL * shadow);
 				// Multiply by the main directional light's intensity and color.
 				float4 light = lightIntensity * _LightColor0;
 
@@ -125,7 +125,7 @@
 				// We only want rim to appear on the lit side of the surface,
 				// so multiply it by NdotL, raised to a power to smoothly blend it.
 				float rimIntensity = rimDot * pow(NdotL, _RimThreshold);
-				rimIntensity = smoothstep(_RimAmount - 0.01, _RimAmount + 0.01, rimIntensity);
+				rimIntensity = smoothstep(1-_RimAmount - 0.01, 1-_RimAmount + 0.01, rimIntensity);
 				float4 rim = rimIntensity * _RimColor;
 
 				float4 sample = tex2D(_MainTex, i.uv);

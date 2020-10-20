@@ -7,35 +7,35 @@ public class MAT_instance_group_modify : MonoBehaviour
 {
     #region material instances
     public GameObject[] go_to_modify;
-    public Material[] go_materials;
+    public Renderer[] go_renderer;
     #endregion material instances
 
 
     #region properties
     public Color color;
+    [ColorUsage(false,true)]
     public Color ambient_color;
+    [ColorUsage(false, true)]
     public Color specular_color;
-    [Range(0, 1)]
+    [Range(0, 50)]
     public float glosiness;
     public Color rim_color;
     [Range(0, 1)]
     public float rim_amount;
-    [Range(0, 1)]
+    [Range(0, 1)
+        ]
     public float rim_threshold;
     #endregion properties
 
 
     void get_materials_array() {
         
-        go_materials = new Material[go_to_modify.Length];
-
-        print("go_material length: " + go_materials.Length);
-
+        go_renderer = new Renderer[go_to_modify.Length];
         int i = 0;
 
         foreach (GameObject go in go_to_modify)
         {
-            go_materials[i] = go.GetComponent<MeshRenderer>().material;
+            go_renderer[i] = go.GetComponent<Renderer>();
             i++;
         }
     }
@@ -49,17 +49,15 @@ public class MAT_instance_group_modify : MonoBehaviour
         int Rim_AmountID = Shader.PropertyToID("_RimAmount");
         int Rim_ThresholdID = Shader.PropertyToID("_RimThreshold");
 
-
-        foreach (Material go in go_materials)
+        foreach (Renderer go in go_renderer)
         {
-
-            go.color = color;
-            go.SetColor(ambient_colorID, ambient_color);
-            go.SetColor(specular_colorID, specular_color);
-            go.SetFloat(GlosinessID, glosiness);
-            go.SetColor(Rim_ColorID, rim_color);
-            go.SetFloat(Rim_AmountID, rim_amount);
-            go.SetFloat(Rim_ThresholdID, rim_threshold);
+            go.sharedMaterial.color = color;
+            go.sharedMaterial.SetColor(ambient_colorID, ambient_color);
+            go.sharedMaterial.SetColor(specular_colorID, specular_color);
+            go.sharedMaterial.SetFloat(GlosinessID, glosiness);
+            go.sharedMaterial.SetColor(Rim_ColorID, rim_color);
+            go.sharedMaterial.SetFloat(Rim_AmountID, rim_amount);
+            go.sharedMaterial.SetFloat(Rim_ThresholdID, rim_threshold);
         }
     }
 
