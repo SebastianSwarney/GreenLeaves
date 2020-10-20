@@ -52,6 +52,7 @@ public class PlayerController : MonoBehaviour
     {
         public float m_jogSpeed;
         public float m_runSpeed;
+        public float m_runEnergyDepletionTime;
         public float m_walkSpeed;
         public float m_playerTurnSpeed;
 
@@ -152,10 +153,37 @@ public class PlayerController : MonoBehaviour
 
     public Transform m_modelTransform;
 
+    [Space]
+
+    public Transform m_edgeSweepPoint;
+    public Transform m_edgePoint;
+
+    public float m_edgeAngle;
+    public float m_edgeCheckDistance;
+
+    public float m_placementStep;
+
+    public LayerMask m_groundMask;
+
+    private float m_currentEdgeSweepDistance;
+    private EnergyController m_energyController;
+    private bool m_isAiming;
+    private Vector2 m_animInput;
+    private Vector2 m_animInputSmoothing;
+    private LadderPlacement m_ladderPlacement;
+    private Vector2 m_animInputTarget;
+
+    private bool m_hasFoundEdge;
+
+    private Vector3 m_movementDirection;
+    private Vector3 m_lastMovementDirection;
+
     private void Start()
     {
         m_characterController = GetComponent<CharacterController>();
         m_playerAnimator = GetComponentInChildren<Animator>();
+        m_energyController = GetComponent<EnergyController>();
+        m_ladderPlacement = GetComponentInChildren<LadderPlacement>();
 
         m_baseMovementProperties = m_currentBaseMovementSettings.m_baseMovementSettings;
         m_jumpingProperties = m_currentJumpingSettings.m_jumpingSettings;
@@ -174,10 +202,21 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         PerformController();
-        m_playerAnimator.SetBool("IsSliding", m_isSliding);
+
+        Vector3 reletiveVelocity = transform.InverseTransformDirection(m_groundMovementVelocity);
+
+        m_animInputTarget = new Vector2(reletiveVelocity.x / m_baseMovementProperties.m_runSpeed, reletiveVelocity.z / m_baseMovementProperties.m_runSpeed);
+
+        m_animInput = Vector2.SmoothDamp(m_animInput, m_animInputTarget, ref m_animInputSmoothing, m_baseMovementProperties.m_playerTurnSpeed);
+        m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
+        m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
+
+
+        //m_playerAnimator.SetBool("IsSliding", m_isSliding);
+        //m_playerAnimator.SetBool("IsAiming", m_isAiming);
     }
 
-    public void PerformController()
+	public void PerformController()
     {
         CalculateVelocity();
         CaculateTotalVelocity();
@@ -187,10 +226,92 @@ public class PlayerController : MonoBehaviour
 
         ZeroOnGroundCeiling();
 
-        SetSlideSlopeVariables();
-        OnSlideStart();
-        CalculateSlopeSpeed();
+		if (m_isRunning)
+		{
+            m_energyController.DepleteEnergy(m_baseMovementProperties.m_runEnergyDepletionTime);
+		}
     }
+
+    private void FindEdge()
+	{
+        m_currentEdgeSweepDistance = 0f;
+        m_edgeSweepPoint.position = transform.position;
+
+        bool overAnEdge = false;
+        bool foundStartOfEdge = false;
+
+        Vector3 topOfEdgePos = Vector3.zero;
+        Vector3 oldTopOfEdgePos = Vector3.zero;
+
+        float edgeDrop = 0;
+
+        m_hasFoundEdge = false;
+
+        while (!overAnEdge && m_currentEdgeSweepDistance <= m_edgeCheckDistance)
+        {
+			if (!foundStartOfEdge)
+			{
+                RaycastHit edgeHit;
+                Physics.Raycast(m_edgeSweepPoint.position, Vector3.down, out edgeHit, Mathf.Infinity, m_groundMask);
+
+                oldTopOfEdgePos = edgeHit.point;
+
+                m_currentEdgeSweepDistance += m_placementStep;
+                m_edgeSweepPoint.position = transform.position + (transform.forward * m_currentEdgeSweepDistance);
+
+                Physics.Raycast(m_edgeSweepPoint.position, Vector3.down, out edgeHit, Mathf.Infinity, m_groundMask);
+
+                float slopeAngle = Vector3.Angle(Vector3.up, edgeHit.normal);
+
+
+                if (slopeAngle > m_edgeAngle || slopeAngle == 0)
+                {
+                    if (oldTopOfEdgePos.y > edgeHit.point.y)
+                    {
+                        topOfEdgePos = oldTopOfEdgePos;
+
+                        Debug.DrawLine(m_edgeSweepPoint.position, topOfEdgePos, Color.cyan);
+
+                        foundStartOfEdge = true;
+                    }
+                }
+            }
+			else
+			{
+                RaycastHit edgeHit;
+                Physics.Raycast(m_edgeSweepPoint.position, Vector3.down, out edgeHit, Mathf.Infinity, m_groundMask);
+
+                float slopeAngle = Vector3.Angle(Vector3.up, edgeHit.normal);
+
+                if (slopeAngle > m_edgeAngle || slopeAngle == 0)
+                {
+					if (edgeHit.point.y < topOfEdgePos.y)
+					{
+                        edgeDrop += topOfEdgePos.y - edgeHit.point.y;
+                        //edgeDrop += Mathf.Round(topOfEdgePos.y) - Mathf.Round(edgeHit.point.y);
+                        Debug.DrawLine(m_edgeSweepPoint.position, edgeHit.point, Color.red);
+                    }
+				}
+				else
+				{
+                    Debug.DrawLine(m_edgeSweepPoint.position, edgeHit.point, Color.blue);
+                }
+
+				if (edgeDrop > 1f)
+				{
+                    overAnEdge = true;
+                    m_hasFoundEdge = true;
+
+                    m_edgePoint.position = topOfEdgePos;
+
+                    Debug.DrawLine(m_edgeSweepPoint.position, edgeHit.point, Color.green);
+                }
+
+                m_currentEdgeSweepDistance += m_placementStep;
+                m_edgeSweepPoint.position = transform.position + (transform.forward * m_currentEdgeSweepDistance);
+            }
+		}
+	}
 
 	#region Input Code
 	public void SetMovementInput(Vector2 p_input)
@@ -211,6 +332,18 @@ public class PlayerController : MonoBehaviour
     public void OnWalkButtonDown()
     {
         m_isWalking = !m_isWalking;
+    }
+
+    public void OnAimingInputDown()
+	{
+        m_isAiming = true;
+    }
+
+    public void OnAimingInputUp()
+    {
+        m_isAiming = false;
+
+        m_ladderPlacement.PlaceLadder();
     }
     #endregion
 
@@ -285,7 +418,7 @@ public class PlayerController : MonoBehaviour
             {
                 baseHorizontalSpeed = m_baseMovementProperties.m_walkSpeed;
             }
-            else if (m_isRunning)
+            else if (m_isRunning && m_energyController.m_hasEnergy)
             {
                 baseHorizontalSpeed = m_baseMovementProperties.m_runSpeed;
             }
@@ -296,20 +429,36 @@ public class PlayerController : MonoBehaviour
 
             Vector3 actualMovementDir = Vector3.zero;
 
-            if (targetHorizontalMovementDirection.magnitude != 0)
+            //m_animInputTarget = new Vector2(0, m_groundMovementVelocity.magnitude);
+
+            if (m_isAiming)
             {
-                float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
+                float targetAngle = m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
                 float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
                 transform.rotation = Quaternion.Euler(0, angle, 0);
 
-                actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
-                targetHorizontalMovement = actualMovementDir * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
+                Vector3 forwardMovement = transform.forward * m_movementInput.y;
+                Vector3 rightMovement = transform.right * m_movementInput.x;
+
+                targetHorizontalMovement = Vector3.ClampMagnitude(forwardMovement + rightMovement, 1.0f) * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
+
+                //m_animInputTarget = m_movementInput;
+
             }
 
-            Vector3 currentNormalMovement = actualMovementDir * (baseHorizontalSpeed);
-            m_playerAnimator.SetFloat("ForwardMovement", currentNormalMovement.magnitude);
+            if (targetHorizontalMovementDirection.magnitude != 0)
+            {
+				if (!m_isAiming)
+				{
+                    float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
+                    float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
+                    transform.rotation = Quaternion.Euler(0, angle, 0);
 
-            //float currentAcceleration = IsGrounded() ? m_baseMovementProperties.m_accelerationTimeGrounded : m_baseMovementProperties.m_accelerationTimeAir;
+                    actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
+                    targetHorizontalMovement = actualMovementDir * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
+				}
+            }
+
             float currentAcceleration = m_currentHorizontalAccelerationSpeed;
             Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
             m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
@@ -318,7 +467,6 @@ public class PlayerController : MonoBehaviour
         {
             m_groundMovementVelocity = Vector3.zero;
         }
-
     }
     #endregion
 
@@ -334,6 +482,28 @@ public class PlayerController : MonoBehaviour
         velocity += m_slopeShiftVelocity;
 
         m_characterController.Move(velocity * Time.deltaTime);
+
+		if (m_groundMovementVelocity.magnitude > 0.1f)
+		{
+            m_movementDirection = m_groundMovementVelocity.normalized;
+            m_lastMovementDirection = m_movementDirection;
+		}
+		else
+		{
+            m_movementDirection = m_lastMovementDirection;
+        }
+
+        Vector3 relativePos = transform.InverseTransformPoint(m_edgePoint.position);
+        float cosAngle = Mathf.Atan2(relativePos.z, relativePos.x);
+        float horizontalOffset = Mathf.Sin(cosAngle) * relativePos.magnitude;
+
+        if (m_hasFoundEdge)
+		{
+			if (horizontalOffset < 0.5f)
+			{
+                //m_characterController.Move(-m_groundMovementVelocity * Time.deltaTime);
+            }
+        }
     }
 
     public bool IsGrounded()

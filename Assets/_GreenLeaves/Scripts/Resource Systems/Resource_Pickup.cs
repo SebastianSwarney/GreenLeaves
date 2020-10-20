@@ -8,4 +8,11 @@
 public class Resource_Pickup : MonoBehaviour
 {
     public ResourceContainer m_resourceInfo;
+    public bool m_canPickup = true;
+    public int m_resourceAmount;
+    public virtual void PickupResource()
+    {
+        m_resourceAmount = 0;
+        ObjectPooler.Instance.ReturnToPool(gameObject);
+    }
 }

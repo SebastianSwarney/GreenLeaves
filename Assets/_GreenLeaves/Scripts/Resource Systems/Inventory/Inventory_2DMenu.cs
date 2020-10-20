@@ -11,7 +11,7 @@ public class Inventory_2DMenu : MonoBehaviour
 {
     public static Inventory_2DMenu Instance;
     ///Used to determine which way the icon is currently facing
-    public enum RotationType { Left, Right, Down,  Up }
+    public enum RotationType { Left, Right, Down, Up }
 
     [Header("World References")]
     public Player_Inventory m_playerInventory;
@@ -27,7 +27,7 @@ public class Inventory_2DMenu : MonoBehaviour
     [Header("Inventory")]
     public BackpackInventory m_backpack;
     public KeyCode m_rotateKey = KeyCode.R;
-    
+
     [Header("UI Elements")]
     public Inventory_Grid m_inventoryGrid;
     public Transform m_gameIconsParent;
@@ -117,11 +117,45 @@ public class Inventory_2DMenu : MonoBehaviour
     /// Adds the item to the inventory & spawns a new icon for it
     /// Calls the grid to add the icon to the grid
     /// </summary>
-    public void AddItemToInventory(GameObject p_pickedUp)
+    public void AddItemToInventory(GameObject p_pickedUp, int p_amount)
     {
-
         ResourceData pickedUpResource = p_pickedUp.GetComponent<Resource_Pickup>().m_resourceInfo.m_resourceData;
         BackpackSlot newSlot = new BackpackSlot();
+
+        p_pickedUp.GetComponent<Resource_Pickup>().PickupResource();
+        ///Determine if there are any existing items like this in the inventory
+        ///Used for items that can have more than 1 item in a slot IE. Arrows
+        #region Existing Item Check
+
+        int existingAmount = p_amount;
+        if (pickedUpResource.m_singleResourceAmount > 1)
+        {
+            List<Inventory_Icon> icons = m_inventoryGrid.GetExistingIconsOfResource(pickedUpResource);
+            if (icons.Count > 0)
+            {
+                foreach(Inventory_Icon icon in icons)
+                {
+                    if(icon.m_currentResourceAmount < pickedUpResource.m_singleResourceAmount)
+                    {
+                        icon.m_currentResourceAmount += existingAmount;
+                        
+                        if (icon.m_currentResourceAmount > pickedUpResource.m_singleResourceAmount)
+                        {
+                            existingAmount = icon.m_currentResourceAmount - pickedUpResource.m_singleResourceAmount;
+                            icon.m_currentResourceAmount = pickedUpResource.m_singleResourceAmount;
+                            icon.UpdateIconNumber();
+                        }
+                        else
+                        {
+                            icon.UpdateIconNumber();
+                            return;
+                        }
+                    }
+                }
+            }
+
+        }
+        #endregion
 
         ///Determines which way the icon should be orientated
         #region Icon orientation setup
@@ -141,6 +175,8 @@ public class Inventory_2DMenu : MonoBehaviour
         newIcon.transform.parent = m_gameIconsParent;
         newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * pickedUpResource.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * pickedUpResource.m_inventoryWeight.y);
         newIcon.UpdateIcon(pickedUpResource, iconRotationType);
+        newIcon.m_currentResourceAmount = existingAmount;
+        newIcon.UpdateIconNumber();
 
         #endregion
 
@@ -173,7 +209,7 @@ public class Inventory_2DMenu : MonoBehaviour
         ///If it cant fit, open the menu.
         else
         {
-            
+
             newIcon.m_inBackpack = false;
             newIcon.transform.localPosition = m_cantFitIconPos.localPosition;
             newIcon.m_startingCoordPos = newIcon.transform.localPosition;
@@ -204,11 +240,11 @@ public class Inventory_2DMenu : MonoBehaviour
 
         for (int i = 0; i < removeList.Count; i++)
         {
-            m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData.m_resourcePrefab);
+            m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData.m_resourcePrefab, m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.m_currentResourceAmount);
+            m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.m_currentResourceAmount = 0;
             ObjectPooler.Instance.ReturnToPool(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.gameObject);
 
             m_inventoryGrid.RemoveWeight(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData);
-
             m_backpack.m_itemsInBackpack.RemoveAt(removeList[i]);
         }
     }
@@ -370,6 +406,7 @@ public class Inventory_2DMenu : MonoBehaviour
                 {
                     p_holdingIcon.m_inBackpack = false;
                     p_holdingIcon.ForceIconDrop();
+                    p_holdingIcon.ResetRotation();
                     p_holdingIcon.transform.localPosition = p_holdingIcon.m_startingCoordPos;
                 }
             }
@@ -432,7 +469,8 @@ public class BackpackSlot
 public class ResourceData
 {
     public string m_resourceName;
-    public string m_resourceDetails;
+    [Tooltip("Determines how many of this resources corelates to a single icon. IE. 10 arrows = 1 icon")]
+    public int m_singleResourceAmount = 1;
     public Sprite m_resourceSprite;
     public GameObject m_resourcePrefab;
     public Vector2Int m_inventoryWeight;
