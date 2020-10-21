@@ -178,6 +178,38 @@ public class PlayerController : MonoBehaviour
     private Vector3 m_movementDirection;
     private Vector3 m_lastMovementDirection;
 
+    private bool m_isClimbing;
+
+    public Transform m_wallTransform;
+
+    private Vector3 m_wallMovementVelocity;
+
+    private Vector3 m_wallStickMovement;
+
+    public float m_wallDst;
+
+    public Transform[] m_climbCastPoints;
+
+    public Transform m_castPointRoot;
+
+    private Vector3 m_averageRotation;
+
+    public Transform m_velocityTransform;
+
+    public float m_handOnWallRayLength;
+    public float m_handOffWallRayLength;
+    public float m_handOnWallDetectRayLength;
+    public float m_backwardOffset;
+
+    public float m_targetWallDistance;
+
+    public float m_wallSpeed;
+
+    public float m_wallCastLookAheadDistance;
+
+    public float m_distanceBetweenRays;
+
+
     private void Start()
     {
         m_characterController = GetComponent<CharacterController>();
@@ -211,9 +243,7 @@ public class PlayerController : MonoBehaviour
         m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
         m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
 
-
-        //m_playerAnimator.SetBool("IsSliding", m_isSliding);
-        //m_playerAnimator.SetBool("IsAiming", m_isAiming);
+        m_playerAnimator.SetBool("IsGrounded", IsGrounded());
     }
 
 	public void PerformController()
@@ -221,15 +251,533 @@ public class PlayerController : MonoBehaviour
         CalculateVelocity();
         CaculateTotalVelocity();
 
-        CheckLanded();
-        SlopePhysics();
+		if (Input.GetKeyDown(KeyCode.J))
+		{
+            StartClimb();
+		}
 
-        ZeroOnGroundCeiling();
+        //FindWallClimbPointNew();
+
+        //CheckLanded();
+        //SlopePhysics();
+
+        //ZeroOnGroundCeiling();
 
 		if (m_isRunning)
 		{
             m_energyController.DepleteEnergy(m_baseMovementProperties.m_runEnergyDepletionTime);
 		}
+    }
+
+    private void StartClimb()
+	{
+		if (m_isClimbing)
+		{
+            m_isClimbing = false;
+		}
+		else
+		{
+            StartCoroutine(RunClimb());
+		}
+	}
+
+    private IEnumerator RunClimb()
+	{
+        m_states.m_movementControllState = MovementControllState.MovementDisabled;
+        m_states.m_gravityControllState = GravityState.GravityDisabled;
+
+        m_characterController.detectCollisions = false;
+
+        m_isClimbing = true;
+
+		while (m_isClimbing)
+		{
+            FindWallClimbPointNew();
+            RunClimbMovement();
+            //SetModelOnWall();
+
+            yield return null;
+		}
+
+        m_wallMovementVelocity = Vector3.zero;
+
+        m_characterController.detectCollisions = true;
+
+        m_states.m_movementControllState = MovementControllState.MovementEnabled;
+        m_states.m_gravityControllState = GravityState.GravityEnabled;
+    }
+
+    private void FindWallClimbPoint()
+	{
+        Vector3 averageRotation = Vector3.zero;
+        
+        int amountToAverage = 0;
+
+        float shortestDst = Mathf.Infinity;
+        Vector3 furthestDistance = transform.position + (transform.forward * 1000);
+
+        int amountOfHands = 0;
+
+        //wiegh the avereagin based off velocity
+
+        Vector3 currentDir = Vector3.Cross(transform.forward, m_velocityTransform.forward).normalized;
+        bool anyHands = false;
+        for (int i = 0; i < m_climbCastPoints.Length; i++)
+        {
+            SweepCastOld(m_climbCastPoints[i], ref averageRotation, ref amountToAverage, ref shortestDst, ref furthestDistance, ref anyHands, ref amountOfHands);
+        }
+        averageRotation /= amountToAverage;
+        Quaternion wallRotQ = Quaternion.LookRotation(averageRotation);
+        m_wallTransform.rotation = wallRotQ;
+
+        if (m_wallMovementVelocity.magnitude > 0)
+		{
+            float cross = Vector3.Cross(transform.forward, -m_wallTransform.forward).y;
+            transform.Rotate(Vector3.up, cross);
+
+            Debug.DrawRay(m_wallTransform.position, m_wallTransform.up * 2);
+            Debug.DrawRay(m_wallTransform.position, m_wallTransform.right * 2);
+
+			if (!anyHands)
+			{
+                //CalculateDistanceFromWall(shortestDst, furthestDistance);
+            }
+        }
+    }
+
+    private void FindWallClimbPointNew()
+    {
+        UpwardWallCast();
+
+		#region Old
+		/*
+        Vector3 averageRotation = Vector3.zero;
+
+        int amountToAverage = 0;
+
+        float shortestDst = Mathf.Infinity;
+        Vector3 furthestDistance = transform.position + (transform.forward * 1000);
+
+        int amountOfHands = 0;
+
+        Vector3 currentDir = Vector3.Cross(transform.forward, m_velocityTransform.forward).normalized;
+        bool anyHands = false;
+
+        for (int i = 0; i < m_climbCastPoints.Length; i++)
+        {
+            SweepCast(m_climbCastPoints[i], ref averageRotation, ref amountToAverage, ref shortestDst, ref furthestDistance, ref anyHands, ref amountOfHands);
+        }
+
+        averageRotation /= amountToAverage;
+
+        Quaternion wallRotQ = Quaternion.LookRotation(averageRotation);
+        m_wallTransform.rotation = wallRotQ;
+        Debug.DrawRay(m_wallTransform.position, m_wallTransform.up * 2);
+        Debug.DrawRay(m_wallTransform.position, m_wallTransform.right * 2);
+        */
+		#endregion
+	}
+
+	private void SweepCast(Transform p_castOrigin, ref Vector3 p_averageRotation, ref int p_amountToAverage, ref float p_shortestDistance, ref Vector3 p_furthestDistance, ref bool p_handHit, ref int p_amountOfHands)
+    {
+        bool handOnSurface = false;
+
+        RaycastHit spacingHit;
+
+        Vector3 castPointThisFrame = Vector3.zero;
+
+        Vector3 firstCastPoint = p_castOrigin.position + (-transform.forward * m_backwardOffset);
+
+        float length = m_handOnWallDetectRayLength + m_backwardOffset;
+
+        if (Physics.Raycast(firstCastPoint, p_castOrigin.forward, out spacingHit, length, m_groundMask))
+        {
+            handOnSurface = true;
+
+            float realDst = spacingHit.distance - m_backwardOffset;
+
+            if (realDst > m_targetWallDistance)
+            {
+                castPointThisFrame = p_castOrigin.position + (p_castOrigin.forward * (realDst - m_targetWallDistance));
+            }
+
+            if (realDst < m_targetWallDistance)
+            {
+                castPointThisFrame = p_castOrigin.position + (-p_castOrigin.forward * (m_targetWallDistance - realDst));
+            }
+        }
+        else
+        {
+            castPointThisFrame = p_castOrigin.position;
+        }
+
+        Debug.DrawLine(firstCastPoint, firstCastPoint + (p_castOrigin.forward * m_backwardOffset), Color.yellow);
+
+        float totalAngle = 90;
+        float raySpacing = 1;
+
+        if (handOnSurface)
+        {
+            totalAngle = 180;
+        }
+        else
+        {
+            totalAngle = 180;
+            p_handHit = true;
+        }
+
+        int rayCount = Mathf.RoundToInt(totalAngle / raySpacing);
+
+        for (int i = 0; i < rayCount; i++)
+        {
+            float currentAngle = 0;
+
+            if (handOnSurface)
+            {
+                //currentAngle = (i * raySpacing);
+                currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
+            }
+            else
+            {
+                currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
+            }
+
+            Vector3 currentDir = Vector3.Cross(p_castOrigin.forward, m_velocityTransform.forward).normalized;
+            Quaternion raySpaceQ = Quaternion.Euler(currentDir.x * currentAngle, currentDir.y * currentAngle, currentDir.z * currentAngle);
+
+            RaycastHit hit;
+
+            float currentCastLength = 0;
+
+            if (handOnSurface)
+            {
+                currentCastLength = m_handOnWallRayLength;
+            }
+            else
+            {
+                currentCastLength = m_handOffWallRayLength;
+            }
+
+            if (Physics.Raycast(castPointThisFrame, raySpaceQ * p_castOrigin.forward, out hit, currentCastLength, m_groundMask))
+            {
+                p_averageRotation += hit.normal;
+                p_amountToAverage++;
+
+                if (hit.distance < p_shortestDistance)
+                {
+                    p_shortestDistance = hit.distance;
+                }
+
+                Vector3 localPoint = transform.InverseTransformPoint(castPointThisFrame);
+                Vector3 furthestLocalPoint = transform.InverseTransformPoint(p_furthestDistance);
+
+                if (localPoint.z < furthestLocalPoint.z)
+                {
+                    p_furthestDistance = castPointThisFrame;
+                }
+
+                if (handOnSurface)
+                {
+                    Debug.DrawLine(castPointThisFrame, hit.point, Color.blue);
+                }
+                else
+                {
+                    Debug.DrawLine(castPointThisFrame, hit.point, Color.red);
+                }
+            }
+
+            if (handOnSurface)
+            {
+                p_castOrigin.position = castPointThisFrame;
+            }
+            else
+            {
+                p_amountOfHands++;
+            }
+        }
+    }
+
+    private void UpwardWallCast()
+	{
+        Vector3 currentMovementDirection = Vector3.Cross(transform.forward, m_velocityTransform.forward).normalized;
+
+        float halfPlayerHeight = (m_characterController.height / 2);
+
+        Vector3 castDirection = Vector3.up * -currentMovementDirection.z;
+        Vector3 verticalCast = (Vector3.up * currentMovementDirection.z) * halfPlayerHeight;
+
+        float boundsWidth = m_characterController.radius * 2;
+        int widthRayCount = Mathf.RoundToInt(boundsWidth / m_distanceBetweenRays);
+        float widthRaySpacing = boundsWidth / (widthRayCount - 1);
+
+        Vector3 averageRotation = Vector3.zero;
+        int amountToAverage = 0;
+        Vector3 furthestDistance = transform.position + (transform.forward * 1000);
+
+        for (int i = 0; i < widthRayCount; i++)
+		{
+            float currentHorizontalPlace = (i * widthRaySpacing);
+            Vector3 horizontalCast = (transform.right * currentHorizontalPlace) - transform.right * m_characterController.radius;
+
+            Vector3 castPoint = transform.position + verticalCast + horizontalCast - transform.forward * 10;
+
+            Debug.DrawRay(castPoint, castDirection * (m_characterController.height + m_wallCastLookAheadDistance));
+
+            SweepUpWall(castPoint, castDirection, (m_characterController.height + m_wallCastLookAheadDistance), ref averageRotation, ref amountToAverage, ref furthestDistance);
+		}
+
+        averageRotation /= amountToAverage;
+        Quaternion wallRotQ = Quaternion.LookRotation(averageRotation);
+        m_wallTransform.rotation = wallRotQ;
+
+        float cross = Vector3.Cross(transform.forward, -m_wallTransform.forward).y;
+        transform.Rotate(Vector3.up, cross);
+
+        CalculateDistanceFromWall(furthestDistance);
+    }
+
+    private void SweepUpWall(Vector3 p_castOrigin, Vector3 p_castDir, float p_castLength, ref Vector3 p_averageRotation, ref int p_amountToAverage, ref Vector3 p_furthestDistance)
+	{
+        float targetLength = p_castLength;
+        int lengthRayCount = Mathf.RoundToInt(targetLength / m_distanceBetweenRays);
+        float lengthRaySpacing = targetLength / (lengthRayCount - 1);
+
+		for (int i = 0; i < lengthRayCount; i++)
+		{
+            float currentPlaceAlongLength = (i * lengthRaySpacing);
+
+            Vector3 lengthPosition = p_castOrigin + (p_castDir * currentPlaceAlongLength);
+
+            CastSinglePoint(lengthPosition, ref p_averageRotation, ref p_amountToAverage, ref p_furthestDistance);
+        }
+    }
+
+    private void CastSinglePoint(Vector3 p_castPoint, ref Vector3 p_averageRotation, ref int p_amountToAverage, ref Vector3 p_furthestDistance)
+	{
+        RaycastHit hit;
+
+		if (Physics.Raycast(p_castPoint, transform.forward, out hit, Mathf.Infinity, m_groundMask))
+		{
+            p_averageRotation += hit.normal;
+
+            p_amountToAverage++;
+
+            Vector3 localPoint = transform.InverseTransformPoint(hit.point - transform.forward * m_targetWallDistance);
+            Vector3 furthestLocalPoint = transform.InverseTransformPoint(p_furthestDistance);
+
+            if (localPoint.z < furthestLocalPoint.z)
+            {
+                p_furthestDistance = hit.point - transform.forward * m_targetWallDistance;
+            }
+
+            Debug.DrawLine(p_castPoint, hit.point, Color.red);
+		}
+	}
+
+    private void CalculateDistanceFromWall(Vector3 p_furthestDistance)
+	{
+        Vector3 furthestLocalPoint = transform.InverseTransformPoint(p_furthestDistance);
+        Vector3 translation = transform.forward * (furthestLocalPoint.z) - (transform.forward * m_characterController.radius);
+
+        if (furthestLocalPoint.z > 0)
+		{
+            m_characterController.Move(translation);
+        }
+        if (furthestLocalPoint.z < 0)
+        {
+            m_characterController.Move(-translation);
+        }
+    }
+
+    private void SweepCastOld(Transform p_castOrigin, ref Vector3 p_averageRotation, ref int p_amountToAverage, ref float p_shortestDistance, ref Vector3 p_furthestDistance, ref bool p_handHit, ref int p_amountOfHands)
+    {
+        bool handOnSurface = false;
+
+        RaycastHit spacingHit;
+
+        Vector3 castPointThisFrame = Vector3.zero;
+
+        Vector3 firstCastPoint = p_castOrigin.position + (-transform.forward * m_backwardOffset);
+
+        float length = m_handOnWallDetectRayLength + m_backwardOffset;
+
+        if (Physics.Raycast(firstCastPoint, p_castOrigin.forward, out spacingHit, length, m_groundMask))
+		{
+            handOnSurface = true;
+
+            float realDst = spacingHit.distance - m_backwardOffset;
+
+            if (realDst > m_targetWallDistance)
+            {
+                castPointThisFrame = p_castOrigin.position + (p_castOrigin.forward * (realDst - m_targetWallDistance));
+            }
+
+            if (realDst < m_targetWallDistance)
+            {
+                castPointThisFrame = p_castOrigin.position + (-p_castOrigin.forward * (m_targetWallDistance - realDst));
+            }
+		}
+		else
+		{
+            castPointThisFrame = p_castOrigin.position;
+        }
+
+        Debug.DrawLine(firstCastPoint, firstCastPoint + (p_castOrigin.forward * m_backwardOffset), Color.yellow);
+
+        float totalAngle = 90;
+        float raySpacing = 1;
+
+		if (handOnSurface)
+		{
+            totalAngle = 180;
+		}
+		else
+		{
+            totalAngle = 180;
+            p_handHit = true;
+        }
+        
+        int rayCount = Mathf.RoundToInt(totalAngle / raySpacing);
+
+		for (int i = 0; i < rayCount; i++)
+		{
+            float currentAngle = 0;
+
+			if (handOnSurface)
+			{
+                //currentAngle = (i * raySpacing);
+                currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
+            }
+			else
+			{
+                currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
+            }
+
+            Vector3 currentDir = Vector3.Cross(p_castOrigin.forward, m_velocityTransform.forward).normalized;
+            Quaternion raySpaceQ = Quaternion.Euler(currentDir.x * currentAngle, currentDir.y * currentAngle, currentDir.z * currentAngle);
+
+            RaycastHit hit;
+
+            float currentCastLength = 0;
+
+			if (handOnSurface)
+			{
+                currentCastLength = m_handOnWallRayLength;
+			}
+			else
+			{
+                currentCastLength = m_handOffWallRayLength;
+			}
+
+            if (Physics.Raycast(castPointThisFrame, raySpaceQ * p_castOrigin.forward, out hit, currentCastLength, m_groundMask))
+            {
+                p_averageRotation += hit.normal;
+                p_amountToAverage++;
+
+                if (hit.distance < p_shortestDistance)
+                {
+                    p_shortestDistance = hit.distance;
+                }
+
+                Vector3 localPoint = transform.InverseTransformPoint(castPointThisFrame);
+                Vector3 furthestLocalPoint = transform.InverseTransformPoint(p_furthestDistance);
+
+                if (localPoint.z < furthestLocalPoint.z)
+				{
+                    p_furthestDistance = castPointThisFrame;
+				}
+
+				if (handOnSurface)
+				{
+                    Debug.DrawLine(castPointThisFrame, hit.point, Color.blue);
+				}
+				else
+				{
+                    Debug.DrawLine(castPointThisFrame, hit.point, Color.red);
+                }
+            }
+
+			if (handOnSurface)
+			{
+                p_castOrigin.position = castPointThisFrame;
+			}
+			else
+			{
+                p_amountOfHands++;
+            }
+        }
+
+		#region Old
+		/*
+        if (handOnSurface)
+		{
+            for (int i = 0; i < rayCount; i++)
+            {
+                Vector3 currentDir = Vector3.Cross(p_castOrigin.forward, m_velocityTransform.forward).normalized;
+                Quaternion raySpaceQ = Quaternion.Euler(currentDir.x * currentAngle, currentDir.y * currentAngle, currentDir.z * currentAngle);
+
+                RaycastHit hit;
+
+                if (Physics.Raycast(castPointThisFrame, raySpaceQ * p_castOrigin.forward, out hit, castLength, m_groundMask))
+                {
+                    p_averageRotation += hit.normal;
+
+                    p_amountToAverage++;
+
+					if (hit.distance < p_shortestDistance)
+					{
+                        p_shortestDistance = hit.distance;
+                    }
+
+                    Debug.DrawLine(castPointThisFrame, hit.point, Color.blue);
+                }
+            }
+		}
+		else
+		{
+            for (int i = 0; i < rayCount; i++)
+            {
+                float currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
+                Vector3 currentDir = Vector3.Cross(p_castOrigin.forward, m_velocityTransform.forward).normalized;
+                Quaternion raySpaceQ = Quaternion.Euler(currentDir.x * currentAngle, currentDir.y * currentAngle, currentDir.z * currentAngle);
+
+                RaycastHit hit;
+
+                if (Physics.Raycast(castPointThisFrame, raySpaceQ * p_castOrigin.forward, out hit, m_offWallRayLength, m_groundMask))
+                {
+                    p_averageRotation += hit.normal;
+
+                    p_amountToAverage++;
+
+                    if (hit.distance < p_shortestDistance)
+                    {
+                        p_shortestDistance = hit.distance;
+                    }
+
+                    Debug.DrawLine(castPointThisFrame, hit.point, Color.red);
+                }
+            }
+        }
+        */
+		#endregion
+	}
+
+	private void SetModelOnWall()
+	{
+        m_modelTransform.position = m_wallTransform.position + (m_wallTransform.forward * 0.3f);
+        m_modelTransform.rotation = m_wallTransform.rotation;
+	}
+
+    private void RunClimbMovement()
+	{
+        Vector3 rightInput = m_wallTransform.right * -m_movementInput.x;
+        Vector3 upInput = transform.up * m_movementInput.y;
+
+        Vector3 playerInput = Vector3.ClampMagnitude(rightInput + upInput, 1f);
+
+        Vector3 targetWallMovement = playerInput * m_wallSpeed;
+        Vector3 horizontalMovement = Vector3.SmoothDamp(m_wallMovementVelocity, targetWallMovement, ref m_groundMovementVelocitySmoothing, 0f);
+        m_wallMovementVelocity = horizontalMovement;
     }
 
     private void FindEdge()
@@ -343,7 +891,7 @@ public class PlayerController : MonoBehaviour
     {
         m_isAiming = false;
 
-        m_ladderPlacement.PlaceLadder();
+        //m_ladderPlacement.PlaceLadder();
     }
     #endregion
 
@@ -404,7 +952,11 @@ public class PlayerController : MonoBehaviour
         if (m_states.m_gravityControllState == GravityState.GravityEnabled)
         {
             m_gravityVelocity.y += m_gravity * Time.deltaTime;
-        }
+		}
+		else
+		{
+            m_gravityVelocity.y = 0;
+		}
 
         if (m_states.m_movementControllState == MovementControllState.MovementEnabled)
         {
@@ -448,15 +1000,15 @@ public class PlayerController : MonoBehaviour
 
             if (targetHorizontalMovementDirection.magnitude != 0)
             {
-				if (!m_isAiming)
-				{
+                if (!m_isAiming)
+                {
                     float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
                     float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
                     transform.rotation = Quaternion.Euler(0, angle, 0);
 
                     actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
                     targetHorizontalMovement = actualMovementDir * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
-				}
+                }
             }
 
             float currentAcceleration = m_currentHorizontalAccelerationSpeed;
@@ -480,12 +1032,13 @@ public class PlayerController : MonoBehaviour
         velocity += m_gravityVelocity;
         velocity += m_slopeVelocity;
         velocity += m_slopeShiftVelocity;
+        velocity += m_wallMovementVelocity;
 
         m_characterController.Move(velocity * Time.deltaTime);
 
-		if (m_groundMovementVelocity.magnitude > 0.1f)
+		if (velocity.magnitude > 0.1f)
 		{
-            m_movementDirection = m_groundMovementVelocity.normalized;
+            m_movementDirection = velocity.normalized;
             m_lastMovementDirection = m_movementDirection;
 		}
 		else
@@ -493,25 +1046,26 @@ public class PlayerController : MonoBehaviour
             m_movementDirection = m_lastMovementDirection;
         }
 
-        Vector3 relativePos = transform.InverseTransformPoint(m_edgePoint.position);
-        float cosAngle = Mathf.Atan2(relativePos.z, relativePos.x);
-        float horizontalOffset = Mathf.Sin(cosAngle) * relativePos.magnitude;
-
-        if (m_hasFoundEdge)
-		{
-			if (horizontalOffset < 0.5f)
-			{
-                //m_characterController.Move(-m_groundMovementVelocity * Time.deltaTime);
-            }
-        }
+        m_velocityTransform.rotation = Quaternion.LookRotation(m_movementDirection, Vector3.up);
     }
 
     public bool IsGrounded()
     {
+        RaycastHit hit;
+
+        float rayLength = (m_characterController.height / 2) + m_characterController.skinWidth;
+
+		if (Physics.SphereCast(transform.position, m_characterController.radius, Vector3.down, out hit, rayLength, m_groundMask))
+		{
+            return true;
+		}
+
+        /*
         if (m_characterController.isGrounded)
         {
             return true;
         }
+        */
 
         return false;
     }
@@ -546,7 +1100,7 @@ public class PlayerController : MonoBehaviour
 
     private void ZeroOnGroundCeiling()
     {
-        if (IsGrounded())
+        if (IsGrounded() && !(m_gravityVelocity.y > 0))
         {
             m_gravityVelocity.y = 0;
         }
