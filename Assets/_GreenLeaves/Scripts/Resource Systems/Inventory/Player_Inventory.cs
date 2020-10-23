@@ -77,6 +77,10 @@ public class Player_Inventory : MonoBehaviour
                     closest = cols[0].transform.gameObject;
                     continue;
                 }
+                if(closest == null)
+                {
+                    closest = cols[i].gameObject;
+                }
 
                 switch (m_currentPickupType)
                 {
