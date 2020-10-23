@@ -341,6 +341,11 @@ public class Inventory_Grid : MonoBehaviour
 
     }
 
+    public Inventory_Icon GetIcon(Vector2Int p_gridPos)
+    {
+        return m_itemGrids[p_gridPos.y].m_itemGrids[p_gridPos.x];
+        
+    }
 
     /// <summary>
     /// Clears the backpack' data of the current held icon. Changes it to null.

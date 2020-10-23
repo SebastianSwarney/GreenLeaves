@@ -129,7 +129,35 @@ public class Inventory_Icon : MonoBehaviour
     public void UpdateIconNumber()
     {
         m_numberText.text = "x" + m_currentResourceAmount.ToString();
-        Debug.Log("Current Amount: " + m_currentResourceAmount);
+    }
+
+    /// <summary>
+    /// <para>Used to add resource amounts to items that are added to each other while dragging.<br/>
+    /// IE. if the player has 2 wood icons, 1 icon has 2 wood, the other has 3 wood, adds the 3 wood to the 2 wood when it is dropped on it<br/>
+    /// If the new amount is more than the limit, still adds until the limit, and returns the amount left.</para>
+    /// 
+    /// Returns true if there is no remainder. | Returns false if the full amount cant be added
+    /// </summary>
+    public bool CanAddFullAmount(int p_amount,out int p_amountLeft)
+    {
+        p_amountLeft = p_amount;
+        if(m_currentResourceAmount >= m_itemData.m_singleResourceAmount)
+        {
+            return false;
+        }
+
+        if(m_currentResourceAmount + p_amount <= m_itemData.m_singleResourceAmount)
+        {
+            p_amountLeft = 0;
+            m_currentResourceAmount += p_amount;
+            UpdateIconNumber();
+            return true;
+        }
+
+        p_amountLeft = p_amount - (m_itemData.m_singleResourceAmount - m_currentResourceAmount);
+        m_currentResourceAmount += p_amount;
+        UpdateIconNumber();
+        return false;
     }
 
     /// <summary>

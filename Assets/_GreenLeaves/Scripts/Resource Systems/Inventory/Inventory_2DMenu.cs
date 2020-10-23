@@ -133,12 +133,12 @@ public class Inventory_2DMenu : MonoBehaviour
             List<Inventory_Icon> icons = m_inventoryGrid.GetExistingIconsOfResource(pickedUpResource);
             if (icons.Count > 0)
             {
-                foreach(Inventory_Icon icon in icons)
+                foreach (Inventory_Icon icon in icons)
                 {
-                    if(icon.m_currentResourceAmount < pickedUpResource.m_singleResourceAmount)
+                    if (icon.m_currentResourceAmount < pickedUpResource.m_singleResourceAmount)
                     {
                         icon.m_currentResourceAmount += existingAmount;
-                        
+
                         if (icon.m_currentResourceAmount > pickedUpResource.m_singleResourceAmount)
                         {
                             existingAmount = icon.m_currentResourceAmount - pickedUpResource.m_singleResourceAmount;
@@ -242,9 +242,9 @@ public class Inventory_2DMenu : MonoBehaviour
         {
             m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData.m_resourcePrefab, m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.m_currentResourceAmount);
             m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.m_currentResourceAmount = 0;
-            ObjectPooler.Instance.ReturnToPool(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.gameObject);
 
             m_inventoryGrid.RemoveWeight(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData);
+            ObjectPooler.Instance.ReturnToPool(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.gameObject);
             m_backpack.m_itemsInBackpack.RemoveAt(removeList[i]);
         }
     }
@@ -370,13 +370,47 @@ public class Inventory_2DMenu : MonoBehaviour
                         newPlace = res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos;
                         placedIcon = true;
                     }
+                    else
+                    {
+                        if (m_inventoryGrid.GetIcon(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos) != null)
+                        {
+                            Inventory_Icon currentIcon = m_inventoryGrid.GetIcon(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos);
+
+                            if (currentIcon.m_itemData.m_resourceName == p_holdingIcon.m_itemData.m_resourceName)
+                            {
+                                int amountLeft = 0;
+
+
+                                ///If the current icon can completely fit in the new icon, remove the current icon from the inventory
+                                if (currentIcon.CanAddFullAmount(p_holdingIcon.m_currentResourceAmount, out amountLeft))
+                                {
+                                    p_holdingIcon.m_inBackpack = false;
+                                    ObjectPooler.Instance.ReturnToPool(p_holdingIcon.gameObject);
+
+                                    
+                                    for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
+                                    {
+                                        if (m_backpack.m_itemsInBackpack[i].m_associatedIcon != p_holdingIcon) continue;
+                                        m_backpack.m_itemsInBackpack.RemoveAt(i);
+                                        return;
+                                    }
+                                }
+
+                                ///If there is still remainder, reset the held icon
+                                else
+                                {
+                                    p_holdingIcon.m_currentResourceAmount = amountLeft;
+                                    p_holdingIcon.UpdateIconNumber();
+                                }
+                            }
+                        }
+                    }
                 }
 
                 ///If the player lets go while on the backpack
                 if (res.gameObject == m_backpackImageUi)
                 {
                     snapBack = true;
-
                 }
             }
         }
