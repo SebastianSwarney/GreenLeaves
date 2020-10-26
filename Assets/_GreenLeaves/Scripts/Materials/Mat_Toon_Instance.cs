@@ -9,23 +9,24 @@ public class Mat_Toon_Instance : MonoBehaviour
     public Color color;
     public Color ambient_color;
 
-    public Material material;
+    public Renderer go_rend;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        go = this.gameObject;
-        material = go.GetComponent<MeshRenderer>().material;
-        
+        go_rend = gameObject.GetComponent<Renderer>();   
     }
 
     private void OnValidate()
     {
-        material.color = color;
+        go_rend.sharedMaterial.color = color;
+
 
         int ambient_colorID = Shader.PropertyToID("_AmbientColor");
 
-        material.SetColor(ambient_colorID, ambient_color);
+
+
+        go_rend.sharedMaterial.SetColor(ambient_colorID, ambient_color);
     }
 }

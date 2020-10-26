@@ -6,21 +6,50 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class CustomImageEffect : MonoBehaviour
 {
-    public Material material;
+
+    public Material mat;
     public Camera my_camera;
+
+    public DepthTextureMode depthmode;
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        Graphics.Blit(source, destination, material);
+        Graphics.Blit(source, destination, mat);   
     }
 
-    private void Start()
+
+    private void OnValidate()
+    {
+
+        //CameraDepthModeSet(DepthTextureMode.Depth);
+
+        //my_camera = gameObject.GetComponent<Camera>();
+
+        CameraDepthModeSet(depthmode);
+
+
+    }
+
+
+
+    void CameraDepthModeSet(DepthTextureMode mode)
     {
         my_camera = gameObject.GetComponent<Camera>();
 
-        my_camera.depthTextureMode = DepthTextureMode.Depth;
-
-        print(my_camera.depthTextureMode);
+        switch (depthmode)
+        {
+            case DepthTextureMode.Depth:
+                my_camera.depthTextureMode = DepthTextureMode.Depth;
+                break;
+            case DepthTextureMode.DepthNormals:
+                my_camera.depthTextureMode = DepthTextureMode.DepthNormals;
+                break;
+            case DepthTextureMode.MotionVectors:
+                my_camera.depthTextureMode = DepthTextureMode.MotionVectors;
+                break;
+            case DepthTextureMode.None:
+                my_camera.depthTextureMode = DepthTextureMode.None;
+                break;
+        }
     }
-
 }

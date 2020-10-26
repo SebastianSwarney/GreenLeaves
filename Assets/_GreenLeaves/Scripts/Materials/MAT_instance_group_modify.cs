@@ -22,8 +22,7 @@ public class MAT_instance_group_modify : MonoBehaviour
     public Color rim_color;
     [Range(0, 1)]
     public float rim_amount;
-    [Range(0, 1)
-        ]
+    [Range(0, 1)]
     public float rim_threshold;
     #endregion properties
 
