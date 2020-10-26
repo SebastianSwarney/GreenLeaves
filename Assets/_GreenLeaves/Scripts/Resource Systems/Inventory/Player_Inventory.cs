@@ -8,7 +8,7 @@
 public class Player_Inventory : MonoBehaviour
 {
 
-
+    public static Player_Inventory Instance;
     [Header("Pickup Raycast")]
     public KeyCode m_pickupKeycode;
     public LayerMask m_interactableLayer;
@@ -31,6 +31,10 @@ public class Player_Inventory : MonoBehaviour
     public bool m_debugging;
     public Color m_debugColor = Color.red;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
     private void Update()
     {
         if (m_isPickingUp) return;
@@ -133,10 +137,13 @@ public class Player_Inventory : MonoBehaviour
     /// <summary>
     /// Drops the object into the physical game world
     /// </summary>
-    public void DropObject(GameObject p_dropItem, int p_resourceAmount)
+    public void DropObject(Inventory_Icon p_droppedIcon)
     {
-        GameObject newResource = ObjectPooler.Instance.NewObject(p_dropItem, transform.position + transform.forward * 2, Quaternion.identity);
-        newResource.GetComponent<Resource_Pickup>().m_resourceAmount = p_resourceAmount;
+        if(p_droppedIcon == Inventory_ItemUsage.Instance.m_currentEquippedIcon)
+        {
+            Inventory_ItemUsage.Instance.UnEquipCurrent();
+        }
+        p_droppedIcon.m_itemData.DropObject(p_droppedIcon,transform.position + transform.forward * 2, Quaternion.identity).GetComponent<Resource_Pickup>().m_resourceAmount = p_droppedIcon.m_currentResourceAmount;
     }
 
 
@@ -147,6 +154,36 @@ public class Player_Inventory : MonoBehaviour
         Gizmos.color = m_debugColor;
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.DrawWireSphere(Vector3.zero, m_spherecastRadius);
+    }
+    #endregion
+
+
+    public Transform m_equipmentParent;
+    public GameObject m_currentEquipped;
+    #region Player Equipment Placement
+    public void EquipItem(GameObject p_equipment)
+    {
+        p_equipment.transform.parent = m_equipmentParent;
+        p_equipment.transform.localPosition = Vector3.zero;
+        p_equipment.transform.localRotation = Quaternion.identity;
+        if(p_equipment.GetComponent<Rigidbody>()!= null)
+        {
+            p_equipment.GetComponent<Rigidbody>().isKinematic = true;
+            p_equipment.GetComponent<Collider>().enabled = false;
+        }
+        m_currentEquipped = p_equipment;
+    }
+
+    public void UnEquipItem()
+    {
+        if (m_currentEquipped == null) return;
+        if (m_currentEquipped.GetComponent<Rigidbody>() != null)
+        {
+            m_currentEquipped.GetComponent<Rigidbody>().isKinematic = true;
+            m_currentEquipped.GetComponent<Collider>().enabled = false;
+        }
+        m_currentEquipped.transform.parent = ObjectPooler.Instance.transform;
+        m_currentEquipped = null;
     }
     #endregion
 }

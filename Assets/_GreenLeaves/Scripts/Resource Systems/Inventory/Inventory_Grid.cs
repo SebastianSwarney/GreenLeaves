@@ -347,13 +347,35 @@ public class Inventory_Grid : MonoBehaviour
         
     }
 
+    public List<Inventory_Icon> GetExistingIconsOfResource(ResourceData p_dataType)
+    {
+        List<Inventory_Icon> m_currentIcons = new List<Inventory_Icon>();
+        for (int y = 0; y < m_itemGrids.Count; y++)
+        {
+            for (int x = 0; x < m_itemGrids[y].m_itemGrids.Count; x++)
+            {
+                if (m_itemGrids[y].m_itemGrids[x] == null) continue;
+                if(m_itemGrids[y].m_itemGrids[x].m_itemData.m_resourceData.m_resourceName == p_dataType.m_resourceName)
+                {
+                    if (!m_currentIcons.Contains(m_itemGrids[y].m_itemGrids[x]))
+                    {
+                        m_currentIcons.Add(m_itemGrids[y].m_itemGrids[x]);
+                    }
+                }
+            }
+        }
+
+        return m_currentIcons;
+    }
+    #endregion
+
+    #region Remove Icon
     /// <summary>
     /// Clears the backpack' data of the current held icon. Changes it to null.
     /// Is called when the icon is tapped on, and dragging initialized
     /// </summary>
     public void ClearOldPos(Vector2Int p_gridPos, Vector2Int p_gridWeight, Inventory_2DMenu.RotationType p_rotatedDir)
     {
-
         switch (p_rotatedDir)
         {
 
@@ -368,7 +390,6 @@ public class Inventory_Grid : MonoBehaviour
                 }
                 break;
             #endregion
-
 
             #region Rotated Down
             case Inventory_2DMenu.RotationType.Down:
@@ -409,31 +430,15 @@ public class Inventory_Grid : MonoBehaviour
 
                 #endregion
         }
-
     }
 
-    public List<Inventory_Icon> GetExistingIconsOfResource(ResourceData p_dataType)
+    public void RemoveSingleIcon(Inventory_Icon p_icon)
     {
-        List<Inventory_Icon> m_currentIcons = new List<Inventory_Icon>();
-        for (int y = 0; y < m_itemGrids.Count; y++)
-        {
-            for (int x = 0; x < m_itemGrids[y].m_itemGrids.Count; x++)
-            {
-                if (m_itemGrids[y].m_itemGrids[x] == null) continue;
-                if(m_itemGrids[y].m_itemGrids[x].m_itemData.m_resourceName == p_dataType.m_resourceName)
-                {
-                    if (!m_currentIcons.Contains(m_itemGrids[y].m_itemGrids[x]))
-                    {
-                        m_currentIcons.Add(m_itemGrids[y].m_itemGrids[x]);
-                    }
-                }
-            }
-        }
-
-        return m_currentIcons;
+        ClearOldPos(p_icon.m_previousGridPos, p_icon.m_itemData.m_resourceData.m_inventoryWeight, p_icon.m_rotatedDir);
+        RemoveWeight(p_icon.m_itemData.m_resourceData);
+        ObjectPooler.Instance.ReturnToPool(p_icon.gameObject);
     }
     #endregion
-
 }
 
 /// <summary>
