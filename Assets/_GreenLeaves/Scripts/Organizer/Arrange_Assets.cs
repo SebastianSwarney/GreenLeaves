@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//[ExecuteInEditMode]
+[ExecuteInEditMode]
 public class Arrange_Assets : MonoBehaviour
 {
     public Vector2 spacing;
-
-    //public Transform ObjHolder;
-
-    //public List<GameObject> objs_in_holder = new List<GameObject>();
 
     public GameObject[] objs_to_sort;
 
@@ -17,38 +13,51 @@ public class Arrange_Assets : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        spacer();
+    }
+
+    private void OnValidate()
+    {
+        spacer2();
     }
 
     void spacer() {
 
         for (int i = 0; i < objs_to_sort.Length; i++)
         {
-            objs_to_sort[i].transform.position += new Vector3(0,0,0);
+            objs_to_sort[i].transform.position = new Vector3(0,0,0);
         }
-
-        //for (int i = 0; i < objs_to_sort.Length; i++) {
-        //    if (i % 10 != 0)
-        //    {
-        //        print("pos[i]: " + objs_to_sort[i].transform.position);
-        //        objs_to_sort[i].transform.position += new Vector3(objs_to_sort[i].transform.position.x + spacing.x * (i%10), 0, objs_to_sort[i].transform.position.z - spacing.y * (i % 10));
-        //    }
-        //    else { 
-        //        print("pos[i]: " + objs_to_sort[i].transform.position);
-        //        objs_to_sort[i].transform.position = new Vector3(0 , 0, objs_to_sort[i].transform.position.z - spacing.y * (i%10));
-        //    }
-        //}
 
         int row = 0;
 
-        for (int i = 0; i < objs_to_sort.Length; i++)
+        for (int i = 1; i < objs_to_sort.Length+1; i++)
         {
             objs_to_sort[i].transform.position += new Vector3(objs_to_sort[i].transform.position.x + spacing.x * (i % 10), 0, objs_to_sort[i].transform.position.z - spacing.y * row);
 
-            if (i % 10 == 0)
+            if ((i+1 % 10) == 0)
                 row++;
         }
-    
+
+
+        
+
+    }
+
+    void spacer2()
+    {
+        for (int i = 0; i < objs_to_sort.Length; i++)
+        {
+            objs_to_sort[i].transform.position = new Vector3(0, 0, 0);
+        }
+
+        int row2 = 0;
+
+        for (int i = 0; i < objs_to_sort.Length; i++)
+        {
+            objs_to_sort[i].transform.position += new Vector3(objs_to_sort[i].transform.position.x + spacing.x * (i % 3), 0, objs_to_sort[i].transform.position.z - spacing.y * row2);
+
+            if ((i+1) % 3 == 0)
+                row2++;
+        }
     }
 
 }
