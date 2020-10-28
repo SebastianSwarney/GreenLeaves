@@ -59,7 +59,9 @@ public class PlayerController : MonoBehaviour
         public float m_accelerationTimeGrounded;
         public float m_accelerationTimeAir;
     }
-    private BaseMovementProperties m_baseMovementProperties;
+
+    [SerializeField]
+    public BaseMovementProperties m_baseMovementProperties;
 
     [Header("Base Movement Properties")]
     public PlayerBaseMovementSettings m_currentBaseMovementSettings;
@@ -179,36 +181,18 @@ public class PlayerController : MonoBehaviour
     private Vector3 m_lastMovementDirection;
 
     private bool m_isClimbing;
-
     public Transform m_wallTransform;
-
     private Vector3 m_wallMovementVelocity;
-
-    private Vector3 m_wallStickMovement;
-
-    public float m_wallDst;
-
-    public Transform[] m_climbCastPoints;
-
-    public Transform m_castPointRoot;
-
-    private Vector3 m_averageRotation;
-
     public Transform m_velocityTransform;
-
-    public float m_handOnWallRayLength;
-    public float m_handOffWallRayLength;
-    public float m_handOnWallDetectRayLength;
-    public float m_backwardOffset;
-
-    public float m_targetWallDistance;
-
     public float m_wallSpeed;
 
-    public float m_wallCastLookAheadDistance;
+    private CollisionController m_collisionController;
 
-    public float m_distanceBetweenRays;
+    public LayerMask m_wallMask;
 
+    public Transform[] m_wallClimbCastPoints;
+
+    private float m_flyInput;
 
     private void Start()
     {
@@ -216,6 +200,7 @@ public class PlayerController : MonoBehaviour
         m_playerAnimator = GetComponentInChildren<Animator>();
         m_energyController = GetComponent<EnergyController>();
         m_ladderPlacement = GetComponentInChildren<LadderPlacement>();
+        m_collisionController = GetComponent<CollisionController>();
 
         m_baseMovementProperties = m_currentBaseMovementSettings.m_baseMovementSettings;
         m_jumpingProperties = m_currentJumpingSettings.m_jumpingSettings;
@@ -231,8 +216,16 @@ public class PlayerController : MonoBehaviour
         CalculateJump();
     }
 
-    private void Update()
-    {
+	private void Update()
+	{
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            StartClimb();
+        }
+    }
+
+	private void FixedUpdate()
+	{
         PerformController();
 
         Vector3 reletiveVelocity = transform.InverseTransformDirection(m_groundMovementVelocity);
@@ -240,10 +233,10 @@ public class PlayerController : MonoBehaviour
         m_animInputTarget = new Vector2(reletiveVelocity.x / m_baseMovementProperties.m_runSpeed, reletiveVelocity.z / m_baseMovementProperties.m_runSpeed);
 
         m_animInput = Vector2.SmoothDamp(m_animInput, m_animInputTarget, ref m_animInputSmoothing, m_baseMovementProperties.m_playerTurnSpeed);
-        m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
-        m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
+        //m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
+        //m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
 
-        m_playerAnimator.SetBool("IsGrounded", IsGrounded());
+        //m_playerAnimator.SetBool("IsGrounded", IsGrounded());
     }
 
 	public void PerformController()
@@ -251,17 +244,20 @@ public class PlayerController : MonoBehaviour
         CalculateVelocity();
         CaculateTotalVelocity();
 
-		if (Input.GetKeyDown(KeyCode.J))
+		if (m_collisionController.m_averageNormal != Vector3.zero)
 		{
-            StartClimb();
-		}
+            m_wallTransform.rotation = Quaternion.LookRotation(m_collisionController.m_averageNormal);
+        }
 
-        //FindWallClimbPointNew();
 
-        //CheckLanded();
+
         //SlopePhysics();
 
-        //ZeroOnGroundCeiling();
+        if (!m_isClimbing)
+		{
+            CheckLanded();
+            ZeroVelocityOnGround();
+        }
 
 		if (m_isRunning)
 		{
@@ -286,481 +282,26 @@ public class PlayerController : MonoBehaviour
         m_states.m_movementControllState = MovementControllState.MovementDisabled;
         m_states.m_gravityControllState = GravityState.GravityDisabled;
 
-        m_characterController.detectCollisions = false;
-
         m_isClimbing = true;
 
 		while (m_isClimbing)
 		{
-            FindWallClimbPointNew();
+            FindWallClimbPoint();
             RunClimbMovement();
-            //SetModelOnWall();
-
             yield return null;
 		}
 
         m_wallMovementVelocity = Vector3.zero;
 
-        m_characterController.detectCollisions = true;
-
         m_states.m_movementControllState = MovementControllState.MovementEnabled;
-        m_states.m_gravityControllState = GravityState.GravityEnabled;
+        //m_states.m_gravityControllState = GravityState.GravityEnabled;
     }
 
     private void FindWallClimbPoint()
 	{
-        Vector3 averageRotation = Vector3.zero;
-        
-        int amountToAverage = 0;
-
-        float shortestDst = Mathf.Infinity;
-        Vector3 furthestDistance = transform.position + (transform.forward * 1000);
-
-        int amountOfHands = 0;
-
-        //wiegh the avereagin based off velocity
-
-        Vector3 currentDir = Vector3.Cross(transform.forward, m_velocityTransform.forward).normalized;
-        bool anyHands = false;
-        for (int i = 0; i < m_climbCastPoints.Length; i++)
-        {
-            SweepCastOld(m_climbCastPoints[i], ref averageRotation, ref amountToAverage, ref shortestDst, ref furthestDistance, ref anyHands, ref amountOfHands);
-        }
-        averageRotation /= amountToAverage;
-        Quaternion wallRotQ = Quaternion.LookRotation(averageRotation);
-        m_wallTransform.rotation = wallRotQ;
-
-        if (m_wallMovementVelocity.magnitude > 0)
-		{
-            float cross = Vector3.Cross(transform.forward, -m_wallTransform.forward).y;
-            transform.Rotate(Vector3.up, cross);
-
-            Debug.DrawRay(m_wallTransform.position, m_wallTransform.up * 2);
-            Debug.DrawRay(m_wallTransform.position, m_wallTransform.right * 2);
-
-			if (!anyHands)
-			{
-                //CalculateDistanceFromWall(shortestDst, furthestDistance);
-            }
-        }
-    }
-
-    private void FindWallClimbPointNew()
-    {
-        UpwardWallCast();
-
-		#region Old
-		/*
-        Vector3 averageRotation = Vector3.zero;
-
-        int amountToAverage = 0;
-
-        float shortestDst = Mathf.Infinity;
-        Vector3 furthestDistance = transform.position + (transform.forward * 1000);
-
-        int amountOfHands = 0;
-
-        Vector3 currentDir = Vector3.Cross(transform.forward, m_velocityTransform.forward).normalized;
-        bool anyHands = false;
-
-        for (int i = 0; i < m_climbCastPoints.Length; i++)
-        {
-            SweepCast(m_climbCastPoints[i], ref averageRotation, ref amountToAverage, ref shortestDst, ref furthestDistance, ref anyHands, ref amountOfHands);
-        }
-
-        averageRotation /= amountToAverage;
-
-        Quaternion wallRotQ = Quaternion.LookRotation(averageRotation);
-        m_wallTransform.rotation = wallRotQ;
-        Debug.DrawRay(m_wallTransform.position, m_wallTransform.up * 2);
-        Debug.DrawRay(m_wallTransform.position, m_wallTransform.right * 2);
-        */
-		#endregion
-	}
-
-	private void SweepCast(Transform p_castOrigin, ref Vector3 p_averageRotation, ref int p_amountToAverage, ref float p_shortestDistance, ref Vector3 p_furthestDistance, ref bool p_handHit, ref int p_amountOfHands)
-    {
-        bool handOnSurface = false;
-
-        RaycastHit spacingHit;
-
-        Vector3 castPointThisFrame = Vector3.zero;
-
-        Vector3 firstCastPoint = p_castOrigin.position + (-transform.forward * m_backwardOffset);
-
-        float length = m_handOnWallDetectRayLength + m_backwardOffset;
-
-        if (Physics.Raycast(firstCastPoint, p_castOrigin.forward, out spacingHit, length, m_groundMask))
-        {
-            handOnSurface = true;
-
-            float realDst = spacingHit.distance - m_backwardOffset;
-
-            if (realDst > m_targetWallDistance)
-            {
-                castPointThisFrame = p_castOrigin.position + (p_castOrigin.forward * (realDst - m_targetWallDistance));
-            }
-
-            if (realDst < m_targetWallDistance)
-            {
-                castPointThisFrame = p_castOrigin.position + (-p_castOrigin.forward * (m_targetWallDistance - realDst));
-            }
-        }
-        else
-        {
-            castPointThisFrame = p_castOrigin.position;
-        }
-
-        Debug.DrawLine(firstCastPoint, firstCastPoint + (p_castOrigin.forward * m_backwardOffset), Color.yellow);
-
-        float totalAngle = 90;
-        float raySpacing = 1;
-
-        if (handOnSurface)
-        {
-            totalAngle = 180;
-        }
-        else
-        {
-            totalAngle = 180;
-            p_handHit = true;
-        }
-
-        int rayCount = Mathf.RoundToInt(totalAngle / raySpacing);
-
-        for (int i = 0; i < rayCount; i++)
-        {
-            float currentAngle = 0;
-
-            if (handOnSurface)
-            {
-                //currentAngle = (i * raySpacing);
-                currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
-            }
-            else
-            {
-                currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
-            }
-
-            Vector3 currentDir = Vector3.Cross(p_castOrigin.forward, m_velocityTransform.forward).normalized;
-            Quaternion raySpaceQ = Quaternion.Euler(currentDir.x * currentAngle, currentDir.y * currentAngle, currentDir.z * currentAngle);
-
-            RaycastHit hit;
-
-            float currentCastLength = 0;
-
-            if (handOnSurface)
-            {
-                currentCastLength = m_handOnWallRayLength;
-            }
-            else
-            {
-                currentCastLength = m_handOffWallRayLength;
-            }
-
-            if (Physics.Raycast(castPointThisFrame, raySpaceQ * p_castOrigin.forward, out hit, currentCastLength, m_groundMask))
-            {
-                p_averageRotation += hit.normal;
-                p_amountToAverage++;
-
-                if (hit.distance < p_shortestDistance)
-                {
-                    p_shortestDistance = hit.distance;
-                }
-
-                Vector3 localPoint = transform.InverseTransformPoint(castPointThisFrame);
-                Vector3 furthestLocalPoint = transform.InverseTransformPoint(p_furthestDistance);
-
-                if (localPoint.z < furthestLocalPoint.z)
-                {
-                    p_furthestDistance = castPointThisFrame;
-                }
-
-                if (handOnSurface)
-                {
-                    Debug.DrawLine(castPointThisFrame, hit.point, Color.blue);
-                }
-                else
-                {
-                    Debug.DrawLine(castPointThisFrame, hit.point, Color.red);
-                }
-            }
-
-            if (handOnSurface)
-            {
-                p_castOrigin.position = castPointThisFrame;
-            }
-            else
-            {
-                p_amountOfHands++;
-            }
-        }
-    }
-
-    private void UpwardWallCast()
-	{
-        Vector3 currentMovementDirection = Vector3.Cross(transform.forward, m_velocityTransform.forward).normalized;
-
-        float halfPlayerHeight = (m_characterController.height / 2);
-
-        Vector3 castDirection = Vector3.up * -currentMovementDirection.z;
-        Vector3 verticalCast = (Vector3.up * currentMovementDirection.z) * halfPlayerHeight;
-
-        float boundsWidth = m_characterController.radius * 2;
-        int widthRayCount = Mathf.RoundToInt(boundsWidth / m_distanceBetweenRays);
-        float widthRaySpacing = boundsWidth / (widthRayCount - 1);
-
-        Vector3 averageRotation = Vector3.zero;
-        int amountToAverage = 0;
-        Vector3 furthestDistance = transform.position + (transform.forward * 1000);
-
-        for (int i = 0; i < widthRayCount; i++)
-		{
-            float currentHorizontalPlace = (i * widthRaySpacing);
-            Vector3 horizontalCast = (transform.right * currentHorizontalPlace) - transform.right * m_characterController.radius;
-
-            Vector3 castPoint = transform.position + verticalCast + horizontalCast - transform.forward * 10;
-
-            Debug.DrawRay(castPoint, castDirection * (m_characterController.height + m_wallCastLookAheadDistance));
-
-            SweepUpWall(castPoint, castDirection, (m_characterController.height + m_wallCastLookAheadDistance), ref averageRotation, ref amountToAverage, ref furthestDistance);
-		}
-
-        averageRotation /= amountToAverage;
-        Quaternion wallRotQ = Quaternion.LookRotation(averageRotation);
-        m_wallTransform.rotation = wallRotQ;
-
         float cross = Vector3.Cross(transform.forward, -m_wallTransform.forward).y;
-        transform.Rotate(Vector3.up, cross);
-
-        CalculateDistanceFromWall(furthestDistance);
+        transform.Rotate(Vector3.up, cross * 10f);
     }
-
-    private void SweepUpWall(Vector3 p_castOrigin, Vector3 p_castDir, float p_castLength, ref Vector3 p_averageRotation, ref int p_amountToAverage, ref Vector3 p_furthestDistance)
-	{
-        float targetLength = p_castLength;
-        int lengthRayCount = Mathf.RoundToInt(targetLength / m_distanceBetweenRays);
-        float lengthRaySpacing = targetLength / (lengthRayCount - 1);
-
-		for (int i = 0; i < lengthRayCount; i++)
-		{
-            float currentPlaceAlongLength = (i * lengthRaySpacing);
-
-            Vector3 lengthPosition = p_castOrigin + (p_castDir * currentPlaceAlongLength);
-
-            CastSinglePoint(lengthPosition, ref p_averageRotation, ref p_amountToAverage, ref p_furthestDistance);
-        }
-    }
-
-    private void CastSinglePoint(Vector3 p_castPoint, ref Vector3 p_averageRotation, ref int p_amountToAverage, ref Vector3 p_furthestDistance)
-	{
-        RaycastHit hit;
-
-		if (Physics.Raycast(p_castPoint, transform.forward, out hit, Mathf.Infinity, m_groundMask))
-		{
-            p_averageRotation += hit.normal;
-
-            p_amountToAverage++;
-
-            Vector3 localPoint = transform.InverseTransformPoint(hit.point - transform.forward * m_targetWallDistance);
-            Vector3 furthestLocalPoint = transform.InverseTransformPoint(p_furthestDistance);
-
-            if (localPoint.z < furthestLocalPoint.z)
-            {
-                p_furthestDistance = hit.point - transform.forward * m_targetWallDistance;
-            }
-
-            Debug.DrawLine(p_castPoint, hit.point, Color.red);
-		}
-	}
-
-    private void CalculateDistanceFromWall(Vector3 p_furthestDistance)
-	{
-        Vector3 furthestLocalPoint = transform.InverseTransformPoint(p_furthestDistance);
-        Vector3 translation = transform.forward * (furthestLocalPoint.z) - (transform.forward * m_characterController.radius);
-
-        if (furthestLocalPoint.z > 0)
-		{
-            m_characterController.Move(translation);
-        }
-        if (furthestLocalPoint.z < 0)
-        {
-            m_characterController.Move(-translation);
-        }
-    }
-
-    private void SweepCastOld(Transform p_castOrigin, ref Vector3 p_averageRotation, ref int p_amountToAverage, ref float p_shortestDistance, ref Vector3 p_furthestDistance, ref bool p_handHit, ref int p_amountOfHands)
-    {
-        bool handOnSurface = false;
-
-        RaycastHit spacingHit;
-
-        Vector3 castPointThisFrame = Vector3.zero;
-
-        Vector3 firstCastPoint = p_castOrigin.position + (-transform.forward * m_backwardOffset);
-
-        float length = m_handOnWallDetectRayLength + m_backwardOffset;
-
-        if (Physics.Raycast(firstCastPoint, p_castOrigin.forward, out spacingHit, length, m_groundMask))
-		{
-            handOnSurface = true;
-
-            float realDst = spacingHit.distance - m_backwardOffset;
-
-            if (realDst > m_targetWallDistance)
-            {
-                castPointThisFrame = p_castOrigin.position + (p_castOrigin.forward * (realDst - m_targetWallDistance));
-            }
-
-            if (realDst < m_targetWallDistance)
-            {
-                castPointThisFrame = p_castOrigin.position + (-p_castOrigin.forward * (m_targetWallDistance - realDst));
-            }
-		}
-		else
-		{
-            castPointThisFrame = p_castOrigin.position;
-        }
-
-        Debug.DrawLine(firstCastPoint, firstCastPoint + (p_castOrigin.forward * m_backwardOffset), Color.yellow);
-
-        float totalAngle = 90;
-        float raySpacing = 1;
-
-		if (handOnSurface)
-		{
-            totalAngle = 180;
-		}
-		else
-		{
-            totalAngle = 180;
-            p_handHit = true;
-        }
-        
-        int rayCount = Mathf.RoundToInt(totalAngle / raySpacing);
-
-		for (int i = 0; i < rayCount; i++)
-		{
-            float currentAngle = 0;
-
-			if (handOnSurface)
-			{
-                //currentAngle = (i * raySpacing);
-                currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
-            }
-			else
-			{
-                currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
-            }
-
-            Vector3 currentDir = Vector3.Cross(p_castOrigin.forward, m_velocityTransform.forward).normalized;
-            Quaternion raySpaceQ = Quaternion.Euler(currentDir.x * currentAngle, currentDir.y * currentAngle, currentDir.z * currentAngle);
-
-            RaycastHit hit;
-
-            float currentCastLength = 0;
-
-			if (handOnSurface)
-			{
-                currentCastLength = m_handOnWallRayLength;
-			}
-			else
-			{
-                currentCastLength = m_handOffWallRayLength;
-			}
-
-            if (Physics.Raycast(castPointThisFrame, raySpaceQ * p_castOrigin.forward, out hit, currentCastLength, m_groundMask))
-            {
-                p_averageRotation += hit.normal;
-                p_amountToAverage++;
-
-                if (hit.distance < p_shortestDistance)
-                {
-                    p_shortestDistance = hit.distance;
-                }
-
-                Vector3 localPoint = transform.InverseTransformPoint(castPointThisFrame);
-                Vector3 furthestLocalPoint = transform.InverseTransformPoint(p_furthestDistance);
-
-                if (localPoint.z < furthestLocalPoint.z)
-				{
-                    p_furthestDistance = castPointThisFrame;
-				}
-
-				if (handOnSurface)
-				{
-                    Debug.DrawLine(castPointThisFrame, hit.point, Color.blue);
-				}
-				else
-				{
-                    Debug.DrawLine(castPointThisFrame, hit.point, Color.red);
-                }
-            }
-
-			if (handOnSurface)
-			{
-                p_castOrigin.position = castPointThisFrame;
-			}
-			else
-			{
-                p_amountOfHands++;
-            }
-        }
-
-		#region Old
-		/*
-        if (handOnSurface)
-		{
-            for (int i = 0; i < rayCount; i++)
-            {
-                Vector3 currentDir = Vector3.Cross(p_castOrigin.forward, m_velocityTransform.forward).normalized;
-                Quaternion raySpaceQ = Quaternion.Euler(currentDir.x * currentAngle, currentDir.y * currentAngle, currentDir.z * currentAngle);
-
-                RaycastHit hit;
-
-                if (Physics.Raycast(castPointThisFrame, raySpaceQ * p_castOrigin.forward, out hit, castLength, m_groundMask))
-                {
-                    p_averageRotation += hit.normal;
-
-                    p_amountToAverage++;
-
-					if (hit.distance < p_shortestDistance)
-					{
-                        p_shortestDistance = hit.distance;
-                    }
-
-                    Debug.DrawLine(castPointThisFrame, hit.point, Color.blue);
-                }
-            }
-		}
-		else
-		{
-            for (int i = 0; i < rayCount; i++)
-            {
-                float currentAngle = ((i * raySpacing) - (raySpacing * (rayCount / 2)));
-                Vector3 currentDir = Vector3.Cross(p_castOrigin.forward, m_velocityTransform.forward).normalized;
-                Quaternion raySpaceQ = Quaternion.Euler(currentDir.x * currentAngle, currentDir.y * currentAngle, currentDir.z * currentAngle);
-
-                RaycastHit hit;
-
-                if (Physics.Raycast(castPointThisFrame, raySpaceQ * p_castOrigin.forward, out hit, m_offWallRayLength, m_groundMask))
-                {
-                    p_averageRotation += hit.normal;
-
-                    p_amountToAverage++;
-
-                    if (hit.distance < p_shortestDistance)
-                    {
-                        p_shortestDistance = hit.distance;
-                    }
-
-                    Debug.DrawLine(castPointThisFrame, hit.point, Color.red);
-                }
-            }
-        }
-        */
-		#endregion
-	}
 
 	private void SetModelOnWall()
 	{
@@ -770,14 +311,21 @@ public class PlayerController : MonoBehaviour
 
     private void RunClimbMovement()
 	{
-        Vector3 rightInput = m_wallTransform.right * -m_movementInput.x;
-        Vector3 upInput = transform.up * m_movementInput.y;
+        Vector3 rightInput = transform.right * m_movementInput.x;
+
+        float slopeAngle = Vector3.Angle(m_wallTransform.forward, Vector3.up);
+
+        Vector3 upInput = Vector3.zero;
+        Vector3 wallStickInput = Vector3.zero;
+
+        upInput = transform.forward * m_movementInput.y;
+        //wallStickInput = -transform.up;
 
         Vector3 playerInput = Vector3.ClampMagnitude(rightInput + upInput, 1f);
-
         Vector3 targetWallMovement = playerInput * m_wallSpeed;
-        Vector3 horizontalMovement = Vector3.SmoothDamp(m_wallMovementVelocity, targetWallMovement, ref m_groundMovementVelocitySmoothing, 0f);
-        m_wallMovementVelocity = horizontalMovement;
+        Vector3 horizontalMovement = Vector3.SmoothDamp(m_wallMovementVelocity, targetWallMovement, ref m_groundMovementVelocitySmoothing, m_baseMovementProperties.m_accelerationTimeAir);
+        
+        m_wallMovementVelocity = horizontalMovement + wallStickInput;
     }
 
     private void FindEdge()
@@ -947,6 +495,13 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Basic Movement Code
+
+    public void SetFlyInput(float p_input)
+	{
+        m_flyInput = p_input;
+
+    }
+
     private void CalculateVelocity()
     {
         if (m_states.m_gravityControllState == GravityState.GravityEnabled)
@@ -991,11 +546,11 @@ public class PlayerController : MonoBehaviour
 
                 Vector3 forwardMovement = transform.forward * m_movementInput.y;
                 Vector3 rightMovement = transform.right * m_movementInput.x;
+                Vector3 upMovement = transform.up * m_movementInput.y;
 
                 targetHorizontalMovement = Vector3.ClampMagnitude(forwardMovement + rightMovement, 1.0f) * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
 
                 //m_animInputTarget = m_movementInput;
-
             }
 
             if (targetHorizontalMovementDirection.magnitude != 0)
@@ -1011,9 +566,21 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            float currentAcceleration = m_currentHorizontalAccelerationSpeed;
+            float currentAcceleration = m_baseMovementProperties.m_accelerationTimeGrounded;
             Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
-            m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
+
+			if (m_states.m_gravityControllState == GravityState.GravityEnabled)
+			{
+                m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
+			}
+			else
+			{
+                Vector3 flyAmount = transform.up * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed) * m_flyInput;
+
+                m_groundMovementVelocity = horizontalMovement + flyAmount;
+            }
+
+            
         }
         else
         {
@@ -1034,7 +601,7 @@ public class PlayerController : MonoBehaviour
         velocity += m_slopeShiftVelocity;
         velocity += m_wallMovementVelocity;
 
-        m_characterController.Move(velocity * Time.deltaTime);
+        m_collisionController.Move(velocity, m_isClimbing);
 
 		if (velocity.magnitude > 0.1f)
 		{
@@ -1046,7 +613,7 @@ public class PlayerController : MonoBehaviour
             m_movementDirection = m_lastMovementDirection;
         }
 
-        m_velocityTransform.rotation = Quaternion.LookRotation(m_movementDirection, Vector3.up);
+        //m_velocityTransform.rotation = Quaternion.LookRotation(m_movementDirection, Vector3.up);
     }
 
     public bool IsGrounded()
@@ -1098,14 +665,9 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private void ZeroOnGroundCeiling()
+    private void ZeroVelocityOnGround()
     {
         if (IsGrounded() && !(m_gravityVelocity.y > 0))
-        {
-            m_gravityVelocity.y = 0;
-        }
-
-        if (HitCeiling() && m_gravityVelocity.y > 0)
         {
             m_gravityVelocity.y = 0;
         }

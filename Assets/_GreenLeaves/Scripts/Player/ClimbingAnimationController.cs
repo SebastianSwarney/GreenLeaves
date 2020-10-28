@@ -27,6 +27,8 @@ public class ClimbingAnimationController : MonoBehaviour
 
 	private void Start()
 	{
+		
+
 		m_isHandMoving = new bool[m_hands.Length];
 		m_targetPositions = new Vector3[m_hands.Length];
 		m_stepStartPositions = new Vector3[m_hands.Length];

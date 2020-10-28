@@ -65,6 +65,8 @@ public class PlayerInput : MonoBehaviour
         Vector2 movementInput = new Vector2(m_playerInputController.GetAxisRaw("MoveHorizontal"), m_playerInputController.GetAxisRaw("MoveVertical"));
         m_playerController.SetMovementInput(movementInput);
 
+        m_playerController.SetFlyInput(m_playerInputController.GetAxis("MoveFly"));
+
         if (Input.GetKeyDown(KeyCode.P))
         {
             m_lockLooking = !m_lockLooking;
