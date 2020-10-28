@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 2830612766734735108}
   - component: {fileID: 1218083808627644577}
   - component: {fileID: 3964143543516605547}
-  m_Layer: 0
+  - component: {fileID: 8573121650561426847}
+  m_Layer: 10
   m_Name: Trunk_reduced_30
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,7 +26,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3171532481129647550}
-  m_LocalRotation: {x: -0, y: 0.33120754, z: -0, w: 0.943558}
+  m_LocalRotation: {x: 0, y: 0.33120614, z: 0, w: 0.94355845}
   m_LocalPosition: {x: -576.48035, y: -0.099999994, z: -79.523026}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -81,3 +82,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &8573121650561426847
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3171532481129647550}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 8255102749607876737, guid: c64b49bb60d47c74aa6382090a9526d7, type: 3}
