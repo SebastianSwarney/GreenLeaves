@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3543022619521844390}
   - component: {fileID: 8038396024388594472}
   - component: {fileID: 2745775134637957310}
+  - component: {fileID: 9060513580864448242}
   m_Layer: 0
   m_Name: Aspen_Tree_Branch.90(Clone)
   m_TagString: Untagged
@@ -81,6 +82,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &9060513580864448242
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571793239169983565}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2319861805964026236, guid: 06b3540e60173fb4cb668ca070780cce, type: 3}
 --- !u!1 &5492286297633025389
 GameObject:
   m_ObjectHideFlags: 0
@@ -104,7 +119,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5492286297633025389}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1295.89, y: -5.5, z: -38.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
