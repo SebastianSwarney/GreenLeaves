@@ -7,7 +7,6 @@ public class ResourceContainer_Equip : ResourceContainer
     public override void UseItem(Inventory_Icon p_currentIcon)
     {
         GameObject newItem = ObjectPooler.Instance.NewObject(m_resourceData.m_resourcePrefab, Vector3.zero, Quaternion.identity);
-        newItem.GetComponent<Player_EquipmentUse>().m_durability = p_currentIcon.GetComponent<Inventory_Icon_Durability>().m_durabilityAmount;
         Inventory_ItemUsage.Instance.EquipNewItem(p_currentIcon, this, newItem);
     }
 

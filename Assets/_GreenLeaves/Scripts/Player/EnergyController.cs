@@ -10,7 +10,7 @@ public class EnergyController : MonoBehaviour
     public float m_mainEnergyMax;
     public Image m_mainEnergyImage;
 
-    private float m_currentMainEnergy;
+    public float m_currentMainEnergy;
 
     [Header("Secondary Energy Properties")]
     public float m_secondaryEnergyMax;
@@ -141,5 +141,16 @@ public class EnergyController : MonoBehaviour
 
 
         }
+    }
+
+    public bool IsFullMainEnergy(out int p_depletedEnergyAmount)
+    {
+        p_depletedEnergyAmount = 0;
+        if(m_currentMainEnergy >= m_mainEnergyMax)
+        {
+            return true;
+        }
+        p_depletedEnergyAmount = (int)(m_mainEnergyMax - m_currentMainEnergy);
+        return false;
     }
 }

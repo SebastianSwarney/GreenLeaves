@@ -12,19 +12,18 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     public Color m_debugColor;
 
     [Header("SliceDetection")]
-    public GameObject m_playerObject;
+    public Transform m_playerObject;
     public float m_detectionRadius;
     public LayerMask m_detectionMask;
 
-    private void Update()
+    public override void InitializeObject(Inventory_Icon_Durability p_linkedIcon)
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        base.InitializeObject(p_linkedIcon);
+        if (m_playerObject == null)
         {
-            UseEquipment();
+            m_playerObject = EnergyController.Instance.transform;
         }
     }
-
-
     public override void UseEquipment()
     {
         Manipulation_SelfSlice sliceMe = CheckRadius();
@@ -53,5 +52,19 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             }
         }
         return null;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!m_debug) return;
+        Gizmos.color = m_debugColor;
+        if(m_playerObject != null)
+        {
+            Gizmos.DrawWireSphere(m_playerObject.position, m_detectionRadius);
+        }
+        else
+        {
+            Gizmos.DrawWireSphere(transform.position, m_detectionRadius);
+        }
     }
 }

@@ -31,6 +31,8 @@ public class Inventory_ItemUsage : MonoBehaviour
         m_equipedItemObject = p_heldObject;
         m_currentEquippedIcon = p_currentIcon;
 
+        p_heldObject.GetComponent<Player_EquipmentUse>().InitializeObject(p_currentIcon.GetComponent<Inventory_Icon_Durability>());
+
         Player_Inventory.Instance.EquipItem(p_heldObject);
         Inventory_2DMenu.Instance.ChangeSelectedButtonText("Unequip");
         //m_playerEquipment.Unequip();
