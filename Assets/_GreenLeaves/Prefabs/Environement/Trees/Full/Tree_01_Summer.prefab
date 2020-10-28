@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 7476844932022554405}
   - component: {fileID: 7152712357692847458}
   - component: {fileID: 7160307675972134349}
-  m_Layer: 0
+  - component: {fileID: 1404829207}
+  m_Layer: 10
   m_Name: Aspen_Tree_Branch.2(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -81,6 +82,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &1404829207
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525849571023993004}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2319861805964026236, guid: 45684835be48db34090ac43022aadcb0, type: 3}
 --- !u!1 &837967293096084963
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,7 +107,7 @@ GameObject:
   - component: {fileID: 2379474478022156942}
   - component: {fileID: 5028888025810745860}
   - component: {fileID: 7212935608311151271}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Aspen_Tree_Bush.2(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -171,7 +186,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7530919628331519617}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tree_01_Summer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -185,7 +200,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4671127986844117338}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 20.89, y: -5.5, z: 1.4000015}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
