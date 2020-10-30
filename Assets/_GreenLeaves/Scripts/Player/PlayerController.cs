@@ -242,27 +242,21 @@ public class PlayerController : MonoBehaviour
 	public void PerformController()
     {
         CalculateVelocity();
-        CaculateTotalVelocity();
+        CheckLanded();
+        ZeroVelocityOnGround();
 
-		if (m_collisionController.m_averageNormal != Vector3.zero)
+        if (m_collisionController.m_averageNormal != Vector3.zero)
 		{
             m_wallTransform.rotation = Quaternion.LookRotation(m_collisionController.m_averageNormal);
-        }
-
-
-
-        //SlopePhysics();
-
-        if (!m_isClimbing)
-		{
-            CheckLanded();
-            ZeroVelocityOnGround();
         }
 
 		if (m_isRunning)
 		{
             m_energyController.DepleteEnergy(m_baseMovementProperties.m_runEnergyDepletionTime);
 		}
+
+
+        CaculateTotalVelocity();
     }
 
     private void StartClimb()
@@ -601,7 +595,7 @@ public class PlayerController : MonoBehaviour
         velocity += m_slopeShiftVelocity;
         velocity += m_wallMovementVelocity;
 
-        m_collisionController.Move(velocity, m_isClimbing);
+        m_collisionController.Move(velocity * Time.fixedDeltaTime);
 
 		if (velocity.magnitude > 0.1f)
 		{
@@ -667,7 +661,7 @@ public class PlayerController : MonoBehaviour
 
     private void ZeroVelocityOnGround()
     {
-        if (IsGrounded() && !(m_gravityVelocity.y > 0))
+        if (m_collisionController.HitBelow())
         {
             m_gravityVelocity.y = 0;
         }

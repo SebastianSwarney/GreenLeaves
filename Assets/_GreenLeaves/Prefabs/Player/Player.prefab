@@ -821,7 +821,7 @@ CharacterController:
   m_Radius: 0.2
   m_SlopeLimit: 180
   m_StepOffset: 0.3
-  m_SkinWidth: 0.01
+  m_SkinWidth: 0.08
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2987350526598319850
@@ -925,8 +925,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93b1a84240592744c91778d016becd6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testVelocity: {x: 0, y: 0, z: 0}
-  testSpeed: 0
   m_collisionMask:
     serializedVersion: 2
     m_Bits: 512
@@ -937,6 +935,11 @@ MonoBehaviour:
   m_oldAveragePoint: {x: 0, y: 0, z: 0}
   m_amountToAverage: 0
   m_logVelocityMag: 0
+  m_averageNormalTransform: {fileID: 0}
+  m_castSkinWidth: 0
+  m_castHeightOffset: 0
+  f: 0
+  cap: {fileID: 0}
 --- !u!1 &3263249261196269302
 GameObject:
   m_ObjectHideFlags: 0
