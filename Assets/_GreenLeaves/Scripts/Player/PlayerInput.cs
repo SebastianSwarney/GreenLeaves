@@ -62,7 +62,7 @@ public class PlayerInput : MonoBehaviour
 
     public void GetInput()
     {
-        Vector2 movementInput = new Vector2(m_playerInputController.GetAxisRaw("MoveHorizontal"), m_playerInputController.GetAxisRaw("MoveVertical"));
+        Vector2 movementInput = new Vector2(m_playerInputController.GetAxis("MoveHorizontal"), m_playerInputController.GetAxis("MoveVertical"));
         m_playerController.SetMovementInput(movementInput);
 
         m_playerController.SetFlyInput(m_playerInputController.GetAxis("MoveFly"));
@@ -82,12 +82,12 @@ public class PlayerInput : MonoBehaviour
 
 		if (Input.GetMouseButtonDown(1))
 		{
-            m_playerController.OnAimingInputDown();
+            //m_playerController.OnAimingInputDown();
 		}
 
         if (Input.GetMouseButtonUp(1))
         {
-            m_playerController.OnAimingInputUp();
+            //m_playerController.OnAimingInputUp();
         }
 
         if (m_playerInputController.GetButtonDown("Jump"))
@@ -101,16 +101,16 @@ public class PlayerInput : MonoBehaviour
 
 		if (m_playerInputController.GetButtonDown("Run"))
 		{
-            m_playerController.OnRunButtonDown();
+            //m_playerController.OnRunButtonDown();
         }
         if (m_playerInputController.GetButtonUp("Run"))
         {
-            m_playerController.OnRunButtonUp();
+            //m_playerController.OnRunButtonUp();
         }
 
         if (m_playerInputController.GetButtonDown("Walk"))
         {
-            m_playerController.OnWalkButtonDown();
+           //m_playerController.OnWalkButtonDown();
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))

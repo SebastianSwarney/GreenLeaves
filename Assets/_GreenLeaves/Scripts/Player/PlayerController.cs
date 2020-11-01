@@ -242,24 +242,17 @@ public class PlayerController : MonoBehaviour
 	public void PerformController()
     {
         CalculateVelocity();
-        CheckLanded();
-        ZeroVelocityOnGround();
-
-        if (m_collisionController.m_averageNormal != Vector3.zero)
-		{
-            m_wallTransform.rotation = Quaternion.LookRotation(m_collisionController.m_averageNormal);
-        }
-
-		if (m_isRunning)
-		{
-            m_energyController.DepleteEnergy(m_baseMovementProperties.m_runEnergyDepletionTime);
-		}
-
+        FindWallClimbPoint();
 
         CaculateTotalVelocity();
+
+        CheckLanded();
+        ZeroVelocityOnGround();
     }
 
-    private void StartClimb()
+	#region Yep Climb
+
+	private void StartClimb()
 	{
 		if (m_isClimbing)
 		{
@@ -292,9 +285,104 @@ public class PlayerController : MonoBehaviour
     }
 
     private void FindWallClimbPoint()
-	{
-        float cross = Vector3.Cross(transform.forward, -m_wallTransform.forward).y;
-        transform.Rotate(Vector3.up, cross * 10f);
+    {
+        float totalAngle = 180;
+        float raySpacing = 10;
+
+        float rayCount = Mathf.RoundToInt(totalAngle / raySpacing);
+
+        Vector3 bottom = transform.position + m_characterController.center + Vector3.up * -m_characterController.height * 0.5F;
+        Vector3 top = bottom + Vector3.up * m_characterController.height;
+
+        Vector3 averageNormal = Vector3.zero;
+        float amountToAverage = 0;
+
+        for (int i = 0; i < rayCount; i++)
+        {
+            float currentAngle = (i * raySpacing) - (raySpacing * (rayCount / 2));
+            Quaternion raySpaceQ = Quaternion.Euler(0, currentAngle, 0);
+            Vector3 castDir = raySpaceQ * transform.forward;
+
+            Vector3 bottomCastPoint = bottom - (castDir * m_characterController.skinWidth);
+            Vector3 topCastPoint = top - (castDir * m_characterController.skinWidth);
+
+            bottomCastPoint += Vector3.up * m_characterController.skinWidth;
+
+            float castRadius = m_characterController.radius - m_characterController.skinWidth;
+            float rayLength = (m_wallMovementVelocity.magnitude * Time.fixedDeltaTime) + (m_characterController.skinWidth * 2);
+
+			if (rayLength < m_characterController.skinWidth)
+			{
+                rayLength = m_characterController.skinWidth * 2f;
+			}
+
+            RaycastHit firstHit;
+
+            if (Physics.CapsuleCast(bottomCastPoint, topCastPoint, castRadius, castDir, out firstHit, rayLength, m_wallMask))
+			{
+                bottomCastPoint += castDir * firstHit.distance;
+                topCastPoint += castDir * firstHit.distance;
+
+                DebugExtension.DebugCapsule(bottomCastPoint, topCastPoint, Color.blue, castRadius);
+
+                Debug.DrawLine(transform.position, firstHit.point);
+
+                if (Mathf.Sign(currentAngle) == Mathf.Sign(transform.InverseTransformDirection(m_wallMovementVelocity).x))
+				{
+                    Debug.Log(Mathf.Sign(transform.InverseTransformDirection(m_wallMovementVelocity).x));
+                    averageNormal = firstHit.normal;
+                    Debug.DrawLine(transform.position, firstHit.point, Color.red);
+                }
+			}
+			else
+			{
+                bottomCastPoint = bottom + castDir * rayLength;
+                topCastPoint = top + castDir * rayLength;
+
+                castDir = Vector3.Reflect(castDir, transform.right);
+
+                bottomCastPoint -= (castDir * m_characterController.skinWidth);
+                topCastPoint -= (castDir * m_characterController.skinWidth);
+
+                if (Physics.CapsuleCast(bottomCastPoint, topCastPoint, castRadius, castDir, out firstHit, rayLength, m_wallMask))
+                {
+                    bottomCastPoint += castDir * firstHit.distance;
+                    topCastPoint += castDir * firstHit.distance;
+
+                    DebugExtension.DebugCapsule(bottomCastPoint, topCastPoint, Color.blue, castRadius);
+
+
+                    Debug.DrawLine(transform.position, firstHit.point);
+
+                    if (Mathf.Sign(currentAngle) == Mathf.Sign(transform.InverseTransformDirection(m_wallMovementVelocity).x))
+                    {
+                        Debug.Log(Mathf.Sign(transform.InverseTransformDirection(m_wallMovementVelocity).x));
+                        averageNormal = firstHit.normal;
+                        Debug.DrawLine(transform.position, firstHit.point, Color.red);
+                    }
+                }
+            }
+        }
+
+        //averageNormal /= amountToAverage;
+
+        DebugExtension.DebugArrow(transform.position, averageNormal, Color.green);
+
+        Vector3 localYAxis = Vector3.Cross(-transform.forward, transform.right);
+        Vector3 targetBackwards = Vector3.ProjectOnPlane(averageNormal, localYAxis);
+        Quaternion yOffset = Quaternion.FromToRotation(-transform.forward, targetBackwards);
+        transform.rotation = transform.rotation * yOffset;
+
+        m_wallTransform.rotation = Quaternion.LookRotation(averageNormal);
+
+        Vector3 upInput = m_wallTransform.up * m_movementInput.y;
+        Vector3 rightInput = transform.right * m_movementInput.x;
+
+        Vector3 playerInput = Vector3.ClampMagnitude(rightInput + upInput, 1f);
+        Vector3 targetWallMovement = playerInput * m_wallSpeed;
+        Vector3 horizontalMovement = Vector3.SmoothDamp(m_wallMovementVelocity, targetWallMovement, ref m_groundMovementVelocitySmoothing, m_baseMovementProperties.m_accelerationTimeAir);
+
+        m_wallMovementVelocity = horizontalMovement;
     }
 
 	private void SetModelOnWall()
@@ -306,20 +394,13 @@ public class PlayerController : MonoBehaviour
     private void RunClimbMovement()
 	{
         Vector3 rightInput = transform.right * m_movementInput.x;
-
-        float slopeAngle = Vector3.Angle(m_wallTransform.forward, Vector3.up);
-
-        Vector3 upInput = Vector3.zero;
-        Vector3 wallStickInput = Vector3.zero;
-
-        upInput = transform.forward * m_movementInput.y;
-        //wallStickInput = -transform.up;
+        Vector3 upInput = transform.forward * m_movementInput.y;
 
         Vector3 playerInput = Vector3.ClampMagnitude(rightInput + upInput, 1f);
         Vector3 targetWallMovement = playerInput * m_wallSpeed;
         Vector3 horizontalMovement = Vector3.SmoothDamp(m_wallMovementVelocity, targetWallMovement, ref m_groundMovementVelocitySmoothing, m_baseMovementProperties.m_accelerationTimeAir);
         
-        m_wallMovementVelocity = horizontalMovement + wallStickInput;
+        m_wallMovementVelocity = horizontalMovement;
     }
 
     private void FindEdge()
@@ -402,6 +483,8 @@ public class PlayerController : MonoBehaviour
             }
 		}
 	}
+
+	#endregion
 
 	#region Input Code
 	public void SetMovementInput(Vector2 p_input)
@@ -591,11 +674,9 @@ public class PlayerController : MonoBehaviour
 
         velocity += m_groundMovementVelocity;
         velocity += m_gravityVelocity;
-        velocity += m_slopeVelocity;
-        velocity += m_slopeShiftVelocity;
         velocity += m_wallMovementVelocity;
 
-        m_collisionController.Move(velocity * Time.fixedDeltaTime);
+        m_collisionController.Move(velocity * Time.fixedDeltaTime, m_isClimbing);
 
 		if (velocity.magnitude > 0.1f)
 		{
