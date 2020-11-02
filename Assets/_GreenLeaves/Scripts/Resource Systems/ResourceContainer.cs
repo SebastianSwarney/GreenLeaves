@@ -4,7 +4,7 @@
 /// The data container that contains the data of the objects.<br/>
 /// Includes edibles, equipables, and canteen
 /// </summary>
-[CreateAssetMenu(fileName = "ResourceData_", menuName = "ScriptableObjects/ResourceData",order = 0)]
+[CreateAssetMenu(fileName = "ResourceData_", menuName = "ScriptableObjects/ResourceData", order = 0)]
 public class ResourceContainer : ScriptableObject
 {
     public ResourceData m_resourceData;
@@ -18,6 +18,7 @@ public class ResourceContainer : ScriptableObject
     public virtual GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot)
     {
         GameObject dropped = ObjectPooler.Instance.NewObject(m_resourceData.m_resourcePrefab, p_pos, p_rot);
+
         dropped.GetComponent<Resource_Pickup>().m_canPickup = true;
         return dropped;
     }

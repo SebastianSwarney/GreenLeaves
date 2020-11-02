@@ -14,25 +14,26 @@ public class Player_EquipmentUse : MonoBehaviour
 
     [Header("Events")]
     public GenericWorldEvent m_itemBrokeEffect;
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            UseEquipment();
-        }
-    }
 
-    public virtual void InitializeObject(Inventory_Icon_Durability p_linkedIcon)
+    public virtual void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
-        enabled = true;
         m_linkedIcon = p_linkedIcon;
         m_durability = p_linkedIcon.m_durabilityAmount;
+        
+        gameObject.SetActive(true);
+        enabled = true;
     }
-    #region Durability
-    public void ResetDurability()
+
+    public virtual void UnEquipObject()
     {
+        m_linkedIcon = null;
         m_durability = m_startingDurability;
+        
+        gameObject.SetActive(false);
+        enabled = false;
     }
+
+    #region Durability
 
     public void ReduceDurability(int p_durabilityUsed = 1)
     {
@@ -44,9 +45,11 @@ public class Player_EquipmentUse : MonoBehaviour
         }
         UpdateIconDurability(m_durability);
     }
+
     public virtual void ObjectBroke()
     {
-        Inventory_ItemUsage.Instance.HeldEquipmentBroke();
+        Inventory_2DMenu.Instance.m_inventoryGrid.RemoveSingleIcon(m_linkedIcon);
+        Player_Inventory.Instance.UnEquipCurrentTool();
     }
 
     public virtual void UpdateIconDurability(int p_newAmount)
@@ -64,10 +67,5 @@ public class Player_EquipmentUse : MonoBehaviour
     public virtual void UseEquipment()
     {
         Debug.Log("Place equipment usage code here", this);
-    }
-
-    private void OnDisable()
-    {
-        enabled = false;
     }
 }

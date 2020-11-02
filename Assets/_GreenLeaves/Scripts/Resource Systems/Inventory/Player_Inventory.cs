@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// This class is specifically for detecting and picking up the resources in the 3d world
@@ -27,9 +28,15 @@ public class Player_Inventory : MonoBehaviour
     [Tooltip("Changes how the system decides which item to pickup first if there is more than 1 item")]
     public PickupType m_currentPickupType;
 
+    [Header("Equipable Tools")]
+    public Player_EquipmentUse m_currentEquipedTool;
+    public Player_EquipmentUse m_axeTool, m_canteenTool, m_torchTool, m_bootsTool, m_climbingAxeTool;
+
     [Header("Debugging")]
     public bool m_debugging;
     public Color m_debugColor = Color.red;
+
+    
 
     private void Awake()
     {
@@ -139,11 +146,18 @@ public class Player_Inventory : MonoBehaviour
     /// </summary>
     public void DropObject(Inventory_Icon p_droppedIcon)
     {
-        if(p_droppedIcon == Inventory_ItemUsage.Instance.m_currentEquippedIcon)
+        if (m_currentEquipedTool != null)
         {
-            Inventory_ItemUsage.Instance.UnEquipCurrent();
+            if (p_droppedIcon == m_currentEquipedTool.m_linkedIcon)
+            {
+                Inventory_ItemUsage.Instance.UnEquipCurrent();
+            }
         }
-        p_droppedIcon.m_itemData.DropObject(p_droppedIcon,transform.position + transform.forward * 2, Quaternion.identity).GetComponent<Resource_Pickup>().m_resourceAmount = p_droppedIcon.m_currentResourceAmount;
+        GameObject newDropped = p_droppedIcon.m_itemData.DropObject(p_droppedIcon, transform.position + transform.forward * 2, Quaternion.identity);
+        if (newDropped != null)
+        {
+            newDropped.GetComponent<Resource_Pickup>().m_resourceAmount = p_droppedIcon.m_currentResourceAmount;
+        }
     }
 
 
@@ -158,32 +172,44 @@ public class Player_Inventory : MonoBehaviour
     #endregion
 
 
-    public Transform m_equipmentParent;
-    public GameObject m_currentEquipped;
-    #region Player Equipment Placement
-    public void EquipItem(GameObject p_equipment)
+
+    #region Player Equipment Equiping
+    public void EquipItem(Inventory_Icon p_icon, ResourceContainer_Equip.ToolType p_toolType)
     {
-        p_equipment.transform.parent = m_equipmentParent;
-        p_equipment.transform.localPosition = Vector3.zero;
-        p_equipment.transform.localRotation = Quaternion.identity;
-        if(p_equipment.GetComponent<Rigidbody>()!= null)
+        UnEquipCurrentTool();
+        switch (p_toolType)
         {
-            p_equipment.GetComponent<Rigidbody>().isKinematic = true;
-            p_equipment.GetComponent<Collider>().enabled = false;
+            case ResourceContainer_Equip.ToolType.Axe:
+                m_currentEquipedTool = m_axeTool;
+                break;
+
+            case ResourceContainer_Equip.ToolType.Canteen:
+                m_currentEquipedTool = m_canteenTool;
+                break;
+
+            case ResourceContainer_Equip.ToolType.Torch:
+                m_currentEquipedTool = m_torchTool;
+                break;
+
+            case ResourceContainer_Equip.ToolType.Boots:
+                m_currentEquipedTool = m_bootsTool;
+                break;
+
+            case ResourceContainer_Equip.ToolType.ClimbingAxe:
+                m_currentEquipedTool = m_climbingAxeTool;
+                break;
         }
-        m_currentEquipped = p_equipment;
+
+        Inventory_Icon_Durability newIcon = p_icon.GetComponent<Inventory_Icon_Durability>();
+        m_currentEquipedTool.EquipObject(newIcon);
     }
 
-    public void UnEquipItem()
+    public void UnEquipCurrentTool()
     {
-        if (m_currentEquipped == null) return;
-        if (m_currentEquipped.GetComponent<Rigidbody>() != null)
-        {
-            m_currentEquipped.GetComponent<Rigidbody>().isKinematic = true;
-            m_currentEquipped.GetComponent<Collider>().enabled = false;
-        }
-        m_currentEquipped.transform.parent = ObjectPooler.Instance.transform;
-        m_currentEquipped = null;
+        if (m_currentEquipedTool == null) return;
+
+        m_currentEquipedTool.UnEquipObject();
+        m_currentEquipedTool = null;
     }
     #endregion
 }

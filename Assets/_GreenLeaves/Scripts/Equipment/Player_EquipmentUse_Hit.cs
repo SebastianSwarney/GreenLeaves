@@ -9,9 +9,17 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     public float m_detectionRadius;
     public Transform m_playerObject;
 
-    public override void InitializeObject(Inventory_Icon_Durability p_linkedIcon)
+
+    public void Update()
     {
-        base.InitializeObject(p_linkedIcon);
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            UseEquipment();
+        }
+    }
+    public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
+    {
+        base.EquipObject(p_linkedIcon);
         if(m_playerObject == null)
         {
             m_playerObject = EnergyController.Instance.transform;

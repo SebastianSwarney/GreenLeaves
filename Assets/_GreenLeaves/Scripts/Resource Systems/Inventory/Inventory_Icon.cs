@@ -13,6 +13,7 @@ public class Inventory_Icon : MonoBehaviour
 
     public Inventory_2DMenu.RotationType m_rotatedDir = Inventory_2DMenu.RotationType.Left;
     public bool m_inBackpack = false;
+    public bool m_inCraftingTable = false;
 
     [HideInInspector] public Vector2Int m_previousGridPos;
     [HideInInspector] public Vector3 m_startingCoordPos;
@@ -175,6 +176,10 @@ public class Inventory_Icon : MonoBehaviour
         if (m_inBackpack)
         {
             Inventory_2DMenu.Instance.ClearGridPosition(m_previousGridPos, m_itemData.m_resourceData.m_inventoryWeight, m_rotatedDir);
+        }
+        else if (m_inCraftingTable)
+        {
+            Crafting_Table.Instance.RemoveIconFromTable(this);
         }
 
     }

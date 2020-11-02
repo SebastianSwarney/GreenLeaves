@@ -22,10 +22,13 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public bool m_isDebugging;
     public Color m_gizmosColor;
 
-    public override void InitializeObject(Inventory_Icon_Durability p_linkedIcon)
+
+    public void Update()
     {
-        base.InitializeObject(p_linkedIcon);
-        m_detectionOrigin = EnergyController.Instance.transform;
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            UseEquipment();
+        }
     }
     public override void UseEquipment()
     {
