@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1138721895821337166}
   - component: {fileID: 5455799381135538665}
   - component: {fileID: 7908410037612632241}
+  - component: {fileID: 6721736659167968671}
   m_Layer: 4
   m_Name: Demo
   m_TagString: Untagged
@@ -112,6 +113,36 @@ MonoBehaviour:
   m_resourceInfo: {fileID: 11400000, guid: f7537495b0ac72941a7bff9dc987a8b8, type: 2}
   m_canPickup: 1
   m_resourceAmount: 1
+  m_resourcePickedUpEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6721736659167968671}
+        m_TargetAssemblyTypeName: VFX_Dissolve, Assembly-CSharp
+        m_MethodName: ToggleDissolve
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  m_objectSpawned:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: Player_EquipmentUse, Assembly-CSharp
+        m_MethodName: UseEquipment
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!54 &7908410037612632241
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -128,3 +159,32 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &6721736659167968671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5879433461624187776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4b5e7bd86ddf0943bafa03ad2b600ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_meshRenderer: {fileID: 5444372937377388136}
+  m_dissolveTime: 0.5
+  m_completelyDissolvedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5455799381135538665}
+        m_TargetAssemblyTypeName: Resource_Pickup, Assembly-CSharp
+        m_MethodName: ReturnToPool
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

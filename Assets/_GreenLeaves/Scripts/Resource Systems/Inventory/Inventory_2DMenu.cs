@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -18,15 +19,15 @@ public class Inventory_2DMenu : MonoBehaviour
     public GameObject m_canvasObject;
     public GameObject m_inventorySlotPrefab;
 
-
-
     [Header("Icon")]
     public GameObject m_mainIconPrefab;
+    public GameObject m_durabilityIconPrefab;
 
 
     [Header("Inventory")]
     public BackpackInventory m_backpack;
     public KeyCode m_rotateKey = KeyCode.R;
+
 
     [Header("UI Elements")]
     public Inventory_Grid m_inventoryGrid;
@@ -37,8 +38,14 @@ public class Inventory_2DMenu : MonoBehaviour
     [Tooltip("Used to determine where the player can drop the item until it snaps back automatically")]
     public GameObject m_backpackImageUi;
 
+    [Header("Icon Selection Variables")]
+    public float m_selectedBufferTime;
 
-    [HideInInspector] public Inventory_Icon m_currentSelectedIcon;
+    public GameObject m_selectedMenuParent;
+    public UnityEngine.UI.Text m_selectButtonText;
+
+    //[HideInInspector]
+    public Inventory_Icon m_currentSelectedIcon;
 
     ///Used to toggle the menu open and closed.
     private bool m_isOpen;
@@ -58,7 +65,8 @@ public class Inventory_2DMenu : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            CheckInventoryMouseDown();
+            IconTapped();
+            //IconMovementBuffer();
         }
         else if (Input.GetKeyDown(m_rotateKey))
         {
@@ -110,16 +118,19 @@ public class Inventory_2DMenu : MonoBehaviour
     {
         DropAnyOutsideIcons();
         m_canvasObject.SetActive(false);
+        m_selectedMenuParent.SetActive(false);
+        m_currentSelectedIcon = null;
     }
     #endregion
 
+    #region Inventory Menu 
     /// <summary>
     /// Adds the item to the inventory & spawns a new icon for it
     /// Calls the grid to add the icon to the grid
     /// </summary>
     public void AddItemToInventory(GameObject p_pickedUp, int p_amount)
     {
-        ResourceData pickedUpResource = p_pickedUp.GetComponent<Resource_Pickup>().m_resourceInfo.m_resourceData;
+        ResourceContainer pickedUpResource = p_pickedUp.GetComponent<Resource_Pickup>().m_resourceInfo;
         BackpackSlot newSlot = new BackpackSlot();
 
         p_pickedUp.GetComponent<Resource_Pickup>().PickupResource();
@@ -128,21 +139,21 @@ public class Inventory_2DMenu : MonoBehaviour
         #region Existing Item Check
 
         int existingAmount = p_amount;
-        if (pickedUpResource.m_singleResourceAmount > 1)
+        if (pickedUpResource.m_resourceData.m_singleResourceAmount > 1)
         {
-            List<Inventory_Icon> icons = m_inventoryGrid.GetExistingIconsOfResource(pickedUpResource);
+            List<Inventory_Icon> icons = m_inventoryGrid.GetExistingIconsOfResource(pickedUpResource.m_resourceData);
             if (icons.Count > 0)
             {
-                foreach(Inventory_Icon icon in icons)
+                foreach (Inventory_Icon icon in icons)
                 {
-                    if(icon.m_currentResourceAmount < pickedUpResource.m_singleResourceAmount)
+                    if (icon.m_currentResourceAmount < pickedUpResource.m_resourceData.m_singleResourceAmount)
                     {
                         icon.m_currentResourceAmount += existingAmount;
-                        
-                        if (icon.m_currentResourceAmount > pickedUpResource.m_singleResourceAmount)
+
+                        if (icon.m_currentResourceAmount > pickedUpResource.m_resourceData.m_singleResourceAmount)
                         {
-                            existingAmount = icon.m_currentResourceAmount - pickedUpResource.m_singleResourceAmount;
-                            icon.m_currentResourceAmount = pickedUpResource.m_singleResourceAmount;
+                            existingAmount = icon.m_currentResourceAmount - pickedUpResource.m_resourceData.m_singleResourceAmount;
+                            icon.m_currentResourceAmount = pickedUpResource.m_resourceData.m_singleResourceAmount;
                             icon.UpdateIconNumber();
                         }
                         else
@@ -160,10 +171,10 @@ public class Inventory_2DMenu : MonoBehaviour
         ///Determines which way the icon should be orientated
         #region Icon orientation setup
 
-        RotationType iconRotationType = pickedUpResource.m_iconStartingRotation;
-        if (pickedUpResource.m_inventoryWeight.x < pickedUpResource.m_inventoryWeight.y)
+        RotationType iconRotationType = pickedUpResource.m_resourceData.m_iconStartingRotation;
+        if (pickedUpResource.m_resourceData.m_inventoryWeight.x < pickedUpResource.m_resourceData.m_inventoryWeight.y)
         {
-            pickedUpResource.m_inventoryWeight = new Vector2Int(pickedUpResource.m_inventoryWeight.y, pickedUpResource.m_inventoryWeight.x);
+            pickedUpResource.m_resourceData.m_inventoryWeight = new Vector2Int(pickedUpResource.m_resourceData.m_inventoryWeight.y, pickedUpResource.m_resourceData.m_inventoryWeight.x);
         }
 
         #endregion
@@ -171,9 +182,19 @@ public class Inventory_2DMenu : MonoBehaviour
         ///Sets the icon's script up, assigning proper values
         #region Icon Script Initialization
 
-        Inventory_Icon newIcon = ObjectPooler.Instance.NewObject(m_mainIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
+
+        Inventory_Icon newIcon = null;
+        if (p_pickedUp.GetComponent<Player_EquipmentUse>() != null)
+        {
+            newIcon = ObjectPooler.Instance.NewObject(m_durabilityIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
+            newIcon.GetComponent<Inventory_Icon_Durability>().m_durabilityAmount = p_pickedUp.GetComponent<Player_EquipmentUse>().m_durability;
+        }
+        else
+        {
+            newIcon = ObjectPooler.Instance.NewObject(m_mainIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
+        }
         newIcon.transform.parent = m_gameIconsParent;
-        newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * pickedUpResource.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * pickedUpResource.m_inventoryWeight.y);
+        newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * pickedUpResource.m_resourceData.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * pickedUpResource.m_resourceData.m_inventoryWeight.y);
         newIcon.UpdateIcon(pickedUpResource, iconRotationType);
         newIcon.m_currentResourceAmount = existingAmount;
         newIcon.UpdateIconNumber();
@@ -187,7 +208,7 @@ public class Inventory_2DMenu : MonoBehaviour
         newSlot.m_currentData = pickedUpResource;
         newSlot.m_associatedIcon = newIcon;
         m_backpack.m_itemsInBackpack.Add(newSlot);
-        m_inventoryGrid.AddWeight(pickedUpResource);
+        m_inventoryGrid.AddWeight(pickedUpResource.m_resourceData);
 
         #endregion
 
@@ -196,11 +217,11 @@ public class Inventory_2DMenu : MonoBehaviour
         #region Icon Grid Positioning
 
         ///If it can fit
-        if (m_inventoryGrid.CanAddToRow(pickedUpResource, iconRotationType))
+        if (m_inventoryGrid.CanAddToRow(pickedUpResource.m_resourceData, iconRotationType))
         {
             newIcon.m_inBackpack = true;
             Vector2Int placedPos;
-            m_inventoryGrid.AddNewIcon(pickedUpResource, iconRotationType, newIcon, out placedPos);
+            m_inventoryGrid.AddNewIcon(pickedUpResource.m_resourceData, iconRotationType, newIcon, out placedPos);
             newIcon.m_previousGridPos = placedPos;
             newIcon.m_startingCoordPos = newIcon.transform.localPosition;
 
@@ -240,12 +261,16 @@ public class Inventory_2DMenu : MonoBehaviour
 
         for (int i = 0; i < removeList.Count; i++)
         {
-            m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData.m_resourcePrefab, m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.m_currentResourceAmount);
-            m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.m_currentResourceAmount = 0;
-            ObjectPooler.Instance.ReturnToPool(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.gameObject);
+            m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon);
 
-            m_inventoryGrid.RemoveWeight(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData);
+
+
+            m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.m_currentResourceAmount = 0;
+
+            m_inventoryGrid.RemoveWeight(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData.m_resourceData);
+            ObjectPooler.Instance.ReturnToPool(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.gameObject);
             m_backpack.m_itemsInBackpack.RemoveAt(removeList[i]);
+
         }
     }
 
@@ -254,8 +279,16 @@ public class Inventory_2DMenu : MonoBehaviour
     /// This function is called when the player uses the mouse to tap down on the ui while this menu is open
     /// Detects for inventory icons, and calls their IconTappedOn function in their Inventory_Icon script
     /// </summary>
-    public void CheckInventoryMouseDown()
+    private IEnumerator IconMovementBuffer()
     {
+        yield return new WaitForSeconds(m_selectedBufferTime);
+        //IconTapped();
+    }
+
+    private void IconTapped()
+    {
+        //m_mouseBufferCoroutine = null;
+
         List<RaycastResult> hitUI = new List<RaycastResult>();
 
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
@@ -267,14 +300,33 @@ public class Inventory_2DMenu : MonoBehaviour
         EventSystem.current.RaycastAll(pointerData, hitUI);
 
 
+
         foreach (RaycastResult res in hitUI)
         {
+            if (res.gameObject == m_selectedMenuParent.gameObject)
+            {
+                return;
+            }
             if (res.gameObject.GetComponent<Inventory_Icon>() != null)
             {
                 res.gameObject.GetComponent<Inventory_Icon>().IconTappedOn();
+
+                m_currentSelectedIcon = res.gameObject.GetComponent<Inventory_Icon>();
+                m_selectedMenuParent.gameObject.SetActive(true);
+                
+                if (m_currentSelectedIcon == Inventory_ItemUsage.Instance.m_currentEquippedIcon)
+                {
+                    ChangeSelectedButtonText("Unequip");
+                }
+                else
+                {
+                    ChangeSelectedButtonText(m_currentSelectedIcon.m_itemData.m_itemUseButtonText);
+                }
                 return;
             }
         }
+        m_currentSelectedIcon = null;
+        m_selectedMenuParent.gameObject.SetActive(false);
     }
 
 
@@ -303,7 +355,7 @@ public class Inventory_2DMenu : MonoBehaviour
         {
             p_holdingIcon.m_inBackpack = true;
             //Remember to re-rotate the icon back to it's og rotation
-            m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData, p_holdingIcon.m_rotatedDir);
+            m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         }
         else
         {
@@ -324,7 +376,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public void CheckIconPlacePosition(Inventory_Icon p_holdingIcon)
     {
         m_isDraggingObject = false;
-        m_currentSelectedIcon = null;
+
 
         #region Perform the UI Raycast using the events system
 
@@ -365,10 +417,45 @@ public class Inventory_2DMenu : MonoBehaviour
                 {
 
                     ///Checks if the item can fit there
-                    if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_holdingIcon.m_itemData.m_inventoryWeight, p_holdingIcon.m_rotatedDir))
+                    if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_holdingIcon.m_itemData.m_resourceData.m_inventoryWeight, p_holdingIcon.m_rotatedDir))
                     {
                         newPlace = res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos;
                         placedIcon = true;
+                    }
+                    else
+                    {
+                        if (m_inventoryGrid.GetIcon(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos) != null)
+                        {
+                            Inventory_Icon currentIcon = m_inventoryGrid.GetIcon(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos);
+
+                            if (currentIcon.m_itemData.m_resourceData.m_resourceName == p_holdingIcon.m_itemData.m_resourceData.m_resourceName)
+                            {
+                                int amountLeft = 0;
+
+
+                                ///If the current icon can completely fit in the new icon, remove the current icon from the inventory
+                                if (currentIcon.CanAddFullAmount(p_holdingIcon.m_currentResourceAmount, out amountLeft))
+                                {
+                                    p_holdingIcon.m_inBackpack = false;
+                                    ObjectPooler.Instance.ReturnToPool(p_holdingIcon.gameObject);
+
+
+                                    for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
+                                    {
+                                        if (m_backpack.m_itemsInBackpack[i].m_associatedIcon != p_holdingIcon) continue;
+                                        m_backpack.m_itemsInBackpack.RemoveAt(i);
+                                        return;
+                                    }
+                                }
+
+                                ///If there is still remainder, reset the held icon
+                                else
+                                {
+                                    p_holdingIcon.m_currentResourceAmount = amountLeft;
+                                    p_holdingIcon.UpdateIconNumber();
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -376,7 +463,6 @@ public class Inventory_2DMenu : MonoBehaviour
                 if (res.gameObject == m_backpackImageUi)
                 {
                     snapBack = true;
-
                 }
             }
         }
@@ -398,7 +484,7 @@ public class Inventory_2DMenu : MonoBehaviour
                     p_holdingIcon.m_inBackpack = true;
                     //Remember to re-rotate the icon back to it's og rotation
                     p_holdingIcon.ResetRotation();
-                    m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData, p_holdingIcon.m_rotatedDir);
+                    m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
                 }
 
                 ///If snapping back and the item was previously not in the backpack, return it to the outer, and it's original orientation
@@ -422,7 +508,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
         ///If the item is over a placeable spot, place it properly in the grid
         p_holdingIcon.m_inBackpack = true;
-        m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_holdingIcon.m_itemData, p_holdingIcon.m_rotatedDir);
+        m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         p_holdingIcon.m_previousGridPos = newPlace;
         p_holdingIcon.m_startingCoordPos = p_holdingIcon.transform.localPosition;
 
@@ -437,6 +523,46 @@ public class Inventory_2DMenu : MonoBehaviour
     {
         m_inventoryGrid.ClearOldPos(p_gridPos, p_gridWeight, p_rotatedDir);
     }
+
+    #endregion
+
+    #region Menu Selected Button
+    public void TapSelectedButton()
+    {
+        if (m_currentSelectedIcon == null)
+        {
+            Debug.Log("No Selected icon");
+            return;
+        }
+        Debug.Log("Current Selected: " + m_currentSelectedIcon.m_itemData.m_resourceData.m_resourceName);
+        if (m_currentSelectedIcon == Inventory_ItemUsage.Instance.m_currentEquippedIcon)
+        {
+            Inventory_ItemUsage.Instance.UnEquipCurrent();
+            ChangeSelectedButtonText("Equip");
+        }
+        else
+        {
+            m_currentSelectedIcon.m_itemData.UseItem(m_currentSelectedIcon);
+        }
+    }
+
+    public void ChangeSelectedButtonText(string p_newText)
+    {
+        m_selectButtonText.text = p_newText;
+    }
+
+    public void ItemUsed(Inventory_Icon p_usedIcon)
+    {
+        p_usedIcon.m_currentResourceAmount--;
+        p_usedIcon.UpdateIconNumber();
+        if (p_usedIcon.m_currentResourceAmount <= 0)
+        {
+            m_currentSelectedIcon = null;
+            m_selectedMenuParent.gameObject.SetActive(false);
+            m_inventoryGrid.RemoveSingleIcon(p_usedIcon);
+        }
+    }
+    #endregion
 }
 
 
@@ -457,35 +583,8 @@ public class BackpackInventory
 [System.Serializable]
 public class BackpackSlot
 {
-    public ResourceData m_currentData;
+    public ResourceContainer m_currentData;
     public Inventory_Icon m_associatedIcon;
 }
 
 
-/// <summary>
-/// The main data container used to manage the resources.
-/// </summary>
-[System.Serializable]
-public class ResourceData
-{
-    public string m_resourceName;
-    [Tooltip("Determines how many of this resources corelates to a single icon. IE. 10 arrows = 1 icon")]
-    public int m_singleResourceAmount = 1;
-    public Sprite m_resourceSprite;
-    public GameObject m_resourcePrefab;
-    public Vector2Int m_inventoryWeight;
-
-    //Used to determine which way the icon should be rotated when initially being placed.
-    public Inventory_2DMenu.RotationType m_iconStartingRotation = Inventory_2DMenu.RotationType.Left;
-
-    public ResourceData(ResourceData p_newData = null)
-    {
-        if (p_newData != null)
-        {
-            m_resourceName = p_newData.m_resourceName;
-            m_resourceSprite = p_newData.m_resourceSprite;
-            m_resourcePrefab = p_newData.m_resourcePrefab;
-            m_inventoryWeight = p_newData.m_inventoryWeight;
-        }
-    }
-}

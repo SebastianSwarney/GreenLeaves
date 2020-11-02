@@ -7,12 +7,38 @@
 /// </summary>
 public class Resource_Pickup : MonoBehaviour
 {
+    /// <summary>
+    /// The resource data that the object holds. Is a scriptable object
+    /// </summary>
     public ResourceContainer m_resourceInfo;
     public bool m_canPickup = true;
     public int m_resourceAmount;
+
+    public GenericWorldEvent m_resourcePickedUpEvent, m_objectSpawned;
+    
+    public void NewResource()
+    {
+        TogglePickup(true);
+        m_objectSpawned.Invoke();
+
+    }
     public virtual void PickupResource()
     {
         m_resourceAmount = 0;
+        TogglePickup(false);
+    }
+
+    public virtual void TogglePickup(bool p_newState)
+    {
+        m_canPickup = p_newState;
+        if (!p_newState)
+        {
+            m_resourcePickedUpEvent.Invoke();
+        }
+    }
+
+    public void ReturnToPool()
+    {
         ObjectPooler.Instance.ReturnToPool(gameObject);
     }
 }

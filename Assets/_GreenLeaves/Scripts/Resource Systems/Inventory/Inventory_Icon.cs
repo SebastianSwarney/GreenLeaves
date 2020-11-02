@@ -7,7 +7,7 @@ using System.Collections;
 /// </summary>
 public class Inventory_Icon : MonoBehaviour
 {
-    public ResourceData m_itemData;
+    public ResourceContainer m_itemData;
     public Image m_itemIcon;
     public RectTransform m_iconTransform;
 
@@ -89,24 +89,24 @@ public class Inventory_Icon : MonoBehaviour
     public void AdjustedDraggingOffset()
     {
         m_dragOffset = GetComponent<RectTransform>().sizeDelta;
-        m_dragOffset = new Vector2(m_dragOffset.x / m_itemData.m_inventoryWeight.x, m_dragOffset.y / m_itemData.m_inventoryWeight.y);
+        m_dragOffset = new Vector2(m_dragOffset.x / m_itemData.m_resourceData.m_inventoryWeight.x, m_dragOffset.y / m_itemData.m_resourceData.m_inventoryWeight.y);
 
         switch (m_rotatedDir)
         {
             case Inventory_2DMenu.RotationType.Left:
-                m_dragOffset = new Vector2(m_dragOffset.x * (m_itemData.m_inventoryWeight.x - 1) * .5f, m_dragOffset.y * -(m_itemData.m_inventoryWeight.y - 1) * .5f);
+                m_dragOffset = new Vector2(m_dragOffset.x * (m_itemData.m_resourceData.m_inventoryWeight.x - 1) * .5f, m_dragOffset.y * -(m_itemData.m_resourceData.m_inventoryWeight.y - 1) * .5f);
                 break;
 
             case Inventory_2DMenu.RotationType.Down:
-                m_dragOffset = new Vector2(m_dragOffset.x * -(m_itemData.m_inventoryWeight.y - 1) * .5f, m_dragOffset.y * -(m_itemData.m_inventoryWeight.x - 1) * .5f);
+                m_dragOffset = new Vector2(m_dragOffset.x * -(m_itemData.m_resourceData.m_inventoryWeight.y - 1) * .5f, m_dragOffset.y * -(m_itemData.m_resourceData.m_inventoryWeight.x - 1) * .5f);
                 break;
 
             case Inventory_2DMenu.RotationType.Right:
-                m_dragOffset = new Vector2(m_dragOffset.x * -(m_itemData.m_inventoryWeight.x - 1) * .5f, m_dragOffset.y * (m_itemData.m_inventoryWeight.y - 1) * .5f);
+                m_dragOffset = new Vector2(m_dragOffset.x * -(m_itemData.m_resourceData.m_inventoryWeight.x - 1) * .5f, m_dragOffset.y * (m_itemData.m_resourceData.m_inventoryWeight.y - 1) * .5f);
                 break;
 
             case Inventory_2DMenu.RotationType.Up:
-                m_dragOffset = new Vector2(m_dragOffset.x * (m_itemData.m_inventoryWeight.y - 1) * .5f, m_dragOffset.y * (m_itemData.m_inventoryWeight.x - 1) * .5f);
+                m_dragOffset = new Vector2(m_dragOffset.x * (m_itemData.m_resourceData.m_inventoryWeight.y - 1) * .5f, m_dragOffset.y * (m_itemData.m_resourceData.m_inventoryWeight.x - 1) * .5f);
                 break;
         }
     }
@@ -115,10 +115,10 @@ public class Inventory_Icon : MonoBehaviour
     /// Called to update the icon, and it's data
     /// This is called when the icon is initially created by the Inventory_2DMenu.
     /// </summary>
-    public void UpdateIcon(ResourceData p_heldData, Inventory_2DMenu.RotationType p_startingRotation)
+    public void UpdateIcon(ResourceContainer p_heldData, Inventory_2DMenu.RotationType p_startingRotation)
     {
         m_itemData = p_heldData;
-        m_itemIcon.sprite = p_heldData.m_resourceSprite;
+        m_itemIcon.sprite = p_heldData.m_resourceData.m_resourceSprite;
         m_previousGridPos = Vector2Int.zero;
         m_startingCoordPos = Vector3.zero;
         m_rotatedDir = m_previousRotType = p_startingRotation;
@@ -129,7 +129,35 @@ public class Inventory_Icon : MonoBehaviour
     public void UpdateIconNumber()
     {
         m_numberText.text = "x" + m_currentResourceAmount.ToString();
-        Debug.Log("Current Amount: " + m_currentResourceAmount);
+    }
+
+    /// <summary>
+    /// <para>Used to add resource amounts to items that are added to each other while dragging.<br/>
+    /// IE. if the player has 2 wood icons, 1 icon has 2 wood, the other has 3 wood, adds the 3 wood to the 2 wood when it is dropped on it<br/>
+    /// If the new amount is more than the limit, still adds until the limit, and returns the amount left.</para>
+    /// 
+    /// Returns true if there is no remainder. | Returns false if the full amount cant be added
+    /// </summary>
+    public bool CanAddFullAmount(int p_amount,out int p_amountLeft)
+    {
+        p_amountLeft = p_amount;
+        if(m_currentResourceAmount >= m_itemData.m_resourceData.m_singleResourceAmount)
+        {
+            return false;
+        }
+
+        if(m_currentResourceAmount + p_amount <= m_itemData.m_resourceData.m_singleResourceAmount)
+        {
+            p_amountLeft = 0;
+            m_currentResourceAmount += p_amount;
+            UpdateIconNumber();
+            return true;
+        }
+
+        p_amountLeft = p_amount - (m_itemData.m_resourceData.m_singleResourceAmount - m_currentResourceAmount);
+        m_currentResourceAmount += p_amount;
+        UpdateIconNumber();
+        return false;
     }
 
     /// <summary>
@@ -146,7 +174,7 @@ public class Inventory_Icon : MonoBehaviour
         Inventory_2DMenu.Instance.IconTappedOn(this);
         if (m_inBackpack)
         {
-            Inventory_2DMenu.Instance.ClearGridPosition(m_previousGridPos, m_itemData.m_inventoryWeight, m_rotatedDir);
+            Inventory_2DMenu.Instance.ClearGridPosition(m_previousGridPos, m_itemData.m_resourceData.m_inventoryWeight, m_rotatedDir);
         }
 
     }
