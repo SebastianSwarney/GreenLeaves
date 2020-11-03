@@ -14,12 +14,15 @@ public class Player_EquipmentUse : MonoBehaviour
 
     [Header("Events")]
     public GenericWorldEvent m_itemBrokeEffect;
+    
 
     public virtual void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
         m_linkedIcon = p_linkedIcon;
         m_durability = p_linkedIcon.m_durabilityAmount;
         
+
+
         gameObject.SetActive(true);
         enabled = true;
     }
@@ -43,18 +46,27 @@ public class Player_EquipmentUse : MonoBehaviour
             m_itemBrokeEffect.Invoke();
             ObjectBroke();
         }
-        UpdateIconDurability(m_durability);
+        UpdateIconDurability();
     }
 
     public virtual void ObjectBroke()
     {
         Inventory_2DMenu.Instance.m_inventoryGrid.RemoveSingleIcon(m_linkedIcon);
         Player_Inventory.Instance.UnEquipCurrentTool();
+        ReEnableToolComponent();
     }
 
-    public virtual void UpdateIconDurability(int p_newAmount)
+    public virtual void ReEnableToolComponent()
     {
-        m_linkedIcon.UpdateDurability(p_newAmount);
+        Crafting_Table.Instance.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Torch);
+    }
+
+    public virtual void UpdateIconDurability()
+    {
+        if (m_linkedIcon != null)
+        {
+            m_linkedIcon.UpdateDurability(m_durability);
+        }
     }
     #endregion
 

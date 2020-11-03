@@ -4,6 +4,9 @@ using UnityEngine;
 public class Crafting_Table : MonoBehaviour
 {
     public static Crafting_Table Instance;
+    public Crafting_ToolComponents m_toolComponents;
+
+
     private Crafting_Recipe m_currentRecipe;
     public List<Crafting_Recipe> m_allRecipes;
 
@@ -44,7 +47,7 @@ public class Crafting_Table : MonoBehaviour
     {
         foreach (Inventory_Icon cur in m_iconsOnTable)
         {
-            cur.m_inCraftingTable = false;
+            cur.RemoveIconFromCraftingTableOnClose();
         }
         m_iconsOnTable.Clear();
     }
@@ -125,7 +128,17 @@ public class Crafting_Table : MonoBehaviour
         foreach(Inventory_Icon currentIcon in m_iconsOnTable)
         {
             if (currentIcon.m_currentResourceAmount <= 0) continue;
-
+            if (currentIcon.GetComponent<Inventory_Icon_ToolResource>() != null)
+            {
+                foreach (Crafting_ItemsContainer cont in currentRecipe.m_recipe)
+                {
+                    if (cont.m_itemData.m_resourceData.m_resourceName == currentIcon.m_itemData.m_resourceData.m_resourceName)
+                    {
+                        removeIcons.Add(currentIcon);
+                    }
+                }
+                continue;
+            }
             foreach(Crafting_ItemsContainer cont in currentRecipe.m_recipe)
             {
                 if (cont.m_itemAmount <= 0) continue;
@@ -149,7 +162,7 @@ public class Crafting_Table : MonoBehaviour
         for (int i = 0; i < removeIcons.Count; i++)
         {
             m_iconsOnTable.Remove(removeIcons[i]);
-            Inventory_2DMenu.Instance.RemoveIconFromInventory(removeIcons[i]);
+            removeIcons[i].RemoveIcon();
         }
 
         foreach (Inventory_Icon icon in m_iconsOnTable)

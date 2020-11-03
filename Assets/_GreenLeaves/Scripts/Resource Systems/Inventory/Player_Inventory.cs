@@ -202,6 +202,7 @@ public class Player_Inventory : MonoBehaviour
 
         Inventory_Icon_Durability newIcon = p_icon.GetComponent<Inventory_Icon_Durability>();
         m_currentEquipedTool.EquipObject(newIcon);
+        newIcon.UpdateIconNumber();
     }
 
     public void UnEquipCurrentTool()

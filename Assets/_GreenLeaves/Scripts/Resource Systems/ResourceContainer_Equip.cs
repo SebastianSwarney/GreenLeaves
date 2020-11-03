@@ -15,8 +15,7 @@ public class ResourceContainer_Equip : ResourceContainer
 
     public override GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot)
     {
-
-        Debug.Log("Destroy Object | Reeneable crafting thing");
+        Crafting_Table.Instance.m_toolComponents.EnableToolResource(m_currentToolType);
         return null;
     }
 

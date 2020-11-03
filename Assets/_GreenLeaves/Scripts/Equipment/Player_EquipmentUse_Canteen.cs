@@ -118,7 +118,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         {
             m_durability = 0;
         }
-        UpdateIconDurability(m_durability);
+        UpdateIconDurability();
     }
 
     /// <summary>
@@ -128,7 +128,10 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     {
         Debug.Log("Canteen Empty");
     }
-
+    public override void ReEnableToolComponent()
+    {
+        Crafting_Table.Instance.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Canteen);
+    }
     private void OnDrawGizmos()
     {
         if (!m_isDebugging) return;
