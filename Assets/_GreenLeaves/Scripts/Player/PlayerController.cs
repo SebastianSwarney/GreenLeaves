@@ -12,12 +12,14 @@ public class PlayerController : MonoBehaviour
     #region Player States
     public enum MovementControllState { MovementEnabled, MovementDisabled }
     public enum GravityState { GravityEnabled, GravityDisabled }
+    public enum ControllerState { ControllerEnabled, ControllerDisabled }
 
     [System.Serializable]
     public struct PlayerState
     {
         public MovementControllState m_movementControllState;
         public GravityState m_gravityControllState;
+        public ControllerState m_controllerState;
     }
 
     public PlayerState m_states;
@@ -161,7 +163,22 @@ public class PlayerController : MonoBehaviour
     public LayerMask m_groundMask;
     private Vector2 m_movementInput;
 
-    private void Start()
+    private Rigidbody m_rigidbody;
+    private CapsuleCollider m_capsuleCollider;
+
+    private bool m_controllerEnabled;
+
+    public CollisionInfo m_collisions;
+
+    #region Climb Properties
+    public float m_climbSpeed;
+    public float m_maxClimbAcceleration;
+
+	private Vector3 m_climbVelocity;
+    private bool m_isClimbing;
+	#endregion
+
+	private void Start()
     {
         m_characterController = GetComponent<CharacterController>();
         m_playerAnimator = GetComponentInChildren<Animator>();
@@ -172,7 +189,17 @@ public class PlayerController : MonoBehaviour
 
         m_jumpBufferTimer = m_jumpingProperties.m_jumpBufferTime;
 
+        m_capsuleCollider = GetComponent<CapsuleCollider>();
+        m_capsuleCollider.height = m_characterController.height;
+        m_capsuleCollider.radius = m_characterController.radius;
+
+        m_rigidbody = GetComponent<Rigidbody>();
+
         CalculateJump();
+
+        m_controllerEnabled = true;
+
+        OnControllerEnabled();
     }
 
     private void OnValidate()
@@ -182,13 +209,34 @@ public class PlayerController : MonoBehaviour
 
 	private void Update()
 	{
-
         SetAnimations();
+
+		if (Input.GetKeyDown(KeyCode.J))
+		{
+            m_controllerEnabled = !m_controllerEnabled;
+
+			if (m_controllerEnabled)
+			{
+                OnControllerEnabled();
+			}
+			else
+			{
+                OnControllerDisabled();
+                //m_rigidbody.AddForce(transform.forward * 50f, ForceMode.Impulse);
+            }
+		}
 	}
 
 	private void FixedUpdate()
 	{
-        PerformController();
+		if (m_controllerEnabled)
+		{
+            PerformController();
+		}
+		else
+		{
+            RunClimbLoop();
+        }
     }
 
 	public void PerformController()
@@ -200,7 +248,9 @@ public class PlayerController : MonoBehaviour
         ZeroVelocityOnGround();
     }
 
-    private void SetAnimations()
+	#region Animation Code
+
+	private void SetAnimations()
 	{
         Vector3 relativeVelocity = transform.InverseTransformDirection(m_groundMovementVelocity);
         m_animInputTarget = new Vector2(relativeVelocity.x / m_baseMovementProperties.m_runSpeed, relativeVelocity.z / m_baseMovementProperties.m_runSpeed);
@@ -209,6 +259,30 @@ public class PlayerController : MonoBehaviour
         m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
         m_playerAnimator.SetBool("IsGrounded", IsGrounded());
     }
+
+	#endregion
+
+	#region Controller State Code
+
+	private void OnControllerDisabled()
+	{
+        m_characterController.enabled = false;
+        m_states.m_movementControllState = MovementControllState.MovementDisabled;
+        m_states.m_gravityControllState = GravityState.GravityDisabled;
+
+        m_rigidbody.isKinematic = false;
+	}
+
+    private void OnControllerEnabled()
+	{
+        m_characterController.enabled = true;
+        m_states.m_movementControllState = MovementControllState.MovementEnabled;
+        m_states.m_gravityControllState = GravityState.GravityEnabled;
+
+        m_rigidbody.isKinematic = true;
+    }
+
+	#endregion
 
 	#region Input Code
 	public void SetMovementInput(Vector2 p_input)
@@ -707,7 +781,120 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
-    public bool CheckCollisionLayer(LayerMask p_layerMask, GameObject p_object)
+    #region Climb Code
+
+    private void RunClimbLoop()
+	{
+        UpdateState();
+        m_climbVelocity = m_rigidbody.velocity;
+
+        AdjustClimbVelocity();
+
+		if (m_isClimbing)
+		{
+            //Debug.Log("trying to stick");
+            m_climbVelocity -= m_collisions.m_climbNormal * (m_maxClimbAcceleration * 0.9f * Time.deltaTime);
+		}
+		else
+		{
+            RaycastHit hit;
+
+			if (Physics.Raycast(transform.position, -m_collisions.m_lastClimbNormal, out hit, Mathf.Infinity, m_groundMask))
+			{
+                m_climbVelocity -= hit.normal * (m_maxClimbAcceleration * 0.9f * Time.deltaTime);
+                //Debug.Log(hit.normal * (m_maxClimbAcceleration * 0.2f * Time.deltaTime));
+
+                Debug.DrawLine(transform.position, hit.point, Color.red);
+
+            }
+        }
+
+        m_rigidbody.velocity = m_climbVelocity;
+        m_collisions.Reset();
+        //ClearState();
+    }
+
+    private void UpdateState()
+	{
+        if (m_collisions.m_climbContactCount >= 1)
+        {
+            m_isClimbing = true;
+        }
+        else
+        {
+            m_isClimbing = false;
+        }
+    }
+
+    private void AdjustClimbVelocity()
+    {
+        float acceleration, speed;
+        Vector3 xAxis, zAxis;
+
+        acceleration = m_maxClimbAcceleration;
+        speed = m_climbSpeed;
+        xAxis = Vector3.Cross(m_collisions.m_climbNormal, Vector3.up);
+        zAxis = Vector3.up;
+
+        xAxis = ProjectDirectionOnPlane(xAxis, m_collisions.m_climbNormal);
+        zAxis = ProjectDirectionOnPlane(zAxis, m_collisions.m_climbNormal);
+
+        Vector3 relativeVelocity = m_climbVelocity;
+
+        Vector3 adjustment = Vector3.zero;
+        adjustment.x = m_movementInput.x * speed - Vector3.Dot(relativeVelocity, xAxis);
+        adjustment.z = m_movementInput.y * speed - Vector3.Dot(relativeVelocity, zAxis);
+
+        adjustment = Vector3.ClampMagnitude(adjustment, acceleration * Time.fixedDeltaTime);
+
+        m_climbVelocity += xAxis * adjustment.x + zAxis * adjustment.z;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        EvaluateCollision(collision);
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        EvaluateCollision(collision);
+    }
+
+    private void EvaluateCollision(Collision p_collision)
+    {
+        for (int i = 0; i < p_collision.contactCount; i++)
+        {
+            Vector3 normal = p_collision.GetContact(i).normal;
+
+            if (CheckCollisionLayer(m_groundMask, p_collision.gameObject))
+            {
+                m_collisions.m_climbContactCount += 1;
+                m_collisions.m_climbNormal += normal;
+                m_collisions.m_lastClimbNormal = m_collisions.m_climbNormal;
+            }
+        }
+    }
+
+    public struct CollisionInfo
+    {
+        public Vector3 m_climbNormal, m_lastClimbNormal;
+        public int m_climbContactCount;
+
+        public void Reset()
+		{
+            m_climbNormal = Vector3.zero;
+            m_climbContactCount = 0;
+        }
+    }
+
+    private Vector3 ProjectDirectionOnPlane(Vector3 p_direction, Vector3 p_normal)
+    {
+        return (p_direction - p_normal * Vector3.Dot(p_direction, p_normal)).normalized;
+    }
+
+	#endregion
+
+	public bool CheckCollisionLayer(LayerMask p_layerMask, GameObject p_object)
     {
         if (p_layerMask == (p_layerMask | (1 << p_object.layer)))
         {

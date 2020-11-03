@@ -416,7 +416,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 2
-  m_Radius: 0.2
+  m_Radius: 0.3
   m_SlopeLimit: 85
   m_StepOffset: 0.4
   m_SkinWidth: 0.08
@@ -450,6 +450,7 @@ MonoBehaviour:
   m_states:
     m_movementControllState: 0
     m_gravityControllState: 0
+    m_controllerState: 0
   m_events:
     m_onLandedEvent:
       m_PersistentCalls:
@@ -466,6 +467,8 @@ MonoBehaviour:
   m_groundMask:
     serializedVersion: 2
     m_Bits: 512
+  m_climbSpeed: 0
+  m_maxClimbAcceleration: 0
 --- !u!1 &5227883892478694912
 GameObject:
   m_ObjectHideFlags: 0

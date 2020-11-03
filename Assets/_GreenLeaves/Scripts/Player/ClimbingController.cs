@@ -112,8 +112,6 @@ public class ClimbingController : MonoBehaviour
 
 	public bool m_useBody;
 
-	private CharacterController characterController;
-
 	public void PreventSnapToGround()
 	{
 		stepsSinceLastJump = -1;
@@ -128,7 +126,6 @@ public class ClimbingController : MonoBehaviour
 
 	void Awake()
 	{
-		characterController = GetComponent<CharacterController>();
 		body = GetComponent<Rigidbody>();
 		body.useGravity = false;
 		OnValidate();
@@ -143,8 +140,7 @@ public class ClimbingController : MonoBehaviour
 		if (playerInputSpace)
 		{
 			rightAxis = ProjectDirectionOnPlane(playerInputSpace.right, upAxis);
-			forwardAxis =
-				ProjectDirectionOnPlane(playerInputSpace.forward, upAxis);
+			forwardAxis = ProjectDirectionOnPlane(playerInputSpace.forward, upAxis);
 		}
 		else
 		{
@@ -159,55 +155,36 @@ public class ClimbingController : MonoBehaviour
 	{
 		//Vector3 gravity = CustomGravity.GetGravity(body.position, out upAxis);
 
-		if (Input.GetKeyDown(KeyCode.Space))
+		Vector3 gravity = Vector3.down * 9.8f;
+		upAxis = -gravity.normalized;
+
+		UpdateState();
+
+		AdjustVelocity();
+
+		if (Climbing)
 		{
-			m_useBody = !m_useBody;
+			velocity -= contactNormal * (maxClimbAcceleration * 0.9f * Time.deltaTime);
 		}
-
-		if (m_useBody)
+		else if (InWater)
 		{
-			body.isKinematic = false;
-			characterController.enabled = true;
-
-			Vector3 gravity = Vector3.down * 9.8f;
-			upAxis = -gravity.normalized;
-
-			UpdateState();
-
-			AdjustVelocity();
-
-			if (Climbing)
-			{
-				velocity -= contactNormal * (maxClimbAcceleration * 0.9f * Time.deltaTime);
-			}
-			else if (InWater)
-			{
-				//velocity += gravity * ((1f - buoyancy * submergence) * Time.deltaTime);
-			}
-			else if (OnGround && velocity.sqrMagnitude < 0.01f)
-			{
-				//velocity += contactNormal * (Vector3.Dot(gravity, contactNormal) * Time.deltaTime);
-			}
-			else if (desiresClimbing && OnGround)
-			{
-				//velocity += (gravity - contactNormal * (maxClimbAcceleration * 0.9f)) * Time.deltaTime;
-			}
-			else
-			{
-				//velocity += gravity * Time.deltaTime;
-			}
-
-			body.velocity = velocity;
-			ClearState();
+			//velocity += gravity * ((1f - buoyancy * submergence) * Time.deltaTime);
+		}
+		else if (OnGround && velocity.sqrMagnitude < 0.01f)
+		{
+			//velocity += contactNormal * (Vector3.Dot(gravity, contactNormal) * Time.deltaTime);
+		}
+		else if (desiresClimbing && OnGround)
+		{
+			//velocity += (gravity - contactNormal * (maxClimbAcceleration * 0.9f)) * Time.deltaTime;
 		}
 		else
 		{
-			body.velocity = Vector3.zero;
-			body.isKinematic = true;
-			characterController.enabled = true;
-
-			characterController.Move(transform.forward * 15f * Time.fixedDeltaTime);
+			//velocity += gravity * Time.deltaTime;
 		}
+
+		body.velocity = velocity;
+		ClearState();
 	}
 
 	void ClearState()
