@@ -5,9 +5,13 @@ public class Inventory_Icon_Durability : Inventory_Icon
 {
     [Header("Durability Exclusive")]
     public Text m_durabilityText;
-
     public int m_durabilityAmount;
 
+    public override void UpdateIconNumber()
+    {
+        base.UpdateIconNumber();
+        UpdateDurability(m_durabilityAmount);
+    }
     public void UpdateDurability(int p_newDurabilityAmount)
     {
         m_durabilityAmount = p_newDurabilityAmount;

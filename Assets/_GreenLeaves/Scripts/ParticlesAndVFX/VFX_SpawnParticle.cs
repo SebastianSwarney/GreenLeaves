@@ -5,17 +5,9 @@ using UnityEngine;
 public class VFX_SpawnParticle : MonoBehaviour
 {
     public GameObject m_spawnedParticle;
-    private ObjectPooler m_pooler;
     public Vector3 m_particleOffset;
 
-    private void Awake()
-    {
-        m_pooler = ObjectPooler.Instance;
-    }
-    private void Start()
-    {
-        m_pooler = ObjectPooler.Instance;
-    }
+
 
     /// <summary>
     /// Spawns an unparented particle object at the p_position
@@ -23,7 +15,7 @@ public class VFX_SpawnParticle : MonoBehaviour
     /// <param name="p_positon"></param>
     public void SpawnParticlePrefab(Vector3 p_positon)
     {
-        m_pooler.NewObject(m_spawnedParticle, p_positon, Quaternion.identity);
+        ObjectPooler.Instance.NewObject(m_spawnedParticle, p_positon, Quaternion.identity);
     }
     /// <summary>
     /// Spawns an unparented particle object at this objects postion.
@@ -31,7 +23,7 @@ public class VFX_SpawnParticle : MonoBehaviour
     public void SpawnParticlePrefab()
     {
 
-        Transform newParticle = m_pooler.NewObject(m_spawnedParticle, transform.position, Quaternion.identity).transform;
+        Transform newParticle = ObjectPooler.Instance.NewObject(m_spawnedParticle, transform.position, Quaternion.identity).transform;
 
         if (m_particleOffset != Vector3.zero)
         {
@@ -47,7 +39,7 @@ public class VFX_SpawnParticle : MonoBehaviour
     /// <param name="p_endingPos"></param>
     public void SpawnParticleLineRenderer(Vector3 p_startingPos, Vector3 p_endingPos)
     {
-        LineRenderer newLine = m_pooler.NewObject(m_spawnedParticle, p_startingPos, Quaternion.identity).GetComponent<LineRenderer>();
+        LineRenderer newLine = ObjectPooler.Instance.NewObject(m_spawnedParticle, p_startingPos, Quaternion.identity).GetComponent<LineRenderer>();
 
         newLine.SetPosition(0, p_startingPos);
         newLine.SetPosition(1, p_endingPos);

@@ -22,10 +22,13 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public bool m_isDebugging;
     public Color m_gizmosColor;
 
-    public override void InitializeObject(Inventory_Icon_Durability p_linkedIcon)
+
+    public void Update()
     {
-        base.InitializeObject(p_linkedIcon);
-        m_detectionOrigin = EnergyController.Instance.transform;
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            UseEquipment();
+        }
     }
     public override void UseEquipment()
     {
@@ -115,7 +118,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         {
             m_durability = 0;
         }
-        UpdateIconDurability(m_durability);
+        UpdateIconDurability();
     }
 
     /// <summary>
@@ -125,7 +128,10 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     {
         Debug.Log("Canteen Empty");
     }
-
+    public override void ReEnableToolComponent()
+    {
+        Crafting_Table.Instance.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Canteen);
+    }
     private void OnDrawGizmos()
     {
         if (!m_isDebugging) return;

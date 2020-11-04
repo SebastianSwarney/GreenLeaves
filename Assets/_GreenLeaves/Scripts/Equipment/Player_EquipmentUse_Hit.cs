@@ -5,43 +5,25 @@
 /// </summary>
 public class Player_EquipmentUse_Hit : Player_EquipmentUse
 {
-    public LayerMask m_detectionMask;
-    public float m_detectionRadius;
+    public LayerMask m_hitDetectionMask;
+    public float m_hitDetectionRadius;
     public Transform m_playerObject;
 
-    public override void InitializeObject(Inventory_Icon_Durability p_linkedIcon)
+
+    public void Update()
     {
-        base.InitializeObject(p_linkedIcon);
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            UseEquipment();
+        }
+    }
+    public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
+    {
+        base.EquipObject(p_linkedIcon);
         if(m_playerObject == null)
         {
             m_playerObject = EnergyController.Instance.transform;
         }
     }
-    public override void UseEquipment()
-    {
-        Manipulation_HitObject hit = CheckRadius();
-        if (hit != null)
-        {
-            hit.HitObject();
-            ReduceDurability();
-        }
-    }
-
-    public Manipulation_HitObject CheckRadius()
-    {
-        Collider[] cols = Physics.OverlapSphere(m_playerObject.position, m_detectionRadius, m_detectionMask);
-        Manipulation_HitObject hit;
-        foreach (Collider col in cols)
-        {
-            hit = col.gameObject.GetComponent<Manipulation_HitObject>();
-            if (hit != null)
-            {
-                if (hit.m_canHit)
-                {
-                    return hit;
-                }
-            }
-        }
-        return null;
-    }
+    
 }
