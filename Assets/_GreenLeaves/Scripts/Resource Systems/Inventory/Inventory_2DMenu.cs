@@ -38,6 +38,10 @@ public class Inventory_2DMenu : MonoBehaviour
     [Tooltip("Used to determine where the player can drop the item until it snaps back automatically")]
     public GameObject m_backpackImageUi;
 
+    [Tooltip("Used to determine where the player can drop the item to put it on the crafting table")]
+    public GameObject m_craftingTableUI;
+    public Transform m_craftedIconPlacement;
+
     [Header("Icon Selection Variables")]
     public float m_selectedBufferTime;
 
@@ -50,6 +54,7 @@ public class Inventory_2DMenu : MonoBehaviour
     ///Used to toggle the menu open and closed.
     private bool m_isOpen;
     private bool m_isDraggingObject;
+    private bool m_iconWasInCraftingTable = false;
 
     private void Awake()
     {
@@ -71,12 +76,9 @@ public class Inventory_2DMenu : MonoBehaviour
         else if (Input.GetKeyDown(m_rotateKey))
         {
             if (m_currentSelectedIcon == null) return;
-            m_currentSelectedIcon.transform.Rotate(Vector3.forward, 90);
+            m_currentSelectedIcon.transform.Rotate(Vector3.forward, -90);
             m_currentSelectedIcon.RotateDir();
         }
-
-
-
     }
 
     #region Inventory Toggle
@@ -120,6 +122,7 @@ public class Inventory_2DMenu : MonoBehaviour
         m_canvasObject.SetActive(false);
         m_selectedMenuParent.SetActive(false);
         m_currentSelectedIcon = null;
+        Crafting_Table.Instance.ClearIconList();
     }
     #endregion
 
@@ -131,7 +134,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public void AddItemToInventory(GameObject p_pickedUp, int p_amount)
     {
         ResourceContainer pickedUpResource = p_pickedUp.GetComponent<Resource_Pickup>().m_resourceInfo;
-        BackpackSlot newSlot = new BackpackSlot();
+
 
         p_pickedUp.GetComponent<Resource_Pickup>().PickupResource();
         ///Determine if there are any existing items like this in the inventory
@@ -168,7 +171,8 @@ public class Inventory_2DMenu : MonoBehaviour
         }
         #endregion
 
-        ///Determines which way the icon should be orientated
+
+
         #region Icon orientation setup
 
         RotationType iconRotationType = pickedUpResource.m_resourceData.m_iconStartingRotation;
@@ -179,42 +183,14 @@ public class Inventory_2DMenu : MonoBehaviour
 
         #endregion
 
-        ///Sets the icon's script up, assigning proper values
-        #region Icon Script Initialization
-
-
-        Inventory_Icon newIcon = null;
-        if (p_pickedUp.GetComponent<Player_EquipmentUse>() != null)
-        {
-            newIcon = ObjectPooler.Instance.NewObject(m_durabilityIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
-            newIcon.GetComponent<Inventory_Icon_Durability>().m_durabilityAmount = p_pickedUp.GetComponent<Player_EquipmentUse>().m_durability;
-        }
-        else
-        {
-            newIcon = ObjectPooler.Instance.NewObject(m_mainIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
-        }
-        newIcon.transform.parent = m_gameIconsParent;
-        newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * pickedUpResource.m_resourceData.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * pickedUpResource.m_resourceData.m_inventoryWeight.y);
-        newIcon.UpdateIcon(pickedUpResource, iconRotationType);
-        newIcon.m_currentResourceAmount = existingAmount;
-        newIcon.UpdateIconNumber();
-
-        #endregion
-
-
-        ///Sets up the slot for this item. Adds it to the backpack
-        #region Backpack Slot Initialization
-
-        newSlot.m_currentData = pickedUpResource;
-        newSlot.m_associatedIcon = newIcon;
-        m_backpack.m_itemsInBackpack.Add(newSlot);
-        m_inventoryGrid.AddWeight(pickedUpResource.m_resourceData);
-
-        #endregion
 
 
         ///Determines if the icon can be placed in the grid
         #region Icon Grid Positioning
+
+        Inventory_Icon newIcon = CreateIcon(pickedUpResource, iconRotationType, existingAmount, false, 0);
+
+        newIcon.m_opensInventorySelectButton = pickedUpResource.m_showInventorySelectionButton;
 
         ///If it can fit
         if (m_inventoryGrid.CanAddToRow(pickedUpResource.m_resourceData, iconRotationType))
@@ -239,6 +215,82 @@ public class Inventory_2DMenu : MonoBehaviour
         #endregion
     }
 
+
+    /// <summary>
+    /// Creates and returns a new inventory icon
+    /// </summary>
+    private Inventory_Icon CreateIcon(ResourceContainer p_pickedUpResource, RotationType p_rotationType, int p_resourceAmount, bool p_isTool, int p_durabilityAmount = 1)
+    {
+
+
+        ///Determines which way the icon should be orientated
+
+
+        ///Sets the icon's script up, assigning proper values
+        #region Icon Script Initialization
+
+
+        Inventory_Icon newIcon = null;
+
+
+        if (p_isTool)
+        {
+            newIcon = ObjectPooler.Instance.NewObject(m_durabilityIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
+            newIcon.GetComponent<Inventory_Icon_Durability>().m_durabilityAmount = p_durabilityAmount;
+        }
+        else
+        {
+            newIcon = ObjectPooler.Instance.NewObject(m_mainIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
+        }
+
+        newIcon.transform.parent = m_gameIconsParent;
+        newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * p_pickedUpResource.m_resourceData.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * p_pickedUpResource.m_resourceData.m_inventoryWeight.y);
+        newIcon.UpdateIcon(p_pickedUpResource, p_rotationType);
+        newIcon.m_currentResourceAmount = p_resourceAmount;
+        newIcon.UpdateIconNumber();
+
+
+
+        BackpackSlot newSlot = new BackpackSlot();
+
+        #endregion
+
+        ///Sets up the slot for this item. Adds it to the backpack
+        #region Backpack Slot Initialization
+
+        newSlot.m_currentData = p_pickedUpResource;
+        newSlot.m_associatedIcon = newIcon;
+        m_backpack.m_itemsInBackpack.Add(newSlot);
+        m_inventoryGrid.AddWeight(p_pickedUpResource.m_resourceData);
+
+        #endregion
+
+
+        return newIcon;
+    }
+
+
+
+    public void CraftNewIcon(Crafting_Recipe p_recipe)
+    {
+        RotationType iconRotationType = p_recipe.m_craftedItem.m_resourceData.m_iconStartingRotation;
+        if (p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.x < p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.y)
+        {
+            p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight = new Vector2Int(p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.y, p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.x);
+        }
+        Inventory_Icon newIcon = CreateIcon(p_recipe.m_craftedItem, iconRotationType, p_recipe.m_craftedAmount, p_recipe.m_isToolRecipe, p_recipe.m_startingToolDurability);
+
+        newIcon.m_opensInventorySelectButton = p_recipe.m_craftedItem.m_showInventorySelectionButton;
+
+        newIcon.transform.localPosition = m_craftedIconPlacement.localPosition;
+        newIcon.m_startingCoordPos = m_craftedIconPlacement.localPosition;
+        newIcon.m_inBackpack = false;
+        newIcon.m_inCraftingTable = false;
+
+        newIcon.UpdateIconNumber();
+
+    }
+
     /// <summary>
     /// Gathers the icons that are not within the grid, and removes them from the backpack.
     /// Spawns the items in the 3d world by calling the Player_Inventory script
@@ -250,7 +302,7 @@ public class Inventory_2DMenu : MonoBehaviour
         List<int> removeList = new List<int>();
         for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
         {
-            if (!m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inBackpack)
+            if (!m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inBackpack || m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inCraftingTable)
             {
                 removeList.Add(i);
             }
@@ -309,19 +361,30 @@ public class Inventory_2DMenu : MonoBehaviour
             }
             if (res.gameObject.GetComponent<Inventory_Icon>() != null)
             {
-                res.gameObject.GetComponent<Inventory_Icon>().IconTappedOn();
-
                 m_currentSelectedIcon = res.gameObject.GetComponent<Inventory_Icon>();
-                m_selectedMenuParent.gameObject.SetActive(true);
-                
-                if (m_currentSelectedIcon == Inventory_ItemUsage.Instance.m_currentEquippedIcon)
+                m_currentSelectedIcon.IconTappedOn();
+
+                if (m_currentSelectedIcon.m_opensInventorySelectButton)
                 {
-                    ChangeSelectedButtonText("Unequip");
+                    m_selectedMenuParent.gameObject.SetActive(true);
+                }
+
+                if (Player_Inventory.Instance.m_currentEquipedTool != null)
+                {
+                    if (m_currentSelectedIcon == Player_Inventory.Instance.m_currentEquipedTool.m_linkedIcon)
+                    {
+                        ChangeSelectedButtonText("Unequip");
+                    }
+                    else
+                    {
+                        ChangeSelectedButtonText(m_currentSelectedIcon.m_itemData.m_itemUseButtonText);
+                    }
                 }
                 else
                 {
                     ChangeSelectedButtonText(m_currentSelectedIcon.m_itemData.m_itemUseButtonText);
                 }
+
                 return;
             }
         }
@@ -354,13 +417,18 @@ public class Inventory_2DMenu : MonoBehaviour
         if (p_holdingIcon.m_inBackpack)
         {
             p_holdingIcon.m_inBackpack = true;
+            p_holdingIcon.m_inCraftingTable = false;
             //Remember to re-rotate the icon back to it's og rotation
             m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
+        }
+        else if (p_holdingIcon.m_inCraftingTable)
+        {
+            p_holdingIcon.m_inCraftingTable = false;
+            p_holdingIcon.m_inBackpack = false;
         }
         else
         {
             p_holdingIcon.m_inBackpack = false;
-
             p_holdingIcon.transform.localPosition = p_holdingIcon.m_startingCoordPos;
         }
     }
@@ -372,11 +440,15 @@ public class Inventory_2DMenu : MonoBehaviour
     ///     If it is over a grid slot, it will check if it can be placed
     ///     If it is not over a grid slot, but it is over the backpack ui, it will return the object to where it was
     ///     If it is over nothing, it will toggle the icon to no longer being in the bag, and drop it upon closing the item menu
+    ///     If it is over the crafting table ui, leave it there, and add it to the crafting system
+    ///     
+    /// Additionally, the logic changes when the icon is a tool resource.
+    ///     If it is not over the crafting table UI, snap the icon back to it's original placement
+    ///     If it is on the crafting table ui, leave it there, and set it to be in the crafting table
     /// </summary>
     public void CheckIconPlacePosition(Inventory_Icon p_holdingIcon)
     {
         m_isDraggingObject = false;
-
 
         #region Perform the UI Raycast using the events system
 
@@ -397,72 +469,96 @@ public class Inventory_2DMenu : MonoBehaviour
         bool placedIcon = false;
 
         bool snapBack = false;
+        bool crafting = false;
 
-
+        ///Used to have a cached reference on whether this is a tool resource icon
+        bool iconIsToolResource = p_holdingIcon.GetComponent<Inventory_Icon_ToolResource>() != null;
+        snapBack = iconIsToolResource;
 
         foreach (RaycastResult res in hitUI)
         {
+            ///If the hit object isnt the held icon
             if (res.gameObject != p_holdingIcon)
             {
-
-                ///If an item already exists in that position
-                if (res.gameObject.GetComponent<Inventory_Icon>() != null)
+                if (!iconIsToolResource)
                 {
-                    newPlace = Vector2Int.zero;
-                    placedIcon = false;
-                }
-
-                ///If the player lets go on the grid
-                if (res.gameObject.GetComponent<Inventory_SlotDetector>() != null)
-                {
-
-                    ///Checks if the item can fit there
-                    if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_holdingIcon.m_itemData.m_resourceData.m_inventoryWeight, p_holdingIcon.m_rotatedDir))
+                    ///If an item already exists in that position
+                    if (res.gameObject.GetComponent<Inventory_Icon>() != null)
                     {
-                        newPlace = res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos;
-                        placedIcon = true;
+                        newPlace = Vector2Int.zero;
+                        placedIcon = false;
                     }
-                    else
+
+                    ///If the player lets go on the grid
+                    if (res.gameObject.GetComponent<Inventory_SlotDetector>() != null)
                     {
-                        if (m_inventoryGrid.GetIcon(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos) != null)
+
+                        ///Checks if the item can fit there
+                        if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_holdingIcon.m_itemData.m_resourceData.m_inventoryWeight, p_holdingIcon.m_rotatedDir))
                         {
-                            Inventory_Icon currentIcon = m_inventoryGrid.GetIcon(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos);
-
-                            if (currentIcon.m_itemData.m_resourceData.m_resourceName == p_holdingIcon.m_itemData.m_resourceData.m_resourceName)
+                            newPlace = res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos;
+                            placedIcon = true;
+                        }
+                        else
+                        {
+                            if (m_inventoryGrid.GetIcon(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos) != null)
                             {
-                                int amountLeft = 0;
+                                Inventory_Icon currentIcon = m_inventoryGrid.GetIcon(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos);
 
-
-                                ///If the current icon can completely fit in the new icon, remove the current icon from the inventory
-                                if (currentIcon.CanAddFullAmount(p_holdingIcon.m_currentResourceAmount, out amountLeft))
+                                if (currentIcon.m_itemData.m_resourceData.m_resourceName == p_holdingIcon.m_itemData.m_resourceData.m_resourceName)
                                 {
-                                    p_holdingIcon.m_inBackpack = false;
-                                    ObjectPooler.Instance.ReturnToPool(p_holdingIcon.gameObject);
+                                    int amountLeft = 0;
 
 
-                                    for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
+                                    ///If the current icon can completely fit in the new icon, remove the current icon from the inventory
+                                    if (currentIcon.CanAddFullAmount(p_holdingIcon.m_currentResourceAmount, out amountLeft))
                                     {
-                                        if (m_backpack.m_itemsInBackpack[i].m_associatedIcon != p_holdingIcon) continue;
-                                        m_backpack.m_itemsInBackpack.RemoveAt(i);
-                                        return;
-                                    }
-                                }
+                                        p_holdingIcon.m_inCraftingTable = false;
+                                        p_holdingIcon.m_inBackpack = false;
+                                        ObjectPooler.Instance.ReturnToPool(p_holdingIcon.gameObject);
 
-                                ///If there is still remainder, reset the held icon
-                                else
-                                {
-                                    p_holdingIcon.m_currentResourceAmount = amountLeft;
-                                    p_holdingIcon.UpdateIconNumber();
+
+                                        for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
+                                        {
+                                            if (m_backpack.m_itemsInBackpack[i].m_associatedIcon != p_holdingIcon) continue;
+                                            m_backpack.m_itemsInBackpack.RemoveAt(i);
+                                            return;
+                                        }
+                                    }
+
+                                    ///If there is still remainder, reset the held icon
+                                    else
+                                    {
+                                        p_holdingIcon.m_currentResourceAmount = amountLeft;
+                                        p_holdingIcon.UpdateIconNumber();
+                                    }
                                 }
                             }
                         }
                     }
+
+                    ///If the player lets go while on the backpack
+                    if (res.gameObject == m_backpackImageUi)
+                    {
+                        snapBack = true;
+                    }
+                    else if (res.gameObject == m_craftingTableUI)
+                    {
+                        snapBack = false;
+                        crafting = true;
+                    }
                 }
 
-                ///If the player lets go while on the backpack
-                if (res.gameObject == m_backpackImageUi)
+                ///Logic change for tool resource
+                ///Basically, if its over anything except for the crafting table UI, snap it back to the tool belt
+                else
                 {
-                    snapBack = true;
+
+                    if (res.gameObject == m_craftingTableUI)
+                    {
+                        snapBack = false;
+                        crafting = true;
+                    }
                 }
             }
         }
@@ -481,6 +577,7 @@ public class Inventory_2DMenu : MonoBehaviour
                 ///If snapping back and the item was previously in the backpack, return it to the backpack, and it's original orientation
                 if (p_holdingIcon.m_inBackpack)
                 {
+                    p_holdingIcon.m_inCraftingTable = false;
                     p_holdingIcon.m_inBackpack = true;
                     //Remember to re-rotate the icon back to it's og rotation
                     p_holdingIcon.ResetRotation();
@@ -490,6 +587,18 @@ public class Inventory_2DMenu : MonoBehaviour
                 ///If snapping back and the item was previously not in the backpack, return it to the outer, and it's original orientation
                 else
                 {
+                    if (p_holdingIcon.m_inCraftingTable)
+                    {
+                        Crafting_Table.Instance.AddIconToTable(p_holdingIcon);
+                    }
+                    else
+                    {
+                        if (iconIsToolResource)
+                        {
+                            p_holdingIcon.m_inCraftingTable = false;
+                            p_holdingIcon.m_startingCoordPos = p_holdingIcon.GetComponent<Inventory_Icon_ToolResource>().m_toolBeltPlacement;
+                        }
+                    }
                     p_holdingIcon.m_inBackpack = false;
                     p_holdingIcon.ForceIconDrop();
                     p_holdingIcon.ResetRotation();
@@ -500,13 +609,21 @@ public class Inventory_2DMenu : MonoBehaviour
             ///If the item is outside the backpack, just leave it there
             else
             {
+
                 p_holdingIcon.m_inBackpack = false;
                 p_holdingIcon.m_startingCoordPos = p_holdingIcon.transform.localPosition;
+
+                if (crafting)
+                {
+                    p_holdingIcon.m_inCraftingTable = true;
+                    Crafting_Table.Instance.AddIconToTable(p_holdingIcon);
+                }
             }
             return;
         }
 
         ///If the item is over a placeable spot, place it properly in the grid
+        p_holdingIcon.m_inCraftingTable = false;
         p_holdingIcon.m_inBackpack = true;
         m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         p_holdingIcon.m_previousGridPos = newPlace;
@@ -527,6 +644,9 @@ public class Inventory_2DMenu : MonoBehaviour
     #endregion
 
     #region Menu Selected Button
+    /// <summary>
+    /// Called from the UI button. Used to perform the functionality of the element
+    /// </summary>
     public void TapSelectedButton()
     {
         if (m_currentSelectedIcon == null)
@@ -534,11 +654,23 @@ public class Inventory_2DMenu : MonoBehaviour
             Debug.Log("No Selected icon");
             return;
         }
-        Debug.Log("Current Selected: " + m_currentSelectedIcon.m_itemData.m_resourceData.m_resourceName);
-        if (m_currentSelectedIcon == Inventory_ItemUsage.Instance.m_currentEquippedIcon)
+
+        if (!m_currentSelectedIcon.m_opensInventorySelectButton)
         {
-            Inventory_ItemUsage.Instance.UnEquipCurrent();
-            ChangeSelectedButtonText("Equip");
+            Debug.LogError("Button appeared, although it shouldnt for: " + m_currentSelectedIcon.m_itemData.m_resourceData.m_resourceName);
+            return;
+        }
+        if (Player_Inventory.Instance.m_currentEquipedTool != null)
+        {
+            if (m_currentSelectedIcon == Player_Inventory.Instance.m_currentEquipedTool.m_linkedIcon)
+            {
+                Inventory_ItemUsage.Instance.UnEquipCurrent();
+                ChangeSelectedButtonText("Equip");
+            }
+            else
+            {
+                m_currentSelectedIcon.m_itemData.UseItem(m_currentSelectedIcon);
+            }
         }
         else
         {
@@ -546,11 +678,20 @@ public class Inventory_2DMenu : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Changes the selection button's text.
+    /// Most likely to either Consume, or Equip
+    /// </summary>
     public void ChangeSelectedButtonText(string p_newText)
     {
         m_selectButtonText.text = p_newText;
     }
 
+
+    /// <summary>
+    /// Updates the resource amount on the icon.
+    /// Called from consumables
+    /// </summary>
     public void ItemUsed(Inventory_Icon p_usedIcon)
     {
         p_usedIcon.m_currentResourceAmount--;
@@ -560,6 +701,25 @@ public class Inventory_2DMenu : MonoBehaviour
             m_currentSelectedIcon = null;
             m_selectedMenuParent.gameObject.SetActive(false);
             m_inventoryGrid.RemoveSingleIcon(p_usedIcon);
+        }
+    }
+
+    /// <summary>
+    /// Used to remove the resource entirely from the inventory.<br/>
+    /// This includes removing the icon, Removing the icon data from the inventory, and repooling the icon.
+    /// </summary>
+    public void RemoveIconFromInventory(Inventory_Icon p_removeMe)
+    {
+        m_currentSelectedIcon = null;
+        m_selectedMenuParent.gameObject.SetActive(false);
+        m_inventoryGrid.RemoveSingleIcon(p_removeMe);
+        for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
+        {
+            if (m_backpack.m_itemsInBackpack[i].m_associatedIcon == p_removeMe)
+            {
+                m_backpack.m_itemsInBackpack.RemoveAt(i);
+                return;
+            }
         }
     }
     #endregion

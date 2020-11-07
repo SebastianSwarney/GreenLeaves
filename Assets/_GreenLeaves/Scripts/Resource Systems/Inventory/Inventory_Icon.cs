@@ -13,6 +13,7 @@ public class Inventory_Icon : MonoBehaviour
 
     public Inventory_2DMenu.RotationType m_rotatedDir = Inventory_2DMenu.RotationType.Left;
     public bool m_inBackpack = false;
+    public bool m_inCraftingTable = false;
 
     [HideInInspector] public Vector2Int m_previousGridPos;
     [HideInInspector] public Vector3 m_startingCoordPos;
@@ -21,10 +22,13 @@ public class Inventory_Icon : MonoBehaviour
 
     public int m_currentResourceAmount;
 
+    public bool m_opensInventorySelectButton;
+
     [Header("Number UI")]
-    
     public Text m_numberText;
     public RectTransform m_numberTransform;
+    
+    
     /// <summary>
     /// Changes the rotation of the icon to match it's current rotation type
     /// </summary>
@@ -39,7 +43,7 @@ public class Inventory_Icon : MonoBehaviour
                 m_numberTransform.anchoredPosition = new Vector2(0,0);
                 break;
             case Inventory_2DMenu.RotationType.Down:
-                transform.localEulerAngles = new Vector3(0, 0, 90);
+                transform.localEulerAngles = new Vector3(0, 0, -90);
 
                 m_numberTransform.localEulerAngles = new Vector3(0, 0, -90);
                 m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, 0);
@@ -51,7 +55,7 @@ public class Inventory_Icon : MonoBehaviour
                 m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, -m_iconTransform.sizeDelta.y);
                 break;
             case Inventory_2DMenu.RotationType.Up:
-                transform.localEulerAngles = new Vector3(0, 0, 270);
+                transform.localEulerAngles = new Vector3(0, 0, 90);
                 m_numberTransform.localEulerAngles = new Vector3(0, 0, 90);
                 m_numberTransform.anchoredPosition = new Vector2(0, -m_iconTransform.sizeDelta.y);
                 break;
@@ -59,7 +63,10 @@ public class Inventory_Icon : MonoBehaviour
         AdjustedDraggingOffset();
     }
 
-
+    /// <summary>
+    /// Used to rotate the resource amount number text element to always<br/>
+    /// be on the bottom left corner, and rotated upright
+    /// </summary>
     public void SetNumberRotation()
     {
         switch (m_rotatedDir)
@@ -69,19 +76,22 @@ public class Inventory_Icon : MonoBehaviour
                 m_numberTransform.anchoredPosition = new Vector2(0, 0);
                 break;
             case Inventory_2DMenu.RotationType.Down:
-                m_numberTransform.localEulerAngles = new Vector3(0, 0, -90);
-                m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, 0);
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, 90);
+                m_numberTransform.anchoredPosition = new Vector2(0, m_iconTransform.sizeDelta.y);
                 break;
             case Inventory_2DMenu.RotationType.Right:
                 m_numberTransform.localEulerAngles = new Vector3(0, 0, -180);
                 m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, m_iconTransform.sizeDelta.y);
                 break;
             case Inventory_2DMenu.RotationType.Up:
-                m_numberTransform.localEulerAngles = new Vector3(0, 0, 90);
-                m_numberTransform.anchoredPosition = new Vector2(0, m_iconTransform.sizeDelta.y);
+                m_numberTransform.localEulerAngles = new Vector3(0, 0, -90);
+                m_numberTransform.anchoredPosition = new Vector2(-m_iconTransform.sizeDelta.x, 0);
+
                 break;
         }
     }
+    
+    
     /// <summary>
     /// Adjusts the offset from the mouse while being dragged
     /// The offset changes depending on the rotation type
@@ -126,7 +136,10 @@ public class Inventory_Icon : MonoBehaviour
         ResetRotation();
     }
 
-    public void UpdateIconNumber()
+    /// <summary>
+    /// Used to update the icon's resource amount ui text to match
+    /// </summary>
+    public virtual void UpdateIconNumber()
     {
         m_numberText.text = "x" + m_currentResourceAmount.ToString();
     }
@@ -175,6 +188,10 @@ public class Inventory_Icon : MonoBehaviour
         if (m_inBackpack)
         {
             Inventory_2DMenu.Instance.ClearGridPosition(m_previousGridPos, m_itemData.m_resourceData.m_inventoryWeight, m_rotatedDir);
+        }
+        else if (m_inCraftingTable)
+        {
+            Crafting_Table.Instance.RemoveIconFromTable(this);
         }
 
     }
@@ -240,4 +257,22 @@ public class Inventory_Icon : MonoBehaviour
         AdjustedDraggingOffset();
     }
 
+    /// <summary>
+    /// Removes the icon from the inventory<br/>
+    /// This is a virtual, as the Tool Resource variant uses this to not remove itself <br/>
+    /// from the inventory but rather disable itself
+    /// </summary>
+    public virtual void RemoveIcon()
+    {
+        Inventory_2DMenu.Instance.RemoveIconFromInventory(this);
+    }
+
+    /// <summary>
+    /// Called when the icon is being cleared from the crafting table when it is closed.<br/>
+    /// This is a virtual function, as the inventory icon Tool Resource variant needs a way <br/>to know when the crafting menu is closed
+    /// </summary>
+    public virtual void RemoveIconFromCraftingTableOnClose()
+    {
+        m_inCraftingTable = false;
+    }
 }
