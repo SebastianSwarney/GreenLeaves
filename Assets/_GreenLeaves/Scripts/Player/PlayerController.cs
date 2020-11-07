@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using RootMotion.FinalIK;
 using System;
 
 [Serializable]
@@ -62,9 +63,8 @@ public class PlayerController : MonoBehaviour
         public float m_accelerationTimeAir;
     }
 
-    private BaseMovementProperties m_baseMovementProperties;
-
     [Header("Base Movement Properties")]
+    public BaseMovementProperties m_baseMovementProperties;
     public PlayerBaseMovementSettings m_currentBaseMovementSettings;
 
     private Vector3 m_groundMovementVelocity;
@@ -176,7 +176,28 @@ public class PlayerController : MonoBehaviour
 
 	private Vector3 m_climbVelocity;
     private bool m_isClimbing;
-	#endregion
+    #endregion
+
+    public Transform m_wallTransform;
+
+    public Transform m_modelTransform;
+
+    public Transform m_headEffectorRootTransform;
+
+    public AnimationCurve m_turnOffsetCurve;
+
+    public OffsetPoseBlend m_turnBlend;
+
+    public OffsetPoseBlend m_verticalSlopeBlend;
+    public OffsetPoseBlend m_horizontalSlopeBlend;
+
+    public float m_maximumBlendTurnAngle;
+
+    public float m_maxVerticalSlopePercent;
+
+    public float m_landedSlideSpeed;
+    public float m_landedSlideTime;
+    public AnimationCurve m_landedSlideCurve;
 
 	private void Start()
     {
@@ -248,16 +269,44 @@ public class PlayerController : MonoBehaviour
         ZeroVelocityOnGround();
     }
 
+    private void SetModelRotation()
+	{
+        //testPose.Apply(m_fullBodyBipedIK.GetIKSolver(), 1f);
+
+        RaycastHit hit;
+
+		if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, m_groundMask))
+		{
+            Vector3 localXAxis = Vector3.Cross(transform.forward, Vector3.up);
+            Vector3 forwardRotation = Vector3.ProjectOnPlane(hit.normal, localXAxis);
+            Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
+            Vector3 targetMoveAmount = (upwardSlopeOffset * transform.forward);
+
+            m_wallTransform.rotation = Quaternion.LookRotation(hit.normal);
+
+            m_headEffectorRootTransform.rotation = Quaternion.RotateTowards(m_headEffectorRootTransform.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), 150f * Time.deltaTime);
+
+
+            float veritcalLerp = Mathf.InverseLerp(0, 1, Mathf.Abs(targetMoveAmount.y) / m_maxVerticalSlopePercent);
+            //m_verticalSlopeBlend.SetBlendValue(veritcalLerp * Mathf.Sign(targetMoveAmount.y));
+
+            Vector3 horizontalCross = Vector3.Cross(m_wallTransform.right, transform.right);
+            //m_horizontalSlopeBlend.SetBlendValue(Mathf.Abs(horizontalCross.y) * Mathf.Sign(-horizontalCross.y));
+        }
+	}
+
 	#region Animation Code
 
 	private void SetAnimations()
 	{
         Vector3 relativeVelocity = transform.InverseTransformDirection(m_groundMovementVelocity);
         m_animInputTarget = new Vector2(relativeVelocity.x / m_baseMovementProperties.m_runSpeed, relativeVelocity.z / m_baseMovementProperties.m_runSpeed);
-        m_animInput = Vector2.SmoothDamp(m_animInput, m_animInputTarget, ref m_animInputSmoothing, m_baseMovementProperties.m_playerTurnSpeed);
+        m_animInput = Vector2.SmoothDamp(m_animInput, m_animInputTarget, ref m_animInputSmoothing, 0.1f);
         m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
         m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
         m_playerAnimator.SetBool("IsGrounded", IsGrounded());
+
+        SetModelRotation();
     }
 
 	#endregion
@@ -371,6 +420,7 @@ public class PlayerController : MonoBehaviour
 
         velocity += m_groundMovementVelocity;
         velocity += m_gravityVelocity;
+        velocity += m_slideVelocity;
 
         m_characterController.Move(velocity * Time.fixedDeltaTime);
     }
@@ -386,12 +436,10 @@ public class PlayerController : MonoBehaviour
             return true;
         }
 
-        /*
         if (m_characterController.isGrounded)
         {
             return true;
         }
-        */
 
         return false;
     }
@@ -462,6 +510,8 @@ public class PlayerController : MonoBehaviour
         m_isLanded = true;
         m_hasJumped = false;
 
+        StartLandedSlide();
+
         if (CheckBuffer(ref m_jumpBufferTimer, ref m_jumpingProperties.m_jumpBufferTime, m_jumpBufferCoroutine))
         {
             JumpMaxVelocity();
@@ -469,6 +519,34 @@ public class PlayerController : MonoBehaviour
 
         m_events.m_onLandedEvent.Invoke();
     }
+
+    private void StartLandedSlide()
+	{
+		if (!m_isSliding)
+		{
+            StartCoroutine(LandedSlide());
+		}
+	}
+
+    private IEnumerator LandedSlide()
+	{
+        m_isSliding = true;
+
+        float t = 0;
+
+		while (t < m_landedSlideTime)
+		{
+            t += Time.deltaTime;
+            float progress = m_landedSlideCurve.Evaluate(t / m_landedSlideTime);
+            float currentSlideSpeed = Mathf.Lerp(m_landedSlideSpeed, 0, progress);
+            m_slideVelocity = transform.forward * currentSlideSpeed;
+            yield return null;
+		}
+
+        m_slideVelocity = Vector3.zero;
+
+        m_isSliding = false;
+	}
 
     public void PhysicsSeekTo(Vector3 p_targetPosition)
     {
@@ -556,25 +634,30 @@ public class PlayerController : MonoBehaviour
 
         if (m_states.m_movementControllState == MovementControllState.MovementEnabled)
         {
-            Vector3 targetHorizontalMovementDirection = new Vector3(m_movementInput.x, 0, m_movementInput.y);
-            Vector3 targetHorizontalMovement = Vector3.zero;
-            float baseHorizontalSpeed = m_baseMovementProperties.m_jogSpeed;
-            Vector3 actualMovementDir = Vector3.zero;
+            Vector3 horizontalInput = Vector3.ClampMagnitude(new Vector3(m_movementInput.x, 0, m_movementInput.y), 1f);
 
-            if (targetHorizontalMovementDirection.magnitude != 0)
+            float targetAngle = transform.eulerAngles.y;
+
+            if (horizontalInput.magnitude > 0)
             {
-                float targetAngle = Mathf.Atan2(targetHorizontalMovementDirection.x, targetHorizontalMovementDirection.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
+                targetAngle = Mathf.Atan2(horizontalInput.x, horizontalInput.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
                 float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
                 transform.rotation = Quaternion.Euler(0, angle, 0);
+			}
 
-                actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
-                targetHorizontalMovement = actualMovementDir * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed);
-            }
-
+            float baseHorizontalSpeed = m_baseMovementProperties.m_jogSpeed;
             float currentAcceleration = m_baseMovementProperties.m_accelerationTimeGrounded;
+            
+            Vector3 targetHorizontalMovement = (transform.forward * baseHorizontalSpeed) * horizontalInput.magnitude;
             Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
 
-			if (m_states.m_gravityControllState == GravityState.GravityEnabled)
+            Vector3 targetMovementRotation = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
+            float movementAngle = Vector3.Angle(transform.forward, targetMovementRotation);
+            float progress = m_turnOffsetCurve.Evaluate(movementAngle / m_maximumBlendTurnAngle);
+            float moveDir = -Mathf.Sign(Vector3.Cross(targetMovementRotation, transform.forward).y);
+            m_turnBlend.SetBlendValue(progress * moveDir);
+
+            if (m_states.m_gravityControllState == GravityState.GravityEnabled)
 			{
                 m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
 			}
@@ -588,6 +671,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             m_groundMovementVelocity = Vector3.zero;
+            //Vector3 actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
         }
     }
     #endregion
