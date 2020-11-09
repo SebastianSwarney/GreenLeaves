@@ -271,8 +271,6 @@ public class PlayerController : MonoBehaviour
 
     private void SetModelRotation()
 	{
-        //testPose.Apply(m_fullBodyBipedIK.GetIKSolver(), 1f);
-
         RaycastHit hit;
 
 		if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, m_groundMask))
@@ -288,7 +286,7 @@ public class PlayerController : MonoBehaviour
 
 
             float veritcalLerp = Mathf.InverseLerp(0, 1, Mathf.Abs(targetMoveAmount.y) / m_maxVerticalSlopePercent);
-            //m_verticalSlopeBlend.SetBlendValue(veritcalLerp * Mathf.Sign(targetMoveAmount.y));
+            m_verticalSlopeBlend.SetBlendValue(veritcalLerp * Mathf.Sign(targetMoveAmount.y));
 
             Vector3 horizontalCross = Vector3.Cross(m_wallTransform.right, transform.right);
             //m_horizontalSlopeBlend.SetBlendValue(Mathf.Abs(horizontalCross.y) * Mathf.Sign(-horizontalCross.y));
@@ -510,7 +508,7 @@ public class PlayerController : MonoBehaviour
         m_isLanded = true;
         m_hasJumped = false;
 
-        StartLandedSlide();
+        //StartLandedSlide();
 
         if (CheckBuffer(ref m_jumpBufferTimer, ref m_jumpingProperties.m_jumpBufferTime, m_jumpBufferCoroutine))
         {
@@ -646,6 +644,12 @@ public class PlayerController : MonoBehaviour
 			}
 
             float baseHorizontalSpeed = m_baseMovementProperties.m_jogSpeed;
+
+			if (m_isWalking)
+			{
+                baseHorizontalSpeed = m_baseMovementProperties.m_walkSpeed;
+			}
+
             float currentAcceleration = m_baseMovementProperties.m_accelerationTimeGrounded;
             
             Vector3 targetHorizontalMovement = (transform.forward * baseHorizontalSpeed) * horizontalInput.magnitude;

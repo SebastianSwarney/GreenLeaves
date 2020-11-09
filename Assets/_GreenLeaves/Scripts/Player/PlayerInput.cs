@@ -73,7 +73,7 @@ public class PlayerInput : MonoBehaviour
 
         if (m_playerInputController.GetButtonDown("Walk"))
         {
-           //m_playerController.OnWalkButtonDown();
+           m_playerController.OnWalkButtonDown();
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
