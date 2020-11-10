@@ -48,14 +48,20 @@ public class Inventory_2DMenu : MonoBehaviour
     public GameObject m_selectedMenuParent;
     public UnityEngine.UI.Text m_selectButtonText;
 
-    //[HideInInspector]
+    public GameObject m_warningMessageObject;
+
+    [HideInInspector]
     public Inventory_Icon m_currentSelectedIcon;
+
+    [HideInInspector]
+    public Inventory_Icon m_currentBuldingIcon;
 
     ///Used to toggle the menu open and closed.
     private bool m_isOpen;
     private bool m_isDraggingObject;
     private bool m_iconWasInCraftingTable = false;
 
+    private bool m_canDropEverything;
     private void Awake()
     {
         Instance = this;
@@ -70,11 +76,13 @@ public class Inventory_2DMenu : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log("UI Inventory Mouse Down Input Here", this);
             IconTapped();
             //IconMovementBuffer();
         }
         else if (Input.GetKeyDown(m_rotateKey))
         {
+            Debug.Log("UI Inventory Rotate Input Here", this);
             if (m_currentSelectedIcon == null) return;
             m_currentSelectedIcon.transform.Rotate(Vector3.forward, -90);
             m_currentSelectedIcon.RotateDir();
@@ -86,7 +94,7 @@ public class Inventory_2DMenu : MonoBehaviour
     {
         if (m_isOpen)
         {
-            m_isOpen = false;
+            
             if (m_isDraggingObject)
             {
                 m_currentSelectedIcon.ForceIconDrop();
@@ -94,9 +102,7 @@ public class Inventory_2DMenu : MonoBehaviour
             }
 
             CloseInventoryMenu();
-            PlayerInputToggle.Instance.ToggleInput(true);
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = false;
+
         }
         else
         {
@@ -116,13 +122,25 @@ public class Inventory_2DMenu : MonoBehaviour
 
 
 
-    public void CloseInventoryMenu()
+    public void CloseInventoryMenu(bool p_skipWarning = false)
     {
-        DropAnyOutsideIcons();
+        m_isOpen = false;
         m_canvasObject.SetActive(false);
         m_selectedMenuParent.SetActive(false);
         m_currentSelectedIcon = null;
+        DropAnyOutsideIcons(p_skipWarning);
         Crafting_Table.Instance.ClearIconList();
+    }
+
+    /// <summary>
+    /// Used to finalize the closing of the menu <br/>
+    /// This is not in the Toggle Inventory Function, as the closing may be stalled by the warning message.
+    /// </summary>
+    private void FinalCloseInventory()
+    {
+        PlayerInputToggle.Instance.ToggleInput(true);
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = false;
     }
     #endregion
 
@@ -131,12 +149,17 @@ public class Inventory_2DMenu : MonoBehaviour
     /// Adds the item to the inventory & spawns a new icon for it
     /// Calls the grid to add the icon to the grid
     /// </summary>
-    public void AddItemToInventory(GameObject p_pickedUp, int p_amount)
+    public void PickupItem(GameObject p_pickedUp, int p_amount)
     {
         ResourceContainer pickedUpResource = p_pickedUp.GetComponent<Resource_Pickup>().m_resourceInfo;
 
 
         p_pickedUp.GetComponent<Resource_Pickup>().PickupResource();
+        AddToInventory(pickedUpResource, p_amount);
+    }
+
+    public void AddToInventory(ResourceContainer pickedUpResource, int p_amount)
+    {
         ///Determine if there are any existing items like this in the inventory
         ///Used for items that can have more than 1 item in a slot IE. Arrows
         #region Existing Item Check
@@ -291,41 +314,117 @@ public class Inventory_2DMenu : MonoBehaviour
 
     }
 
+
+    #region Dropping Items
     /// <summary>
     /// Gathers the icons that are not within the grid, and removes them from the backpack.
     /// Spawns the items in the 3d world by calling the Player_Inventory script
     /// This is called when the 2d menu is closed
     /// </summary>
-    public void DropAnyOutsideIcons()
+    public void DropAnyOutsideIcons(bool p_skipWarning)
     {
         ///Goes through all the existing icons, and adds those not in the backpack to a list
         List<int> removeList = new List<int>();
+
+        ///Used for the current building's icon, if there is one.
+        ///The drop behaviour for building is different, if it is attempting to be build,
+        ///which requires this check
+        int buildingIconIndex = 0;
+
+
         for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
         {
+            if (m_currentBuldingIcon != null && m_backpack.m_itemsInBackpack[i].m_associatedIcon == m_currentBuldingIcon)
+            {
+                buildingIconIndex = i;
+                
+            }
+
             if (!m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inBackpack || m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inCraftingTable)
             {
                 removeList.Add(i);
             }
         }
-
         ///Reverses the list, and removes the items properly
         removeList.Reverse();
+        m_canDropEverything = true;
 
+        ///Determines if the warning message should popup
         for (int i = 0; i < removeList.Count; i++)
         {
-            m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon);
-
-
-
-            m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.m_currentResourceAmount = 0;
-
-            m_inventoryGrid.RemoveWeight(m_backpack.m_itemsInBackpack[removeList[i]].m_currentData.m_resourceData);
-            ObjectPooler.Instance.ReturnToPool(m_backpack.m_itemsInBackpack[removeList[i]].m_associatedIcon.gameObject);
-            m_backpack.m_itemsInBackpack.RemoveAt(removeList[i]);
-
+            if (m_backpack.m_itemsInBackpack[removeList[i]].m_currentData.m_stopDropping)
+            {
+                m_canDropEverything = false;
+            }
         }
+
+        StartCoroutine(DropItemsOutside(removeList, buildingIconIndex, p_skipWarning));
+
     }
 
+    /// <summary>
+    /// Used to wait until the player confirms to drop everything. <br/>
+    /// If a tool is selected to drop, displays a message first, then waits. <br/>
+    /// If no tool is selected to drop, performs the drop without waiting.
+    /// </summary>
+    private IEnumerator DropItemsOutside(List<int> p_removeOrder, int p_buildIconIndex, bool p_skipWarning)
+    {
+        if (p_skipWarning)
+        {
+            m_canDropEverything = true;
+        }
+        if (!m_canDropEverything)
+        {
+            m_warningMessageObject.SetActive(true);
+        }
+
+        while (!m_canDropEverything)
+        {
+            yield return null;
+        }
+
+
+        for (int i = 0; i < p_removeOrder.Count; i++)
+        {
+
+            ///Since the building system closes the inventory, but it should stay in the inventory if its being used, it "drops" the item,
+            ///but changes the DropFunction's dropInWorld boolean to false so that no physical item is created, but the logic is still performed.
+            if (i == p_buildIconIndex && m_currentBuldingIcon!= null)
+            {
+                m_playerInventory.DropObject(m_currentBuldingIcon, false);
+            }
+            else
+            {
+                m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon, true);
+            }
+
+
+            m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon.m_currentResourceAmount = 0;
+
+            m_inventoryGrid.RemoveWeight(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_currentData.m_resourceData);
+            ObjectPooler.Instance.ReturnToPool(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon.gameObject);
+            m_backpack.m_itemsInBackpack.RemoveAt(p_removeOrder[i]);
+
+        }
+
+        FinalCloseInventory();
+    }
+
+    public void ConfirmDrop()
+    {
+        m_warningMessageObject.SetActive(false);
+        m_canDropEverything = true;
+    }
+
+    public void CancelDrop()
+    {
+        m_warningMessageObject.SetActive(false);
+        m_canDropEverything = false;
+        StopAllCoroutines();
+        m_canvasObject.SetActive(true);
+    }
+
+    #endregion
 
     /// <summary>
     /// This function is called when the player uses the mouse to tap down on the ui while this menu is open
@@ -701,6 +800,15 @@ public class Inventory_2DMenu : MonoBehaviour
             m_currentSelectedIcon = null;
             m_selectedMenuParent.gameObject.SetActive(false);
             m_inventoryGrid.RemoveSingleIcon(p_usedIcon);
+        }
+
+        for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
+        {
+            if(m_backpack.m_itemsInBackpack[i].m_associatedIcon == p_usedIcon)
+            {
+                m_backpack.m_itemsInBackpack.RemoveAt(i);
+                return;
+            }
         }
     }
 

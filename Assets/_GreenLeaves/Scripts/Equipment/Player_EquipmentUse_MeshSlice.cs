@@ -32,7 +32,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
         base.EquipObject(p_linkedIcon);
         if (m_playerObject == null)
         {
-            m_playerObject = EnergyController.Instance.transform;
+            m_playerObject = Player_Inventory.Instance.transform;
         }
     }
     public override void UseEquipment()

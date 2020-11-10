@@ -47,6 +47,7 @@ public class Player_Inventory : MonoBehaviour
         if (m_isPickingUp) return;
         if (Input.GetKeyDown(m_pickupKeycode))
         {
+            Debug.Log("Item Pickup Input Here", this);
             GameObject hitObj;
             if (CheckForPickup(out hitObj))
             {
@@ -55,6 +56,7 @@ public class Player_Inventory : MonoBehaviour
         }
         if (Input.GetKeyDown(m_toggleMenu))
         {
+            Debug.Log("Inv Toggle Input Here", this);
             Inventory_2DMenu.Instance.ToggleInventory();
         }
     }
@@ -138,13 +140,13 @@ public class Player_Inventory : MonoBehaviour
     {
         ResourceData newData = new ResourceData(newItem.GetComponent<Resource_Pickup>().m_resourceInfo.m_resourceData);
         int amount = newItem.GetComponent<Resource_Pickup>().m_resourceAmount;
-        Inventory_2DMenu.Instance.AddItemToInventory(newItem,amount);
+        Inventory_2DMenu.Instance.PickupItem(newItem,amount);
     }
 
     /// <summary>
     /// Drops the object into the physical game world
     /// </summary>
-    public void DropObject(Inventory_Icon p_droppedIcon)
+    public void DropObject(Inventory_Icon p_droppedIcon, bool p_dropInWorld)
     {
         if (m_currentEquipedTool != null)
         {
@@ -153,10 +155,13 @@ public class Player_Inventory : MonoBehaviour
                 Inventory_ItemUsage.Instance.UnEquipCurrent();
             }
         }
-        GameObject newDropped = p_droppedIcon.m_itemData.DropObject(p_droppedIcon, transform.position + transform.forward * 2, Quaternion.identity);
-        if (newDropped != null)
+        if (p_dropInWorld)
         {
-            newDropped.GetComponent<Resource_Pickup>().m_resourceAmount = p_droppedIcon.m_currentResourceAmount;
+            GameObject newDropped = p_droppedIcon.m_itemData.DropObject(p_droppedIcon, transform.position + transform.forward * 2, Quaternion.identity);
+            if (newDropped != null)
+            {
+                newDropped.GetComponent<Resource_Pickup>().m_resourceAmount = p_droppedIcon.m_currentResourceAmount;
+            }
         }
     }
 

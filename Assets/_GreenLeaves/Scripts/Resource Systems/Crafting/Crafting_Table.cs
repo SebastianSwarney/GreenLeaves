@@ -9,6 +9,7 @@ public class Crafting_Table : MonoBehaviour
 
     private Crafting_Recipe m_currentRecipe;
     public List<Crafting_Recipe> m_allRecipes;
+    private List<int> m_matchingAmount = new List<int>();
 
     public GameObject m_craftButton;
 
@@ -24,6 +25,10 @@ public class Crafting_Table : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        for (int i = 0; i < m_allRecipes.Count; i++)
+        {
+            m_matchingAmount.Add(0);
+        }
     }
 
 
@@ -59,18 +64,36 @@ public class Crafting_Table : MonoBehaviour
     /// </summary>
     public bool CheckTableRecipe()
     {
-        List<Crafting_ItemsContainer> currentItems = GatherCurrentItems();
-
-        foreach (Crafting_Recipe recip in m_allRecipes)
+        m_currentRecipe = null;
+        for (int i = 0; i < m_matchingAmount.Count; i++)
         {
-            if (recip.CanCraft(currentItems))
+            m_matchingAmount[i] = 0;
+        }
+        List<Crafting_ItemsContainer> currentItems = GatherCurrentItems();
+        
+        int newAmount = 0;
+        for (int i = 0; i < m_allRecipes.Count; i++)
+        {
+            newAmount = 0;
+            if (m_allRecipes[i].CanCraft(currentItems, out newAmount))
             {
-                m_currentRecipe = recip;
-                return true;
+                m_matchingAmount[i] = newAmount;
+//                m_currentRecipe = recip;
+                
             }
         }
-        m_currentRecipe = null;
-        return false;
+
+        int currentHighest = 0;
+        for (int i = 0; i < m_allRecipes.Count; i++)
+        {
+            if (m_matchingAmount[i] == 0) continue;
+            if(currentHighest < m_matchingAmount[i])
+            {
+                currentHighest = m_matchingAmount[i];
+                m_currentRecipe = m_allRecipes[i];
+            }
+        }
+        return m_currentRecipe != null;
     }
 
     private List<Crafting_ItemsContainer> GatherCurrentItems()
@@ -125,7 +148,7 @@ public class Crafting_Table : MonoBehaviour
 
         List<Inventory_Icon> removeIcons = new List<Inventory_Icon>();
 
-        foreach(Inventory_Icon currentIcon in m_iconsOnTable)
+        foreach (Inventory_Icon currentIcon in m_iconsOnTable)
         {
             if (currentIcon.m_currentResourceAmount <= 0) continue;
             if (currentIcon.GetComponent<Inventory_Icon_ToolResource>() != null)
@@ -139,10 +162,10 @@ public class Crafting_Table : MonoBehaviour
                 }
                 continue;
             }
-            foreach(Crafting_ItemsContainer cont in currentRecipe.m_recipe)
+            foreach (Crafting_ItemsContainer cont in currentRecipe.m_recipe)
             {
                 if (cont.m_itemAmount <= 0) continue;
-                if(cont.m_itemData.m_resourceData.m_resourceName == currentIcon.m_itemData.m_resourceData.m_resourceName)
+                if (cont.m_itemData.m_resourceData.m_resourceName == currentIcon.m_itemData.m_resourceData.m_resourceName)
                 {
                     currentIcon.m_currentResourceAmount -= cont.m_itemAmount;
                     cont.m_itemAmount = 0;

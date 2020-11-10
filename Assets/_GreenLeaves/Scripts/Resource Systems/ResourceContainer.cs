@@ -10,6 +10,7 @@ public class ResourceContainer : ScriptableObject
     public ResourceData m_resourceData;
     public string m_itemUseButtonText;
     public bool m_showInventorySelectionButton;
+    public bool m_stopDropping;
 
     public virtual void UseItem(Inventory_Icon p_currentIcon)
     {
