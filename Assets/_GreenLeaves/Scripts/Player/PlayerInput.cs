@@ -64,11 +64,11 @@ public class PlayerInput : MonoBehaviour
 
 		if (m_playerInputController.GetButtonDown("Run"))
 		{
-            //m_playerController.OnRunButtonDown();
+            m_playerController.OnSprintButtonDown();
         }
         if (m_playerInputController.GetButtonUp("Run"))
         {
-            //m_playerController.OnRunButtonUp();
+            //m_playerController.OnSprintButtonUp();
         }
 
         if (m_playerInputController.GetButtonDown("Walk"))

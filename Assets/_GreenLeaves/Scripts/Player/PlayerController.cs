@@ -53,12 +53,11 @@ public class PlayerController : MonoBehaviour
     [System.Serializable]
     public struct BaseMovementProperties
     {
-        public float m_jogSpeed;
         public float m_runSpeed;
-        public float m_runEnergyDepletionTime;
         public float m_walkSpeed;
+        public float m_sprintSpeed;
+        public float m_runEnergyDepletionTime;
         public float m_playerTurnSpeed;
-
         public float m_accelerationTimeGrounded;
         public float m_accelerationTimeAir;
     }
@@ -73,7 +72,7 @@ public class PlayerController : MonoBehaviour
     private Coroutine m_jumpBufferCoroutine;
     private Coroutine m_graceBufferCoroutine;
     private float m_playerTurnSmoothingVelocity;
-    private bool m_isRunning;
+    private bool m_isSprinting;
     private bool m_isWalking;
     #endregion
 
@@ -199,6 +198,8 @@ public class PlayerController : MonoBehaviour
     public float m_landedSlideTime;
     public AnimationCurve m_landedSlideCurve;
 
+    private PlayerStatsController m_playerStats;
+
 	private void Start()
     {
         m_characterController = GetComponent<CharacterController>();
@@ -221,6 +222,8 @@ public class PlayerController : MonoBehaviour
         m_controllerEnabled = true;
 
         OnControllerEnabled();
+
+        m_playerStats = GetComponent<PlayerStatsController>();
     }
 
     private void OnValidate()
@@ -263,18 +266,54 @@ public class PlayerController : MonoBehaviour
 	public void PerformController()
     {
         CalculateVelocity();
+        //AimMovement();
+
         CaculateTotalVelocity();
         SlopePhysics();
         CheckLanded();
         ZeroVelocityOnGround();
     }
 
-    private void SetModelRotation()
+	#region Animation Code
+
+	private void SetAnimations()
 	{
+
+        //m_playerAnimator.SetBool("IsGrounded", IsGrounded());
+
+        m_playerAnimator.SetBool("IsWalking", m_isWalking);
+        m_playerAnimator.SetBool("IsSprinting", m_isSprinting);
+
+        Vector3 relativeVelocity = transform.InverseTransformDirection(m_groundMovementVelocity);
+
+        m_animInputTarget = new Vector2(relativeVelocity.x / m_baseMovementProperties.m_sprintSpeed, relativeVelocity.z / m_baseMovementProperties.m_sprintSpeed);
+
+		if (m_isWalking)
+		{
+            m_animInputTarget = new Vector2(relativeVelocity.x, relativeVelocity.z) / m_baseMovementProperties.m_walkSpeed;
+        }
+		else if (m_isSprinting)
+		{
+            m_animInputTarget = new Vector2(relativeVelocity.x, relativeVelocity.z) / m_baseMovementProperties.m_sprintSpeed;
+        }
+		else
+		{
+            m_animInputTarget = new Vector2(relativeVelocity.x, relativeVelocity.z) / m_baseMovementProperties.m_runSpeed;
+        }
+
+        m_animInput = Vector2.SmoothDamp(m_animInput, m_animInputTarget, ref m_animInputSmoothing, 0.1f);
+        m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
+        m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
+
+        SetModelRotation();
+    }
+
+    private void SetModelRotation()
+    {
         RaycastHit hit;
 
-		if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, m_groundMask))
-		{
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, m_groundMask))
+        {
             Vector3 localXAxis = Vector3.Cross(transform.forward, Vector3.up);
             Vector3 forwardRotation = Vector3.ProjectOnPlane(hit.normal, localXAxis);
             Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
@@ -291,27 +330,13 @@ public class PlayerController : MonoBehaviour
             Vector3 horizontalCross = Vector3.Cross(m_wallTransform.right, transform.right);
             //m_horizontalSlopeBlend.SetBlendValue(Mathf.Abs(horizontalCross.y) * Mathf.Sign(-horizontalCross.y));
         }
-	}
-
-	#region Animation Code
-
-	private void SetAnimations()
-	{
-        Vector3 relativeVelocity = transform.InverseTransformDirection(m_groundMovementVelocity);
-        m_animInputTarget = new Vector2(relativeVelocity.x / m_baseMovementProperties.m_runSpeed, relativeVelocity.z / m_baseMovementProperties.m_runSpeed);
-        m_animInput = Vector2.SmoothDamp(m_animInput, m_animInputTarget, ref m_animInputSmoothing, 0.1f);
-        m_playerAnimator.SetFloat("ForwardMovement", m_animInput.y);
-        m_playerAnimator.SetFloat("SideMovement", m_animInput.x);
-        m_playerAnimator.SetBool("IsGrounded", IsGrounded());
-
-        SetModelRotation();
     }
 
-	#endregion
+    #endregion
 
-	#region Controller State Code
+    #region Controller State Code
 
-	private void OnControllerDisabled()
+    private void OnControllerDisabled()
 	{
         m_characterController.enabled = false;
         m_states.m_movementControllState = MovementControllState.MovementDisabled;
@@ -337,19 +362,29 @@ public class PlayerController : MonoBehaviour
         m_movementInput = p_input;
     }
 
-    public void OnRunButtonDown()
+    public void OnSprintButtonDown()
     {
-        m_isRunning = true;
+        m_isSprinting = !m_isSprinting;
+
+		if (m_isSprinting)
+		{
+            m_isWalking = false;
+		}
     }
 
-    public void OnRunButtonUp()
+    public void OnSprintButtonUp()
     {
-        m_isRunning = false;
+        m_isSprinting = false;
     }
 
     public void OnWalkButtonDown()
     {
         m_isWalking = !m_isWalking;
+
+        if (m_isWalking)
+        {
+            m_isSprinting = false;
+        }
     }
 
     public void SetFlyInput(float p_input)
@@ -641,21 +676,34 @@ public class PlayerController : MonoBehaviour
                 targetAngle = Mathf.Atan2(horizontalInput.x, horizontalInput.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
                 float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
                 transform.rotation = Quaternion.Euler(0, angle, 0);
-			}
 
-            float baseHorizontalSpeed = m_baseMovementProperties.m_jogSpeed;
+                if (m_isSprinting)
+                {
+                    float energyDrainSpeed = m_baseMovementProperties.m_runEnergyDepletionTime;
+                    m_playerStats.DepleteEnergy(energyDrainSpeed);
+                }
+            }
 
-			if (m_isWalking)
+            float horizontalSpeed = m_baseMovementProperties.m_runSpeed;
+
+            if (m_isWalking)
 			{
-                baseHorizontalSpeed = m_baseMovementProperties.m_walkSpeed;
+                horizontalSpeed = m_baseMovementProperties.m_walkSpeed;
 			}
+
+			if (m_isSprinting)
+			{
+                horizontalSpeed = m_baseMovementProperties.m_sprintSpeed;
+            }
 
             float currentAcceleration = m_baseMovementProperties.m_accelerationTimeGrounded;
-            
-            Vector3 targetHorizontalMovement = (transform.forward * baseHorizontalSpeed) * horizontalInput.magnitude;
-            Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
+
 
             Vector3 targetMovementRotation = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
+
+            Vector3 targetHorizontalMovement = (transform.forward * horizontalSpeed) * horizontalInput.magnitude;
+            Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
+
             float movementAngle = Vector3.Angle(transform.forward, targetMovementRotation);
             float progress = m_turnOffsetCurve.Evaluate(movementAngle / m_maximumBlendTurnAngle);
             float moveDir = -Mathf.Sign(Vector3.Cross(targetMovementRotation, transform.forward).y);
@@ -667,7 +715,7 @@ public class PlayerController : MonoBehaviour
 			}
 			else
 			{
-                Vector3 flyAmount = transform.up * (baseHorizontalSpeed + m_currentHorizontalMovementSpeed) * m_flyInput;
+                Vector3 flyAmount = transform.up * (horizontalSpeed + m_currentHorizontalMovementSpeed) * m_flyInput;
 
                 m_groundMovementVelocity = horizontalMovement + flyAmount;
             }
@@ -677,6 +725,51 @@ public class PlayerController : MonoBehaviour
             m_groundMovementVelocity = Vector3.zero;
             //Vector3 actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
         }
+    }
+
+    private void AimMovement()
+	{
+        Vector3 horizontalInput = Vector3.ClampMagnitude(new Vector3(m_movementInput.x, 0, m_movementInput.y), 1f);
+
+        float targetAngle = transform.eulerAngles.y;
+
+        if (horizontalInput.magnitude > 0)
+        {
+            targetAngle = Mathf.Atan2(horizontalInput.x, horizontalInput.z) * Mathf.Rad2Deg + m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_baseMovementProperties.m_playerTurnSpeed);
+            transform.rotation = Quaternion.Euler(0, angle, 0);
+
+            if (m_isSprinting)
+            {
+                float energyDrainSpeed = m_baseMovementProperties.m_runEnergyDepletionTime;
+                m_playerStats.DepleteEnergy(energyDrainSpeed);
+            }
+        }
+
+        float horizontalSpeed = m_baseMovementProperties.m_runSpeed;
+
+        if (m_isWalking)
+        {
+            horizontalSpeed = m_baseMovementProperties.m_walkSpeed;
+        }
+
+        if (m_isSprinting)
+        {
+            horizontalSpeed = m_baseMovementProperties.m_sprintSpeed;
+        }
+
+        float currentAcceleration = m_baseMovementProperties.m_accelerationTimeGrounded;
+
+        Vector3 targetHorizontalMovement = (transform.forward * horizontalSpeed) * horizontalInput.magnitude;
+        Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
+
+        Vector3 targetMovementRotation = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
+        float movementAngle = Vector3.Angle(transform.forward, targetMovementRotation);
+        float progress = m_turnOffsetCurve.Evaluate(movementAngle / m_maximumBlendTurnAngle);
+        float moveDir = -Mathf.Sign(Vector3.Cross(targetMovementRotation, transform.forward).y);
+        m_turnBlend.SetBlendValue(progress * moveDir);
+
+        m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
     }
     #endregion
 
@@ -834,7 +927,7 @@ public class PlayerController : MonoBehaviour
             if (slopeInfo.m_onSlope)
             {
                 float currentSlopePercent = Mathf.InverseLerp(m_slideProperties.m_slideStartAngle, m_slideProperties.m_maximumSlopeAngle, m_slopeAngle);
-                float currentSlopeSpeed = Mathf.Lerp(m_baseMovementProperties.m_jogSpeed, m_slideProperties.m_slideAngleBoostMax, currentSlopePercent);
+                float currentSlopeSpeed = Mathf.Lerp(m_baseMovementProperties.m_runSpeed, m_slideProperties.m_slideAngleBoostMax, currentSlopePercent);
                 Vector3 targetSlopeVelocity = m_slopeTransform.forward * currentSlopeSpeed;
                 m_slopeVelocity = targetSlopeVelocity;
                 
