@@ -109,7 +109,7 @@
 			//sample the displacement guide and apply the speed to pan the UVs, map the results from -1 to 1 and multiply it by the _DisplacementAmount to scale
             float2 displ = (tex2D(_DisplacementGuide, IN.uv_DisplacementGuide + _Time.y * _DisplacementSpeed).xy * 2.0 - 1.0) * _DisplacementAmount;
             fixed4 tex = tex2D(_MainTex, IN.uv_MainTex + displ);
-            fixed4 c = _Color;
+            fixed4 c = _Color * tex;
  
             o.Albedo = c.rgb;
             clip(tex.a - _TextureCutoff); // clips or discards the pixels where the alpha value is less than 0 after subtracting by _TextureCutoff value
