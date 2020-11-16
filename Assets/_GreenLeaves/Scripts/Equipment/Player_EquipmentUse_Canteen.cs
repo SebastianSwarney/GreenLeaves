@@ -130,7 +130,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     }
     public override void ReEnableToolComponent()
     {
-        Crafting_Table.Instance.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Canteen);
+        Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Canteen);
     }
     private void OnDrawGizmos()
     {

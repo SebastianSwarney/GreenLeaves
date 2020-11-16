@@ -10,7 +10,7 @@ public class TestAddItem : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.L))
         {
-            Crafting_Table.Instance.m_toolComponents.NewToolFound(m_testToolType);
+            Crafting_Table.CraftingTable.m_toolComponents.NewToolFound(m_testToolType);
         }
     }
 }

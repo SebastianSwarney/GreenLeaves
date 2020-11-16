@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 3445642044487136688}
   - component: {fileID: 3445642044487136689}
   - component: {fileID: 3445642044487136691}
+  - component: {fileID: 1235497033913536229}
+  - component: {fileID: 2565979520265599080}
   m_Layer: 0
   m_Name: PFB_CampFire
   m_TagString: Untagged
@@ -45,6 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e34ae11d6d0fcdf45b524948daf6d89c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_currentState: 0
   m_buildingPlacer: {fileID: 3445642044487136691}
   m_campfireRenderers:
   - {fileID: 3445642045906548707}
@@ -53,6 +56,21 @@ MonoBehaviour:
   - {fileID: 3445642046273573694}
   m_fireParticle: {fileID: 1701868324759917149}
   m_placement: {x: -5.3, y: -0.03, z: 11.3}
+  m_objectPlacedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2565979520265599080}
+        m_TargetAssemblyTypeName: UnityEngine.Collider, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &3445642044487136691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -93,6 +111,48 @@ MonoBehaviour:
     m_debugColor: {r: 0, g: 0.6293888, b: 1, a: 1}
   m_drawRaycasts: 0
   m_drawBoxCast: 0
+--- !u!114 &1235497033913536229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3445642044487136690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7a8146e3838f074abaaa9dbdada1135, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_buttonMenu:
+    m_topButton:
+      m_enableButton: 0
+      m_buttonMessage: 
+    m_rightButton:
+      m_enableButton: 0
+      m_buttonMessage: 
+    m_bottomButton:
+      m_enableButton: 0
+      m_buttonMessage: 
+    m_leftButton:
+      m_enableButton: 0
+      m_buttonMessage: 
+  m_playerTag: Player
+  m_canBeOverridden: 0
+  m_currentState: 0
+  m_currentType: 0
+--- !u!135 &2565979520265599080
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3445642044487136690}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 0
+  serializedVersion: 2
+  m_Radius: 2.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3445642044713014465
 GameObject:
   m_ObjectHideFlags: 0

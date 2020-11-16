@@ -20,6 +20,24 @@ MonoBehaviour:
   m_spawnOffset: {x: 0, y: 0, z: 0}
   m_isDebugging: 0
   m_debuggingColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &5807897436695538916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337033517779786820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c82e39477eda81a4fa0132e6d1d1656a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnedParticle: {fileID: 794497486324550165, guid: 75394f1baa0be774c87fd4682adeb8db, type: 3}
+  m_particleOffset: {x: 0, y: 0, z: 0}
+  m_isDebugging: 0
+  m_gizmosColor1: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  m_gizRadius: 0.5
+  m_drawWire: 0
 --- !u!114 &8221202459351446999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,24 +82,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &5807897436695538916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1337033517779786820}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c82e39477eda81a4fa0132e6d1d1656a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_spawnedParticle: {fileID: 794497486324550165, guid: 75394f1baa0be774c87fd4682adeb8db, type: 3}
-  m_particleOffset: {x: 0, y: 0, z: 0}
-  m_isDebugging: 0
-  m_gizmosColor1: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  m_gizRadius: 0.5
-  m_drawWire: 0
 --- !u!1001 &4835152358187579332
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -136,6 +136,10 @@ PrefabInstance:
     - target: {fileID: 421417045251087028, guid: ef5276417d5228c4d854680a144238b4, type: 3}
       propertyPath: m_LocalScale.x
       value: 3.7641
+      objectReference: {fileID: 0}
+    - target: {fileID: 3151800008913600095, guid: ef5276417d5228c4d854680a144238b4, type: 3}
+      propertyPath: m_Radius
+      value: 0.59
       objectReference: {fileID: 0}
     - target: {fileID: 5444372937377388136, guid: ef5276417d5228c4d854680a144238b4, type: 3}
       propertyPath: m_Materials.Array.data[0]

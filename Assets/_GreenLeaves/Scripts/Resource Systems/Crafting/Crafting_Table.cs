@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class Crafting_Table : MonoBehaviour
 {
-    public static Crafting_Table Instance;
+    public static Crafting_Table CraftingTable, CookingTable;
     public Crafting_ToolComponents m_toolComponents;
 
-
+    public bool m_isCraftingTable;
     private Crafting_Recipe m_currentRecipe;
     public List<Crafting_Recipe> m_allRecipes;
     private List<int> m_matchingAmount = new List<int>();
@@ -24,7 +24,14 @@ public class Crafting_Table : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
+        if (m_isCraftingTable)
+        {
+            CraftingTable = this;
+        }
+        else
+        {
+            CookingTable = this;
+        }
         for (int i = 0; i < m_allRecipes.Count; i++)
         {
             m_matchingAmount.Add(0);
@@ -42,7 +49,14 @@ public class Crafting_Table : MonoBehaviour
     {
         if (m_iconsOnTable.Contains(p_currentIcon))
         {
-            p_currentIcon.m_inCraftingTable = false;
+            if (m_isCraftingTable)
+            {
+                p_currentIcon.m_inCraftingTable = false;
+            }
+            else
+            {
+                p_currentIcon.m_inCookingTable = false;
+            }
             m_iconsOnTable.Remove(p_currentIcon);
         }
         m_craftButton.SetActive(CheckTableRecipe());

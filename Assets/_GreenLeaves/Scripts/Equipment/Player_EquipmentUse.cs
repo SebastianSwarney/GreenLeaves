@@ -58,7 +58,7 @@ public class Player_EquipmentUse : MonoBehaviour
 
     public virtual void ReEnableToolComponent()
     {
-        Crafting_Table.Instance.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Torch);
+        Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Torch);
     }
 
     public virtual void UpdateIconDurability()

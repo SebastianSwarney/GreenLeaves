@@ -38,9 +38,7 @@ public class Inventory_2DMenu : MonoBehaviour
     [Tooltip("Used to determine where the player can drop the item until it snaps back automatically")]
     public GameObject m_backpackImageUi;
 
-    [Tooltip("Used to determine where the player can drop the item to put it on the crafting table")]
-    public GameObject m_craftingTableUI;
-    public Transform m_craftedIconPlacement;
+
 
     [Header("Icon Selection Variables")]
     public float m_selectedBufferTime;
@@ -56,12 +54,24 @@ public class Inventory_2DMenu : MonoBehaviour
     [HideInInspector]
     public Inventory_Icon m_currentBuldingIcon;
 
+
+    [Header("Secondary Menu")]
+    public GameObject m_craftingMenu;
+    public GameObject m_cookingMenu;
+    private bool m_craftingMenuOpened;
+
+    [Tooltip("Used to determine where the player can drop the item to put it on the crafting table")]
+    public GameObject m_craftingTableUI;
+    public GameObject m_cookingTableUI;
+    public Transform m_craftedIconPlacement;
+
     ///Used to toggle the menu open and closed.
     private bool m_isOpen;
     private bool m_isDraggingObject;
     private bool m_iconWasInCraftingTable = false;
 
     private bool m_canDropEverything;
+
     private void Awake()
     {
         Instance = this;
@@ -90,11 +100,14 @@ public class Inventory_2DMenu : MonoBehaviour
     }
 
     #region Inventory Toggle
-    public void ToggleInventory()
+    public void ToggleInventory(bool p_openCrafting)
     {
         if (m_isOpen)
         {
-            
+
+            m_craftingMenu.SetActive(false);
+            m_cookingMenu.SetActive(false);
+
             if (m_isDraggingObject)
             {
                 m_currentSelectedIcon.ForceIconDrop();
@@ -102,25 +115,31 @@ public class Inventory_2DMenu : MonoBehaviour
             }
 
             CloseInventoryMenu();
-
+            Interactable_Manager.Instance.CheckReopen();
         }
         else
         {
             PlayerInputToggle.Instance.ToggleInput(false);
             m_isOpen = true;
+
+            Interactable_Manager.Instance.ForceCloseMenu();
             OpenInventoryMenu();
+            m_craftingMenuOpened = p_openCrafting;
+
+            m_craftingMenu.SetActive(p_openCrafting);
+            m_cookingMenu.SetActive(!p_openCrafting);
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
     }
+
     public void OpenInventoryMenu()
     {
         m_currentSelectedIcon = null;
         m_isDraggingObject = false;
         m_canvasObject.SetActive(true);
     }
-
-
 
     public void CloseInventoryMenu(bool p_skipWarning = false)
     {
@@ -129,7 +148,14 @@ public class Inventory_2DMenu : MonoBehaviour
         m_selectedMenuParent.SetActive(false);
         m_currentSelectedIcon = null;
         DropAnyOutsideIcons(p_skipWarning);
-        Crafting_Table.Instance.ClearIconList();
+        if (m_craftingMenuOpened)
+        {
+            Crafting_Table.CraftingTable.ClearIconList();
+        }
+        else
+        {
+            Crafting_Table.CookingTable.ClearIconList();
+        }
     }
 
     /// <summary>
@@ -233,7 +259,7 @@ public class Inventory_2DMenu : MonoBehaviour
             newIcon.m_inBackpack = false;
             newIcon.transform.localPosition = m_cantFitIconPos.localPosition;
             newIcon.m_startingCoordPos = newIcon.transform.localPosition;
-            ToggleInventory();
+            ToggleInventory(true);
         }
         #endregion
     }
@@ -309,6 +335,7 @@ public class Inventory_2DMenu : MonoBehaviour
         newIcon.m_startingCoordPos = m_craftedIconPlacement.localPosition;
         newIcon.m_inBackpack = false;
         newIcon.m_inCraftingTable = false;
+        newIcon.m_inCookingTable = false;
 
         newIcon.UpdateIconNumber();
 
@@ -337,10 +364,10 @@ public class Inventory_2DMenu : MonoBehaviour
             if (m_currentBuldingIcon != null && m_backpack.m_itemsInBackpack[i].m_associatedIcon == m_currentBuldingIcon)
             {
                 buildingIconIndex = i;
-                
+
             }
 
-            if (!m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inBackpack || m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inCraftingTable)
+            if (!m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inBackpack || m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inCraftingTable || m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inCookingTable)
             {
                 removeList.Add(i);
             }
@@ -389,7 +416,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
             ///Since the building system closes the inventory, but it should stay in the inventory if its being used, it "drops" the item,
             ///but changes the DropFunction's dropInWorld boolean to false so that no physical item is created, but the logic is still performed.
-            if (i == p_buildIconIndex && m_currentBuldingIcon!= null)
+            if (i == p_buildIconIndex && m_currentBuldingIcon != null)
             {
                 m_playerInventory.DropObject(m_currentBuldingIcon, false);
             }
@@ -517,12 +544,19 @@ public class Inventory_2DMenu : MonoBehaviour
         {
             p_holdingIcon.m_inBackpack = true;
             p_holdingIcon.m_inCraftingTable = false;
+            p_holdingIcon.m_inCookingTable = false;
+
             //Remember to re-rotate the icon back to it's og rotation
             m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         }
         else if (p_holdingIcon.m_inCraftingTable)
         {
             p_holdingIcon.m_inCraftingTable = false;
+            p_holdingIcon.m_inBackpack = false;
+        }
+        else if (p_holdingIcon.m_inCookingTable)
+        {
+            p_holdingIcon.m_inCookingTable = false;
             p_holdingIcon.m_inBackpack = false;
         }
         else
@@ -569,6 +603,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
         bool snapBack = false;
         bool crafting = false;
+        bool cooking = false;
 
         ///Used to have a cached reference on whether this is a tool resource icon
         bool iconIsToolResource = p_holdingIcon.GetComponent<Inventory_Icon_ToolResource>() != null;
@@ -612,6 +647,7 @@ public class Inventory_2DMenu : MonoBehaviour
                                     ///If the current icon can completely fit in the new icon, remove the current icon from the inventory
                                     if (currentIcon.CanAddFullAmount(p_holdingIcon.m_currentResourceAmount, out amountLeft))
                                     {
+                                        p_holdingIcon.m_inCookingTable = false;
                                         p_holdingIcon.m_inCraftingTable = false;
                                         p_holdingIcon.m_inBackpack = false;
                                         ObjectPooler.Instance.ReturnToPool(p_holdingIcon.gameObject);
@@ -646,6 +682,11 @@ public class Inventory_2DMenu : MonoBehaviour
                         snapBack = false;
                         crafting = true;
                     }
+                    else if (res.gameObject == m_cookingTableUI)
+                    {
+                        snapBack = false;
+                        cooking = true;
+                    }
                 }
 
                 ///Logic change for tool resource
@@ -657,6 +698,11 @@ public class Inventory_2DMenu : MonoBehaviour
                     {
                         snapBack = false;
                         crafting = true;
+                    }
+                    else if (res.gameObject == m_cookingTableUI)
+                    {
+                        snapBack = false;
+                        cooking = true;
                     }
                 }
             }
@@ -677,6 +723,7 @@ public class Inventory_2DMenu : MonoBehaviour
                 if (p_holdingIcon.m_inBackpack)
                 {
                     p_holdingIcon.m_inCraftingTable = false;
+                    p_holdingIcon.m_inCookingTable = false;
                     p_holdingIcon.m_inBackpack = true;
                     //Remember to re-rotate the icon back to it's og rotation
                     p_holdingIcon.ResetRotation();
@@ -688,12 +735,17 @@ public class Inventory_2DMenu : MonoBehaviour
                 {
                     if (p_holdingIcon.m_inCraftingTable)
                     {
-                        Crafting_Table.Instance.AddIconToTable(p_holdingIcon);
+                        Crafting_Table.CraftingTable.AddIconToTable(p_holdingIcon);
+                    }
+                    else if (p_holdingIcon.m_inCookingTable)
+                    {
+                        Crafting_Table.CookingTable.AddIconToTable(p_holdingIcon);
                     }
                     else
                     {
                         if (iconIsToolResource)
                         {
+                            p_holdingIcon.m_inCookingTable = false;
                             p_holdingIcon.m_inCraftingTable = false;
                             p_holdingIcon.m_startingCoordPos = p_holdingIcon.GetComponent<Inventory_Icon_ToolResource>().m_toolBeltPlacement;
                         }
@@ -715,7 +767,12 @@ public class Inventory_2DMenu : MonoBehaviour
                 if (crafting)
                 {
                     p_holdingIcon.m_inCraftingTable = true;
-                    Crafting_Table.Instance.AddIconToTable(p_holdingIcon);
+                    Crafting_Table.CraftingTable.AddIconToTable(p_holdingIcon);
+                }
+                else if (cooking)
+                {
+                    p_holdingIcon.m_inCookingTable = true;
+                    Crafting_Table.CookingTable.AddIconToTable(p_holdingIcon);
                 }
             }
             return;
@@ -723,6 +780,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
         ///If the item is over a placeable spot, place it properly in the grid
         p_holdingIcon.m_inCraftingTable = false;
+        p_holdingIcon.m_inCookingTable = false;
         p_holdingIcon.m_inBackpack = true;
         m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         p_holdingIcon.m_previousGridPos = newPlace;
@@ -804,7 +862,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
         for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
         {
-            if(m_backpack.m_itemsInBackpack[i].m_associatedIcon == p_usedIcon)
+            if (m_backpack.m_itemsInBackpack[i].m_associatedIcon == p_usedIcon)
             {
                 m_backpack.m_itemsInBackpack.RemoveAt(i);
                 return;

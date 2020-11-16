@@ -14,6 +14,7 @@ public class Inventory_Icon : MonoBehaviour
     public Inventory_2DMenu.RotationType m_rotatedDir = Inventory_2DMenu.RotationType.Left;
     public bool m_inBackpack = false;
     public bool m_inCraftingTable = false;
+    public bool m_inCookingTable = false;
 
     [HideInInspector] public Vector2Int m_previousGridPos;
     [HideInInspector] public Vector3 m_startingCoordPos;
@@ -191,7 +192,10 @@ public class Inventory_Icon : MonoBehaviour
         }
         else if (m_inCraftingTable)
         {
-            Crafting_Table.Instance.RemoveIconFromTable(this);
+            Crafting_Table.CraftingTable.RemoveIconFromTable(this);
+        } else if (m_inCookingTable)
+        {
+            Crafting_Table.CookingTable.RemoveIconFromTable(this);
         }
 
     }
@@ -274,5 +278,6 @@ public class Inventory_Icon : MonoBehaviour
     public virtual void RemoveIconFromCraftingTableOnClose()
     {
         m_inCraftingTable = false;
+        m_inCookingTable = false;
     }
 }

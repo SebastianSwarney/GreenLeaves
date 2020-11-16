@@ -95,7 +95,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
 
     public override void ReEnableToolComponent()
     {
-        Crafting_Table.Instance.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Axe);
+        Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Axe);
     }
     private void OnDrawGizmos()
     {
