@@ -67,16 +67,6 @@ public class PlayerStatsController : MonoBehaviour
 
         DrainHunger();
         DrawHugnerSegments();
-
-		if (Input.GetMouseButton(0))
-		{
-            PreviewStatGain(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Hunger, m_healthGainTest);
-		}
-		else
-		{
-            AddAmount(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Hunger, m_healthGainTest);
-            ResetPreviews();
-        }
     }
 
     public bool HasEnergy()

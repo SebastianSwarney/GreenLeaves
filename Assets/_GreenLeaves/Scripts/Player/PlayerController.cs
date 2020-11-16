@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using RootMotion.FinalIK;
 using System;
+using UnityEngine.UI;
 
 [Serializable]
 public class PlayerControllerEvent : UnityEvent { }
@@ -201,6 +202,8 @@ public class PlayerController : MonoBehaviour
     private PlayerStatsController m_playerStats;
 
     public bool m_aimMovement;
+
+    public Image m_slopeAngleText;
 
 	private void Start()
     {
