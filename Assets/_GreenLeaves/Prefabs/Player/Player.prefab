@@ -2077,12 +2077,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -2498,6 +2498,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  m_aimMovement: 0
+  m_slopeAngleText: {fileID: 0}
 --- !u!54 &617654519
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2584,6 +2586,7 @@ MonoBehaviour:
   m_hungerSegmentRoot: {fileID: 8981858984832693623}
   m_hungerGainPreviewImage: {fileID: 2703075413767226260}
   m_currentHunger: 100
+  m_healthGainTest: 0
 --- !u!1 &3218196612001911631
 GameObject:
   m_ObjectHideFlags: 0

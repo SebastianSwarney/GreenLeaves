@@ -689,7 +689,6 @@ public class PlayerController : MonoBehaviour
         else
         {
             m_groundMovementVelocity = Vector3.zero;
-            //Vector3 actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
         }
     }
 
@@ -729,7 +728,10 @@ public class PlayerController : MonoBehaviour
 
         Vector3 targetMovementRotation = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
 
-        Vector3 targetHorizontalMovement = (transform.forward * horizontalSpeed) * horizontalInput.magnitude;
+        Vector3 actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
+
+        //Vector3 targetHorizontalMovement = (transform.forward * horizontalSpeed) * horizontalInput.magnitude;
+        Vector3 targetHorizontalMovement = (actualMovementDir * horizontalSpeed) * horizontalInput.magnitude;
         Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
 
         float movementAngle = Vector3.Angle(transform.forward, targetMovementRotation);

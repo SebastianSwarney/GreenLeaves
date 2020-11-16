@@ -41,7 +41,7 @@ public class ObjectTool : EditorWindow
 
     private void GetToolAssetReferences()
     {
-        ObjectBrushAsset foundObjectBrushAsset = (ObjectBrushAsset)AssetDatabase.LoadAssetAtPath("Assets/Object Brush/ObjectBrushAsset.asset", typeof(ObjectBrushAsset));
+        ObjectBrushAsset foundObjectBrushAsset = (ObjectBrushAsset)AssetDatabase.LoadAssetAtPath("Assets/_GreenLeaves/Object Brush/ObjectBrushAsset.asset", typeof(ObjectBrushAsset));
 
         if (foundObjectBrushAsset != null)
         {
