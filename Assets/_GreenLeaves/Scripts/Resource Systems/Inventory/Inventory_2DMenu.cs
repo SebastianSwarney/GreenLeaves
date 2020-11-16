@@ -51,7 +51,7 @@ public class Inventory_2DMenu : MonoBehaviour
     [HideInInspector]
     public Inventory_Icon m_currentSelectedIcon;
 
-    [HideInInspector]
+    //[HideInInspector]
     public Inventory_Icon m_currentBuldingIcon;
 
 
@@ -433,6 +433,7 @@ public class Inventory_2DMenu : MonoBehaviour
             m_backpack.m_itemsInBackpack.RemoveAt(p_removeOrder[i]);
 
         }
+        m_currentBuldingIcon = null;
 
         FinalCloseInventory();
     }
