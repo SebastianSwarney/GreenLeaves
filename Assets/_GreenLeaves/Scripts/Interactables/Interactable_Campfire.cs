@@ -45,8 +45,9 @@ public class Interactable_Campfire : Interactable
         switch (m_currentState)
         {
             case InteractionState.Interact:
-                m_currentState = InteractionState.PickInteraction;
+                DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
 
+                m_currentState = InteractionState.PickInteraction;
                 PlayerInputToggle.Instance.ToggleInput(false);
                 Interactable_Manager.Instance.DisplayButtonMenu(this, false);
                 break;
@@ -59,6 +60,7 @@ public class Interactable_Campfire : Interactable
                 m_currentState = InteractionState.Interact;
                 m_currentType = InteractionType.Initial;
                 Debug.LogError("Show rest menu Here");
+                Daytime_WaitMenu.Instance.OpenMenu();
                 Interactable_Manager.Instance.HideButtonMenu(this, false);
                 break;
 
@@ -115,6 +117,8 @@ public class Interactable_Campfire : Interactable
 
     public override void RightButtonPressed()
     {
+        DaytimeCycle_Update.Instance.ToggleDaytimePause(false);
+
         m_currentState = InteractionState.Interact;
         m_currentType = InteractionType.Initial;
         Interactable_Manager.Instance.HideButtonMenu(this, true);
@@ -186,11 +190,15 @@ public class Interactable_Campfire : Interactable
             case InteractionState.Interact:
                 m_currentState = InteractionState.PickInteraction;
 
+                DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
+
                 PlayerInputToggle.Instance.ToggleInput(false);
                 Interactable_Manager.Instance.DisplayButtonMenu(this, false);
                 break;
 
             case InteractionState.PickInteraction:
+                DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
+
                 m_currentType = InteractionType.Cook;
                 m_currentState = InteractionState.SubInteraction;
 
