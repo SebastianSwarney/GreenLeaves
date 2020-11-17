@@ -83,8 +83,18 @@ public class Daytime_WaitMenu : MonoBehaviour
     {
         float waitingTime = m_secondsToWait;
         m_waitTime = waitingTime;
-        float increase = m_secondsToWait/ m_howManyHoursToWait;
-        m_increaseAmount = (increase < 1f) ? (Time.deltaTime / increase) : (increase * Time.deltaTime);
+        float increase = m_secondsToWait / m_howManyHoursToWait;
+        if (increase < 1f)
+        {
+            m_increaseAmount = (Time.deltaTime / increase);
+            Debug.Log("Greater than one");
+        }
+        else
+        {
+            m_increaseAmount = (increase * Time.deltaTime);
+            Debug.Log("Less than one");
+        }
+        m_increaseAmount = (Time.deltaTime / increase);
         while (waitingTime > 0)
         {
             waitingTime -= Time.deltaTime;
