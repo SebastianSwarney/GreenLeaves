@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 8226836446772179900}
   - component: {fileID: 5009203161971866649}
   - component: {fileID: 7088864780240832723}
-  m_Layer: 0
-  m_Name: Composite_Rock_Stacked.0
+  - component: {fileID: 6829913214036861243}
+  m_Layer: 9
+  m_Name: PFB_Composite_Rock_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,13 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8746070215536142598}
-  m_LocalRotation: {x: -0, y: -0.9202272, z: -0, w: -0.39138466}
-  m_LocalPosition: {x: 423.2, y: -2.4, z: -140.5}
-  m_LocalScale: {x: 10, y: 12, z: 3}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -226.081, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5009203161971866649
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -81,3 +82,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &6829913214036861243
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746070215536142598}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 1481799017375315151, guid: 6651f3abee8f9b44eaab6e5296880e05, type: 3}
