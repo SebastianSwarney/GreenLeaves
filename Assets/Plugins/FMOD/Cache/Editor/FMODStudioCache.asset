@@ -221,11 +221,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: FMOD/Build/Desktop/Master.strings.bank
   Name: Master.strings
-  lastModified: 637417379005753174
+  lastModified: 637417496448577408
   LoadResult: 0
   FileSizes:
   - Name: Desktop
-    Value: 1982
+    Value: 2034
   Exists: 1
 --- !u!114 &-1360522470545947011
 MonoBehaviour:
@@ -308,12 +308,13 @@ MonoBehaviour:
   - {fileID: 1354825849335767114}
   - {fileID: 5370583686215102003}
   - {fileID: -67805382216796934}
+  - {fileID: 9144132367371034885}
   EditorParameters: []
   MasterBanks:
   - {fileID: 2990075021516910024}
   StringsBanks:
   - {fileID: -3051454001870593534}
-  stringsBankWriteTime: 637417379005753174
+  stringsBankWriteTime: 637417496448577408
   cacheVersion: 5
 --- !u!114 &711777063614315696
 MonoBehaviour:
@@ -421,7 +422,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: FMOD/Build/Desktop/Master.bank
   Name: Master
-  lastModified: 637417379005693342
+  lastModified: 637417496448497622
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -535,3 +536,26 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 560
+--- !u!114 &9144132367371034885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Foley - Poof
+  m_EditorClassIdentifier: 
+  Path: event:/Foley - Poof
+  guid: 969f1670a318bf4ab5f4673e92c4a6be
+  Banks:
+  - {fileID: 2990075021516910024}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 312
