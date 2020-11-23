@@ -15,7 +15,6 @@ public class Inventory_2DMenu : MonoBehaviour
     public enum RotationType { Left, Right, Down, Up }
 
     [Header("World References")]
-    public Player_Inventory m_playerInventory;
     public GameObject m_canvasObject;
     public GameObject m_inventorySlotPrefab;
 
@@ -66,7 +65,8 @@ public class Inventory_2DMenu : MonoBehaviour
     public Transform m_craftedIconPlacement;
 
     ///Used to toggle the menu open and closed.
-    private bool m_isOpen;
+    [HideInInspector]
+    public bool m_isOpen;
     private bool m_isDraggingObject;
     private bool m_iconWasInCraftingTable = false;
 
@@ -422,11 +422,12 @@ public class Inventory_2DMenu : MonoBehaviour
             ///but changes the DropFunction's dropInWorld boolean to false so that no physical item is created, but the logic is still performed.
             if (i == p_buildIconIndex && m_currentBuldingIcon != null)
             {
-                m_playerInventory.DropObject(m_currentBuldingIcon, false);
+                Player_Inventory.Instance.DropObject(m_currentBuldingIcon, false);
             }
             else
             {
-                m_playerInventory.DropObject(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon, true);
+
+                Player_Inventory.Instance.DropObject(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon, true);
             }
 
 

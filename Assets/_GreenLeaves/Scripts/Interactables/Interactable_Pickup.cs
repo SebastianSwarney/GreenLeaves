@@ -35,6 +35,7 @@ public class Interactable_Pickup : Interactable
 
     public virtual bool DisableMenu()
     {
+        m_canBeInteractedWith = false;
         return true;
     }
 

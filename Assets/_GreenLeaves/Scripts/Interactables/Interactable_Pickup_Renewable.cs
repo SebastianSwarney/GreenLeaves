@@ -14,6 +14,7 @@ public class Interactable_Pickup_Renewable : Interactable_Pickup
     /// <returns></returns>
     public override bool DisableMenu()
     {
+        m_canBeInteractedWith = m_currentRenewable.m_canPickup;
         return !m_currentRenewable.m_canPickup;
     }
 }
