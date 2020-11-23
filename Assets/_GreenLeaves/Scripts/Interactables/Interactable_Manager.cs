@@ -9,7 +9,6 @@ public class Interactable_Manager : MonoBehaviour
     public static Interactable_Manager Instance;
 
     public GameObject m_buttonUiParent;
-    public GameObject m_topButton, m_rightButton, m_bottomButton, m_leftButton;
 
     public Interactable m_currentInteractable;
 
