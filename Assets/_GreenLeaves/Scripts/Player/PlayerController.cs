@@ -205,9 +205,9 @@ public class PlayerController : MonoBehaviour
 
     public Image m_slopeAngleText;
 
-    public Transform m_targetLookTransform;
+    //public Transform m_targetLookTransform;
 
-    public Transform m_treeTransform;
+    //public Transform m_treeTransform;
 
     public float m_targetCameraHeightOffset;
 
@@ -689,7 +689,7 @@ public class PlayerController : MonoBehaviour
 	{
         if (m_states.m_movementControllState == MovementControllState.MovementEnabled)
         {
-            TargetMovement();
+            //TargetMovement();
 
             /*
             if (Input.GetMouseButton(1))
@@ -705,7 +705,6 @@ public class PlayerController : MonoBehaviour
             }
             */
 
-            /*
             if (!m_aimMovement)
             {
                 GroundMovement();
@@ -714,9 +713,6 @@ public class PlayerController : MonoBehaviour
             {
                 AimMovement();
             }
-            */
-
-            
 
         }
         else
@@ -728,6 +724,7 @@ public class PlayerController : MonoBehaviour
     private void FindTreeLookPoint()
 	{
 
+        /*
         float dist = Vector3.Distance(transform.position, m_treeTransform.position);
 
         //sphereCol.radius = dist;
@@ -735,6 +732,7 @@ public class PlayerController : MonoBehaviour
         MeshCollider treeCOl = m_treeTransform.GetComponentInChildren<MeshCollider>();
 
         m_targetLookTransform.position = treeCOl.ClosestPoint(transform.position);
+        */
 
 
         /*
@@ -775,6 +773,7 @@ public class PlayerController : MonoBehaviour
 
     private void TargetMovement()
 	{
+        /*
         FindTreeLookPoint();
         float targetAngle = m_cameraProperties.m_viewCameraTransform.eulerAngles.y;
 
@@ -810,6 +809,7 @@ public class PlayerController : MonoBehaviour
         float moveDir = -Mathf.Sign(Vector3.Cross(targetMovementRotation, transform.forward).y);
         m_turnBlend.SetBlendValue(progress * moveDir);
 
+        */
 
     }
 
