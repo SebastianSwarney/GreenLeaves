@@ -14,6 +14,10 @@ public class SoundEmitter_FootSteps : MonoBehaviour
     public int m_currentSound;
     private int m_currentSoundTrack;
 
+    [Header("Random Twigs")]
+    public FMODUnity.StudioEventEmitter m_twigEmitter;
+    public float m_chance;
+    public List<int> m_twigChanceIndexes;
     private void OnValidate()
     {
         if (m_debugSound)
@@ -32,6 +36,14 @@ public class SoundEmitter_FootSteps : MonoBehaviour
         }
         m_currentSoundTrack = p_soundType;
         m_eventEmitter.Play();
+
+        if (Random.Range(0f, 1f) < m_chance)
+        {
+            if (m_twigChanceIndexes.Contains(m_currentSoundTrack))
+            {
+                m_twigEmitter.Play();
+            }
+        }
         
     }
 

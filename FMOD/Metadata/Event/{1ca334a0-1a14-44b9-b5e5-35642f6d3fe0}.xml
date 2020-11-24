@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.01.00">
 	<object class="Event" id="{1ca334a0-1a14-44b9-b5e5-35642f6d3fe0}">
 		<property name="name">
-			<value>Ambient - Light Stream</value>
+			<value>Ambient - Water Light Stream</value>
 		</property>
 		<property name="outputFormat">
 			<value>2</value>
@@ -30,6 +30,9 @@
 		</relationship>
 		<relationship name="timeline">
 			<destination>{95311e4c-bb7b-4694-aea3-4acc18c4006a}</destination>
+		</relationship>
+		<relationship name="banks">
+			<destination>{a3b4ef7a-4b0a-47f0-9d17-4cbb561670e0}</destination>
 		</relationship>
 	</object>
 	<object class="EventMixer" id="{46fefe5e-edd7-4d01-98f2-138ce2550a17}">
@@ -139,6 +142,10 @@
 	</object>
 	<object class="MixerBusPanner" id="{e30e841f-129e-4050-8cf6-4812fc881436}" />
 	<object class="MixerBusFader" id="{7f7d9931-3233-449b-96d8-1574938e6937}" />
-	<object class="SpatialiserEffect" id="{3ea6da4c-d2f5-4f7c-ad0f-6113d12942b6}" />
+	<object class="SpatialiserEffect" id="{3ea6da4c-d2f5-4f7c-ad0f-6113d12942b6}">
+		<property name="maximumDistance">
+			<value>50</value>
+		</property>
+	</object>
 	<object class="MixerBusFader" id="{5269169d-de81-46c9-9b6f-2130d481ff28}" />
 </objects>
