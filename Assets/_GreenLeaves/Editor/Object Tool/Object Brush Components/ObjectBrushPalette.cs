@@ -3,44 +3,63 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-
 [System.Serializable]
 public class WeightedPaletteItem : WeightedListItem
 {
-	public ObjectBrushPaletteItem palletLoadoutItem;
+	public ObjectBrushPaletteItem m_palletLoadoutItem;
 }
 
 [CreateAssetMenu(menuName = "Object Brush/Palette")]
 public class ObjectBrushPalette : ObjectBrushWeightedList<WeightedPaletteItem>
 {
-	public void RunPalettePlacement(Vector3 brushOrgin, float placementRadus, ref List<GameObject> alreadyPlacedObjects, ObjectBrushObjectList[] allObjectLists, Transform objectRoot)
+	public void RunPalettePlacement(Vector3 p_brushOrgin, float p_placementRadus, ref List<GameObject> p_alreadyPlacedObjects, ObjectBrushObjectList[] p_allObjectLists, Transform p_objectRoot, LayerMask p_groundMask)
 	{
-		ObjectBrushPaletteItem selectedPaletteItem = ((WeightedPaletteItem)GetItemFromWeightedList(itemList)).palletLoadoutItem;
-
-		Vector3 rootObjectPos = PlaceObjectFromPalette(brushOrgin, placementRadus, ref alreadyPlacedObjects, allObjectLists, objectRoot, selectedPaletteItem.mainObject, selectedPaletteItem.mainObjectsSpacingRadius);
+		ObjectBrushPaletteItem selectedPaletteItem = ((WeightedPaletteItem)GetItemFromWeightedList(itemList)).m_palletLoadoutItem;
+		Vector3 rootObjectPos = selectedPaletteItem.m_mainObject.PlaceObject(p_brushOrgin, p_placementRadus, ref p_alreadyPlacedObjects, p_allObjectLists, p_objectRoot, selectedPaletteItem.m_mainObjectsSpacingRadius, p_groundMask);
 
 		if (rootObjectPos != Vector3.zero)
 		{
-			if (selectedPaletteItem.amountOfScatterObjectsMax != 0)
+			if (selectedPaletteItem.m_amountOfScatterObjectsMax != 0)
 			{
-				int amountToSpawn = Random.Range(1, selectedPaletteItem.amountOfScatterObjectsMax);
+				int amountToSpawn = Random.Range(1, selectedPaletteItem.m_amountOfScatterObjectsMax);
 
 				for (int i = 0; i < amountToSpawn; i++)
 				{
-					ObjectBrushObjectList foundScatterGroup = ((WeightedScatterGroupItem)GetItemFromWeightedList(selectedPaletteItem.itemList)).scatterObject;
-					PlaceObjectFromPalette(rootObjectPos, selectedPaletteItem.scatterObjectPlacementRadius, ref alreadyPlacedObjects, allObjectLists, objectRoot, foundScatterGroup, selectedPaletteItem.scatterObjectsSpacingRadius);
+					ObjectBrushObjectList foundScatterObject = ((WeightedScatterGroupItem)GetItemFromWeightedList(selectedPaletteItem.itemList)).m_scatterObject;
+					foundScatterObject.PlaceObject(rootObjectPos, selectedPaletteItem.m_scatterObjectPlacementRadius, ref p_alreadyPlacedObjects, p_allObjectLists, p_objectRoot, selectedPaletteItem.m_scatterObjectsSpacingRadius, p_groundMask);
 				}
 			}
 		}
+
+		/*
+		ObjectBrushPaletteItem selectedPaletteItem = ((WeightedPaletteItem)GetItemFromWeightedList(itemList)).m_palletLoadoutItem;
+
+		Vector3 rootObjectPos = PlaceObjectFromPalette(p_brushOrgin, p_placementRadus, ref p_alreadyPlacedObjects, p_allObjectLists, p_objectRoot, selectedPaletteItem.m_mainObject, selectedPaletteItem.m_mainObjectsSpacingRadius);
+
+		if (rootObjectPos != Vector3.zero)
+		{
+			if (selectedPaletteItem.m_amountOfScatterObjectsMax != 0)
+			{
+				int amountToSpawn = Random.Range(1, selectedPaletteItem.m_amountOfScatterObjectsMax);
+
+				for (int i = 0; i < amountToSpawn; i++)
+				{
+					ObjectBrushObjectList foundScatterGroup = ((WeightedScatterGroupItem)GetItemFromWeightedList(selectedPaletteItem.itemList)).m_scatterObject;
+					PlaceObjectFromPalette(rootObjectPos, selectedPaletteItem.m_scatterObjectPlacementRadius, ref p_alreadyPlacedObjects, p_allObjectLists, p_objectRoot, foundScatterGroup, selectedPaletteItem.m_scatterObjectsSpacingRadius);
+				}
+			}
+		}
+		*/
 	}
 
-	public Vector3 PlaceObjectFromPalette(Vector3 originPos, float placementRadus, ref List<GameObject> alreadyPlacedObjects, ObjectBrushObjectList[] allObjectLists, Transform objectRoot, ObjectBrushObjectList listToUse, float spacingRadius)
+	/*
+	public Vector3 PlaceObjectFromPalette(Vector3 p_originPos, float p_placementRadus, ref List<GameObject> p_alreadyPlacedObjects, ObjectBrushObjectList[] p_allObjectLists, Transform p_objectRoot, ObjectBrushObjectList p_listToUse, float p_spacingRadius)
 	{
 		bool blockPlacement = false;
 
-		Vector2 random = Random.insideUnitCircle * placementRadus;
+		Vector2 random = Random.insideUnitCircle * p_placementRadus;
 		Vector3 randomFlat = new Vector3(random.x, 0, random.y);
-		Vector3 posOffsetFromRandom = originPos + randomFlat;
+		Vector3 posOffsetFromRandom = p_originPos + randomFlat;
 
 		RaycastHit hit;
 
@@ -49,18 +68,18 @@ public class ObjectBrushPalette : ObjectBrushWeightedList<WeightedPaletteItem>
 			Vector3 placePos = hit.point;
 			float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
 
-			if (slopeAngle < listToUse.slopeAngle.y && slopeAngle > listToUse.slopeAngle.x)
+			if (p_listToUse.CheckSlope(slopeAngle))
 			{
-				if (listToUse.CheckArea(placePos, ref alreadyPlacedObjects, allObjectLists, spacingRadius))
+				if (p_listToUse.CheckArea(placePos, p_alreadyPlacedObjects, p_allObjectLists, p_spacingRadius))
 				{
 					blockPlacement = true;
 				}
 
 				if (!blockPlacement)
 				{
-					WeightedObjectListItem objectListItem = ((WeightedObjectListItem)listToUse.GetItemFromWeightedList(listToUse.itemList));
-
-					GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(objectListItem.objectToPlace);
+					//WeightedObjectListItem objectListItem = ((WeightedObjectListItem)listToUse.GetItemFromWeightedList(listToUse.itemList));
+					//GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(objectListItem.objectToPlace);
+					GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(p_listToUse.GetObjectFromList());
 
 					if (newObject == null)
 					{
@@ -70,10 +89,10 @@ public class ObjectBrushPalette : ObjectBrushWeightedList<WeightedPaletteItem>
 
 					Undo.RegisterCreatedObjectUndo(newObject, "Object Brush");
 
-					alreadyPlacedObjects.Add(newObject);
+					p_alreadyPlacedObjects.Add(newObject);
 					newObject.transform.localPosition = placePos;
-					listToUse.ModifyObject(newObject, hit.normal);
-					newObject.transform.parent = objectRoot;
+					p_listToUse.ModifyObject(newObject, hit.normal);
+					newObject.transform.parent = p_objectRoot;
 					return newObject.transform.position;
 				}
 			}
@@ -81,4 +100,5 @@ public class ObjectBrushPalette : ObjectBrushWeightedList<WeightedPaletteItem>
 
 		return Vector3.zero;
 	}
+	*/
 }

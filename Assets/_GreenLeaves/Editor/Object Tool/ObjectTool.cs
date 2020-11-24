@@ -2,31 +2,33 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Sirenix.OdinInspector.Editor;
+using Sirenix.OdinInspector;
 
-public class ObjectTool : EditorWindow
+public class ObjectTool : OdinEditorWindow
 {
-    private Transform objectBrushRoot;
+    [MenuItem("Tools/Object Tool")]
+    private static void OpenWindow()
+    {
+        GetWindow<ObjectTool>().Show();
+    }
 
-    private ObjectBrushAsset brushAsset;
+    private Transform objectBrushRoot;
+    public ObjectBrushAsset brushAsset;
     //private ObjectEraserAsset eraserAsset;
     //private ObjectRepainterAsset repainterAsset;
 
-    private Editor scriptableObjectEditor;
-    private ScriptableObject scriptableObject;
+    [InlineEditor(InlineEditorModes.GUIAndPreview)]
+    public Editor scriptableObjectEditor;
+    [InlineEditor]
+    public ScriptableObject scriptableObject;
 
     public int currentTool = 0;
     public Vector2 scrollPosition = Vector2.zero;
 
     private ObjectBrushObjectList[] allObjectLists;
 
-    [MenuItem("Tools/Object Tool")]
-    static void CreateObjectTool()
-    {
-        EditorWindow editorWindow = GetWindow<ObjectTool>();
-        editorWindow.Show();
-    }
-
-    private void OnEnable()
+	private void OnEnable()
     {
         SceneView.duringSceneGui += OnSceneGUI;
 
@@ -82,8 +84,8 @@ public class ObjectTool : EditorWindow
 
     private void OnGUI()
     {
-        scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.MaxHeight(1000), GUILayout.ExpandHeight(true));
-        EditorGUIUtility.labelWidth = 300;
+        //scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.MaxHeight(1000), GUILayout.ExpandHeight(true));
+        //EditorGUIUtility.labelWidth = 300;
 
         if (brushAsset == null)
         {
@@ -120,10 +122,15 @@ public class ObjectTool : EditorWindow
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
+        scriptableObject = brushAsset;
+        objectBrushRoot = (Transform)EditorGUILayout.ObjectField("Object Brush Root", objectBrushRoot, typeof(Transform), true);
+
+        scriptableObjectEditor = Editor.CreateEditor(scriptableObject);
+        scriptableObjectEditor.OnInspectorGUI();
+
         if (currentTool == 0)
         {
-            scriptableObject = brushAsset;
-            objectBrushRoot = (Transform)EditorGUILayout.ObjectField("Object Brush Root", objectBrushRoot, typeof(Transform), true);
+
 
             EditorGUILayout.Space();
             EditorGUILayout.Space();
@@ -164,10 +171,7 @@ public class ObjectTool : EditorWindow
         }
         */
 
-        scriptableObjectEditor = Editor.CreateEditor(scriptableObject);
-        scriptableObjectEditor.OnInspectorGUI();
-
-        GUILayout.EndScrollView();
+        //GUILayout.EndScrollView();
     }
 
     private void OnSceneGUI(SceneView screenView)
