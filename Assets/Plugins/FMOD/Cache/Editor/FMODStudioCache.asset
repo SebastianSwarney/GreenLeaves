@@ -253,6 +253,26 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 400
+--- !u!114 &-4300608953875666185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Ambient - Rain on Leaves/Player Under Leaves
+  m_EditorClassIdentifier: 
+  Name: Player Under Leaves
+  Min: 0
+  Max: 1
+  Default: 0
+  ID:
+    data1: 0
+    data2: 0
+  Exists: 1
 --- !u!114 &-4259428304642159592
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -359,7 +379,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: FMOD/Build/Desktop/Master.strings.bank
   Name: Master.strings
-  lastModified: 637418159481994901
+  lastModified: 637418165466920423
   LoadResult: 0
   FileSizes:
   - Name: Desktop
@@ -385,7 +405,7 @@ MonoBehaviour:
   Is3D: 1
   IsOneShot: 0
   Parameters:
-  - {fileID: 8331139877365812497}
+  - {fileID: -4300608953875666185}
   MinDistance: 1
   MaxDistance: 20
   Length: 53100
@@ -553,7 +573,7 @@ MonoBehaviour:
   - {fileID: 2990075021516910024}
   StringsBanks:
   - {fileID: -3051454001870593534}
-  stringsBankWriteTime: 637418159481994901
+  stringsBankWriteTime: 637418165466920423
   cacheVersion: 5
 --- !u!114 &711777063614315696
 MonoBehaviour:
@@ -684,7 +704,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: FMOD/Build/Desktop/Master.bank
   Name: Master
-  lastModified: 637418159481915108
+  lastModified: 637418165466840638
   LoadResult: 0
   FileSizes: []
   Exists: 1
