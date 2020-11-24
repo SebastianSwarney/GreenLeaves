@@ -122,7 +122,7 @@ public class Interactable_Manager : MonoBehaviour
             m_buttonUiParent.SetActive(false);
 
 
-            if (p_searchForNextInteractable)
+            if (p_searchForNextInteractable && !Inventory_2DMenu.Instance.m_isOpen)
             {
                 SearchForInteractable();
             }
@@ -196,17 +196,19 @@ public class Interactable_Manager : MonoBehaviour
     public void SearchForInteractable()
     {
         Collider[] cols = Physics.OverlapCapsule(transform.position + (m_capCol.height / 2 * Vector3.up), transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
-        bool changed = false;
         if (cols.Length > 0)
         {
             for (int i = 0; i < cols.Length; i++)
             {
                 if (m_currentInteractable != cols[i].GetComponent<Interactable>())
                 {
-                    m_currentInteractable = null;
+                    if (cols[0].GetComponent<Interactable>().m_canBeInteractedWith)
+                    {
+                        m_currentInteractable = null;
 
-                    cols[0].GetComponent<Interactable>().DisplayMessage();
-                    return;
+                        cols[0].GetComponent<Interactable>().DisplayMessage();
+                        return;
+                    }
                 }
             }
 
