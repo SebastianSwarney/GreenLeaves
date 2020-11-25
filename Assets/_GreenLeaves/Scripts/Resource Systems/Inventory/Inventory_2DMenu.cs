@@ -65,7 +65,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public Transform m_craftedIconPlacement;
 
     ///Used to toggle the menu open and closed.
-    [HideInInspector]
+    //[HideInInspector]
     public bool m_isOpen;
     private bool m_isDraggingObject;
     private bool m_iconWasInCraftingTable = false;

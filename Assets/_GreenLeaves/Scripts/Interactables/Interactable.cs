@@ -130,4 +130,13 @@ public class Interactable : MonoBehaviour
     }
 
     #endregion
+
+    private void OnEnable()
+    {
+        ResetInteractivity();
+    }
+    public void ResetInteractivity()
+    {
+        m_canBeInteractedWith = true;
+    }
 }
