@@ -17,7 +17,7 @@ public class Player_Inventory : MonoBehaviour
 
     [Header("Equipable Tools")]
     public Player_EquipmentUse m_currentEquipedTool;
-    public Player_EquipmentUse m_axeTool, m_canteenTool, m_torchTool, m_bootsTool, m_climbingAxeTool;
+    public Player_EquipmentUse m_knifeTool,m_axeTool, m_canteenTool, m_torchTool, m_bootsTool, m_climbingAxeTool;
 
     [Header("Debugging")]
     public bool m_debugging;
@@ -30,7 +30,6 @@ public class Player_Inventory : MonoBehaviour
     {
         if (Input.GetKeyDown(m_toggleMenu))
         {
-            Debug.Log("Inv Toggle Input Here", this);
             if (m_canOpenMenu)
             {
                 Inventory_2DMenu.Instance.ToggleInventory(true);
@@ -71,6 +70,9 @@ public class Player_Inventory : MonoBehaviour
         UnEquipCurrentTool();
         switch (p_toolType)
         {
+            case ResourceContainer_Equip.ToolType.Knife:
+                m_currentEquipedTool = m_knifeTool;
+                break;
             case ResourceContainer_Equip.ToolType.Axe:
                 m_currentEquipedTool = m_axeTool;
                 break;
