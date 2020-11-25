@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Sirenix.OdinInspector;
 
 [System.Serializable]
 public class WeightedPaletteItem : WeightedListItem
 {
+	[InlineEditor(InlineEditorModes.GUIAndPreview)]
 	public ObjectBrushPaletteItem m_palletLoadoutItem;
 }
 

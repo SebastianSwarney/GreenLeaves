@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization.Internal;
+using Sirenix.Serialization.Editor;
+using Sirenix.Serialization.Utilities;
 
 /*
 [System.Serializable]
@@ -19,7 +22,7 @@ public class ObjectListDisplay
 */
 
 [CreateAssetMenu(menuName = "Object Brush/Object List")]
-public class ObjectBrushObjectList : ScriptableObject
+public class ObjectBrushObjectList : SerializedScriptableObject
 {
 	[AssetSelector(Paths = "Assets/_GreenLeaves/Prefabs/Environement", ExpandAllMenuItems = false)]
 	public GameObject[] m_objectsToPlace;
@@ -268,5 +271,4 @@ public class ObjectBrushObjectList : ScriptableObject
 
 		return false;
 	}
-
 }

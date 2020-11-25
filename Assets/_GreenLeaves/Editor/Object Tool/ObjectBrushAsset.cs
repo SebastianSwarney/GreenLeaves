@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Sirenix.OdinInspector;
 
 [System.Serializable]
 public class ObjectBrushSettings : StandardToolSettings
@@ -17,6 +18,7 @@ public class ObjectBrushAsset : ObjectToolStandardBase<ObjectBrushSettings>
 	[Space]
 	[Space]
 
+	[InlineEditor(InlineEditorModes.GUIAndPreview)]
 	public ObjectBrushPalette currentPalette;
 
 	private bool canPlaceObjects;
