@@ -6,15 +6,20 @@ public class SoundEmitter_PlayerTrigger : MonoBehaviour
 {
     public FMODUnity.StudioEventEmitter m_soundEmitter;
 
+    [Range(0,1)]
     public float m_soundPlayChance;
 
     public string m_playerLayer;
+
+    public GenericWorldEvent m_playerInZone, m_playerLeftZone;
     
     private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.layer == LayerMask.NameToLayer(m_playerLayer))
         {
+            m_playerInZone.Invoke();
             ToggleSound(true);
+            Debug.Log("InZone");
         }
     }
 
@@ -22,12 +27,26 @@ public class SoundEmitter_PlayerTrigger : MonoBehaviour
     {
         if (other.gameObject.layer == LayerMask.NameToLayer(m_playerLayer))
         {
+            m_playerLeftZone.Invoke();
             ToggleSound(false);
+            Debug.Log("Out Zone");
         }
     }
 
     public void ToggleSound(bool p_newState)
     {
+        if (m_soundPlayChance >= 1)
+        {
+            if (p_newState)
+            {
+                m_soundEmitter.Play();
+            }
+            else
+            {
+                m_soundEmitter.Stop();
+            }
+            return;
+        }
         if (p_newState)
         {
             if(Random.Range(0,1f) < m_soundPlayChance)

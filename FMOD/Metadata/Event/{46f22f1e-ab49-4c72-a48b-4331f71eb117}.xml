@@ -56,7 +56,11 @@
 			<destination>{99751adc-28f8-4eb8-9815-bdd6a9f7025a}</destination>
 		</relationship>
 	</object>
-	<object class="EventAutomatableProperties" id="{18f0ca08-a7b2-4bd0-80fb-1a8f60d11f11}" />
+	<object class="EventAutomatableProperties" id="{18f0ca08-a7b2-4bd0-80fb-1a8f60d11f11}">
+		<property name="dopplerScale">
+			<value>320</value>
+		</property>
+	</object>
 	<object class="MarkerTrack" id="{d61b552c-4679-460c-8f85-c67f8f8de1df}" />
 	<object class="GroupTrack" id="{df51e377-30fd-4d34-9dec-510bd82c5a6d}">
 		<relationship name="modules">
@@ -133,7 +137,11 @@
 			<destination>{457f1355-ccd7-4734-97ac-3d22396d9142}</destination>
 		</relationship>
 	</object>
-	<object class="MixerBusPanner" id="{0f84f03b-33bc-4292-b442-2286a7b9600a}" />
+	<object class="MixerBusPanner" id="{0f84f03b-33bc-4292-b442-2286a7b9600a}">
+		<property name="disabledSpeakers">
+			<value>3</value>
+		</property>
+	</object>
 	<object class="MixerBusFader" id="{8dc37c20-d13e-4659-9dca-9fd5287996df}" />
 	<object class="MixerBusEffectChain" id="{d6c5dd3c-b47b-40ae-ba4b-29c4314caace}">
 		<relationship name="effects">
