@@ -14,6 +14,7 @@ public class Manipulation_HitObject : MonoBehaviour
 
     public GenericWorldEvent m_objectHit, m_objectDied;
 
+    public int m_cutType;
     /// <summary>
     /// Called to perform the hit on the object. <br/>
     /// The Object Hit event is invoked when the object is hit, but not on the hit that destroys it<br/>
