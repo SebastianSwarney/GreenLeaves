@@ -6,6 +6,7 @@
 /// </summary>
 public class Player_EquipmentUse_Canteen : Player_EquipmentUse
 {
+    public static Player_EquipmentUse_Canteen Instance;
     [Header("Canteen Specific")]
     [Tooltip("Determines which stat the canteen will refill")]
     public ResourceContainer_Cosume.TypeOfCosumption.ConsumeType m_energyRefilType;
@@ -22,7 +23,10 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public bool m_isDebugging;
     public Color m_gizmosColor;
 
-
+    public void Start()
+    {
+        Instance = this;
+    }
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.O))

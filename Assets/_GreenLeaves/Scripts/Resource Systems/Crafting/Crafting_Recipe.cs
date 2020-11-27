@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "CraftingRecipe_", menuName = "ScriptableObjects/CraftingRecipe", order = 0)]
+[CreateAssetMenu(fileName = "CraftingRecipe_", menuName = "ScriptableObjects/CraftingRecipe/Base", order = 0)]
 
 ///The scriptable object for the recipies that can be crafted<br/>
 ///The logic for the crafting comparision is done here
@@ -21,7 +21,7 @@ public class Crafting_Recipe : ScriptableObject
     /// This determines whether this recipe can be used, by comparing the requirements to the given list<br/>
     /// Returns true if it can be crafted | False if it cant be crafted.
     /// </summary>
-    public bool CanCraft(List<Crafting_Table.Crafting_ItemsContainer> p_givenItems, out int p_matchAmount)
+    public virtual bool CanCraft(List<Crafting_Table.Crafting_ItemsContainer> p_givenItems, out int p_matchAmount)
     {
         p_matchAmount = 0;
         foreach (Crafting_Table.Crafting_ItemsContainer required in m_recipe)
