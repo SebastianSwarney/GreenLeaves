@@ -81,7 +81,6 @@ public class Interactable_Manager : MonoBehaviour
         {
             if (m_currentInteractable != null && m_currentInteractable != p_selectedSystem)
             {
-                Debug.Log("Added: " + p_selectedSystem.gameObject.name + " | " + "Current Selected: " + m_currentInteractable.gameObject.name);
                 return;
             }
         }

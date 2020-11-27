@@ -115,7 +115,7 @@ public class Interactable : MonoBehaviour
     #region Trigger detection
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == m_playerTag)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             DisplayMessage();
         }
@@ -123,7 +123,7 @@ public class Interactable : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == m_playerTag)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             Interactable_Manager.Instance.HideButtonMenu(this, true);
         }

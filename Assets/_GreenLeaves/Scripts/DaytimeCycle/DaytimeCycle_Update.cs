@@ -103,7 +103,7 @@ public class DaytimeCycle_Update : MonoBehaviour
             m_increaseAmount = (increase * Time.deltaTime);
         }*/
         m_increaseAmount = (0.0041888f / increase);
-        Debug.Log("TimeDelta: " + Time.deltaTime.ToString() + " | Increase Amount: " + m_increaseAmount);
+        Debug.Log(" | Increase Amount: " + m_increaseAmount);
         while (waitingTime > 0)
         {
             waitingTime -= 0.0041888f;

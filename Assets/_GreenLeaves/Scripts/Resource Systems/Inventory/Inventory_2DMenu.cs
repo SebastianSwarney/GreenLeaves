@@ -136,7 +136,10 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public void OpenInventoryMenu()
     {
-        DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
+        if (DaytimeCycle_Update.Instance != null)
+        {
+            DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
+        }
         m_currentSelectedIcon = null;
         m_isDraggingObject = false;
         m_canvasObject.SetActive(true);
@@ -144,8 +147,10 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public void CloseInventoryMenu(bool p_skipWarning = false)
     {
-        DaytimeCycle_Update.Instance.ToggleDaytimePause(false);
-
+        if (DaytimeCycle_Update.Instance != null)
+        {
+            DaytimeCycle_Update.Instance.ToggleDaytimePause(false);
+        }
         m_isOpen = false;
         m_canvasObject.SetActive(false);
         m_selectedMenuParent.SetActive(false);
