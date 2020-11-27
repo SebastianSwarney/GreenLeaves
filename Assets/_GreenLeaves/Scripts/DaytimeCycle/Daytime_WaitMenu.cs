@@ -10,11 +10,7 @@ public class Daytime_WaitMenu : MonoBehaviour
 
     public int m_howManyHoursToWait;
 
-    /// <summary>
-    /// How much time passes while waiting to pass an hour.<br/>
-    /// IE. Real time waiting = this X how many hours you wait
-    /// </summary>
-    public float m_secondsToWait;
+
 
     private bool m_isWaiting = false;
 
@@ -60,7 +56,7 @@ public class Daytime_WaitMenu : MonoBehaviour
         {
             Debug.Log("Accept key press here", this);
             m_isWaiting = true;
-            StartCoroutine(PerformWait());
+            StartCoroutine(PerformWait(m_howManyHoursToWait));
 
         }
     }
@@ -74,43 +70,18 @@ public class Daytime_WaitMenu : MonoBehaviour
         m_menuUi.gameObject.SetActive(true);
     }
 
-    public float m_increaseCheck, m_increaseAmount;
-    public float m_waitTime;
-
-    public bool m_fix;
-
-    private IEnumerator PerformWait()
+    
+    private IEnumerator PerformWait(float p_hoursToWait)
     {
-        float waitingTime = m_secondsToWait;
-        m_waitTime = waitingTime;
-        float increase = m_secondsToWait / m_howManyHoursToWait;
-        if (increase < 1f)
-        {
-            m_increaseAmount = (Time.deltaTime / increase);
-            Debug.Log("Greater than one");
-        }
-        else
-        {
-            m_increaseAmount = (increase * Time.deltaTime);
-            Debug.Log("Less than one");
-        }
-        m_increaseAmount = (Time.deltaTime / increase);
-        while (waitingTime > 0)
-        {
-            waitingTime -= Time.deltaTime;
-            DaytimeCycle_Update.Instance.UpdateTimeOfDayThroughPass(m_increaseAmount);
-            m_increaseCheck += increase;
-            yield return null;
-        }
+
+        yield return StartCoroutine(DaytimeCycle_Update.Instance.TimeSkip(p_hoursToWait));
+
         m_isWaiting = false;
 
         yield return new WaitForSeconds(1);
-
-        m_menuUi.SetActive(false);
         PlayerInputToggle.Instance.ToggleInput(true);
-
         DaytimeCycle_Update.Instance.ToggleDaytimePause(false);
-
+        m_menuUi.SetActive(false);
         enabled = false;
 
     }
