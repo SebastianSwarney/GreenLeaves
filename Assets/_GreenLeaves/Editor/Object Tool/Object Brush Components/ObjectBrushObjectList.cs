@@ -25,7 +25,17 @@ public class ObjectListDisplay
 public class ObjectBrushObjectList : SerializedScriptableObject
 {
 	[AssetSelector(Paths = "Assets/_GreenLeaves/Prefabs/Environement", ExpandAllMenuItems = false)]
+	[AssetsOnly]
+	//[ListItemSelector("SetSelected")]
 	public GameObject[] m_objectsToPlace;
+
+	//[ShowInInspector, InlineEditor(InlineEditorModes.LargePreview ,InlineEditorObjectFieldModes.Hidden)]
+	private GameObject m_selectedObject;
+
+	public void SetSelected(int index)
+	{
+		this.m_selectedObject = index >= 0 ? this.m_objectsToPlace[index] : null;
+	}
 
 	[Header("Object Appearance Properties")]
 	[MinMaxSlider(1, 3, showFields: true)]
@@ -122,7 +132,7 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 	{
 		if (m_randomYRotation)
 		{
-			p_objectToModify.transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+			p_objectToModify.transform.rotation = Quaternion.Euler(p_objectToModify.transform.rotation.eulerAngles.x, Random.Range(0, 360), p_objectToModify.transform.rotation.eulerAngles.z);
 		}
 	}
 

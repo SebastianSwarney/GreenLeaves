@@ -18,32 +18,17 @@ public class ObjectTool : OdinEditorWindow
 
     private OdinMenuTree tree;
 
-    [InlineEditor(InlineEditorModes.GUIAndPreview)]
-    public ObjectToolAssetBase m_currentAsset;
+    [InlineEditor(InlineEditorModes.GUIOnly)]
+    public ObjectBrushAsset m_objectBrushAsset;
 
     private ObjectBrushObjectList[] allObjectLists;
-
-    /*
-    protected override OdinMenuTree BuildMenuTree()
-	{
-        tree = new OdinMenuTree();
-
-        tree.AddAllAssetsAtPath("Object Tool", "Assets/_GreenLeaves/Object Brush", typeof(ObjectToolAssetBase));
-
-        return tree;
-	}
-    */
-
-    private void OnInspectorUpdate()
-	{
-        //m_currentAsset = (ObjectToolAssetBase)tree.Selection.SelectedValue;
-    }
 
 	protected override void OnEnable()
 	{
 		base.OnEnable();
         SceneView.duringSceneGui += OnSceneGUI;
         FindAllObjectLists();
+        GetToolAssetReferences();
     }
 
 	private void OnDisable()
@@ -53,7 +38,7 @@ public class ObjectTool : OdinEditorWindow
 
 	private void OnSceneGUI(SceneView screenView)
     {
-        m_currentAsset.RunSceneGUI(screenView, m_objectRoot, allObjectLists);
+        m_objectBrushAsset.RunSceneGUI(screenView, m_objectRoot, allObjectLists);
     }
 
     public void FindAllObjectLists()
@@ -69,6 +54,32 @@ public class ObjectTool : OdinEditorWindow
         }
 
         allObjectLists = foundObjectLists.ToArray();
+    }
+
+    private void GetToolAssetReferences()
+    {
+        ObjectBrushAsset foundObjectBrushAsset = (ObjectBrushAsset)AssetDatabase.LoadAssetAtPath("Assets/_GreenLeaves/Object Brush/ObjectBrushAsset.asset", typeof(ObjectBrushAsset));
+
+        if (foundObjectBrushAsset != null)
+        {
+            //m_objectBrushAsset = foundObjectBrushAsset;
+        }
+
+        /*
+        ObjectEraserAsset foundObjectEraserAsset = (ObjectEraserAsset)AssetDatabase.LoadAssetAtPath("Assets/Data/Object Brush/ObjectEraserAsset.asset", typeof(ObjectEraserAsset));
+
+        if (foundObjectEraserAsset != null)
+        {
+            eraserAsset = foundObjectEraserAsset;
+        }
+
+        ObjectRepainterAsset foundRepainterAsset = (ObjectRepainterAsset)AssetDatabase.LoadAssetAtPath("Assets/Data/Object Brush/ObjectRepainterAsset.asset", typeof(ObjectRepainterAsset));
+
+        if (foundRepainterAsset != null)
+        {
+            repainterAsset = foundRepainterAsset;
+        }
+        */
     }
 
     /*
