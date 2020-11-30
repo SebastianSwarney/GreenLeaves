@@ -25,6 +25,8 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
     public SlicedEvent m_slicedEvent;
 
+    public GameObject m_mesh;
+    public Transform m_applyForcePosition;
 
     /// <summary>
     /// <para>Called to slice the mesh. The parameters passed will affect the direction of the slice. </para>
@@ -52,15 +54,15 @@ public class Manipulation_SelfSlice : MonoBehaviour
         #endregion
 
         #region Create the sliced hulls
-        SlicedHull hull = gameObject.Slice(p_worldPoint, p_upVector, m_crossSectionMaterials);
+        SlicedHull hull = m_mesh.Slice(p_worldPoint, p_upVector, m_crossSectionMaterials);
 
         if (hull == null)
         {
-            Debug.Log("Couldnt cut object: " + gameObject + " as object doesnt exist in slice region", gameObject);
+            Debug.Log("Couldnt cut object: " + m_mesh + " as object doesnt exist in slice region", gameObject);
             return;
         }
-        GameObject upperHull = hull.CreateUpperHull(gameObject, m_crossSectionMaterials);
-        GameObject lowerHull = hull.CreateLowerHull(gameObject, m_crossSectionMaterials);
+        GameObject upperHull = hull.CreateUpperHull(m_mesh, m_crossSectionMaterials);
+        GameObject lowerHull = hull.CreateLowerHull(m_mesh, m_crossSectionMaterials);
 
         #endregion
 
@@ -100,7 +102,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
             {
                 if (m_fallForward)
                 {
-                    lowerHull.AddComponent<Rigidbody>().AddForce(p_forwardDir * m_fallInitialForce, ForceMode.Impulse);
+                    lowerHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, m_applyForcePosition.position, ForceMode.Impulse);
                 }
                 else
                 {
@@ -109,7 +111,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
             }
             if (m_fallForward)
             {
-                upperHull.AddComponent<Rigidbody>().AddForce(p_forwardDir * m_fallInitialForce, ForceMode.Impulse);
+                upperHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, m_applyForcePosition.position, ForceMode.Impulse);
             }
             else
             {
