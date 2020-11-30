@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Sirenix.OdinInspector;
 
 [System.Serializable]
 public class ObjectBrushSettings : StandardToolSettings
@@ -17,6 +18,7 @@ public class ObjectBrushAsset : ObjectToolStandardBase<ObjectBrushSettings>
 	[Space]
 	[Space]
 
+	[InlineEditor(InlineEditorModes.GUIAndPreview)]
 	public ObjectBrushPalette currentPalette;
 
 	private bool canPlaceObjects;
@@ -56,7 +58,7 @@ public class ObjectBrushAsset : ObjectToolStandardBase<ObjectBrushSettings>
 
 		for (int i = 0; i < amountToSpawn; i++)
 		{
-			currentPalette.RunPalettePlacement(hitPosition.point, placeRadius, ref alreadyPlacedObjects, allObjectLists, objectRoot);
+			currentPalette.RunPalettePlacement(hitPosition.point, placeRadius, ref alreadyPlacedObjects, allObjectLists, objectRoot, groundMask);
 		}
 	}
 }
