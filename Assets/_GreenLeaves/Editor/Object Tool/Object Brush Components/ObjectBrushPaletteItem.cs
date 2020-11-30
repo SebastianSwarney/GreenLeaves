@@ -39,4 +39,10 @@ public class ObjectBrushPaletteItem : ObjectBrushWeightedList<WeightedScatterGro
 	{
 		this.m_selectedScatterObject = index >= 0 ? this.itemList[index].m_scatterObject : null;
 	}
+
+	private void OnValidate()
+	{
+		CalculatePercentages(itemList);
+	}
+
 }

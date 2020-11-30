@@ -46,6 +46,11 @@ public class ObjectBrushPalette : ObjectBrushWeightedList<WeightedPaletteItem>
 		}
 	}
 
+	private void OnValidate()
+	{
+		CalculatePercentages(itemList);
+	}
+
 	/*
 	public Vector3 PlaceObjectFromPalette(Vector3 p_originPos, float p_placementRadus, ref List<GameObject> p_alreadyPlacedObjects, ObjectBrushObjectList[] p_allObjectLists, Transform p_objectRoot, ObjectBrushObjectList p_listToUse, float p_spacingRadius)
 	{

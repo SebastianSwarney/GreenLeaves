@@ -54,20 +54,18 @@ public class ObjectBrushWeightedList<ListItemType> : ScriptableObject where List
 		return fallbackItem;
 	}
 
-	/*
-	public void CalculatePercentages()
+	public void CalculatePercentages(WeightedListItem[] listType)
 	{
 		float totalValue = 0;
 
-		for (int i = 0; i < itemList.Length; i++)
+		for (int i = 0; i < listType.Length; i++)
 		{
-			totalValue += itemList[i].sliderValue;
+			totalValue += listType[i].sliderValue;
 		}
 
-		for (int i = 0; i < itemList.Length; i++)
+		for (int i = 0; i < listType.Length; i++)
 		{
-			itemList[i].percentageChance = (itemList[i].sliderValue / totalValue) * 100;
+			listType[i].percentageChance = (listType[i].sliderValue / totalValue) * 100;
 		}
 	}
-	*/
 }
