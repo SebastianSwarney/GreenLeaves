@@ -19,7 +19,6 @@ public class SoundEmitter_PlayerTrigger : MonoBehaviour
         {
             m_playerInZone.Invoke();
             ToggleSound(true);
-            Debug.Log("InZone");
         }
     }
 
@@ -29,7 +28,6 @@ public class SoundEmitter_PlayerTrigger : MonoBehaviour
         {
             m_playerLeftZone.Invoke();
             ToggleSound(false);
-            Debug.Log("Out Zone");
         }
     }
 

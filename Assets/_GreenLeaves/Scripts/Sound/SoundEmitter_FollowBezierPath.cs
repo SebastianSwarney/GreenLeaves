@@ -8,7 +8,14 @@ public class SoundEmitter_FollowBezierPath : MonoBehaviour
     public Transform m_trackingTransform;
 
     public bool m_follow;
-
+    private void Start()
+    {
+        if(m_trackingTransform == null)
+        {
+            Debug.Log("THe follow transform is null, setting to player.", gameObject);
+            m_trackingTransform = Player_Inventory.Instance.transform;
+        }
+    }
     private void Update()
     {
         if (!m_follow) return;
