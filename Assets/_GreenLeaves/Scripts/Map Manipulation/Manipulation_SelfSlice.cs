@@ -26,7 +26,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
     public SlicedEvent m_slicedEvent;
 
     public GameObject m_mesh;
-    public Transform m_applyForcePosition;
+    public float m_applyForcePosition;
 
     /// <summary>
     /// <para>Called to slice the mesh. The parameters passed will affect the direction of the slice. </para>
@@ -102,7 +102,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
             {
                 if (m_fallForward)
                 {
-                    lowerHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, m_applyForcePosition.position, ForceMode.Impulse);
+                    lowerHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, transform.position + transform.up * m_applyForcePosition, ForceMode.Impulse);
                 }
                 else
                 {
@@ -111,7 +111,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
             }
             if (m_fallForward)
             {
-                upperHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, m_applyForcePosition.position, ForceMode.Impulse);
+                upperHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, transform.position + transform.up * m_applyForcePosition, ForceMode.Impulse);
             }
             else
             {
@@ -124,4 +124,19 @@ public class Manipulation_SelfSlice : MonoBehaviour
         m_slicedEvent.Invoke(upperHull);
         gameObject.SetActive(false);
     }
+
+
+#if UNITY_EDITOR
+    [Header("DEbug")]
+    public bool m_debug;
+    public Color m_debugColor;
+    public float m_boxSize;
+
+    private void OnDrawGizmos()
+    {
+        if (!m_debug) return;
+        Gizmos.color = m_debugColor;
+        Gizmos.DrawCube(transform.position + Vector3.up * m_applyForcePosition, Vector3.one* m_boxSize);
+    }
+#endif
 }

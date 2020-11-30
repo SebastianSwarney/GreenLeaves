@@ -15,12 +15,11 @@ public class Items_SpawnItem_Transform : Items_SpawnItem
 
     public override void SpawnItem()
     {
-        foreach(ItemSpawnContainer_Transform newItem in m_spawnedItems)
+        foreach (ItemSpawnContainer_Transform newItem in m_spawnedItems)
         {
-            newItem.SpawnItems();
+            newItem.SpawnItems(transform);
         }
     }
-
 
     /// <summary>
     /// This data container holds the varaibles used to spawn at different transforms.
@@ -30,16 +29,51 @@ public class Items_SpawnItem_Transform : Items_SpawnItem
     public class ItemSpawnContainer_Transform
     {
         public GameObject m_spawnedItem;
-        public List<Transform> m_spawnPoint;
-
-        public void SpawnItems()
+        public List<Vector3> m_spawnPoint;
+        public Color m_debugColor;
+        public void SpawnItems(Transform p_pos)
         {
-            foreach (Transform spawn in m_spawnPoint)
+            foreach (Vector3 spawn in m_spawnPoint)
             {
-                ObjectPooler.Instance.NewObject(m_spawnedItem, spawn.position, Quaternion.identity);
+                ObjectPooler.Instance.NewObject(m_spawnedItem, p_pos.position + p_pos.rotation * (spawn), Quaternion.identity);
             }
         }
     }
+
+    private void Update()
+    {
+        foreach (ItemSpawnContainer_Transform newItem in m_spawnedItems)
+        {
+            Gizmos.color = newItem.m_debugColor;
+            foreach (Vector3 point in newItem.m_spawnPoint)
+            {
+                Debug.DrawLine(transform.position, transform.position + transform.rotation * (point), newItem.m_debugColor);
+            }
+
+        }
+    }
+
+#if UNITY_EDITOR
+    [Header("Debug")]
+    public bool m_debug;
+
+
+    private void OnDrawGizmos()
+    {
+        if (!m_debug) return;
+        foreach (ItemSpawnContainer_Transform newItem in m_spawnedItems)
+        {
+            Gizmos.color = newItem.m_debugColor;
+            foreach (Vector3 point in newItem.m_spawnPoint)
+            {
+                Gizmos.DrawSphere(transform.position + transform.rotation * (point), 1f);
+                Debug.DrawLine(transform.position, transform.position + transform.rotation * (point), newItem.m_debugColor);
+            }
+
+        }
+
+    }
+#endif
 }
 
 
