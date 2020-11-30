@@ -21,7 +21,8 @@ public class Manipulation_SelfSlice : MonoBehaviour
     public bool m_fallForward;
     public float m_fallInitialForce;
 
-    public GenericWorldEvent m_hitEvent;
+    public GenericWorldEvent m_hitEvent, m_oneMoreHitEvent;
+
     public SlicedEvent m_slicedEvent;
 
 
@@ -38,7 +39,14 @@ public class Manipulation_SelfSlice : MonoBehaviour
         m_currentHits++;
         if (m_currentHits < m_hitsToSlice)
         {
-            m_hitEvent.Invoke();
+            if (m_hitsToSlice - m_currentHits == 1)
+            {
+                Debug.Log("1 Slice left");
+                m_oneMoreHitEvent.Invoke();
+            }
+            else {
+                m_hitEvent.Invoke();
+            }
             return;
         }
         #endregion
