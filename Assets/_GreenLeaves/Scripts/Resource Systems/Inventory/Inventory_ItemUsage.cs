@@ -15,12 +15,19 @@ public class Inventory_ItemUsage : MonoBehaviour
 
     #region Item Usage Functions
 
+    /// <summary>
+    /// The function performed when the player consumes something from the inventory.<br/>
+    /// The type of item that is cosumed is passed through the custom class parameter : p_currentStats <br/>
+    /// Do the stuff here
+    /// </summary>
     public void ConsumeItem(Inventory_Icon p_currentIcon, List<ResourceContainer_Cosume.TypeOfCosumption> p_currentStats)
     {
         foreach (ResourceContainer_Cosume.TypeOfCosumption consume in p_currentStats)
         {
+            Debug.Log("Here is where the consuming is.");
             if (EnergyController.Instance != null)
             {
+                
                 EnergyController.Instance.AddAmount(consume.m_typeOfConsume, consume.m_replenishAmount, consume.m_increasePastAmount);
             }
             else

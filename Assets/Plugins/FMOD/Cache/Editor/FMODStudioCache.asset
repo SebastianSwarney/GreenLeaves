@@ -1,24 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-9024363080974176349
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.bank
-  m_EditorClassIdentifier: 
-  Path: FMOD/Build/Desktop/Master.bank
-  Name: Master
-  lastModified: 637423489040521100
-  LoadResult: 0
-  FileSizes: []
-  Exists: 1
---- !u!114 &-8697786144402893530
+--- !u!114 &-9135024349964311013
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -28,227 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Impacts/Impact - Grass Small Item
+  m_Name: event:/Foley - Campfire Placement
   m_EditorClassIdentifier: 
-  Path: event:/Impacts/Impact - Grass Small Item
-  guid: 7ee3d0b7536343449fb9c65bb86b7bd6
+  Path: event:/Foley - Campfire Placement
+  guid: f9cf6a521c245b45ac2551246e3a8ccd
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 420
---- !u!114 &-8382521466466552200
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Impacts/Impact - Rock Hit
-  m_EditorClassIdentifier: 
-  Path: event:/Impacts/Impact - Rock Hit
-  guid: 397040258ddde44f985c9593337b9963
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 185
---- !u!114 &-8212736077803239582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Animals/Ambient - American Sparrows
-  m_EditorClassIdentifier: 
-  Path: event:/Animals/Ambient - American Sparrows
-  guid: a32cf1091e66144187991e9edf54c6ca
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 1
-  Is3D: 1
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 40
-  Length: 41139
---- !u!114 &-7045635608640363953
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Gravel
-  m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Gravel
-  guid: 13ee96b839985b47bf5445ee0121fc88
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 250
---- !u!114 &-7002514737258732697
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Ambient/Ambient - Water Medium Stream
-  m_EditorClassIdentifier: 
-  Path: event:/Ambient/Ambient - Water Medium Stream
-  guid: 08a4f747e0eacc4398c1b68f3a286e13
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 75
-  Length: 5926
---- !u!114 &-6788516392683995956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Impacts/Impact - Water Big Item
-  m_EditorClassIdentifier: 
-  Path: event:/Impacts/Impact - Water Big Item
-  guid: f33f910dea3b5443aad7768f5b71c2f0
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1650
---- !u!114 &-6511201866727970757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Water Deep
-  m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Water Deep
-  guid: b3d5bf2686d98a46a357220ff6f3fbb3
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 856
---- !u!114 &-5121475171799760224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Wood Plank
-  m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Wood Plank
-  guid: 66c5a2012e18c7409ac6a444f918da1b
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 300
---- !u!114 &-4932394585525077939
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Ambient/Ambient - Trees Creaking
-  m_EditorClassIdentifier: 
-  Path: event:/Ambient/Ambient - Trees Creaking
-  guid: 089e9f2516433f46916097235d032857
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 40
-  Length: 4612
---- !u!114 &-4109843368206981243
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Bush - Redo
-  m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Bush - Redo
-  guid: 3631657029561b498a86b45c02d98921
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 985
---- !u!114 &-3332275086442522032
+  Length: 128
+--- !u!114 &-8903966073739624078
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -263,7 +38,7 @@ MonoBehaviour:
   Path: event:/Impacts/Impact- Tree Chop - Creak
   guid: 127fd4008b59664fa39bc36b72aa9994
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
@@ -271,7 +46,434 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 2000
---- !u!114 &-3282332104212995373
+--- !u!114 &-8785326128434611032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Water Puddle
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Water Puddle
+  guid: 3c90220cd9b75048a36ff91f8af09889
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 233
+--- !u!114 &-7748981385871490735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Ambient - Rain on Leaves/Player Under Leaves
+  m_EditorClassIdentifier: 
+  Name: Player Under Leaves
+  Min: 0
+  Max: 1
+  Default: 0
+  ID:
+    data1: 0
+    data2: 0
+  Exists: 0
+--- !u!114 &-6359833521301319051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambient/Ambient - Water Medium Stream
+  m_EditorClassIdentifier: 
+  Path: event:/Ambient/Ambient - Water Medium Stream
+  guid: 08a4f747e0eacc4398c1b68f3a286e13
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 75
+  Length: 5926
+--- !u!114 &-5877142391301497909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Water Shore
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Water Shore
+  guid: 6c08e07cf1bf374991bc3581a43922ff
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 400
+--- !u!114 &-5595796621217331105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambient/Wind - Tree
+  m_EditorClassIdentifier: 
+  Path: event:/Ambient/Wind - Tree
+  guid: 01f59c6c37512740b7c8e61bc0a64c13
+  Banks: []
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 193981
+--- !u!114 &-4894000666732824042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambient/Ambient - Rain on Leaves
+  m_EditorClassIdentifier: 
+  Path: event:/Ambient/Ambient - Rain on Leaves
+  guid: 747b613e2fafcb47b776dc05af1a829d
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters:
+  - {fileID: -2252552326380049685}
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 53100
+--- !u!114 &-4777589940420286332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.strings.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/Build/Desktop/Master.strings.bank
+  Name: Master.strings
+  lastModified: 637426996345041953
+  LoadResult: 0
+  FileSizes:
+  - Name: Desktop
+    Value: 2848
+  Exists: 1
+--- !u!114 &-4745264523377438493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Wood Plank
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Wood Plank
+  guid: 66c5a2012e18c7409ac6a444f918da1b
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 300
+--- !u!114 &-4666319420174156334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambient/Ambient - Water Strong Stream
+  m_EditorClassIdentifier: 
+  Path: event:/Ambient/Ambient - Water Strong Stream
+  guid: 1e2ff24649ab724ca48b4331f71eb117
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 125
+  Length: 7861
+--- !u!114 &-4544869278147209691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Impacts/Impact - Tree Chop  - Break
+  m_EditorClassIdentifier: 
+  Path: event:/Impacts/Impact - Tree Chop  - Break
+  guid: 08b26f2ca0abd544a01f2ab50e420f2a
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 964
+--- !u!114 &-4524155181521556577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Dirt
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Dirt
+  guid: b9a5f5d69413dd449ac71ceb96ba9e44
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 112
+--- !u!114 &-4470319891745713543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Ambient - Rain on Leaves/Player Under Leaves
+  m_EditorClassIdentifier: 
+  Name: Player Under Leaves
+  Min: 0
+  Max: 1
+  Default: 0
+  ID:
+    data1: 0
+    data2: 0
+  Exists: 0
+--- !u!114 &-4319728184985622787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Bush - Redo
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Bush - Redo
+  guid: 3631657029561b498a86b45c02d98921
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 985
+--- !u!114 &-4287378525915153991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Animals/Cricket - One Shot 2
+  m_EditorClassIdentifier: 
+  Path: event:/Animals/Cricket - One Shot 2
+  guid: e0fff3dc16dea448a6ac7fdde5f793e3
+  Banks: []
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 14400
+--- !u!114 &-4039701470220805787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Grass
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Grass
+  guid: df6cd30e498b1a478badda7963a7762c
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 340
+--- !u!114 &-3442856609067943750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambient/Ambient - Water Light Stream
+  m_EditorClassIdentifier: 
+  Path: event:/Ambient/Ambient - Water Light Stream
+  guid: a034a31c141ab944b5e535642f6d3fe0
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 50
+  Length: 4740
+--- !u!114 &-3263185521637470083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambient/Wind - Tree
+  m_EditorClassIdentifier: 
+  Path: event:/Ambient/Wind - Tree
+  guid: 54d95e5ce0a60640b39cc89ea38e4cc3
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 189981
+--- !u!114 &-2591682322274271429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambient/Ambient - Trees Creaking
+  m_EditorClassIdentifier: 
+  Path: event:/Ambient/Ambient - Trees Creaking
+  guid: 089e9f2516433f46916097235d032857
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 40
+  Length: 4612
+--- !u!114 &-2566167859101377338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Leaves
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Leaves
+  guid: 960ed8b9dfcb564b94917f4e89f53b7f
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 270
+--- !u!114 &-2252552326380049685
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -291,99 +493,7 @@ MonoBehaviour:
     data1: 0
     data2: 0
   Exists: 1
---- !u!114 &-3083931796640102173
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Impacts/Impact - Climbing Axe
-  m_EditorClassIdentifier: 
-  Path: event:/Impacts/Impact - Climbing Axe
-  guid: 8a0716b9fd9e1248aa2a0911fd388bc1
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 454
---- !u!114 &-2427638330813505062
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Ambient/Ambient - Water Strong Stream
-  m_EditorClassIdentifier: 
-  Path: event:/Ambient/Ambient - Water Strong Stream
-  guid: 1e2ff24649ab724ca48b4331f71eb117
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 125
-  Length: 7861
---- !u!114 &-2090513447695479414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Impacts/Impact - Log Chop
-  m_EditorClassIdentifier: 
-  Path: event:/Impacts/Impact - Log Chop
-  guid: 4a35e9aa9deb0f41bf7d13d9156f9dcf
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 560
---- !u!114 &-1982757176650948575
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Water Puddle
-  m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Water Puddle
-  guid: 3c90220cd9b75048a36ff91f8af09889
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 233
---- !u!114 &-1118465045591779456
+--- !u!114 &-1829179666655907849
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -398,7 +508,7 @@ MonoBehaviour:
   Path: event:/Misc/Misc - Twig Snap
   guid: d273cc67af1bed46baadac18f686eb56
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
@@ -406,53 +516,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 415
---- !u!114 &-647301499978008345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Ambient/Ambient - Rain on Leaves
-  m_EditorClassIdentifier: 
-  Path: event:/Ambient/Ambient - Rain on Leaves
-  guid: 747b613e2fafcb47b776dc05af1a829d
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 1
-  Is3D: 1
-  IsOneShot: 0
-  Parameters:
-  - {fileID: -3282332104212995373}
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 53100
---- !u!114 &-467217346191066531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Foley - Campfire Placement
-  m_EditorClassIdentifier: 
-  Path: event:/Foley - Campfire Placement
-  guid: f9cf6a521c245b45ac2551246e3a8ccd
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 128
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -466,163 +529,52 @@ MonoBehaviour:
   m_Name: FMODStudioCache
   m_EditorClassIdentifier: 
   EditorBanks:
-  - {fileID: 4385669312010060674}
-  - {fileID: -9024363080974176349}
+  - {fileID: -4777589940420286332}
+  - {fileID: 6261104612944840006}
   EditorEvents:
-  - {fileID: -4932394585525077939}
-  - {fileID: -7002514737258732697}
-  - {fileID: 1161215432649661137}
-  - {fileID: -3332275086442522032}
-  - {fileID: -7045635608640363953}
-  - {fileID: -2427638330813505062}
-  - {fileID: 7169723625525498665}
-  - {fileID: -4109843368206981243}
-  - {fileID: -8382521466466552200}
-  - {fileID: 2356069430023889776}
-  - {fileID: -1982757176650948575}
-  - {fileID: -2090513447695479414}
-  - {fileID: -5121475171799760224}
-  - {fileID: 2074827256615700540}
-  - {fileID: -647301499978008345}
-  - {fileID: -8697786144402893530}
-  - {fileID: 3152159109921715290}
-  - {fileID: -3083931796640102173}
-  - {fileID: 4266497225694256511}
-  - {fileID: 2090423936372120631}
-  - {fileID: 174735676461299447}
-  - {fileID: 6401806490994117116}
-  - {fileID: -8212736077803239582}
-  - {fileID: 2524252975226394238}
-  - {fileID: -6511201866727970757}
-  - {fileID: 2884660691616379399}
-  - {fileID: 7948083159997113173}
-  - {fileID: -1118465045591779456}
-  - {fileID: 4944688189596274808}
-  - {fileID: -6788516392683995956}
-  - {fileID: -467217346191066531}
+  - {fileID: -2591682322274271429}
+  - {fileID: -6359833521301319051}
+  - {fileID: -4544869278147209691}
+  - {fileID: -8903966073739624078}
+  - {fileID: 5321006047763753811}
+  - {fileID: -4666319420174156334}
+  - {fileID: 9169014785833739986}
+  - {fileID: -4319728184985622787}
+  - {fileID: 1909655441693413303}
+  - {fileID: 4697103159736773280}
+  - {fileID: -8785326128434611032}
+  - {fileID: 6566898613722590358}
+  - {fileID: -4745264523377438493}
+  - {fileID: -5877142391301497909}
+  - {fileID: -4894000666732824042}
+  - {fileID: 6714959166161781091}
+  - {fileID: 7277187902192066549}
+  - {fileID: 8988005688405293223}
+  - {fileID: 1965190408765745907}
+  - {fileID: -2566167859101377338}
+  - {fileID: 5883748323850314517}
+  - {fileID: -3442856609067943750}
+  - {fileID: 1506728004804904289}
+  - {fileID: 74215196071507250}
+  - {fileID: 2480142507591558640}
+  - {fileID: 2603732401915572847}
+  - {fileID: -4524155181521556577}
+  - {fileID: -1829179666655907849}
+  - {fileID: -4039701470220805787}
+  - {fileID: 831899840245954694}
+  - {fileID: -9135024349964311013}
+  - {fileID: 3188160102222761928}
+  - {fileID: 5381990025360686565}
+  - {fileID: -3263185521637470083}
+  - {fileID: 2610430705461349356}
   EditorParameters: []
   MasterBanks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   StringsBanks:
-  - {fileID: 4385669312010060674}
-  stringsBankWriteTime: 637423288556509858
+  - {fileID: -4777589940420286332}
+  stringsBankWriteTime: 637426996345041953
   cacheVersion: 5
---- !u!114 &174735676461299447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Foley - Poof
-  m_EditorClassIdentifier: 
-  Path: event:/Foley - Poof
-  guid: 969f1670a318bf4ab5f4673e92c4a6be
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 312
---- !u!114 &1161215432649661137
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Impacts/Impact - Tree Chop  - Break
-  m_EditorClassIdentifier: 
-  Path: event:/Impacts/Impact - Tree Chop  - Break
-  guid: 08b26f2ca0abd544a01f2ab50e420f2a
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 964
---- !u!114 &2074827256615700540
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Water Shore
-  m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Water Shore
-  guid: 6c08e07cf1bf374991bc3581a43922ff
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 400
---- !u!114 &2090423936372120631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Leaves
-  m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Leaves
-  guid: 960ed8b9dfcb564b94917f4e89f53b7f
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 270
---- !u!114 &2356069430023889776
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Impacts/Impact - Tree Chop
-  m_EditorClassIdentifier: 
-  Path: event:/Impacts/Impact - Tree Chop
-  guid: 3a6f5a2a4ab35c48b279e5417f16cd6b
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 150
---- !u!114 &2524252975226394238
+--- !u!114 &74215196071507250
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -637,7 +589,7 @@ MonoBehaviour:
   Path: event:/Animals/Cricket Loop 1
   guid: aa69dfc2ec6f7349b5f3af40c82b04eb
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
   IsOneShot: 0
@@ -645,7 +597,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 4982
---- !u!114 &2884660691616379399
+--- !u!114 &831899840245954694
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -655,20 +607,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Impacts/Impact - Water Small Item
+  m_Name: event:/Impacts/Impact - Water Big Item
   m_EditorClassIdentifier: 
-  Path: event:/Impacts/Impact - Water Small Item
-  guid: b75f8764ffe1894a9ad24b13b7750a1e
+  Path: event:/Impacts/Impact - Water Big Item
+  guid: f33f910dea3b5443aad7768f5b71c2f0
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 1203
---- !u!114 &3152159109921715290
+  Length: 1650
+--- !u!114 &1506728004804904289
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -678,20 +630,43 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Rock
+  m_Name: event:/Animals/Ambient - American Sparrows
   m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Rock
-  guid: 83ea3bf19abea549b03a8ca4c5823089
+  Path: event:/Animals/Ambient - American Sparrows
+  guid: a32cf1091e66144187991e9edf54c6ca
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 40
+  Length: 41139
+--- !u!114 &1909655441693413303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Impacts/Impact - Rock Hit
+  m_EditorClassIdentifier: 
+  Path: event:/Impacts/Impact - Rock Hit
+  guid: 397040258ddde44f985c9593337b9963
+  Banks:
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 234
---- !u!114 &4266497225694256511
+  Length: 185
+--- !u!114 &1965190408765745907
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -706,7 +681,7 @@ MonoBehaviour:
   Path: event:/Foley - Campfire
   guid: 8d8cf04b02bc194993971098133eb807
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
   IsOneShot: 0
@@ -714,7 +689,191 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 10517
---- !u!114 &4385669312010060674
+--- !u!114 &2480142507591558640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Water Deep
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Water Deep
+  guid: b3d5bf2686d98a46a357220ff6f3fbb3
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 856
+--- !u!114 &2603732401915572847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Impacts/Impact - Water Small Item
+  m_EditorClassIdentifier: 
+  Path: event:/Impacts/Impact - Water Small Item
+  guid: b75f8764ffe1894a9ad24b13b7750a1e
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1203
+--- !u!114 &2610430705461349356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Animals/Cricket One-Shot 2
+  m_EditorClassIdentifier: 
+  Path: event:/Animals/Cricket One-Shot 2
+  guid: f6684102449e9f4783a22a458bad604b
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 14400
+--- !u!114 &3188160102222761928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Animals/Ambient - Sparrows One-Shot
+  m_EditorClassIdentifier: 
+  Path: event:/Animals/Ambient - Sparrows One-Shot
+  guid: 003b87bacf478741a148c36df1821328
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 40
+  Length: 10000
+--- !u!114 &4697103159736773280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Impacts/Impact - Tree Chop
+  m_EditorClassIdentifier: 
+  Path: event:/Impacts/Impact - Tree Chop
+  guid: 3a6f5a2a4ab35c48b279e5417f16cd6b
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 150
+--- !u!114 &5321006047763753811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Gravel
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Gravel
+  guid: 13ee96b839985b47bf5445ee0121fc88
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 250
+--- !u!114 &5381990025360686565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Animals/Cricket One-Shot 1
+  m_EditorClassIdentifier: 
+  Path: event:/Animals/Cricket One-Shot 1
+  guid: 1e1cde6459ded04c8a72b5ed62a274a3
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 9965
+--- !u!114 &5883748323850314517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Foley - Poof
+  m_EditorClassIdentifier: 
+  Path: event:/Foley - Poof
+  guid: 969f1670a318bf4ab5f4673e92c4a6be
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 312
+--- !u!114 &6261104612944840006
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -724,17 +883,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.strings.bank
+  m_Name: bank:/Master.bank
   m_EditorClassIdentifier: 
-  Path: FMOD/Build/Desktop/Master.strings.bank
-  Name: Master.strings
-  lastModified: 637423288556509858
+  Path: FMOD/Build/Desktop/Master.bank
+  Name: Master
+  lastModified: 637426996344971716
   LoadResult: 0
-  FileSizes:
-  - Name: Desktop
-    Value: 2636
+  FileSizes: []
   Exists: 1
---- !u!114 &4944688189596274808
+--- !u!114 &6369580666795300243
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -744,20 +901,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Grass
+  m_Name: event:/Animals/Ambient - Sparrows One Shot
   m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Grass
-  guid: df6cd30e498b1a478badda7963a7762c
+  Path: event:/Animals/Ambient - Sparrows One Shot
+  guid: 9ce59b1ad1ffdd42aaf61bd385708004
+  Banks: []
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 40
+  Length: 8500
+--- !u!114 &6566898613722590358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Impacts/Impact - Log Chop
+  m_EditorClassIdentifier: 
+  Path: event:/Impacts/Impact - Log Chop
+  guid: 4a35e9aa9deb0f41bf7d13d9156f9dcf
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 340
---- !u!114 &6401806490994117116
+  Length: 560
+--- !u!114 &6714959166161781091
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -767,20 +946,88 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Ambient/Ambient - Water Light Stream
+  m_Name: event:/Impacts/Impact - Grass Small Item
   m_EditorClassIdentifier: 
-  Path: event:/Ambient/Ambient - Water Light Stream
-  guid: a034a31c141ab944b5e535642f6d3fe0
+  Path: event:/Impacts/Impact - Grass Small Item
+  guid: 7ee3d0b7536343449fb9c65bb86b7bd6
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 0
   Is3D: 1
-  IsOneShot: 0
+  IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 50
-  Length: 4740
---- !u!114 &7169723625525498665
+  MaxDistance: 20
+  Length: 420
+--- !u!114 &7277187902192066549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Footsteps/Steps - Rock
+  m_EditorClassIdentifier: 
+  Path: event:/Footsteps/Steps - Rock
+  guid: 83ea3bf19abea549b03a8ca4c5823089
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 234
+--- !u!114 &7388171162488277059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Animals/Cricket - One Shot 1
+  m_EditorClassIdentifier: 
+  Path: event:/Animals/Cricket - One Shot 1
+  guid: 56193c9c038c3248a15f899103c9ea48
+  Banks: []
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 9965
+--- !u!114 &8988005688405293223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Impacts/Impact - Climbing Axe
+  m_EditorClassIdentifier: 
+  Path: event:/Impacts/Impact - Climbing Axe
+  guid: 8a0716b9fd9e1248aa2a0911fd388bc1
+  Banks:
+  - {fileID: 6261104612944840006}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 454
+--- !u!114 &9169014785833739986
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -795,7 +1042,7 @@ MonoBehaviour:
   Path: event:/Animals/Cricket Loop 2
   guid: 32ee47872625f04aa15ec3b947a82ff4
   Banks:
-  - {fileID: -9024363080974176349}
+  - {fileID: 6261104612944840006}
   IsStream: 1
   Is3D: 1
   IsOneShot: 0
@@ -803,26 +1050,3 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 17577
---- !u!114 &7948083159997113173
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Footsteps/Steps - Dirt
-  m_EditorClassIdentifier: 
-  Path: event:/Footsteps/Steps - Dirt
-  guid: b9a5f5d69413dd449ac71ceb96ba9e44
-  Banks:
-  - {fileID: -9024363080974176349}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 112

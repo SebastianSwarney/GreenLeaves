@@ -57,6 +57,8 @@ public class Inventory_2DMenu : MonoBehaviour
     [Header("Secondary Menu")]
     public GameObject m_craftingMenu;
     public GameObject m_cookingMenu;
+    public Crafting_ToolComponents m_toolComponents;
+
     private bool m_craftingMenuOpened;
 
     [Tooltip("Used to determine where the player can drop the item to put it on the crafting table")]
@@ -158,10 +160,12 @@ public class Inventory_2DMenu : MonoBehaviour
         DropAnyOutsideIcons(p_skipWarning);
         if (m_craftingMenuOpened)
         {
-            Crafting_Table.CraftingTable.ClearIconList();
+            if (Crafting_Table.CraftingTable != null)
+                Crafting_Table.CraftingTable.ClearIconList();
         }
         else
         {
+            if(Crafting_Table.CookingTable != null)
             Crafting_Table.CookingTable.ClearIconList();
         }
     }
@@ -738,6 +742,7 @@ public class Inventory_2DMenu : MonoBehaviour
                     p_holdingIcon.m_inBackpack = true;
                     //Remember to re-rotate the icon back to it's og rotation
                     p_holdingIcon.ResetRotation();
+                    p_holdingIcon.SetNumberRotation(); 
                     m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
                 }
 
@@ -764,6 +769,7 @@ public class Inventory_2DMenu : MonoBehaviour
                     p_holdingIcon.m_inBackpack = false;
                     p_holdingIcon.ForceIconDrop();
                     p_holdingIcon.ResetRotation();
+                    p_holdingIcon.SetNumberRotation();
                     p_holdingIcon.transform.localPosition = p_holdingIcon.m_startingCoordPos;
                 }
             }

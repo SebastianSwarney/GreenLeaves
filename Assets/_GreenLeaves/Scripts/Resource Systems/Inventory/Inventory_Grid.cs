@@ -62,14 +62,21 @@ public class Inventory_Grid : MonoBehaviour
     {
         if (m_currentAmount > m_maxCapacity) return false;
         int curX = 0, curY = 0;
+
+
+        
         for (int y = 0; y < m_itemGrids.Count; y++)
         {
             curY = y;
             for (int x = 0; x < m_itemGrids[y].m_itemGrids.Count; x++)
             {
                 bool canFit = true;
-
                 curX = x;
+                if(p_currentRotationType == Inventory_2DMenu.RotationType.Down && curX < p_data.m_inventoryWeight.y - 1)
+                {
+                    continue;
+                }
+
                 for (int i = 0; i < ((p_currentRotationType == Inventory_2DMenu.RotationType.Left) ? p_data.m_inventoryWeight.y : p_data.m_inventoryWeight.x); i++)
                 {
                     if (y + i < m_itemGrids.Count)
@@ -128,6 +135,7 @@ public class Inventory_Grid : MonoBehaviour
         p_iconObject.transform.localScale = Vector3.one;
         p_iconObject.transform.localPosition = Vector3.zero;
         //p_iconObject.transform.localRotation = Quaternion.identity;
+
 
 
         p_placement = m_newPlacement;

@@ -135,6 +135,7 @@ public class Inventory_Icon : MonoBehaviour
         m_rotatedDir = m_previousRotType = p_startingRotation;
 
         ResetRotation();
+        SetNumberRotation();
     }
 
     /// <summary>

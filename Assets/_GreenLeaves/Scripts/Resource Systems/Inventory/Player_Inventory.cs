@@ -32,6 +32,7 @@ public class Player_Inventory : MonoBehaviour
         {
             if (m_canOpenMenu)
             {
+                Debug.LogError("Likely Want to stop stat drain here", this.gameObject);
                 Inventory_2DMenu.Instance.ToggleInventory(true);
             }
         }
