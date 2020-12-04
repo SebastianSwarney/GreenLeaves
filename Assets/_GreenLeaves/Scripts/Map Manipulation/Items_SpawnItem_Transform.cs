@@ -40,7 +40,7 @@ public class Items_SpawnItem_Transform : Items_SpawnItem
         }
     }
 
-    private void Update()
+    /*private void Update()
     {
         foreach (ItemSpawnContainer_Transform newItem in m_spawnedItems)
         {
@@ -51,7 +51,7 @@ public class Items_SpawnItem_Transform : Items_SpawnItem
             }
 
         }
-    }
+    }*/
 
 #if UNITY_EDITOR
     [Header("Debug")]

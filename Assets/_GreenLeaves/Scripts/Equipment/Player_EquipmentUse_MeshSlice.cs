@@ -84,9 +84,12 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             hit = col.gameObject.GetComponent<Manipulation_HitObject>();
             if (hit != null)
             {
-                if (hit.m_canHit)
+                if (hit.m_cutType == 1)
                 {
-                    return hit;
+                    if (hit.m_canHit)
+                    {
+                        return hit;
+                    }
                 }
             }
         }

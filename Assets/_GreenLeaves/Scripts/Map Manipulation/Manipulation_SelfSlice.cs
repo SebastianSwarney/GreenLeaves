@@ -64,6 +64,8 @@ public class Manipulation_SelfSlice : MonoBehaviour
         GameObject upperHull = hull.CreateUpperHull(m_mesh, m_crossSectionMaterials);
         GameObject lowerHull = hull.CreateLowerHull(m_mesh, m_crossSectionMaterials);
 
+        lowerHull.transform.position = upperHull.transform.position = transform.position;
+        upperHull.transform.parent = lowerHull.transform.parent = transform.parent;
         #endregion
 
         #region prepare the different slices
@@ -96,6 +98,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
         Debug.Log("Disable this later if we are adding our own collider for the cut parts");
         lowerHull.AddComponent<MeshCollider>().convex = true;
         upperHull.AddComponent<MeshCollider>().convex = true;
+
         if (m_addRB)
         {
             if (!m_freezeBottomHalf)

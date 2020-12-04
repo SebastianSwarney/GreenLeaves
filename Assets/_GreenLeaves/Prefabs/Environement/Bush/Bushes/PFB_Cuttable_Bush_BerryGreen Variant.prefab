@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3989812455233916196}
   - component: {fileID: 2477450228234476028}
   - component: {fileID: 1176607251298713171}
+  - component: {fileID: 3077905402013571035}
   m_Layer: 12
   m_Name: Berry Collection
   m_TagString: Untagged
@@ -95,6 +96,7 @@ MonoBehaviour:
   - {fileID: 7059115018369813521}
   - {fileID: 8772919850869434217}
   - {fileID: 5087661894199594777}
+  m_spawnParticle: {fileID: 3077905402013571035}
 --- !u!135 &1176607251298713171
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -108,6 +110,24 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 3
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3077905402013571035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9003986118137711921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c82e39477eda81a4fa0132e6d1d1656a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnedParticle: {fileID: 262030696820048015, guid: 76d572a4dca312644abff80657d21b16, type: 3}
+  m_particleOffset: {x: 0, y: 0, z: 0}
+  m_isDebugging: 0
+  m_gizmosColor1: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  m_gizRadius: 0.5
+  m_drawWire: 0
 --- !u!1001 &1038073585706431453
 PrefabInstance:
   m_ObjectHideFlags: 0

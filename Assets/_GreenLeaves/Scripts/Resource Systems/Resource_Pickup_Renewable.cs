@@ -11,6 +11,8 @@ public class Resource_Pickup_Renewable : Resource_Pickup
     public int m_amountOfHarvestable;
     private int m_currentAmount;
     public List<GameObject> m_resourceVisuals;
+
+    public VFX_SpawnParticle m_spawnParticle;
     private void Start()
     {
         m_currentAmount = m_amountOfHarvestable;
@@ -30,6 +32,7 @@ public class Resource_Pickup_Renewable : Resource_Pickup
         m_currentAmount--;
         if (m_currentAmount <= 0)
         {
+            m_spawnParticle.SpawnParticlePrefab(m_resourceVisuals[m_currentAmount].transform.position);
             TogglePickup(false);
             ToggleAllResourceVisuals(false);
         }
@@ -37,6 +40,7 @@ public class Resource_Pickup_Renewable : Resource_Pickup
         {
             if(m_currentAmount < m_resourceVisuals.Count)
             {
+                m_spawnParticle.SpawnParticlePrefab(transform.position);
                 m_resourceVisuals[m_currentAmount].SetActive(false);
             }
         }
