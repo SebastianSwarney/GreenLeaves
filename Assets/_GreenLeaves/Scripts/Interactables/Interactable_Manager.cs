@@ -23,6 +23,8 @@ public class Interactable_Manager : MonoBehaviour
     public ButtonMenu m_topMenu, m_rightMenu, m_bottomMenu, m_leftMenu;
     public bool m_topButtonEnabled, m_rightButtonEnabled, m_bottomMenuEnabled, m_leftMenuEnabled;
 
+
+    public UnityEngine.UI.Text m_interactableName;
     /// <summary>
     /// The actual button's ui in the menu
     /// </summary>
@@ -58,6 +60,7 @@ public class Interactable_Manager : MonoBehaviour
     private bool m_menuOpen;
     private bool m_canBeOverridden;
     private bool m_menuWasOpen;
+    private bool m_canOpen = true;
 
     [Header("Debugging")]
     public bool m_isDebugging;
@@ -77,6 +80,7 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     public void DisplayButtonMenu(Interactable p_selectedSystem, bool p_canBeOverridden)
     {
+        if (!m_canOpen) return;
         if (!m_canBeOverridden)
         {
             if (m_currentInteractable != null && m_currentInteractable != p_selectedSystem)
@@ -89,6 +93,9 @@ public class Interactable_Manager : MonoBehaviour
 
         m_menuOpen = true;
         m_buttonUiParent.SetActive(true);
+
+        m_interactableName.transform.parent.gameObject.SetActive(true);
+        m_interactableName.text = p_selectedSystem.m_interactableName;
 
         m_topButtonEnabled = p_selectedSystem.TopButtonEnabled();
         m_topMenu.SetupButton(m_topButtonEnabled, p_selectedSystem.TopButtonString());
@@ -138,6 +145,7 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     public void ForceCloseMenu()
     {
+        m_canOpen = false;
         m_menuWasOpen = false;
         if (!m_menuOpen) return;
 
@@ -145,6 +153,8 @@ public class Interactable_Manager : MonoBehaviour
         m_canBeOverridden = false;
         m_menuOpen = false;
         m_buttonUiParent.SetActive(false);
+        m_currentInteractable = null;
+
     }
 
     /// <summary>
@@ -153,7 +163,8 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     public void CheckReopen()
     {
-        if (m_menuWasOpen)
+        m_canOpen = true; 
+        if (m_menuWasOpen && m_currentInteractable != null)
         {
             DisplayButtonMenu(m_currentInteractable, m_currentInteractable.m_canBeOverridden);
         }
@@ -194,6 +205,7 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     public void SearchForInteractable()
     {
+        m_canOpen = true;
         Collider[] cols = Physics.OverlapCapsule(transform.position + (m_capCol.height / 2 * Vector3.up), transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
         if (cols.Length > 0)
         {

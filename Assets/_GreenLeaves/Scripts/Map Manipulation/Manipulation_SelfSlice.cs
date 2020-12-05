@@ -28,6 +28,12 @@ public class Manipulation_SelfSlice : MonoBehaviour
     public GameObject m_mesh;
     public float m_applyForcePosition;
 
+    public Durability_UI m_durabilityUI;
+    private void Awake()
+    {
+        m_durabilityUI.UpdateText(m_hitsToSlice - m_currentHits);
+    }
+
     /// <summary>
     /// <para>Called to slice the mesh. The parameters passed will affect the direction of the slice. </para>
     /// World point is the origin point of the slice<br/>
@@ -41,6 +47,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
         m_currentHits++;
         if (m_currentHits < m_hitsToSlice)
         {
+            m_durabilityUI.UpdateText(m_hitsToSlice - m_currentHits);
             if (m_hitsToSlice - m_currentHits == 1)
             {
                 Debug.Log("1 Slice left");

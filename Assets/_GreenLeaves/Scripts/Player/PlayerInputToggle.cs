@@ -5,8 +5,10 @@ using UnityEngine;
 public class PlayerInputToggle : MonoBehaviour
 {
     public static PlayerInputToggle Instance;
+    public Transform m_playerCamera;
     public Cinemachine.CinemachineFreeLook m_cameraRotation;
     public PlayerInput m_playerInput;
+    public PlayerController m_playerController;
 
     private void Awake()
     {
@@ -17,5 +19,12 @@ public class PlayerInputToggle : MonoBehaviour
     {
         m_playerInput.enabled = p_newState;
         m_cameraRotation.enabled = p_newState;
+
+        if (!p_newState)
+        {
+            Debug.Log("Disable");
+            m_playerController.SetFlyInput(0);
+            m_playerController.SetMovementInput(Vector2.zero);
+        }
     }
 }

@@ -63,8 +63,6 @@ public class Inventory_Grid : MonoBehaviour
         if (m_currentAmount > m_maxCapacity) return false;
         int curX = 0, curY = 0;
 
-
-        
         for (int y = 0; y < m_itemGrids.Count; y++)
         {
             curY = y;
@@ -72,17 +70,14 @@ public class Inventory_Grid : MonoBehaviour
             {
                 bool canFit = true;
                 curX = x;
-                if(p_currentRotationType == Inventory_2DMenu.RotationType.Down && curX < p_data.m_inventoryWeight.y - 1)
-                {
-                    continue;
-                }
 
-                for (int i = 0; i < ((p_currentRotationType == Inventory_2DMenu.RotationType.Left) ? p_data.m_inventoryWeight.y : p_data.m_inventoryWeight.x); i++)
+
+                for (int i = 0; i < (p_currentRotationType == Inventory_2DMenu.RotationType.Left ? p_data.m_inventoryWeight.y : p_data.m_inventoryWeight.x); i++)
                 {
                     if (y + i < m_itemGrids.Count)
                     {
 
-                        for (int o = 0; o < ((p_currentRotationType == Inventory_2DMenu.RotationType.Left) ? p_data.m_inventoryWeight.x : p_data.m_inventoryWeight.y); o++)
+                        for (int o = 0; o < (p_currentRotationType == Inventory_2DMenu.RotationType.Left ? p_data.m_inventoryWeight.x : p_data.m_inventoryWeight.y); o++)
                         {
                             if (o + x < m_itemGrids[y].m_itemGrids.Count)
                             {
@@ -110,12 +105,20 @@ public class Inventory_Grid : MonoBehaviour
                 }
                 if (canFit)
                 {
-                    m_newPlacement = new Vector2Int(curX, curY);
+                    if (p_currentRotationType == Inventory_2DMenu.RotationType.Left)
+                    {
+                        m_newPlacement = new Vector2Int(curX, curY);
+                    }
+                    else
+                    {
+                        m_newPlacement = new Vector2Int(curX + (p_data.m_inventoryWeight.y - 1), curY);
+                    }
                     return true;
                 }
             }
         }
         return false;
+
     }
 
 
@@ -352,7 +355,7 @@ public class Inventory_Grid : MonoBehaviour
     public Inventory_Icon GetIcon(Vector2Int p_gridPos)
     {
         return m_itemGrids[p_gridPos.y].m_itemGrids[p_gridPos.x];
-        
+
     }
 
     public List<Inventory_Icon> GetExistingIconsOfResource(ResourceData p_dataType)
@@ -363,7 +366,7 @@ public class Inventory_Grid : MonoBehaviour
             for (int x = 0; x < m_itemGrids[y].m_itemGrids.Count; x++)
             {
                 if (m_itemGrids[y].m_itemGrids[x] == null) continue;
-                if(m_itemGrids[y].m_itemGrids[x].m_itemData.m_resourceData.m_resourceName == p_dataType.m_resourceName)
+                if (m_itemGrids[y].m_itemGrids[x].m_itemData.m_resourceData.m_resourceName == p_dataType.m_resourceName)
                 {
                     if (!m_currentIcons.Contains(m_itemGrids[y].m_itemGrids[x]))
                     {

@@ -117,7 +117,8 @@ public class Inventory_2DMenu : MonoBehaviour
             }
 
             CloseInventoryMenu();
-            Interactable_Manager.Instance.CheckReopen();
+            //Interactable_Manager.Instance.CheckReopen();
+            Interactable_Manager.Instance.SearchForInteractable();
         }
         else
         {
@@ -138,6 +139,8 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public void OpenInventoryMenu()
     {
+        StopAllCoroutines();
+        m_warningMessageObject.SetActive(false);
         if (DaytimeCycle_Update.Instance != null)
         {
             DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
@@ -149,6 +152,11 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public void CloseInventoryMenu(bool p_skipWarning = false)
     {
+        if (p_skipWarning)
+        {
+            StopAllCoroutines();
+            m_warningMessageObject.SetActive(false);
+        }
         if (DaytimeCycle_Update.Instance != null)
         {
             DaytimeCycle_Update.Instance.ToggleDaytimePause(false);

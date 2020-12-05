@@ -28,7 +28,7 @@ public class PlayerUIManager : MonoBehaviour
         m_controlsMenu.SetActive(true);
         m_craftingRecipeMenu.SetActive(false);
 
-        
+        Player_Inventory.Instance.ToggleOpenability(!p_newState);
         Inventory_2DMenu.Instance.CloseInventoryMenu(true);
         
         if (m_currentState)
@@ -37,7 +37,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
         {
-            Interactable_Manager.Instance.CheckReopen();
+            Interactable_Manager.Instance.SearchForInteractable();
         }
 
         PlayerInputToggle.Instance.ToggleInput(!m_currentState);

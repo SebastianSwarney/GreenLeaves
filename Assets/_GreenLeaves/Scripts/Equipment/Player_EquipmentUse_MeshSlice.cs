@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// This class is used to interact with objects that can have their mesh sliced. <br/>
@@ -20,11 +21,76 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     public LayerMask m_hitDetectionMask;
     public float m_hitDetectionRadius;
 
+    private List<GameObject> m_objectsInRange = new List<GameObject>();
+    private Manipulation_SelfSlice m_currentTarget;
+    private Manipulation_HitObject m_currentHittable;
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.O))
+        DetectCurrentSlicables();
+        if (Input.GetMouseButtonDown(1))
         {
             UseEquipment();
+        }
+    }
+
+    public void DetectCurrentSlicables()
+    {
+
+
+        Manipulation_SelfSlice currentSlice = m_currentTarget;
+
+        m_currentTarget = CheckTreeRadius();
+        if (m_currentTarget != null && m_currentHittable != null)
+        {
+            m_currentHittable.m_durabilityUI.ShowControlUI(false);
+            m_currentHittable.m_durabilityUI.HideUI();
+            m_currentHittable = null;
+        }
+        
+        if (currentSlice == m_currentTarget && currentSlice != null) return;
+
+        if(currentSlice != null && m_currentTarget == null)
+        {
+            currentSlice.m_durabilityUI.HideUI();
+            Debug.Log("Hide Here 1 ");
+            currentSlice.m_durabilityUI.ShowControlUI(false);
+        }
+
+        if (m_currentTarget != null)
+        {
+            if (currentSlice != null)
+            {
+                currentSlice.m_durabilityUI.HideUI();
+                Debug.Log("Hide Here 2");
+                currentSlice.m_durabilityUI.ShowControlUI(false);
+            }
+            m_currentTarget.m_durabilityUI.ShowUI();
+            m_currentTarget.m_durabilityUI.ShowControlUI(true);
+        }
+        else
+        {
+            Manipulation_HitObject currentHit = m_currentHittable;
+
+            m_currentHittable = CheckBushRadius();
+
+            if (currentHit != null && m_currentHittable == null)
+            {
+                currentHit.m_durabilityUI.ShowControlUI(false);
+                currentHit.m_durabilityUI.HideUI();
+                m_currentHittable = null;
+            }
+
+            if (currentHit == m_currentHittable && currentHit != null) return;
+            if (m_currentHittable != null)
+            {
+                if (currentHit != null)
+                {
+                    currentHit.m_durabilityUI.HideUI();
+                    currentHit.m_durabilityUI.ShowControlUI(false);
+                }
+                m_currentHittable.m_durabilityUI.ShowUI();
+                m_currentHittable.m_durabilityUI.ShowControlUI(true);
+            }
         }
     }
     public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
@@ -37,23 +103,17 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     }
     public override void UseEquipment()
     {
-        Manipulation_SelfSlice sliceMe = CheckTreeRadius();
-
         ///If an object in the radius can be sliced, call their slice method
-        if (sliceMe != null)
+        if (m_currentTarget != null)
         {
             ///The parameters will determine the angle, and position of the slice
-            sliceMe.SliceMe(new Vector3(0, m_playerObject.transform.position.y, 0), Vector3.up, m_playerObject.transform.forward);
+            m_currentTarget.SliceMe(new Vector3(0, m_playerObject.transform.position.y, 0), Vector3.up, m_playerObject.transform.forward);
             ReduceDurability();
         }
-        else
+        else if (m_currentHittable != null)
         {
-            Manipulation_HitObject hit = CheckBushRadius();
-            if (hit != null)
-            {
-                hit.HitObject();
-                ReduceDurability();
-            }
+            m_currentHittable.HitObject();
+            ReduceDurability();
         }
     }
 
@@ -84,7 +144,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             hit = col.gameObject.GetComponent<Manipulation_HitObject>();
             if (hit != null)
             {
-                if (hit.m_cutType == 1)
+                if (hit.m_cutType == 1 || hit.m_cutType == 2)
                 {
                     if (hit.m_canHit)
                     {
@@ -104,7 +164,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     {
         if (!m_debug) return;
         Gizmos.color = m_debugColor;
-        if(m_playerObject != null)
+        if (m_playerObject != null)
         {
             Gizmos.DrawWireSphere(m_playerObject.position, m_detectionRadius);
         }

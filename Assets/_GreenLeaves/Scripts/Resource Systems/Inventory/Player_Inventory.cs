@@ -38,6 +38,12 @@ public class Player_Inventory : MonoBehaviour
         }
     }
 
+    public void ToggleOpenability(bool p_newState)
+    {
+        m_canOpenMenu = p_newState;
+    }
+
+
     #region 3d pickup & drop Logic
 
     /// <summary>

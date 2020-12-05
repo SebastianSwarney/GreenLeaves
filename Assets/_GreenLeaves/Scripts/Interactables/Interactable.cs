@@ -8,6 +8,8 @@
 /// </summary>
 public class Interactable : MonoBehaviour
 {
+
+    public string m_interactableName;
     [System.Serializable]
     public class ButtonMessages
     {
@@ -28,6 +30,7 @@ public class Interactable : MonoBehaviour
     public string m_playerTag;
     public bool m_canBeOverridden;
     public bool m_canBeInteractedWith = true;
+    
 
     /// <summary>
     /// Calls the interactable manager to display this current item<br/>

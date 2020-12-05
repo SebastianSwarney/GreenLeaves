@@ -64,7 +64,7 @@ public class SoundEmitter_FootSteps : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Trigger: " + other.gameObject.name, other.gameObject);
+        //Debug.Log("Trigger: " + other.gameObject.name, other.gameObject);
         PlaySound();
     }
 
