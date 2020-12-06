@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using RootMotion.FinalIK;
 using System;
 using UnityEngine.UI;
+using Sirenix.OdinInspector;
 
 [Serializable]
 public class PlayerControllerEvent : UnityEvent { }
@@ -135,6 +136,7 @@ public class PlayerController : MonoBehaviour
     private SlideProperties m_slideProperties;
 
     [Header("Slide Properties")]
+    [InlineEditor(InlineEditorModes.GUIAndPreview)]
     public PlayerSlidingSettings m_currentSlidingSettings;
 
     public Transform m_slopeTransform;
@@ -203,19 +205,11 @@ public class PlayerController : MonoBehaviour
 
     public bool m_aimMovement;
 
-    public Image m_slopeAngleText;
+    private float m_fallDistance;
 
-    //public Transform m_targetLookTransform;
-
-    //public Transform m_treeTransform;
-
-    public float m_targetCameraHeightOffset;
-
-    public GameObject m_targetCameraRig;
-
-    public LayerMask m_treeMask;
-
-    public SphereCollider sphereCol;
+    private float m_fallPositionY;
+    private bool m_startedFallRecording;
+    private bool m_isFalling;
 
     private void Start()
     {
@@ -284,8 +278,12 @@ public class PlayerController : MonoBehaviour
     {
 		CalculateVelocity();
 
+        SetSlideSlopeVariables();
+        OnSlideStart();
+
         CaculateTotalVelocity();
         SlopePhysics();
+        CheckFall();
         CheckLanded();
         ZeroVelocityOnGround();
     }
@@ -295,7 +293,7 @@ public class PlayerController : MonoBehaviour
 	private void SetAnimations()
 	{
 
-        //m_playerAnimator.SetBool("IsGrounded", IsGrounded());
+        m_playerAnimator.SetBool("IsGrounded", IsGrounded());
 
         m_playerAnimator.SetBool("IsWalking", m_isWalking);
         m_playerAnimator.SetBool("IsSprinting", m_isSprinting);
@@ -461,19 +459,7 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
-    #region Physics Calculation Code
-
-    private void CaculateTotalVelocity()
-    {
-        Vector3 velocity = Vector3.zero;
-
-        velocity += m_groundMovementVelocity;
-        velocity += m_gravityVelocity;
-        velocity += m_slideVelocity;
-
-        m_characterController.Move(velocity * Time.fixedDeltaTime);
-    }
-
+    #region Collision Checks
     public bool IsGrounded()
     {
         RaycastHit hit;
@@ -512,13 +498,19 @@ public class PlayerController : MonoBehaviour
 
         return false;
     }
+    #endregion
 
-    private void OnOffLedge()
+    #region Physics Calculation Code
+    private void CaculateTotalVelocity()
     {
-        m_offLedge = true;
+        Vector3 velocity = Vector3.zero;
 
-        m_graceBufferCoroutine = StartCoroutine(RunBufferTimer((x) => m_graceTimer = (x), m_jumpingProperties.m_graceTime));
+        velocity += m_groundMovementVelocity;
+        velocity += m_gravityVelocity;
+        velocity += m_slideVelocity;
+        velocity += m_slopeVelocity;
 
+        m_characterController.Move(velocity * Time.fixedDeltaTime);
     }
 
     private void ZeroVelocityOnGround()
@@ -541,11 +533,32 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void OnOffLedge()
+    {
+        m_offLedge = true;
+    }
+
+    private void CheckFall()
+	{
+		if (m_gravityVelocity.y < 0 && !IsGrounded() && !m_isFalling)
+		{
+            m_isFalling = true;
+            m_fallPositionY = transform.position.y;
+		}
+	}
+
     private void CheckLanded()
     {
+        float fallDistance = 0;
+
+		if (m_isFalling)
+		{
+            fallDistance = m_fallPositionY - transform.position.y;
+        }
+
         if (IsGrounded() && !m_isLanded)
         {
-            OnLanded();
+            OnLanded(fallDistance);
         }
 
         if (!IsGrounded())
@@ -554,12 +567,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnLanded()
+    private void OnLanded(float p_fallDistance)
     {
         m_isLanded = true;
+        m_isFalling = false;
         m_hasJumped = false;
-
-        //StartLandedSlide();
 
         if (CheckBuffer(ref m_jumpBufferTimer, ref m_jumpingProperties.m_jumpBufferTime, m_jumpBufferCoroutine))
         {
@@ -576,7 +588,6 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(LandedSlide());
 		}
 	}
-
     private IEnumerator LandedSlide()
 	{
         m_isSliding = true;
@@ -596,12 +607,6 @@ public class PlayerController : MonoBehaviour
 
         m_isSliding = false;
 	}
-
-    public void PhysicsSeekTo(Vector3 p_targetPosition)
-    {
-        Vector3 deltaPosition = p_targetPosition - transform.position;
-        m_groundMovementVelocity = deltaPosition / Time.deltaTime;
-    }
     #endregion
 
     #region Slope Code
@@ -620,7 +625,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 bottom = m_characterController.transform.position - new Vector3(0, m_characterController.height / 2, 0);
 
-        if (Physics.Raycast(bottom, Vector3.down, out hit, 1f))
+        if (Physics.Raycast(bottom, Vector3.down, out hit, 2f))
         {
             if (hit.normal != Vector3.up)
             {
@@ -659,9 +664,9 @@ public class PlayerController : MonoBehaviour
             {
                 if (slopeInfo.m_slopeAngle > m_characterController.slopeLimit)
                 {
-                    //m_velocity.x += (1f - hit.normal.y) * hit.normal.x * (m_baseMovementProperties.m_slopeFriction);
-                    //m_velocity.z += (1f - hit.normal.y) * hit.normal.z * (m_baseMovementProperties.m_slopeFriction);
-                }
+                    //m_slideVelocity.x += (1f - hit.normal.y) * hit.normal.x * (0.9f);
+                    //m_slideVelocity.z += (1f - hit.normal.y) * hit.normal.z * (0.9f);
+				}
 
                 m_characterController.Move(new Vector3(0, -(hit.distance), 0));
             }
@@ -689,31 +694,7 @@ public class PlayerController : MonoBehaviour
 	{
         if (m_states.m_movementControllState == MovementControllState.MovementEnabled)
         {
-            //TargetMovement();
-
-            /*
-            if (Input.GetMouseButton(1))
-			{
-                
-                m_targetCameraRig.SetActive(true);
-
-            }
-			else
-			{
-                GroundMovement();
-                m_targetCameraRig.SetActive(false);
-            }
-            */
-
-            if (!m_aimMovement)
-            {
-                GroundMovement();
-            }
-            else
-            {
-                AimMovement();
-            }
-
+            GroundMovement();
         }
         else
         {
@@ -1002,15 +983,7 @@ public class PlayerController : MonoBehaviour
             {
                 if (m_slopeAngle > m_slideProperties.m_slideStartAngle)
 				{
-                    float slopeCross = Vector3.Cross(m_slopeTransform.right, transform.forward).y;
-
-                    if (slopeCross < -0.8f)
-					{
-						if (m_groundMovementVelocity.magnitude > m_slideProperties.m_speedToStartSlide)
-						{
-                            StartCoroutine(RunSlide());
-                        }
-                    }
+                    StartCoroutine(RunSlide());
                 }
             }
         }
@@ -1041,7 +1014,7 @@ public class PlayerController : MonoBehaviour
     {
         m_isSliding = true;
 
-        m_states.m_movementControllState = MovementControllState.MovementDisabled;
+        //m_states.m_movementControllState = MovementControllState.MovementDisabled;
 
         Vector3 slopeVelocitySmoothing = Vector3.zero;
         Vector3 slopeShiftVelocitySmoothing = Vector3.zero;
@@ -1058,7 +1031,8 @@ public class PlayerController : MonoBehaviour
                 float currentSlopeSpeed = Mathf.Lerp(m_baseMovementProperties.m_runSpeed, m_slideProperties.m_slideAngleBoostMax, currentSlopePercent);
                 Vector3 targetSlopeVelocity = m_slopeTransform.forward * currentSlopeSpeed;
                 m_slopeVelocity = targetSlopeVelocity;
-                
+
+                /*
                 //Vector3 targetShiftVelocity = m_slideProperties.m_slopeTransform.right * m_movementInput.x * m_slideProperties.m_slideSideShiftMaxSpeed;
 
                 Vector3 rightInput = m_slopeTransform.right * m_movementInput.x;
@@ -1072,6 +1046,7 @@ public class PlayerController : MonoBehaviour
                 m_slopeShiftVelocity = shiftMovement;
 
                 transform.rotation = Quaternion.LookRotation(m_slopeVelocity);
+                */
             }
             #endregion
 
