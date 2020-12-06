@@ -41,7 +41,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
         base.EquipObject(p_linkedIcon);
         if(m_playerObject == null)
         {
-            m_playerObject = EnergyController.Instance.transform;
+            m_playerObject = PlayerStatsController.Instance.transform;
         }
     }
 

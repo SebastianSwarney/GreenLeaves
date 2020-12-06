@@ -25,10 +25,10 @@ public class Inventory_ItemUsage : MonoBehaviour
         foreach (ResourceContainer_Cosume.TypeOfCosumption consume in p_currentStats)
         {
             Debug.Log("Here is where the consuming is.");
-            if (EnergyController.Instance != null)
+            if (PlayerStatsController.Instance != null)
             {
-                
-                EnergyController.Instance.AddAmount(consume.m_typeOfConsume, consume.m_replenishAmount, consume.m_increasePastAmount);
+
+                PlayerStatsController.Instance.AddAmount(consume.m_typeOfConsume, consume.m_replenishAmount, consume.m_increasePastAmount);
             }
             else
             {

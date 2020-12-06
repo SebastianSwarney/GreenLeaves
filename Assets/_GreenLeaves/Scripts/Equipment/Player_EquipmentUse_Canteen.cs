@@ -40,7 +40,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         int requiredEnergy = 0;
 
         ///Player at full energy?
-        if (EnergyController.Instance.IsFullMainEnergy(out requiredEnergy))
+        if (PlayerStatsController.Instance.IsFullMainEnergy(out requiredEnergy))
         {
             ///Canteen has water
             if (m_durability == m_startingDurability)
@@ -72,13 +72,13 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 if (m_durability - requiredEnergy <= 0)
                 {
                     PlayAnimation("Drink water: Canteen empty");
-                    EnergyController.Instance.AddAmount(m_energyRefilType, m_durability);
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, m_durability);
                     AdjustCanteenCapacity(0);
                 }
                 else
                 {
                     PlayAnimation("Drink water: Canteen still has some");
-                    EnergyController.Instance.AddAmount(m_energyRefilType, (float)requiredEnergy);
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, (float)requiredEnergy);
                     AdjustCanteenCapacity(m_durability - requiredEnergy);
                 }
             }
@@ -88,7 +88,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 if (WaterNearby())
                 {
                     PlayAnimation("Drink directly from water source");
-                    EnergyController.Instance.AddAmount(m_energyRefilType, 1000);
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, 1000);
                 }
                 else
                 {

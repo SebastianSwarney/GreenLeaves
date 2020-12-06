@@ -45,9 +45,13 @@ public class PlayerStatsController : MonoBehaviour
 
     public float m_healthGainTest;
 
-    private void Start()
-    {
+	private void Awake()
+	{
         Instance = this;
+    }
+
+	private void Start()
+    {
         SetEnergyToMax();
 
         m_hungerSegmentImages = new List<Image>();
@@ -260,8 +264,6 @@ public class PlayerStatsController : MonoBehaviour
                 break;
 
                 #endregion
-
-
         }
     }
 
