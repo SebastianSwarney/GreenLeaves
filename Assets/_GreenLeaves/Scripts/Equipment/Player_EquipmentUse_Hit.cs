@@ -13,7 +13,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     public void Update()
     {
         PerformCheck();
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(0))
         {
             UseEquipment();
         }

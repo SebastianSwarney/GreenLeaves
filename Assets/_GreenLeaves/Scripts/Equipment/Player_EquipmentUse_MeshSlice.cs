@@ -27,7 +27,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     public void Update()
     {
         DetectCurrentSlicables();
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(0))
         {
             UseEquipment();
         }

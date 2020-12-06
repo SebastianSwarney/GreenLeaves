@@ -31,13 +31,19 @@ public class Durability_UI : MonoBehaviour
     public void HideUI()
     {
         StopAllCoroutines();
-        StartCoroutine(FadeToggle(true));
+        if (gameObject.activeInHierarchy)
+        {
+            StartCoroutine(FadeToggle(true));
+        }
     }
 
     public void ShowUI()
     {
         StopAllCoroutines();
-        StartCoroutine(FadeToggle(false));
+        if (gameObject.activeInHierarchy)
+        {
+            StartCoroutine(FadeToggle(false));
+        }
     }
 
     public void ShowControlUI(bool p_newState)
