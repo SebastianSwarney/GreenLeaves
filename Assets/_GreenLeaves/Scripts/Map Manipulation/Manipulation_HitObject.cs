@@ -26,7 +26,10 @@ public class Manipulation_HitObject : MonoBehaviour
         m_durabilityUI.UpdateText(m_hitAmount - m_currentHit);
     }
 
-
+    private void OnDisable()
+    {
+        Interactable_Manager.Instance.SearchForInteractable();
+    }
     /// <summary>
     /// Called to perform the hit on the object. <br/>
     /// The Object Hit event is invoked when the object is hit, but not on the hit that destroys it<br/>
