@@ -319,6 +319,9 @@ public class Inventory_2DMenu : MonoBehaviour
         newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * p_pickedUpResource.m_resourceData.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * p_pickedUpResource.m_resourceData.m_inventoryWeight.y);
         newIcon.UpdateIcon(p_pickedUpResource, p_rotationType);
         newIcon.m_currentResourceAmount = p_resourceAmount;
+        newIcon.m_inCookingTable = false;
+        newIcon.m_inCraftingTable = false;
+
         newIcon.UpdateIconNumber();
 
 
