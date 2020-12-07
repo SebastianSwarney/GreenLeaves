@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6543981302275323275}
-  - component: {fileID: 6543981302275323273}
   - component: {fileID: 6543981302275323274}
   - component: {fileID: 6543981302275323276}
   - component: {fileID: 6543981302275323272}
+  - component: {fileID: 7699585707789988954}
   m_Layer: 10
   m_Name: PFB_Cuttable_Bush_Thorn
   m_TagString: Untagged
@@ -36,19 +36,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &6543981302275323273
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6543981302275323277}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 3, y: 4, z: 2.5}
-  m_Center: {x: 0, y: 1.51, z: 0}
 --- !u!114 &6543981302275323274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_cutType: 1
-  m_hitAmount: 3
+  m_hitAmount: 2
   m_canHit: 1
   m_objectHit:
     m_PersistentCalls:
@@ -135,6 +122,8 @@ MonoBehaviour:
   m_objectsToSpawn:
   - {fileID: 7691505683633588397, guid: fa4807555429e0d4692e3d78bfd59879, type: 3}
   - {fileID: 2302855066384656329, guid: 6429e34f5da69c64db6df52f01121333, type: 3}
+  - {fileID: 7691505683633588397, guid: fa4807555429e0d4692e3d78bfd59879, type: 3}
+  - {fileID: 2302855066384656329, guid: 6429e34f5da69c64db6df52f01121333, type: 3}
   m_spawnRadius: 1
   m_spawnOffset: {x: 0, y: 0.55, z: 0}
   m_isDebugging: 1
@@ -157,6 +146,20 @@ MonoBehaviour:
   m_gizmosColor1: {r: 0, g: 0, b: 0, a: 0}
   m_gizRadius: 0
   m_drawWire: 0
+--- !u!136 &7699585707789988954
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6543981302275323277}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 1.5
+  m_Height: 10
+  m_Direction: 1
+  m_Center: {x: 0, y: 4.57, z: 0}
 --- !u!1 &6543981303316518512
 GameObject:
   m_ObjectHideFlags: 0
@@ -182,7 +185,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6543981303316518512}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.171, z: 0}
+  m_LocalPosition: {x: 0, y: 0.52, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2844746874172045366}
@@ -339,7 +342,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.29
+      value: 0.98100185
       objectReference: {fileID: 0}
     - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
       propertyPath: m_LocalPosition.z
