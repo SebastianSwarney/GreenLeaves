@@ -13,6 +13,9 @@ public class DaytimeCycle_Update : MonoBehaviour
     public float m_realtime;
 
     public bool m_isPaused;
+
+    [Header("Gradient Colors")]
+    public DaytimeColors m_currentGradientData;
     private void Awake()
     {
         Instance = this;
@@ -25,7 +28,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     {
         if (!m_updateInEditor) return;
         UpdateLightRotation();
-
+        m_currentGradientData.ChangeColors(TimeOfDay);
     }
 
 #endif
@@ -41,6 +44,7 @@ public class DaytimeCycle_Update : MonoBehaviour
         }
 
         UpdateLightRotation();
+        m_currentGradientData.ChangeColors(TimeOfDay);
     }
 
     public void UpdateTimeOfDayThroughPass(float p_increaseAmount)
@@ -94,16 +98,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     {
         float waitingTime = m_secondsToWait;
         float increase = m_secondsToWait / p_hoursToWait;
-        /*if (increase < 1f)
-        {
-            m_increaseAmount = (Time.deltaTime / increase);
-        }
-        else
-        {
-            m_increaseAmount = (increase * Time.deltaTime);
-        }*/
         m_increaseAmount = (0.0041888f / increase);
-        Debug.Log(" | Increase Amount: " + m_increaseAmount);
         while (waitingTime > 0)
         {
             waitingTime -= 0.0041888f;
