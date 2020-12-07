@@ -103,15 +103,18 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     }
     public override void UseEquipment()
     {
+        
         ///If an object in the radius can be sliced, call their slice method
         if (m_currentTarget != null)
         {
+            base.UseEquipment();
             ///The parameters will determine the angle, and position of the slice
             m_currentTarget.SliceMe(new Vector3(0, m_playerObject.transform.position.y, 0), Vector3.up, m_playerObject.transform.forward);
             ReduceDurability();
         }
         else if (m_currentHittable != null)
         {
+            base.UseEquipment();
             m_currentHittable.HitObject();
             ReduceDurability();
         }

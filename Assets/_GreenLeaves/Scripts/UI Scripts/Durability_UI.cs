@@ -54,6 +54,8 @@ public class Durability_UI : MonoBehaviour
     private void OnDisable()
     {
         StopAllCoroutines();
+        m_cg.alpha = 0;
+        m_cg.gameObject.SetActive(false);
     }
     private IEnumerator FadeToggle(bool p_fadeOut)
     {
