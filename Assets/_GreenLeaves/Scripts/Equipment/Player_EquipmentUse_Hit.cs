@@ -49,6 +49,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     {
         if (m_currentHit != null)
         {
+            base.UseEquipment();
             m_currentHit.HitObject();
             ReduceDurability();
         }

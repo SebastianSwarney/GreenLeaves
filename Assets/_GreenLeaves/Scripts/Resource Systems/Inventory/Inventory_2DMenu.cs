@@ -92,7 +92,7 @@ public class Inventory_2DMenu : MonoBehaviour
             IconTapped();
             //IconMovementBuffer();
         }
-        else if (Input.GetKeyDown(m_rotateKey))
+        else if (Input.GetKeyDown(m_rotateKey) && m_isDraggingObject)
         {
             Debug.Log("UI Inventory Rotate Input Here", this);
             if (m_currentSelectedIcon == null) return;
@@ -480,16 +480,6 @@ public class Inventory_2DMenu : MonoBehaviour
     }
 
     #endregion
-
-    /// <summary>
-    /// This function is called when the player uses the mouse to tap down on the ui while this menu is open
-    /// Detects for inventory icons, and calls their IconTappedOn function in their Inventory_Icon script
-    /// </summary>
-    private IEnumerator IconMovementBuffer()
-    {
-        yield return new WaitForSeconds(m_selectedBufferTime);
-        //IconTapped();
-    }
 
     private void IconTapped()
     {
