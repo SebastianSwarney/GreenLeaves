@@ -163,9 +163,10 @@ public class PlayerController : MonoBehaviour
 
     #region Debug Properties
     private float m_flyInput;
-    #endregion
+	#endregion
 
-    [FoldoutGroup("Misc")]
+	#region Misc
+	[FoldoutGroup("Misc")]
     public LayerMask m_groundMask;
     private Vector2 m_movementInput;
 
@@ -227,8 +228,11 @@ public class PlayerController : MonoBehaviour
     private float m_fallPositionY;
     private bool m_startedFallRecording;
     private bool m_isFalling;
+    #endregion
 
-    private void Start()
+    public LayerMask m_waterMask;
+
+	private void Start()
     {
         m_characterController = GetComponent<CharacterController>();
         m_playerAnimator = GetComponentInChildren<Animator>();
@@ -297,6 +301,8 @@ public class PlayerController : MonoBehaviour
 
         SetSlideSlopeVariables();
         OnSlideStart();
+
+        HitWater();
 
         CaculateTotalVelocity();
         SlopePhysics();
@@ -515,6 +521,32 @@ public class PlayerController : MonoBehaviour
 
         return false;
     }
+
+    public void HitWater()
+	{
+        Vector3 top = transform.position + m_characterController.center + Vector3.up * m_characterController.height * 0.5F;
+
+        RaycastHit hit;
+
+		if (Physics.Raycast(top, Vector3.down, out hit, Mathf.Infinity, m_waterMask))
+		{
+            /*
+            Debug.Log(hit.distance);
+
+            Debug.DrawLine(top, hit.point, Color.blue, 0f, false);
+
+            DebugExtension.DebugArrow(hit.point, m_groundMovementVelocity.normalized, Color.green, 0f, false);
+
+            Vector3 localXAxis = Vector3.Cross(m_groundMovementVelocity, Vector3.up);
+            Vector3 forwardRotation = Vector3.ProjectOnPlane(hit.normal, localXAxis);
+            Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
+            Vector3 targetMoveAmount = (upwardSlopeOffset * m_groundMovementVelocity);
+
+            DebugExtension.DebugArrow(hit.point, targetMoveAmount, Color.red, 0f, false);
+            */
+        }
+    }
+
     #endregion
 
     #region Physics Calculation Code
@@ -825,8 +857,7 @@ public class PlayerController : MonoBehaviour
 
             if (m_isSprinting)
             {
-                float energyDrainSpeed = m_baseMovementProperties.m_runEnergyDepletionTime;
-                m_playerStats.DepleteEnergy(energyDrainSpeed);
+                PlayerStatsController.Instance.SprintEnergyDrain();
             }
         }
 

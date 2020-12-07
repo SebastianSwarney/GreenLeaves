@@ -14,7 +14,10 @@ public class Player_EquipmentUse : MonoBehaviour
 
     [Header("Events")]
     public GenericWorldEvent m_itemBrokeEffect;
-    
+
+    [Header("Stamina")]
+    public float m_energyLossPerEquipmentUse;
+    public float m_staminaLossPerEquipmentUse;
 
     public virtual void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
@@ -79,5 +82,7 @@ public class Player_EquipmentUse : MonoBehaviour
     public virtual void UseEquipment()
     {
         Debug.Log("Place equipment usage code here", this);
+
+        PlayerStatsController.Instance.EquipmentStatDrain(m_energyLossPerEquipmentUse, m_staminaLossPerEquipmentUse);
     }
 }

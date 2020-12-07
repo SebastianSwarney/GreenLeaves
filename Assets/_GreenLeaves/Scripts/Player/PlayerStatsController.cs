@@ -17,6 +17,8 @@ public class PlayerStatsController : MonoBehaviour
 
     private float m_currentMainEnergy;
 
+    private bool m_usingMainEnergy;
+
     [Header("Secondary Energy Properties")]
     public float m_secondaryEnergyMax;
     public Image m_secondaryEnergyImage;
@@ -48,6 +50,9 @@ public class PlayerStatsController : MonoBehaviour
     public Gradient m_hungerColorGradient;
     private List<Image> m_hungerSegmentImages;
 
+    [Header("Stat Drain Action Properties")]
+    public float m_sprintSecondaryEnergyDepletionTime;
+    public float m_sprintEnergyDepletionTime;
 
     public bool m_pauseStatDrain;
 
@@ -59,21 +64,112 @@ public class PlayerStatsController : MonoBehaviour
 	private void Start()
     {
         SetEnergyToMax();
-        DrawHungerSegments();
+        SpawnHungerSegments();
+
+        m_pauseStatDrain = false;
     }
 
     private void Update()
     {
         ReplenishSecondaryEnergy();
 
-        PassiveDrainStat(m_mainEnergyMax, m_mainEnergyDepletionRate, ref m_currentMainEnergy, m_mainEnergyImage);
+        PassiveDrainStat(m_mainEnergyMax, m_mainEnergyDepletionRate, ref m_currentMainEnergy, m_mainEnergyImage, m_currentDrainMultiplier);
         PassiveDrainStat(m_hungerMax, m_hungerDepletionRate, ref m_currentHunger, m_hungerImage);
 
-        DrawHugnerSegments();
+        DrawHungerSegments();
     }
 
-    private void DrawHungerSegments()
+	#region Drain Functions
+    public void EquipmentStatDrain(float p_mainEnergyAmount, float p_staminaAmount)
 	{
+        if (m_usingMainEnergy)
+        {
+            DepleteEnergy(p_mainEnergyAmount);
+        }
+        else
+        {
+            DepleteEnergy(p_staminaAmount);
+        }
+    }
+
+	public void SprintEnergyDrain()
+	{
+		if (m_usingMainEnergy)
+		{
+            DepleteEnergy(m_sprintEnergyDepletionTime);
+		}
+		else
+		{
+            DepleteEnergy(m_sprintSecondaryEnergyDepletionTime);
+        }
+    }
+
+    private void PassiveDrainStat(float p_statMax, float p_statDepletionRate, ref float p_currentStat, Image p_statImage, float p_drainMultiplier = 1)
+    {
+        if (!m_pauseStatDrain)
+        {
+            float depletionSpeed = p_statMax / p_statDepletionRate;
+
+            p_currentStat -= (depletionSpeed * Time.deltaTime) * p_drainMultiplier;
+
+            p_statImage.fillAmount = p_currentStat / p_statMax;
+
+            if (p_currentStat <= 0)
+            {
+                p_currentStat = 0;
+            }
+        }
+    }
+
+    public void DepleteEnergy(float p_depletionAmount)
+    {
+        if (CheckEnergy(p_depletionAmount, m_secondaryEnergyImage, ref m_currentSecondaryEnergy, m_secondaryEnergyMax))
+        {
+            m_secondaryEnergyReplenishWaitTimer = 0;
+            m_usingMainEnergy = false;
+            return;
+        }
+
+        if (CheckEnergy(p_depletionAmount, m_mainEnergyImage, ref m_currentMainEnergy, m_mainEnergyMax))
+        {
+            m_secondaryEnergyReplenishWaitTimer = 0;
+            m_usingMainEnergy = true;
+            return;
+        }
+    }
+    #endregion
+
+    #region Public Booleans
+    public bool HasEnergy()
+    {
+        if (m_currentSecondaryEnergy > 0 || m_currentMainEnergy > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool IsFullMainEnergy(out int p_depletedEnergyAmount)
+    {
+        p_depletedEnergyAmount = 0;
+
+        if (m_currentMainEnergy >= m_mainEnergyMax)
+        {
+            return true;
+        }
+
+        p_depletedEnergyAmount = (int)(m_mainEnergyMax - m_currentMainEnergy);
+
+        return false;
+    }
+    #endregion
+
+    #region Hunger Code
+    private void SpawnHungerSegments()
+    {
         m_hungerSegmentImages = new List<Image>();
 
         m_hungerSegmentImages.Add(m_hungerSegmentObject.GetComponent<Image>());
@@ -85,65 +181,8 @@ public class PlayerStatsController : MonoBehaviour
         }
     }
 
-    public bool HasEnergy()
-	{
-        if (m_currentSecondaryEnergy > 0 || m_currentMainEnergy > 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    private void PassiveDrainStat(float p_statMax, float p_statDepletionRate, ref float p_currentStat, Image p_statImage)
-	{
-		if (!m_pauseStatDrain)
-		{
-            float depletionSpeed = p_statMax / p_statDepletionRate;
-
-            p_currentStat -= depletionSpeed * Time.deltaTime;
-
-            p_statImage.fillAmount = p_currentStat / p_statMax;
-
-            if (p_currentStat <= 0)
-            {
-                p_currentStat = 0;
-            }
-        }
-    }
-
-    private void DrainEnergy()
-	{
-        float depletionSpeed = m_mainEnergyMax / m_mainEnergyDepletionRate;
-
-        m_currentMainEnergy -= depletionSpeed * Time.deltaTime;
-
-        m_mainEnergyImage.fillAmount = m_currentMainEnergy / m_mainEnergyMax;
-
-        if (m_currentMainEnergy <= 0)
-        {
-            m_currentMainEnergy = 0;
-        }
-    }
-
-    private void DrainHunger()
-	{
-        float depletionSpeed = m_hungerMax / m_hungerDepletionRate;
-
-        m_currentHunger -= depletionSpeed * Time.deltaTime;
-
-        m_hungerImage.fillAmount = m_currentHunger / m_hungerMax;
-
-		if (m_currentHunger <= 0)
-		{
-            m_currentHunger = 0;
-		}
-    }
-
-    private void DrawHugnerSegments()
-	{
+    private void DrawHungerSegments()
+    {
         float segmentSpace = m_hungerMax / m_hungerSegmentImages.Count;
 
         for (int i = 0; i < m_hungerSegmentImages.Count; i++)
@@ -172,25 +211,12 @@ public class PlayerStatsController : MonoBehaviour
 	{
         p_targetImage.color = Color.white;
     }
+	#endregion
 
-    private void SetEnergyToMax()
+	private void SetEnergyToMax()
     {
         m_currentMainEnergy = m_mainEnergyMax;
         m_currentSecondaryEnergy = m_secondaryEnergyMax;
-    }
-
-    public void DepleteEnergy(float p_depletionAmount)
-    {
-        if (CheckEnergy(p_depletionAmount, m_secondaryEnergyImage, ref m_currentSecondaryEnergy, m_secondaryEnergyMax))
-        {
-            m_secondaryEnergyReplenishWaitTimer = 0;
-            return;
-        }
-
-        if (CheckEnergy(p_depletionAmount, m_mainEnergyImage, ref m_currentMainEnergy, m_mainEnergyMax))
-        {
-            return;
-        }
     }
 
     private void ReplenishSecondaryEnergy()
@@ -245,9 +271,9 @@ public class PlayerStatsController : MonoBehaviour
     {
         switch (p_typeOfCosumption)
         {
-
             #region Energy
             case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Energy:
+
                 m_currentMainEnergy += p_amount;
 
                 if (!p_increasePastMax)
@@ -280,25 +306,20 @@ public class PlayerStatsController : MonoBehaviour
 
             #region Stamina
             case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Stamina:
-                Debug.Log("Refill Stamina");
+
+                m_currentSecondaryEnergy += p_amount;
+
+                if (!p_increasePastMax)
+                {
+                    if (m_currentSecondaryEnergy > m_secondaryEnergyMax)
+                    {
+                        m_currentSecondaryEnergy = m_secondaryEnergyMax;
+                    }
+                }
 
                 break;
 
                 #endregion
         }
-    }
-
-    public bool IsFullMainEnergy(out int p_depletedEnergyAmount)
-    {
-        p_depletedEnergyAmount = 0;
-
-        if (m_currentMainEnergy >= m_mainEnergyMax)
-        {
-            return true;
-        }
-
-        p_depletedEnergyAmount = (int)(m_mainEnergyMax - m_currentMainEnergy);
-
-        return false;
     }
 }
