@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Sirenix.OdinInspector;
 
 public class PlayerStatsController : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class PlayerStatsController : MonoBehaviour
     private float m_currentSecondaryEnergy;
 
     [Header("Hunger Properties")]
-
+    [BoxGroup("Hunger Properties")]
     public float m_hungerMax;
     public float m_maxDrainMultiplier;
     public Gradient m_hungerColorGradient;

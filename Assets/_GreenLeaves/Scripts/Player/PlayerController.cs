@@ -64,8 +64,10 @@ public class PlayerController : MonoBehaviour
         public float m_accelerationTimeAir;
     }
 
+    private BaseMovementProperties m_baseMovementProperties;
+
     [Header("Base Movement Properties")]
-    public BaseMovementProperties m_baseMovementProperties;
+    [InlineEditor(InlineEditorModes.GUIAndPreview)]
     public PlayerBaseMovementSettings m_currentBaseMovementSettings;
 
     private Vector3 m_groundMovementVelocity;
@@ -95,6 +97,7 @@ public class PlayerController : MonoBehaviour
     private JumpingProperties m_jumpingProperties;
 
     [Header("Jumping Properties")]
+    [InlineEditor(InlineEditorModes.GUIAndPreview)]
     public PlayerJumpingSettings m_currentJumpingSettings;
 
     private bool m_hasJumped;
@@ -162,47 +165,61 @@ public class PlayerController : MonoBehaviour
     private float m_flyInput;
     #endregion
 
+    [FoldoutGroup("Misc")]
     public LayerMask m_groundMask;
     private Vector2 m_movementInput;
 
     private Rigidbody m_rigidbody;
     private CapsuleCollider m_capsuleCollider;
 
+    [FoldoutGroup("Misc")]
     private bool m_controllerEnabled;
 
+    [FoldoutGroup("Misc")]
     public CollisionInfo m_collisions;
 
     #region Climb Properties
+    [FoldoutGroup("Misc")]
     public float m_climbSpeed;
+    [FoldoutGroup("Misc")]
     public float m_maxClimbAcceleration;
 
 	private Vector3 m_climbVelocity;
     private bool m_isClimbing;
     #endregion
 
+    [FoldoutGroup("Misc")]
     public Transform m_wallTransform;
-
+    
+    [FoldoutGroup("Misc")]
     public Transform m_modelTransform;
 
+    [FoldoutGroup("Misc")]
     public Transform m_headEffectorRootTransform;
 
+    [FoldoutGroup("Misc")]
     public AnimationCurve m_turnOffsetCurve;
-
+    
+    [FoldoutGroup("Misc")]
     public OffsetPoseBlend m_turnBlend;
 
+    [FoldoutGroup("Misc")]
     public OffsetPoseBlend m_verticalSlopeBlend;
+    [FoldoutGroup("Misc")]
     public OffsetPoseBlend m_horizontalSlopeBlend;
-
+    [FoldoutGroup("Misc")]
     public float m_maximumBlendTurnAngle;
-
+    [FoldoutGroup("Misc")]
     public float m_maxVerticalSlopePercent;
-
+    [FoldoutGroup("Misc")]
     public float m_landedSlideSpeed;
+    [FoldoutGroup("Misc")]
     public float m_landedSlideTime;
+    [FoldoutGroup("Misc")]
     public AnimationCurve m_landedSlideCurve;
 
     private PlayerStatsController m_playerStats;
-
+    [FoldoutGroup("Misc")]
     public bool m_aimMovement;
 
     private float m_fallDistance;
