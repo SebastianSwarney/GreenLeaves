@@ -12,7 +12,6 @@ public class SoundEmitter_FollowBezierPath : MonoBehaviour
     {
         if(m_trackingTransform == null)
         {
-            Debug.Log("THe follow transform is null, setting to player.", gameObject);
             //m_trackingTransform = Player_Inventory.Instance.transform;
             m_trackingTransform = PlayerInputToggle.Instance.m_playerCamera;
         }
