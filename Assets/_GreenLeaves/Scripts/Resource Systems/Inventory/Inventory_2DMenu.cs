@@ -119,6 +119,7 @@ public class Inventory_2DMenu : MonoBehaviour
             CloseInventoryMenu();
             //Interactable_Manager.Instance.CheckReopen();
             Interactable_Manager.Instance.SearchForInteractable();
+            PlayerStatsController.Instance.m_pauseStatDrain = false;
         }
         else
         {
@@ -132,6 +133,7 @@ public class Inventory_2DMenu : MonoBehaviour
             m_craftingMenu.SetActive(p_openCrafting);
             m_cookingMenu.SetActive(!p_openCrafting);
 
+            PlayerStatsController.Instance.m_pauseStatDrain = true;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }

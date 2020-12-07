@@ -11,6 +11,10 @@ public class PlayerStatsController : MonoBehaviour
     public float m_mainEnergyMax;
     public Image m_mainEnergyImage;
 
+    public float m_mainEnergyDepletionRate;
+
+    public float m_energyGainPerHour;
+
     private float m_currentMainEnergy;
 
     [Header("Secondary Energy Properties")]
@@ -24,29 +28,30 @@ public class PlayerStatsController : MonoBehaviour
     private float m_currentSecondaryEnergy;
 
     [Header("Hunger Properties")]
-    [BoxGroup("Hunger Properties")]
     public float m_hungerMax;
     public float m_maxDrainMultiplier;
-    public Gradient m_hungerColorGradient;
+
     public float m_hungerDepletionRate;
 
     public Image m_hungerImage;
 
     public int m_hungerSegments;
-    public GameObject m_hungerSegmentObject;
-    public Transform m_hungerSegmentRoot;
 
-    public Image m_hungerGainPreviewImage;
 
     public float m_currentHunger;
     private float m_currentDrainMultiplier;
+
+
+    [Header("Hunger Visual Properties")]
+    public GameObject m_hungerSegmentObject;
+    public Transform m_hungerSegmentRoot;
+    public Gradient m_hungerColorGradient;
     private List<Image> m_hungerSegmentImages;
 
-    private bool m_isPreviewing;
 
-    public float m_healthGainTest;
+    public bool m_pauseStatDrain;
 
-	private void Awake()
+    private void Awake()
 	{
         Instance = this;
     }
@@ -54,24 +59,30 @@ public class PlayerStatsController : MonoBehaviour
 	private void Start()
     {
         SetEnergyToMax();
-
-        m_hungerSegmentImages = new List<Image>();
-
-        m_hungerSegmentImages.Add(m_hungerSegmentObject.GetComponent<Image>());
-
-        for (int i = 0; i < m_hungerSegments - 1; i++)
-		{
-            GameObject newObject = Instantiate(m_hungerSegmentObject, m_hungerSegmentRoot);
-            m_hungerSegmentImages.Add(newObject.GetComponent<Image>());
-        }
+        DrawHungerSegments();
     }
 
     private void Update()
     {
         ReplenishSecondaryEnergy();
 
-        DrainHunger();
+        PassiveDrainStat(m_mainEnergyMax, m_mainEnergyDepletionRate, ref m_currentMainEnergy, m_mainEnergyImage);
+        PassiveDrainStat(m_hungerMax, m_hungerDepletionRate, ref m_currentHunger, m_hungerImage);
+
         DrawHugnerSegments();
+    }
+
+    private void DrawHungerSegments()
+	{
+        m_hungerSegmentImages = new List<Image>();
+
+        m_hungerSegmentImages.Add(m_hungerSegmentObject.GetComponent<Image>());
+
+        for (int i = 0; i < m_hungerSegments - 1; i++)
+        {
+            GameObject newObject = Instantiate(m_hungerSegmentObject, m_hungerSegmentRoot);
+            m_hungerSegmentImages.Add(newObject.GetComponent<Image>());
+        }
     }
 
     public bool HasEnergy()
@@ -83,6 +94,37 @@ public class PlayerStatsController : MonoBehaviour
         else
         {
             return false;
+        }
+    }
+
+    private void PassiveDrainStat(float p_statMax, float p_statDepletionRate, ref float p_currentStat, Image p_statImage)
+	{
+		if (!m_pauseStatDrain)
+		{
+            float depletionSpeed = p_statMax / p_statDepletionRate;
+
+            p_currentStat -= depletionSpeed * Time.deltaTime;
+
+            p_statImage.fillAmount = p_currentStat / p_statMax;
+
+            if (p_currentStat <= 0)
+            {
+                p_currentStat = 0;
+            }
+        }
+    }
+
+    private void DrainEnergy()
+	{
+        float depletionSpeed = m_mainEnergyMax / m_mainEnergyDepletionRate;
+
+        m_currentMainEnergy -= depletionSpeed * Time.deltaTime;
+
+        m_mainEnergyImage.fillAmount = m_currentMainEnergy / m_mainEnergyMax;
+
+        if (m_currentMainEnergy <= 0)
+        {
+            m_currentMainEnergy = 0;
         }
     }
 
@@ -189,36 +231,14 @@ public class PlayerStatsController : MonoBehaviour
         p_image.fillAmount = p_currentEnergy / p_maxEnergy;
     }
 
-    public void PreviewStatGain(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType p_typeOfCosumption, float p_amount, bool p_increasePastMax = false)
+    public void AddStatsFromCampfire(float p_hoursWaited)
     {
-		switch (p_typeOfCosumption)
-		{
-			case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Stamina:
+        m_currentMainEnergy += p_hoursWaited * m_energyGainPerHour;
 
-
-
-				break;
-
-			case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Hunger:
-
-                float targetAddAmount = m_currentHunger + p_amount;
-
-                m_hungerGainPreviewImage.fillAmount = targetAddAmount / m_hungerMax;
-
-
-                break;
-
-			case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Energy:
-
-
-
-				break;
-		}
-	}
-
-    private void ResetPreviews()
-	{
-        m_hungerGainPreviewImage.fillAmount = 0;
+        if (m_currentMainEnergy > m_mainEnergyMax)
+        {
+            m_currentMainEnergy = m_mainEnergyMax;
+        }
     }
 
     public void AddAmount(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType p_typeOfCosumption, float p_amount, bool p_increasePastMax = false)

@@ -1770,12 +1770,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_mainEnergyMax: 500
   m_mainEnergyImage: {fileID: 956684191595247041}
+  m_mainEnergyDepletionRate: 60
+  m_energyGainPerHour: 30
   m_secondaryEnergyMax: 100
   m_secondaryEnergyImage: {fileID: 7838143007808688567}
   m_secondaryEnergyReplenishTime: 5
   m_secondaryEnergyReplenishWaitTime: 0.1
   m_hungerMax: 100
   m_maxDrainMultiplier: 5
+  m_hungerDepletionRate: 60
+  m_hungerImage: {fileID: 2129385493003910159}
+  m_hungerSegments: 5
+  m_currentHunger: 100
+  m_hungerSegmentObject: {fileID: 5765583244369893712}
+  m_hungerSegmentRoot: {fileID: 8981858984832693623}
   m_hungerColorGradient:
     serializedVersion: 2
     key0: {r: 1, g: 0, b: 0, a: 1}
@@ -1805,14 +1813,7 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  m_hungerDepletionRate: 60
-  m_hungerImage: {fileID: 2129385493003910159}
-  m_hungerSegments: 5
-  m_hungerSegmentObject: {fileID: 5765583244369893712}
-  m_hungerSegmentRoot: {fileID: 8981858984832693623}
-  m_hungerGainPreviewImage: {fileID: 2703075413767226260}
-  m_currentHunger: 100
-  m_healthGainTest: 0
+  m_pauseStatDrain: 0
 --- !u!114 &2368470864938135322
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -73,8 +73,8 @@ public class Daytime_WaitMenu : MonoBehaviour
     
     private IEnumerator PerformWait(float p_hoursToWait)
     {
+        PlayerStatsController.Instance.m_pauseStatDrain = true;
 
-        Debug.LogError("Likely Want to stop stat drain here",this.gameObject);
         yield return StartCoroutine(DaytimeCycle_Update.Instance.TimeSkip(p_hoursToWait));
 
         m_isWaiting = false;
@@ -82,7 +82,10 @@ public class Daytime_WaitMenu : MonoBehaviour
         yield return new WaitForSeconds(1);
         PlayerInputToggle.Instance.ToggleInput(true);
         DaytimeCycle_Update.Instance.ToggleDaytimePause(false);
-        Debug.LogError("Refresh stats for waiting here", this.gameObject);
+        PlayerStatsController.Instance.m_pauseStatDrain = false;
+
+        PlayerStatsController.Instance.AddStatsFromCampfire(p_hoursToWait);
+
         m_menuUi.SetActive(false);
         enabled = false;
 
