@@ -6,6 +6,7 @@ public class PlayerInputToggle : MonoBehaviour
 {
     public static PlayerInputToggle Instance;
     public Transform m_playerCamera;
+    public Transform m_splineTracker;
     public Cinemachine.CinemachineFreeLook m_cameraRotation;
     public PlayerInput m_playerInput;
     public PlayerController m_playerController;
@@ -26,5 +27,11 @@ public class PlayerInputToggle : MonoBehaviour
             m_playerController.SetFlyInput(0);
             m_playerController.SetMovementInput(Vector2.zero);
         }
+    }
+
+    public Transform GetSplinePos()
+    {
+        m_splineTracker.transform.position = transform.position + (m_playerCamera.position - transform.position) / 2;
+        return m_splineTracker;
     }
 }
