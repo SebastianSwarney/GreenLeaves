@@ -206,7 +206,6 @@ public class Interactable_Manager : MonoBehaviour
     public void SearchForInteractable()
     {
         if (!enabled) return;
-        Debug.Log("Search here");
         m_canOpen = true;
         Collider[] cols = Physics.OverlapCapsule(transform.position + (m_capCol.height / 2 * Vector3.up), transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
         if (cols.Length > 0)
