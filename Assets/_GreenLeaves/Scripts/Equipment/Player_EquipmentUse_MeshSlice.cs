@@ -26,6 +26,22 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     private Manipulation_HitObject m_currentHittable;
     public void Update()
     {
+        if(Inventory_2DMenu.Instance.m_isOpen)
+        {
+            if(m_currentTarget != null)
+            {
+                m_currentTarget.m_durabilityUI.HideUI();
+                m_currentTarget.m_durabilityUI.ShowControlUI(false);
+                m_currentTarget = null;
+            }
+            if(m_currentHittable != null)
+            {
+                m_currentHittable.m_durabilityUI.HideUI();
+                m_currentHittable.m_durabilityUI.ShowControlUI(false);
+                m_currentHittable = null;
+            }
+            return;
+        }
         DetectCurrentSlicables();
         if (Input.GetMouseButtonDown(0))
         {

@@ -42,7 +42,7 @@ public class Inventory_2DMenu : MonoBehaviour
     [Header("Icon Selection Variables")]
     public float m_selectedBufferTime;
 
-    public GameObject m_selectedMenuParent;
+    public UnityEngine.UI.Button m_selectedMenuParent;
     public UnityEngine.UI.Text m_selectButtonText;
 
     public GameObject m_warningMessageObject;
@@ -165,7 +165,7 @@ public class Inventory_2DMenu : MonoBehaviour
         }
         m_isOpen = false;
         m_canvasObject.SetActive(false);
-        m_selectedMenuParent.SetActive(false);
+        m_selectedMenuParent.gameObject.SetActive(false);
         m_currentSelectedIcon = null;
         DropAnyOutsideIcons(p_skipWarning);
         if (m_craftingMenuOpened)
@@ -477,6 +477,10 @@ public class Inventory_2DMenu : MonoBehaviour
         m_canDropEverything = false;
         StopAllCoroutines();
         m_canvasObject.SetActive(true);
+        m_craftingMenu.SetActive(true);
+        m_isOpen = true;
+        m_craftingMenuOpened = true;
+
     }
 
     #endregion
@@ -517,16 +521,16 @@ public class Inventory_2DMenu : MonoBehaviour
                 {
                     if (m_currentSelectedIcon == Player_Inventory.Instance.m_currentEquipedTool.m_linkedIcon)
                     {
-                        ChangeSelectedButtonText("Unequip");
+                        ChangeSelectedButtonText("Unequip", Color.red);
                     }
                     else
                     {
-                        ChangeSelectedButtonText(m_currentSelectedIcon.m_itemData.m_itemUseButtonText);
+                        ChangeSelectedButtonText(m_currentSelectedIcon.m_itemData.m_itemUseButtonText, m_currentSelectedIcon.m_itemData.m_itemUseButtonColor);
                     }
                 }
                 else
                 {
-                    ChangeSelectedButtonText(m_currentSelectedIcon.m_itemData.m_itemUseButtonText);
+                    ChangeSelectedButtonText(m_currentSelectedIcon.m_itemData.m_itemUseButtonText, m_currentSelectedIcon.m_itemData.m_itemUseButtonColor);
                 }
 
                 return;
@@ -842,7 +846,7 @@ public class Inventory_2DMenu : MonoBehaviour
             if (m_currentSelectedIcon == Player_Inventory.Instance.m_currentEquipedTool.m_linkedIcon)
             {
                 Inventory_ItemUsage.Instance.UnEquipCurrent();
-                ChangeSelectedButtonText("Equip");
+                ChangeSelectedButtonText("Equip", Color.green);
             }
             else
             {
@@ -859,8 +863,9 @@ public class Inventory_2DMenu : MonoBehaviour
     /// Changes the selection button's text.
     /// Most likely to either Consume, or Equip
     /// </summary>
-    public void ChangeSelectedButtonText(string p_newText)
+    public void ChangeSelectedButtonText(string p_newText, Color p_buttonColor)
     {
+        m_selectedMenuParent.image.color = p_buttonColor;
         m_selectButtonText.text = p_newText;
     }
 
@@ -932,5 +937,3 @@ public class BackpackSlot
     public ResourceContainer m_currentData;
     public Inventory_Icon m_associatedIcon;
 }
-
-

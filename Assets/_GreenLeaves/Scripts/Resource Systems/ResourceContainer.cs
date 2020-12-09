@@ -9,6 +9,7 @@ public class ResourceContainer : ScriptableObject
 {
     public ResourceData m_resourceData;
     public string m_itemUseButtonText;
+    public Color m_itemUseButtonColor;
     public bool m_showInventorySelectionButton;
     public bool m_stopDropping;
 
