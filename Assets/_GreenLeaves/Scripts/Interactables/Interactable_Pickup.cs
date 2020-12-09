@@ -20,6 +20,7 @@ public class Interactable_Pickup : Interactable
         Inventory_2DMenu.Instance.PickupItem(gameObject, amount);
         if (DisableMenu())
         {
+            Debug.Log("Search");
             Interactable_Manager.Instance.HideButtonMenu(this, true);
         }
     }
