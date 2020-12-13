@@ -12,6 +12,17 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     private Manipulation_HitObject m_currentHit;
     public void Update()
     {
+
+        if (Inventory_2DMenu.Instance.m_isOpen)
+        {
+            if (m_currentHit != null)
+            {
+                m_currentHit.m_durabilityUI.HideUI();
+                m_currentHit.m_durabilityUI.ShowControlUI(false);
+                m_currentHit = null;
+            }
+            return;
+        }
         PerformCheck();
         if (Input.GetMouseButtonDown(0))
         {

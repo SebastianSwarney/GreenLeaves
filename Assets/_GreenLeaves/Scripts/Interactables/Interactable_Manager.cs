@@ -121,7 +121,7 @@ public class Interactable_Manager : MonoBehaviour
     public void HideButtonMenu(Interactable p_selectedSystem, bool p_searchForNextInteractable)
     {
 
-        if (p_selectedSystem == m_currentInteractable)
+        if (p_selectedSystem == m_currentInteractable || m_currentInteractable == null)
         {
             m_canBeOverridden = false;
             m_menuOpen = false;
@@ -205,6 +205,7 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     public void SearchForInteractable()
     {
+        if (!enabled) return;
         m_canOpen = true;
         Collider[] cols = Physics.OverlapCapsule(transform.position + (m_capCol.height / 2 * Vector3.up), transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
         if (cols.Length > 0)
@@ -216,7 +217,7 @@ public class Interactable_Manager : MonoBehaviour
                     if (cols[0].GetComponent<Interactable>().m_canBeInteractedWith)
                     {
                         m_currentInteractable = null;
-
+                        Debug.Log("Display: " + cols[i].gameObject.name);
                         cols[0].GetComponent<Interactable>().DisplayMessage();
                         return;
                     }

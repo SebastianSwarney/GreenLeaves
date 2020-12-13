@@ -28,6 +28,7 @@ public class Manipulation_HitObject : MonoBehaviour
 
     private void OnDisable()
     {
+        if(Interactable_Manager.Instance != null)
         Interactable_Manager.Instance.SearchForInteractable();
     }
     /// <summary>

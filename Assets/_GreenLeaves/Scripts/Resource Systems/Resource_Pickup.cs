@@ -34,6 +34,7 @@ public class Resource_Pickup : MonoBehaviour
         if (!p_newState)
         {
             m_resourcePickedUpEvent.Invoke();
+            Debug.Log("Dissapear");
         }
     }
 
