@@ -10,12 +10,17 @@ public class DaytimeCycle_Update : MonoBehaviour
     public float m_fullDayDuration = 10;
 
     public Transform m_directionalLightObject;
+    public Light m_directionalLight;
     public float m_realtime;
 
     public bool m_isPaused;
 
     [Header("Gradient Colors")]
     public DaytimeColors m_currentGradientData;
+
+    public float m_cavePercent;
+    public float m_lightingAdjustmentTime;
+    private Coroutine m_caveLightingCoroutine;
     private void Awake()
     {
         Instance = this;
@@ -28,7 +33,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     {
         if (!m_updateInEditor) return;
         UpdateLightRotation();
-        m_currentGradientData.ChangeColors(TimeOfDay);
+        m_currentGradientData.ChangeColors(TimeOfDay, m_cavePercent);
     }
 
 #endif
@@ -44,7 +49,7 @@ public class DaytimeCycle_Update : MonoBehaviour
         }
 
         UpdateLightRotation();
-        m_currentGradientData.ChangeColors(TimeOfDay);
+        m_currentGradientData.ChangeColors(TimeOfDay, m_cavePercent);
     }
 
     public void UpdateTimeOfDayThroughPass(float p_increaseAmount)
@@ -85,6 +90,33 @@ public class DaytimeCycle_Update : MonoBehaviour
         m_isPaused = p_newState;
     }
 
+    private IEnumerator AdjustCaveLighting(bool p_darken)
+    {
+        float timer = m_cavePercent * m_lightingAdjustmentTime;
+        while(p_darken? (timer < m_lightingAdjustmentTime) : (timer > 0))
+        {
+            if (p_darken)
+            {
+                timer += Time.deltaTime;
+            }
+            else
+            {
+                timer -= Time.deltaTime;
+            }
+            m_cavePercent = timer / m_lightingAdjustmentTime;
+            m_directionalLight.intensity = (1 - m_cavePercent)/2;
+            yield return null;
+        }
+    }
+
+    public void ChangeLightingToCave(bool p_darken)
+    {
+        if (m_caveLightingCoroutine != null)
+        {
+            StopCoroutine(m_caveLightingCoroutine);
+        }
+        StartCoroutine(AdjustCaveLighting(p_darken));
+    }
 
     #region Waiting Functionality
     /// <summary>
@@ -120,7 +152,7 @@ public class DaytimeCycle_Update : MonoBehaviour
         if (p_animate)
         {
             float newTime = 0;
-            if((int)p_setTime > (int)TimeOfDay)
+            if ((int)p_setTime > (int)TimeOfDay)
             {
                 newTime = ((int)p_setTime - (int)TimeOfDay);
             }
@@ -128,14 +160,14 @@ public class DaytimeCycle_Update : MonoBehaviour
             {
                 newTime = (int)(12 - (int)TimeOfDay) + (12 + (int)p_setTime);
             }
-            
+
             StartCoroutine(AnimatedTimeSkip(newTime));
         }
         else
         {
             TimeOfDay = p_setTime;
             UpdateLightRotation();
-            m_canRun = true; 
+            m_canRun = true;
         }
     }
 
@@ -148,8 +180,8 @@ public class DaytimeCycle_Update : MonoBehaviour
         m_isPaused = wasPaused;
         m_canRun = true;
     }
-    
-    
+
+
 
     #endregion
 }
