@@ -65,6 +65,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public GameObject m_craftingTableUI;
     public GameObject m_cookingTableUI;
     public Transform m_craftedIconPlacement;
+    public UnityEngine.UI.Text m_craftingTableItemText;
 
     ///Used to toggle the menu open and closed.
     //[HideInInspector]
