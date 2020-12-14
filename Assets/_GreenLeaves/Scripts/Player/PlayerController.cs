@@ -624,7 +624,7 @@ public class PlayerController : MonoBehaviour
 
         if (CheckBuffer(ref m_jumpBufferTimer, ref m_jumpingProperties.m_jumpBufferTime, m_jumpBufferCoroutine))
         {
-            JumpMaxVelocity();
+            //JumpMaxVelocity();
         }
 
         m_events.m_onLandedEvent.Invoke();
@@ -941,7 +941,7 @@ public class PlayerController : MonoBehaviour
             //return;
         }
 
-        if (IsGrounded() || OnSlope().m_onSlope)
+        if (IsGrounded() && !m_isSliding)
         {
             GroundJump();
             return;
