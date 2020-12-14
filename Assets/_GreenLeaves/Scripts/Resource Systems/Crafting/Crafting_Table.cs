@@ -13,6 +13,8 @@ public class Crafting_Table : MonoBehaviour
 
     public GameObject m_craftButton;
 
+    public UnityEngine.UI.Text m_craftedItemText;
+
     [System.Serializable]
     public class Crafting_ItemsContainer
     {
@@ -107,6 +109,11 @@ public class Crafting_Table : MonoBehaviour
                 m_currentRecipe = m_allRecipes[i];
             }
         }
+        if(m_currentRecipe != null)
+        {
+            m_craftedItemText.text = m_currentRecipe.m_craftedItem.m_resourceData.m_resourceName;
+        }
+        m_craftedItemText.transform.parent.gameObject.SetActive(m_currentRecipe != null);
         return m_currentRecipe != null;
     }
 
@@ -133,6 +140,8 @@ public class Crafting_Table : MonoBehaviour
             newContainer.m_itemData = icon.m_itemData;
             currentItems.Add(newContainer);
         }
+
+        
         return currentItems;
     }
 
