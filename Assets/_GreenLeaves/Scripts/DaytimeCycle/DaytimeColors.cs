@@ -5,6 +5,9 @@ using UnityEngine;
 public class DaytimeColors : ScriptableObject
 {
     public List<DayColors> m_dayColors;
+
+    public DayColors m_caveColor;
+
     [System.Serializable]
     public struct DayColors
     {
@@ -13,7 +16,7 @@ public class DaytimeColors : ScriptableObject
         public Color m_skyColor, m_equatorColor, m_groundColor;
     }
 
-    public void ChangeColors(float p_currentTime)
+    public void ChangeColors(float p_currentTime, float p_cavePercent)
     {
         DayColors pastColor = m_dayColors[0], currentColor = m_dayColors[0];
 
@@ -50,8 +53,8 @@ public class DaytimeColors : ScriptableObject
 
             percent = (p_currentTime - pastColor.m_timeOfDay) / (currentColor.m_timeOfDay - pastColor.m_timeOfDay);
         }
-        RenderSettings.ambientEquatorColor = Color.Lerp(pastColor.m_equatorColor, currentColor.m_equatorColor, percent);
-        RenderSettings.ambientGroundColor = Color.Lerp(pastColor.m_groundColor, currentColor.m_groundColor, percent);
-        RenderSettings.ambientSkyColor = Color.Lerp(pastColor.m_groundColor, currentColor.m_groundColor, percent);
+        RenderSettings.ambientEquatorColor = Color.Lerp(Color.Lerp(pastColor.m_equatorColor, currentColor.m_equatorColor, percent), m_caveColor.m_equatorColor, p_cavePercent);
+        RenderSettings.ambientGroundColor = Color.Lerp(Color.Lerp(pastColor.m_groundColor, currentColor.m_groundColor, percent), m_caveColor.m_groundColor, p_cavePercent);
+        RenderSettings.ambientSkyColor = Color.Lerp(Color.Lerp(pastColor.m_skyColor, currentColor.m_skyColor, percent), m_caveColor.m_skyColor, p_cavePercent);
     }
 }
