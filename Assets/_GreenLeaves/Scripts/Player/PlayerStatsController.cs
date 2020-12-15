@@ -84,11 +84,11 @@ public class PlayerStatsController : MonoBehaviour
 	{
         if (m_usingMainEnergy)
         {
-            DepleteEnergy(p_mainEnergyAmount);
+            DepleteEnergySingle(p_mainEnergyAmount);
         }
         else
         {
-            DepleteEnergy(p_staminaAmount);
+            DepleteEnergySingle(p_staminaAmount);
         }
     }
 
@@ -131,6 +131,23 @@ public class PlayerStatsController : MonoBehaviour
         }
 
         if (CheckEnergy(p_depletionAmount, m_mainEnergyImage, ref m_currentMainEnergy, m_mainEnergyMax))
+        {
+            m_secondaryEnergyReplenishWaitTimer = 0;
+            m_usingMainEnergy = true;
+            return;
+        }
+    }
+
+    public void DepleteEnergySingle(float p_depletionAmount)
+    {
+        if (CheckEnergySingle(p_depletionAmount, m_secondaryEnergyImage, ref m_currentSecondaryEnergy, m_secondaryEnergyMax))
+        {
+            m_secondaryEnergyReplenishWaitTimer = 0;
+            m_usingMainEnergy = false;
+            return;
+        }
+
+        if (CheckEnergySingle(p_depletionAmount, m_mainEnergyImage, ref m_currentMainEnergy, m_mainEnergyMax))
         {
             m_secondaryEnergyReplenishWaitTimer = 0;
             m_usingMainEnergy = true;
@@ -239,6 +256,22 @@ public class PlayerStatsController : MonoBehaviour
         float depletionSpeed = m_secondaryEnergyMax / p_depletionAmount;
 
         p_currentEnergy -= (depletionSpeed * Time.deltaTime) * m_currentDrainMultiplier;
+
+        p_image.fillAmount = p_currentEnergy / p_maxEnergy;
+
+        if (p_currentEnergy > 0)
+        {
+            return true;
+        }
+
+        p_currentEnergy = 0;
+
+        return false;
+    }
+
+    private bool CheckEnergySingle(float p_depletionAmount, Image p_image, ref float p_currentEnergy, float p_maxEnergy)
+    {
+        p_currentEnergy -= (p_depletionAmount) * m_currentDrainMultiplier;
 
         p_image.fillAmount = p_currentEnergy / p_maxEnergy;
 
