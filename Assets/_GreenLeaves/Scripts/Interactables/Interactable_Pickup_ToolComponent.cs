@@ -1,11 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿
 public class Interactable_Pickup_ToolComponent : Interactable
 {
 
-    ResourceContainer_Equip.ToolType m_toolType;
+    public ResourceContainer_Equip.ToolType m_toolType;
 
     public GenericWorldEvent m_objectPickedUp;
     /// <summary>
