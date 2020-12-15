@@ -674,7 +674,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 bottom = m_characterController.transform.position - new Vector3(0, m_characterController.height / 2, 0);
 
-        if (Physics.Raycast(bottom, Vector3.down, out hit, 2f))
+        if (Physics.Raycast(bottom, Vector3.down, out hit, 2f, m_groundMask))
         {
             if (hit.normal != Vector3.up)
             {
@@ -1027,7 +1027,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!m_isSliding)
         {
-            if (IsGrounded() || OnSlope().m_onSlope)
+            if (OnSlope().m_onSlope)
             {
                 if (m_slopeAngle > m_slideProperties.m_slideStartAngle)
 				{
