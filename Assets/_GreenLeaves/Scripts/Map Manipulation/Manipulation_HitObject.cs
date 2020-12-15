@@ -54,6 +54,7 @@ public class Manipulation_HitObject : MonoBehaviour
 
     public void ObjectRespawn()
     {
+        gameObject.SetActive(true);
         m_canHit = true;
         m_currentHit = 0;
     }

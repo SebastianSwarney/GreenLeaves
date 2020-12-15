@@ -118,6 +118,7 @@ public class Interactable : MonoBehaviour
     #region Trigger detection
     private void OnTriggerEnter(Collider other)
     {
+        if (!m_canBeInteractedWith) return;
         if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             DisplayMessage();

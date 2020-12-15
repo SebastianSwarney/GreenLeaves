@@ -16,10 +16,17 @@ public class Resource_Pickup : MonoBehaviour
 
     public GenericWorldEvent m_resourcePickedUpEvent, m_objectSpawned;
     
+    public void ResetResourceAmount()
+    {
+        m_resourceAmount = 1;
+        m_objectSpawned.Invoke();
+        Debug.Log("Reset Resource");
+    }
     public void NewResource()
     {
         TogglePickup(true);
         m_objectSpawned.Invoke();
+        
 
     }
     public virtual void PickupResource()
