@@ -317,6 +317,7 @@ public class Inventory_2DMenu : MonoBehaviour
         }
 
         newIcon.transform.parent = m_gameIconsParent;
+        newIcon.transform.localScale = Vector3.one;
         newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * p_pickedUpResource.m_resourceData.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * p_pickedUpResource.m_resourceData.m_inventoryWeight.y);
         newIcon.UpdateIcon(p_pickedUpResource, p_rotationType);
         newIcon.m_currentResourceAmount = p_resourceAmount;
@@ -359,6 +360,7 @@ public class Inventory_2DMenu : MonoBehaviour
         newIcon.m_opensInventorySelectButton = p_recipe.m_craftedItem.m_showInventorySelectionButton;
 
         newIcon.transform.localPosition = m_craftedIconPlacement.localPosition;
+        
         newIcon.m_startingCoordPos = m_craftedIconPlacement.localPosition;
         newIcon.m_inBackpack = false;
         newIcon.m_inCraftingTable = false;
