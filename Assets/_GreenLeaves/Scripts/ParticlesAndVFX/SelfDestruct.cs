@@ -6,20 +6,19 @@ public class SelfDestruct : MonoBehaviour
 {
     public float m_lifeSpan;
     private ObjectPooler m_pooler;
-    private float m_lifeTime;
+    private ParticleSystem m_partSys;
     void Awake()
     {
         m_pooler = ObjectPooler.Instance;
+        m_partSys = GetComponent<ParticleSystem>();
     }
-    private void OnEnable()
-    {
-        m_lifeTime = 0;
-    }
+
     private void Update()
     {
 
-        m_lifeTime += Time.deltaTime;
-        if (m_lifeTime > m_lifeSpan)
+        //m_lifeTime += Time.deltaTime;
+        //if (m_lifeTime > m_lifeSpan)
+        if(!m_partSys.IsAlive())
         {
             m_pooler.ReturnToPool(gameObject);
         }
