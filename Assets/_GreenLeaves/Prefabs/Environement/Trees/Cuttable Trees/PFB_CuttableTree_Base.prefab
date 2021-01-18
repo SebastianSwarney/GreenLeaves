@@ -50,6 +50,7 @@ GameObject:
   - component: {fileID: 5068453229225960064}
   - component: {fileID: 455475683430856792}
   - component: {fileID: 3668625771087216397}
+  - component: {fileID: 6743183030149687122}
   m_Layer: 10
   m_Name: PFB_CuttableTree_Base
   m_TagString: Untagged
@@ -138,6 +139,7 @@ MonoBehaviour:
   m_crossSectionMaterials: {fileID: 2100000, guid: 5a9fc66fb079d9944add041ae00cb0d2, type: 2}
   m_hitsToSlice: 3
   m_freezeBottomHalf: 1
+  m_choppingParticle: {fileID: 6743183030149687122}
   m_addRB: 1
   m_fallForward: 1
   m_fallInitialForce: 1
@@ -307,6 +309,24 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: -1
   OverrideMaxDistance: -1
+--- !u!114 &6743183030149687122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7321095491975262327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c82e39477eda81a4fa0132e6d1d1656a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnedParticle: {fileID: 5715961015872795951, guid: fa5bdac66a608ca47813adac7e77c3b0, type: 3}
+  m_particleOffset: {x: 0, y: 0, z: 0}
+  m_isDebugging: 0
+  m_gizmosColor1: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  m_gizRadius: 0.5
+  m_drawWire: 0
 --- !u!1 &7591002294224644555
 GameObject:
   m_ObjectHideFlags: 0

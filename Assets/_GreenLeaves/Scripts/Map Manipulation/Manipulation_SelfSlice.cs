@@ -15,6 +15,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
     public int m_hitsToSlice = 1;
     private int m_currentHits;
     public bool m_freezeBottomHalf;
+    public VFX_SpawnParticle m_choppingParticle;
 
     [Header("Fall Properties")]
     public bool m_addRB;
@@ -44,6 +45,8 @@ public class Manipulation_SelfSlice : MonoBehaviour
     {
 
         #region Determine the hit amount
+        m_choppingParticle.SpawnParticlePrefab( new Vector3( transform.position.x, p_worldPoint.y , transform.position.z));
+        Debug.Log(p_worldPoint);
         m_currentHits++;
         if (m_currentHits < m_hitsToSlice)
         {
@@ -131,6 +134,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
         #endregion
 
+        
         m_slicedEvent.Invoke(upperHull);
         gameObject.SetActive(false);
     }
