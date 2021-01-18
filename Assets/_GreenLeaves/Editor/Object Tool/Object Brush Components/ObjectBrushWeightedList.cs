@@ -1,27 +1,29 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 using UnityEditor;
+using Sirenix.OdinInspector;
 
 [System.Serializable]
 public class WeightedListItem
 {
 	[Range(0, 100)]
 	public float sliderValue;
-	[ReadOnly(true)]
+	[ReadOnly]
 	[Range(0, 100)]
 	public float percentageChance;
 }
 
 public class ObjectBrushWeightedList<ListItemType> : ScriptableObject where ListItemType : WeightedListItem
 {
+	/*
 	public ListItemType[] itemList;
 
 	private void OnValidate()
 	{
 		CalculatePercentages();
 	}
+	*/
 
 	public WeightedListItem GetItemFromWeightedList(WeightedListItem[] listType)
 	{
@@ -52,18 +54,18 @@ public class ObjectBrushWeightedList<ListItemType> : ScriptableObject where List
 		return fallbackItem;
 	}
 
-	public void CalculatePercentages()
+	public void CalculatePercentages(WeightedListItem[] listType)
 	{
 		float totalValue = 0;
 
-		for (int i = 0; i < itemList.Length; i++)
+		for (int i = 0; i < listType.Length; i++)
 		{
-			totalValue += itemList[i].sliderValue;
+			totalValue += listType[i].sliderValue;
 		}
 
-		for (int i = 0; i < itemList.Length; i++)
+		for (int i = 0; i < listType.Length; i++)
 		{
-			itemList[i].percentageChance = (itemList[i].sliderValue / totalValue) * 100;
+			listType[i].percentageChance = (listType[i].sliderValue / totalValue) * 100;
 		}
 	}
 }

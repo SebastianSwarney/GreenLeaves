@@ -8,31 +8,17 @@ public class PlayerInput : MonoBehaviour
 {
     public int m_playerId;
 
-    public float m_sensitivity;
-    private float m_currentSensitivity;
-
     private PlayerController m_playerController;
     private Player m_playerInputController;
 
     private bool m_lockLooking;
-
-    public static PlayerInput Instance;
-
-    public CinemachineFreeLook freeLookCam;
-
-    private void Awake()
-    {
-        m_currentSensitivity = m_sensitivity;
-    }
 
     private void Start()
     {
         m_playerController = GetComponent<PlayerController>();
         m_playerInputController = ReInput.players.GetPlayer(m_playerId);
 
-        ChangeCursorState(false);
-
-        ReadSettings();
+        ChangeCursorState(true);
     }
 
     public void ChangeCursorState(bool p_activeState)
@@ -55,37 +41,16 @@ public class PlayerInput : MonoBehaviour
         GetInput();
     }
 
-    private void ReadSettings()
-    {
-        //m_sensitivity = PlayerPrefs.GetFloat("sensitivity");
-    }
-
     public void GetInput()
     {
         Vector2 movementInput = new Vector2(m_playerInputController.GetAxisRaw("MoveHorizontal"), m_playerInputController.GetAxisRaw("MoveVertical"));
         m_playerController.SetMovementInput(movementInput);
 
+        m_playerController.SetFlyInput(m_playerInputController.GetAxisRaw("MoveFly"));
+
         if (Input.GetKeyDown(KeyCode.P))
         {
             m_lockLooking = !m_lockLooking;
-        }
-
-        if (!m_lockLooking)
-        {
-            Vector2 lookInput = new Vector2(m_playerInputController.GetAxis("LookHorizontal"), m_playerInputController.GetAxis("LookVertical"));
-
-            //freeLookCam.m_XAxis.m_InputAxisValue = lookInput.x;
-            //freeLookCam.m_YAxis.m_InputAxisValue = lookInput.y;
-        }
-
-		if (Input.GetMouseButtonDown(1))
-		{
-            m_playerController.OnAimingInputDown();
-		}
-
-        if (Input.GetMouseButtonUp(1))
-        {
-            m_playerController.OnAimingInputUp();
         }
 
         if (m_playerInputController.GetButtonDown("Jump"))
@@ -99,26 +64,21 @@ public class PlayerInput : MonoBehaviour
 
 		if (m_playerInputController.GetButtonDown("Run"))
 		{
-            m_playerController.OnRunButtonDown();
+            m_playerController.OnSprintButtonDown();
         }
         if (m_playerInputController.GetButtonUp("Run"))
         {
-            m_playerController.OnRunButtonUp();
+            //m_playerController.OnSprintButtonUp();
         }
 
         if (m_playerInputController.GetButtonDown("Walk"))
         {
-            m_playerController.OnWalkButtonDown();
+           m_playerController.OnWalkButtonDown();
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
 		{
             ChangeCursorState(!Cursor.visible);
         }
-    }
-
-    public void ChangeSensitivity(float m_multiplier)
-    {
-        m_currentSensitivity = m_sensitivity * m_multiplier;
     }
 }

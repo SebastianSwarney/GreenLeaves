@@ -6,7 +6,7 @@ public class ResourceContainer_Equip : ResourceContainer
 {
     public bool m_toggleEquipmentOnPlayer;
 
-    public enum ToolType { Axe, Canteen, Torch, Boots, ClimbingAxe }
+    public enum ToolType { Axe, Canteen, Torch, Boots, ClimbingAxe, Knife }
     public ToolType m_currentToolType;
     public override void UseItem(Inventory_Icon p_currentIcon)
     {
@@ -15,7 +15,7 @@ public class ResourceContainer_Equip : ResourceContainer
 
     public override GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot)
     {
-        Crafting_Table.Instance.m_toolComponents.EnableToolResource(m_currentToolType);
+        Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(m_currentToolType);
         return null;
     }
 

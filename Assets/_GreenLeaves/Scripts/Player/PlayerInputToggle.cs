@@ -5,8 +5,11 @@ using UnityEngine;
 public class PlayerInputToggle : MonoBehaviour
 {
     public static PlayerInputToggle Instance;
+    public Transform m_playerCamera;
+    public Transform m_splineTracker;
     public Cinemachine.CinemachineFreeLook m_cameraRotation;
     public PlayerInput m_playerInput;
+    public PlayerController m_playerController;
 
     private void Awake()
     {
@@ -17,5 +20,20 @@ public class PlayerInputToggle : MonoBehaviour
     {
         m_playerInput.enabled = p_newState;
         m_cameraRotation.enabled = p_newState;
+        Cursor.visible = !p_newState;
+        Cursor.lockState = (p_newState) ? CursorLockMode.Confined : CursorLockMode.None;
+
+        if (!p_newState)
+        {
+            Debug.Log("Disable");
+            m_playerController.SetFlyInput(0);
+            m_playerController.SetMovementInput(Vector2.zero);
+        }
+    }
+
+    public Transform GetSplinePos()
+    {
+        m_splineTracker.transform.position = transform.position + (m_playerCamera.position - transform.position) / 2;
+        return m_splineTracker;
     }
 }

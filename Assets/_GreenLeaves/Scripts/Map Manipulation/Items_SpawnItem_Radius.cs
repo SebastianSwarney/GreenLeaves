@@ -24,6 +24,10 @@ public class Items_SpawnItem_Radius : Items_SpawnItem
             Vector3 newSpawnPoint = new Vector3(Random.Range(-m_spawnRadius, m_spawnRadius), 0, Random.Range(-m_spawnRadius, m_spawnRadius));
             newSpawnPoint += transform.position + m_spawnOffset;
             GameObject newRes = ObjectPooler.Instance.NewObject(obj, newSpawnPoint, Quaternion.identity);
+            if (newRes.GetComponent<Resource_Pickup>()!=null)
+            {
+                newRes.GetComponent<Resource_Pickup>().ResetResourceAmount();
+            }
             if(newRes.GetComponent<Manipulation_HitObject>() != null)
             {
                 newRes.GetComponent<Manipulation_HitObject>().ObjectRespawn();

@@ -9,17 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2301799bebd05647860728241e25461, type: 3}
+  m_Script: {fileID: 11500000, guid: 33fcfb50b4a1e9a40b5d25371a1f41ba, type: 3}
   m_Name: ResourceData_Equip_Canteen
   m_EditorClassIdentifier: 
   m_resourceData:
     m_resourceName: Canteen
     m_singleResourceAmount: 1
     m_resourceSprite: {fileID: 21300000, guid: bf5cf2544f8b48b4da0693f4a3b75694, type: 3}
-    m_resourcePrefab: {fileID: 4629736418806662265, guid: 5cf6caa67d808b64d85ab7feea13e6d0, type: 3}
-    m_inventoryWeight: {x: 1, y: 1}
+    m_resourcePrefab: {fileID: 0}
+    m_inventoryWeight: {x: 0, y: 0}
     m_iconStartingRotation: 0
   m_itemUseButtonText: Equip
+  m_itemUseButtonColor: {r: 0.03137255, g: 0.5882353, b: 0.15686275, a: 1}
   m_showInventorySelectionButton: 1
+  m_stopDropping: 1
   m_toggleEquipmentOnPlayer: 0
   m_currentToolType: 1
+  m_fillType: 0

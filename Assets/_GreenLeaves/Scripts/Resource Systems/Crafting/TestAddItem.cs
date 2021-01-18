@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TestAddItem : MonoBehaviour
 {
@@ -10,7 +8,7 @@ public class TestAddItem : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.L))
         {
-            Crafting_Table.Instance.m_toolComponents.NewToolFound(m_testToolType);
+            Crafting_Table.CraftingTable.m_toolComponents.NewToolFound(m_testToolType);
         }
     }
 }

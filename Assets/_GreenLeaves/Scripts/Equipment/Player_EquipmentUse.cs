@@ -14,7 +14,10 @@ public class Player_EquipmentUse : MonoBehaviour
 
     [Header("Events")]
     public GenericWorldEvent m_itemBrokeEffect;
-    
+
+    [Header("Stamina")]
+    public float m_energyLossPerEquipmentUse;
+    public float m_staminaLossPerEquipmentUse;
 
     public virtual void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
@@ -58,7 +61,7 @@ public class Player_EquipmentUse : MonoBehaviour
 
     public virtual void ReEnableToolComponent()
     {
-        Crafting_Table.Instance.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Torch);
+        Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Torch);
     }
 
     public virtual void UpdateIconDurability()
@@ -79,5 +82,7 @@ public class Player_EquipmentUse : MonoBehaviour
     public virtual void UseEquipment()
     {
         Debug.Log("Place equipment usage code here", this);
+
+        PlayerStatsController.Instance.EquipmentStatDrain(m_energyLossPerEquipmentUse, m_staminaLossPerEquipmentUse);
     }
 }

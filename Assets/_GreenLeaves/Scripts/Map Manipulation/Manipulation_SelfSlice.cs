@@ -21,9 +21,18 @@ public class Manipulation_SelfSlice : MonoBehaviour
     public bool m_fallForward;
     public float m_fallInitialForce;
 
-    public GenericWorldEvent m_hitEvent;
+    public GenericWorldEvent m_hitEvent, m_oneMoreHitEvent;
+
     public SlicedEvent m_slicedEvent;
 
+    public GameObject m_mesh;
+    public float m_applyForcePosition;
+
+    public Durability_UI m_durabilityUI;
+    private void Awake()
+    {
+        m_durabilityUI.UpdateText(m_hitsToSlice - m_currentHits);
+    }
 
     /// <summary>
     /// <para>Called to slice the mesh. The parameters passed will affect the direction of the slice. </para>
@@ -38,22 +47,32 @@ public class Manipulation_SelfSlice : MonoBehaviour
         m_currentHits++;
         if (m_currentHits < m_hitsToSlice)
         {
-            m_hitEvent.Invoke();
+            m_durabilityUI.UpdateText(m_hitsToSlice - m_currentHits);
+            if (m_hitsToSlice - m_currentHits == 1)
+            {
+                Debug.Log("1 Slice left");
+                m_oneMoreHitEvent.Invoke();
+            }
+            else {
+                m_hitEvent.Invoke();
+            }
             return;
         }
         #endregion
 
         #region Create the sliced hulls
-        SlicedHull hull = gameObject.Slice(p_worldPoint, p_upVector, m_crossSectionMaterials);
+        SlicedHull hull = m_mesh.Slice(p_worldPoint, p_upVector, m_crossSectionMaterials);
 
         if (hull == null)
         {
-            Debug.Log("Couldnt cut object: " + gameObject + " as object doesnt exist in slice region", gameObject);
+            Debug.Log("Couldnt cut object: " + m_mesh + " as object doesnt exist in slice region", gameObject);
             return;
         }
-        GameObject upperHull = hull.CreateUpperHull(gameObject, m_crossSectionMaterials);
-        GameObject lowerHull = hull.CreateLowerHull(gameObject, m_crossSectionMaterials);
+        GameObject upperHull = hull.CreateUpperHull(m_mesh, m_crossSectionMaterials);
+        GameObject lowerHull = hull.CreateLowerHull(m_mesh, m_crossSectionMaterials);
 
+        lowerHull.transform.position = upperHull.transform.position = transform.position;
+        upperHull.transform.parent = lowerHull.transform.parent = transform.parent;
         #endregion
 
         #region prepare the different slices
@@ -86,13 +105,14 @@ public class Manipulation_SelfSlice : MonoBehaviour
         Debug.Log("Disable this later if we are adding our own collider for the cut parts");
         lowerHull.AddComponent<MeshCollider>().convex = true;
         upperHull.AddComponent<MeshCollider>().convex = true;
+
         if (m_addRB)
         {
             if (!m_freezeBottomHalf)
             {
                 if (m_fallForward)
                 {
-                    lowerHull.AddComponent<Rigidbody>().AddForce(p_forwardDir * m_fallInitialForce, ForceMode.Impulse);
+                    lowerHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, transform.position + transform.up * m_applyForcePosition, ForceMode.Impulse);
                 }
                 else
                 {
@@ -101,7 +121,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
             }
             if (m_fallForward)
             {
-                upperHull.AddComponent<Rigidbody>().AddForce(p_forwardDir * m_fallInitialForce, ForceMode.Impulse);
+                upperHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, transform.position + transform.up * m_applyForcePosition, ForceMode.Impulse);
             }
             else
             {
@@ -114,4 +134,19 @@ public class Manipulation_SelfSlice : MonoBehaviour
         m_slicedEvent.Invoke(upperHull);
         gameObject.SetActive(false);
     }
+
+
+#if UNITY_EDITOR
+    [Header("DEbug")]
+    public bool m_debug;
+    public Color m_debugColor;
+    public float m_boxSize;
+
+    private void OnDrawGizmos()
+    {
+        if (!m_debug) return;
+        Gizmos.color = m_debugColor;
+        Gizmos.DrawCube(transform.position + Vector3.up * m_applyForcePosition, Vector3.one* m_boxSize);
+    }
+#endif
 }

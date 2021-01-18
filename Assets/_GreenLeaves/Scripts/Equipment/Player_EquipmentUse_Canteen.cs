@@ -6,6 +6,7 @@
 /// </summary>
 public class Player_EquipmentUse_Canteen : Player_EquipmentUse
 {
+    public static Player_EquipmentUse_Canteen Instance;
     [Header("Canteen Specific")]
     [Tooltip("Determines which stat the canteen will refill")]
     public ResourceContainer_Cosume.TypeOfCosumption.ConsumeType m_energyRefilType;
@@ -22,7 +23,10 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public bool m_isDebugging;
     public Color m_gizmosColor;
 
-
+    public void Start()
+    {
+        Instance = this;
+    }
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.O))
@@ -36,7 +40,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         int requiredEnergy = 0;
 
         ///Player at full energy?
-        if (EnergyController.Instance.IsFullMainEnergy(out requiredEnergy))
+        if (PlayerStatsController.Instance.IsFullMainEnergy(out requiredEnergy))
         {
             ///Canteen has water
             if (m_durability == m_startingDurability)
@@ -68,13 +72,13 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 if (m_durability - requiredEnergy <= 0)
                 {
                     PlayAnimation("Drink water: Canteen empty");
-                    EnergyController.Instance.AddAmount(m_energyRefilType, m_durability);
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, m_durability);
                     AdjustCanteenCapacity(0);
                 }
                 else
                 {
                     PlayAnimation("Drink water: Canteen still has some");
-                    EnergyController.Instance.AddAmount(m_energyRefilType, (float)requiredEnergy);
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, (float)requiredEnergy);
                     AdjustCanteenCapacity(m_durability - requiredEnergy);
                 }
             }
@@ -84,7 +88,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 if (WaterNearby())
                 {
                     PlayAnimation("Drink directly from water source");
-                    EnergyController.Instance.AddAmount(m_energyRefilType, 1000);
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, 1000);
                 }
                 else
                 {
@@ -130,7 +134,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     }
     public override void ReEnableToolComponent()
     {
-        Crafting_Table.Instance.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Canteen);
+        Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.Canteen);
     }
     private void OnDrawGizmos()
     {

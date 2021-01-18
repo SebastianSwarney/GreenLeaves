@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 /// <summary>
 /// The script placed on the icons that appear on the grid.
@@ -14,6 +14,7 @@ public class Inventory_Icon : MonoBehaviour
     public Inventory_2DMenu.RotationType m_rotatedDir = Inventory_2DMenu.RotationType.Left;
     public bool m_inBackpack = false;
     public bool m_inCraftingTable = false;
+    public bool m_inCookingTable = false;
 
     [HideInInspector] public Vector2Int m_previousGridPos;
     [HideInInspector] public Vector3 m_startingCoordPos;
@@ -23,12 +24,14 @@ public class Inventory_Icon : MonoBehaviour
     public int m_currentResourceAmount;
 
     public bool m_opensInventorySelectButton;
+    public CanvasGroup m_canvasGroup;
 
     [Header("Number UI")]
     public Text m_numberText;
     public RectTransform m_numberTransform;
-    
-    
+
+    private Transform m_parentTransform;
+
     /// <summary>
     /// Changes the rotation of the icon to match it's current rotation type
     /// </summary>
@@ -134,6 +137,7 @@ public class Inventory_Icon : MonoBehaviour
         m_rotatedDir = m_previousRotType = p_startingRotation;
 
         ResetRotation();
+        SetNumberRotation();
     }
 
     /// <summary>
@@ -180,6 +184,7 @@ public class Inventory_Icon : MonoBehaviour
     /// </summary>
     public void IconTappedOn()
     {
+        
         StartCoroutine(WaitForMouseUp());
 
         m_previousRotType = m_rotatedDir;
@@ -191,7 +196,10 @@ public class Inventory_Icon : MonoBehaviour
         }
         else if (m_inCraftingTable)
         {
-            Crafting_Table.Instance.RemoveIconFromTable(this);
+            Crafting_Table.CraftingTable.RemoveIconFromTable(this);
+        } else if (m_inCookingTable)
+        {
+            Crafting_Table.CookingTable.RemoveIconFromTable(this);
         }
 
     }
@@ -204,14 +212,20 @@ public class Inventory_Icon : MonoBehaviour
     private IEnumerator WaitForMouseUp()
     {
         bool beingHeld = true;
+        m_parentTransform = transform.parent;
+        m_canvasGroup.alpha = .5f;
         m_itemIcon.raycastTarget = false;
         while (beingHeld)
         {
             if (Input.GetMouseButtonUp(0))
             {
                 beingHeld = false;
+                m_canvasGroup.alpha = 1;
             }
-            transform.position = Input.mousePosition + (Vector3)m_dragOffset;
+
+            ///This is because the screen size can change, so the mouse position would change, which messed up the offset
+            transform.position = Input.mousePosition;
+            transform.localPosition += m_dragOffset;
 
 
             yield return null;
@@ -274,5 +288,6 @@ public class Inventory_Icon : MonoBehaviour
     public virtual void RemoveIconFromCraftingTableOnClose()
     {
         m_inCraftingTable = false;
+        m_inCookingTable = false;
     }
 }

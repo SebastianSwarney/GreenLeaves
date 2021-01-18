@@ -32,7 +32,7 @@ public class Inventory_Icon_ToolResource : Inventory_Icon
     /// </summary>
     public void ReEnableIcon()
     {
-        Crafting_Table.Instance.m_toolComponents.EnableToolResource(m_toolType);
+        Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(m_toolType);
     }
 
     /// <summary>

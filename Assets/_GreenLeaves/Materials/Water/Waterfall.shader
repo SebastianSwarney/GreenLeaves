@@ -52,6 +52,10 @@
 		_FresnelBias("Sparkle Bias", Range(0,5)) = 0.6
 		_FresnelPower("Sparkle Power", Range(-5,5)) = 0.6
 
+		[Space]
+		[Header(Water Bounce)]
+		_WaterBounceHeight("Water Bounce Height", Float) = 1
+		_WaterBounceFrequency("Water Bounce Frequency", Float) = 0
 
 	}
 		SubShader{
@@ -103,6 +107,9 @@
 			float _Reflectivity, _Distort, _FresnelScale, _FresnelBias, _FresnelPower;
 			float _Smoothness, _Metallic;
 
+			float _WaterBounceHeight;
+			float _WaterBounceFrequency;
+
 			 void vert(inout appdata_full v, out Input o)
 			{
 				UNITY_INITIALIZE_OUTPUT(Input, o);
@@ -117,6 +124,8 @@
 				half3 worldSpaceVertex = mul(unity_ObjectToWorld, (v.vertex)).xyz;
 				o.viewInterpolator.xyz = worldSpaceVertex - _WorldSpaceCameraPos;
 
+				float offset = (worldSpaceVertex.x + (worldSpaceVertex.z * 0.2)) * 0.5;
+				v.vertex.y += sin(_Time.y * _WaterBounceFrequency * offset*.2)  * _WaterBounceHeight;
 			}
 
 

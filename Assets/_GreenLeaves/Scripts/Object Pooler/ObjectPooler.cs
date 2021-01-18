@@ -45,6 +45,7 @@ public class ObjectPooler : MonoBehaviour
         GameObject newObject = m_objectPool[p_poolName].Dequeue();
         if (m_objectPool[p_poolName].Count == 0)
         {
+            
             IncreasePool(p_poolName, newObject, newObject.transform.parent.gameObject);
         }
 
@@ -93,7 +94,7 @@ public class ObjectPooler : MonoBehaviour
         GameObject newObject = m_objectPool[p_poolName].Dequeue();
         if (m_objectPool[p_poolName].Count == 0)
         {
-            IncreasePool(p_poolName, newObject, newObject.transform.parent.gameObject);
+            IncreasePool(p_poolName, newObject, (newObject.transform.parent == null? gameObject : newObject.transform.parent.gameObject));
         }
 
         newObject.transform.position = p_spawnPostion;
