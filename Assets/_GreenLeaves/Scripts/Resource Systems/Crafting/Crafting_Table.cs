@@ -40,7 +40,10 @@ public class Crafting_Table : MonoBehaviour
         }
     }
 
-
+    private void OnEnable()
+    {
+        m_craftButton.SetActive(CheckTableRecipe());
+    }
     public void AddIconToTable(Inventory_Icon p_currentIcon)
     {
         m_iconsOnTable.Add(p_currentIcon);
