@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Staggart.VegetationSpawner
@@ -13,7 +14,7 @@ namespace Staggart.VegetationSpawner
     public static class TerrainSampler
     {
         /// <summary>
-        /// Converts a world-space position to a normalized local-space XZ value
+        /// Converts a world-space position to a normalized local-space XZ value (0-1 range)
         /// </summary>
         /// <param name="terrain"></param>
         /// <param name="worldPosition"></param>
@@ -169,6 +170,43 @@ namespace Staggart.VegetationSpawner
         public static float ConvexityToCurvature(float convexity)
         {
             return (convexity - (1 - convexity)) * 0.5f + 0.5f;
+        }
+
+        /// <summary>
+        /// Given a specific prefab, returns all the instances of a tree prefab. Positions will be converted to world-space
+        /// </summary>
+        /// <param name="terrain"></param>
+        /// <param name="prefab"></param>
+        /// <returns></returns>
+        public static TreeInstance[] GetTreeInstances(this Terrain terrain, Object prefab)
+        {
+            var prototypeIndex = -1;
+ 
+            //Get the index of the given prefab
+            for (int i = 0; i < terrain.terrainData.treePrototypes.Length; i++)
+            {
+                if (terrain.terrainData.treePrototypes[i].prefab == prefab) prototypeIndex = i;
+            }
+ 
+            if (prototypeIndex >= 0)
+            {
+                //Get all instances matching the prefab index
+                TreeInstance[] instances = terrain.terrainData.treeInstances.Where(x => x.prototypeIndex == prototypeIndex).ToArray();
+
+                //Un-normalize positions so they're in world-space
+                for (int i = 0; i < instances.Length; i++)
+                {
+                    instances[i].position = Vector3.Scale(instances[i].position, terrain.terrainData.size);
+                    instances[i].position += terrain.GetPosition();
+                }
+                
+                return instances;
+            }
+            else
+            {
+                Debug.LogError("Failed to return instances. Tree prefab not found in " + terrain.name);
+                return null;
+            }
         }
     }
 }

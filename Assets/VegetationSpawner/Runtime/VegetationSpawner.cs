@@ -1,9 +1,13 @@
 ﻿// Vegetation Spawner by Staggart Creations http://staggart.xyz
 // Copyright protected under Unity Asset Store EULA
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace Staggart.VegetationSpawner
 {
@@ -11,16 +15,18 @@ namespace Staggart.VegetationSpawner
     [AddComponentMenu("Vegetation Spawner")]
     public class VegetationSpawner : SpawnerBase
     {
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.3";
         
         //[SerializeField]
         public Dictionary<Terrain, Cell[,]> terrainCells = new Dictionary<Terrain, Cell[,]>();
-        public Bounds terrainBounds;
+        //This is used for the height range slider
+        public float maxTerrainHeight = 1000f;
         
         public int cellSize = 64;
         public int cellDivisions = 4;
         [System.NonSerialized]
         public static bool VisualizeCells = false;
+        public static bool VisualizeWaterlevel = false;
         [Tooltip("When enabled, raycasting is also performed on the corners of each cell. This is slower to calculate, but will yield higher precision around collider edges")]
         public bool highPrecisionCollision = true;
         public LayerMask collisionLayerMask = -1;
@@ -29,7 +35,15 @@ namespace Staggart.VegetationSpawner
         public Collider[] tempColliders;
 
         public float waterHeight;
-
+        [Tooltip("Tree item will automatically respawn after changing a parameter in the inspector")]
+        public bool autoRespawnTrees = true;
+        
+        public delegate void OnTreeRespawn(TreePrefab prefab);
+        public static event OnTreeRespawn onTreeRespawn;
+        
+        public delegate void OnGrassRespawn(GrassPrefab prefab);
+        public static event OnGrassRespawn onGrassRespawn;
+        
         public void Respawn()
         {
             if (terrains == null) return;
@@ -74,8 +88,10 @@ namespace Staggart.VegetationSpawner
 
             foreach (Terrain terrain in terrains)
             {
+                if(terrain.gameObject.activeInHierarchy == false) continue;
+                
                 int xCount = Mathf.CeilToInt(terrain.terrainData.size.x / cellSize);
-                int zCount = Mathf.CeilToInt(terrain.terrainData.size.x / cellSize);
+                int zCount = Mathf.CeilToInt(terrain.terrainData.size.z / cellSize);
 
                 Cell[,] cellGrid = new Cell[xCount, zCount];
 
@@ -306,7 +322,7 @@ namespace Staggart.VegetationSpawner
 
                     TreePrefab prefab = SpawnerBase.GetProbableTree(item);
 
-                    //Failed probabilty checks entirely
+                    //Failed probability checks entirely
                     if (prefab == null) continue;
 
                     terrain.SampleHeight(normalizedPos, out height, out worldHeight, out normalizedHeight);
@@ -387,8 +403,9 @@ namespace Staggart.VegetationSpawner
                     treeInstanceCollection.Add(treeInstance);
 
                     item.instanceCount++;
-
                 }
+                
+               
 
                 item.spawnPoints.Clear();
 
@@ -397,6 +414,12 @@ namespace Staggart.VegetationSpawner
 #else
                 terrain.terrainData.treeInstances = treeInstanceCollection.ToArray();
 #endif
+                
+            }
+            
+            for (int i = 0; i < item.prefabs.Count; i++)
+            {
+                onTreeRespawn?.Invoke(item.prefabs[i]);
             }
 
         }
@@ -438,7 +461,7 @@ namespace Staggart.VegetationSpawner
         }
 #endregion
 
-#region Grass
+        #region Grass
         public void RefreshGrassPrototypes()
         {
             foreach (Terrain terrain in terrains)
@@ -636,12 +659,15 @@ namespace Staggart.VegetationSpawner
                     }
                 }
 
+                
                 terrain.terrainData.SetDetailLayer(0, 0, item.index, map);
 
 #if UNITY_EDITOR
                 UnityEditor.EditorUtility.ClearProgressBar();
 #endif
             }
+            
+            onGrassRespawn?.Invoke(item);
         }
 
         private DetailPrototype GetGrassPrototype(GrassPrefab item, Terrain terrain)
@@ -710,6 +736,13 @@ namespace Staggart.VegetationSpawner
                             );
                     }
                 }
+            }
+
+            if (VisualizeWaterlevel)
+            {
+                Gizmos.color = new Color(0f, 0.8f, 1f, 0.75f);
+                
+                Gizmos.DrawCube(new Vector3(UnityEditor.SceneView.lastActiveSceneView.camera.transform.position.x, waterHeight, UnityEditor.SceneView.lastActiveSceneView.camera.transform.position.z), new Vector3(250f, 0f, 250f) );
             }
         }
 #endif

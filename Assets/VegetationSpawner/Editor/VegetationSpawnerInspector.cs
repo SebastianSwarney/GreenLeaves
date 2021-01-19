@@ -27,7 +27,8 @@ namespace Staggart.VegetationSpawner
         SerializedProperty tempColliders;
 
         SerializedProperty waterHeight;
-
+        private SerializedProperty autoRespawnTrees;
+        
         private Stopwatch sw;
 
         SerializedProperty treeProbabilty;
@@ -47,6 +48,7 @@ namespace Staggart.VegetationSpawner
             tempColliders = serializedObject.FindProperty("tempColliders");
 
             waterHeight = serializedObject.FindProperty("waterHeight");
+            autoRespawnTrees = serializedObject.FindProperty("autoRespawnTrees");
 
             VegetationSpawner.VisualizeCells = VisualizeCellsPersistent;
 
@@ -104,7 +106,7 @@ namespace Staggart.VegetationSpawner
         {
             Rect versionRect = EditorGUILayout.GetControlRect();
             versionRect.y -= versionRect.height;
-            versionRect.x = EditorGUIUtility.currentViewWidth - 130f;
+            versionRect.x = 240f;
             GUI.Label(versionRect, "Version " + VegetationSpawner.Version, EditorStyles.miniLabel);
             GUILayout.Space(-17f);
             
@@ -123,6 +125,7 @@ namespace Staggart.VegetationSpawner
 
                 EditorGUILayout.Space();
 
+                
                 EditorGUI.BeginChangeCheck();
                 switch (TabID)
                 {
@@ -140,7 +143,10 @@ namespace Staggart.VegetationSpawner
                         break;
                 }
 
-                if (TabID != 3) VegetationSpawner.VisualizeCells = false;
+
+                VegetationSpawner.VisualizeCells = TabID == 3;
+                VegetationSpawner.VisualizeWaterlevel = TabID == 3;
+                
 
                 EditorGUILayout.Space();
             }
@@ -200,8 +206,12 @@ namespace Staggart.VegetationSpawner
                         if (script.terrains.Contains(activeTerrains[i]) == false) script.terrains.Add(activeTerrains[i]);
                     }
 
+                    for (int i = 0; i < activeTerrains.Length; i++)
+                    {
+                        script.maxTerrainHeight = Mathf.Max(script.maxTerrainHeight, script.terrains[i].terrainData.bounds.size.y);
+                    }
+                    
                     script.RebuildCollisionCache();
-
                 }
 
                 if (GUILayout.Button("Clear"))
@@ -231,7 +241,7 @@ namespace Staggart.VegetationSpawner
             EditorGUILayout.LabelField("Species", EditorStyles.boldLabel);
 
             //Tree item view
-            treeScrollPos = EditorGUILayout.BeginScrollView(treeScrollPos, EditorStyles.textArea, GUILayout.MaxHeight(thumbSize + 10f));
+            treeScrollPos = EditorGUILayout.BeginScrollView(treeScrollPos, EditorStyles.textArea, GUILayout.Height(thumbSize + 10f));
             using (new EditorGUILayout.HorizontalScope())
             {
                 for (int i = 0; i < script.treeTypes.Count; i++)
@@ -317,7 +327,7 @@ namespace Staggart.VegetationSpawner
                                 if (EditorGUI.EndChangeCheck())
                                 {
                                     script.UpdateTreeItem(tree);
-                                    script.SpawnTree(tree);
+                                    if(autoRespawnTrees.boolValue) script.SpawnTree(tree);
                                     EditorUtility.SetDirty(target);
                                 }
                             }
@@ -371,15 +381,17 @@ namespace Staggart.VegetationSpawner
                             tree.collisionCheck = EditorGUILayout.Toggle("Collision check", tree.collisionCheck);
 
                             tree.rejectUnderwater = EditorGUILayout.Toggle(new GUIContent("Remove underwater", "The water height level can be set in the settings tab"), tree.rejectUnderwater);
-                            VegetationSpawnerEditor.DrawRangeSlider(new GUIContent("Height range", "Min/max height this item can spawn at"), ref tree.heightRange, 0f, 2000f);
+                            VegetationSpawnerEditor.DrawRangeSlider(new GUIContent("Height range", "Min/max height this item can spawn at"), ref tree.heightRange, 0f, script.maxTerrainHeight);
                             VegetationSpawnerEditor.DrawRangeSlider(new GUIContent("Slope range", "Min/max slope (0-90 degrees) this item can spawn at"), ref tree.slopeRange, 0f, 90f);
                             VegetationSpawnerEditor.DrawRangeSlider(new GUIContent("Curvature range", "0=Concave (bowl), 0.5=flat, 1=convex (edge)"), ref tree.curvatureRange, 0f, 1f);
                            
                             if (EditorGUI.EndChangeCheck())
                             {
+                                if (!autoRespawnTrees.boolValue) return;
+                                
                                 Stopwatch sw = new Stopwatch();
                                 sw.Restart();
-                                script.SpawnTree(tree);
+                                 script.SpawnTree(tree);
                                 sw.Stop();
 
                                 Log.Add("Respawning tree: " + sw.Elapsed.Milliseconds + "ms...");
@@ -391,6 +403,8 @@ namespace Staggart.VegetationSpawner
 
                             EditorGUILayout.LabelField("Instances: " + tree.instanceCount.ToString("##,#"), EditorStyles.miniLabel);
 
+                            if(autoRespawnTrees.boolValue == false) EditorGUILayout.HelpBox("Auto respawning is disabled for trees in the settings tab", MessageType.Warning);
+
                             if (GUILayout.Button(new GUIContent(" Respawn", EditorGUIUtility.IconContent("d_Refresh").image), GUILayout.Height(30f)))
                             {
                                 Stopwatch sw = new Stopwatch();
@@ -400,6 +414,7 @@ namespace Staggart.VegetationSpawner
 
                                 Log.Add("Respawning tree: " + sw.Elapsed.Milliseconds + "ms...");
                             }
+                            
                         }
                     }
                 }
@@ -433,7 +448,10 @@ namespace Staggart.VegetationSpawner
             }
             EditorGUILayout.EndScrollView();
 
-            VegetationSpawner.GrassPrefab grass = script.grassPrefabs.Count > 0 ?script.grassPrefabs[selectedGrassID] : null;
+            //Edge case: Clamp in case there's a switch to scene with less items
+            selectedGrassID = Mathf.Min(selectedGrassID, script.grassPrefabs.Count - 1);
+            
+            VegetationSpawner.GrassPrefab grass = script.grassPrefabs.Count > 0 ? script.grassPrefabs[selectedGrassID] : null;
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -559,6 +577,8 @@ namespace Staggart.VegetationSpawner
 
         private void DrawSettings()
         {
+            EditorGUILayout.LabelField("Spawning", EditorStyles.boldLabel);
+            
             EditorGUI.BeginChangeCheck();
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -574,30 +594,38 @@ namespace Staggart.VegetationSpawner
 
                 serializedObject.ApplyModifiedProperties();
             }
-            
-            if (GUILayout.Button(new GUIContent(" Respawn everything", EditorGUIUtility.IconContent("d_Refresh").image)))
+
+
+            using (new EditorGUILayout.HorizontalScope())
             {
-                Stopwatch sw = new Stopwatch();
-                sw.Restart();
-                script.Respawn();
+                EditorGUILayout.PrefixLabel(" ");
+                
+                if (GUILayout.Button(new GUIContent(" Respawn everything",
+                    EditorGUIUtility.IconContent("d_Refresh").image)))
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Restart();
+                    script.Respawn();
 
-                sw.Stop();
+                    sw.Stop();
 
-                Log.Add("Complete respawn: " + sw.Elapsed.Seconds + " seconds...");
+                    Log.Add("Complete respawn: " + sw.Elapsed.Seconds + " seconds...");
+                }
             }
+
+            serializedObject.Update();
+            EditorGUI.BeginChangeCheck();
+            
+            EditorGUILayout.PropertyField(autoRespawnTrees);
+            EditorGUILayout.PropertyField(waterHeight);
 
             EditorGUILayout.Space();
             
             EditorGUILayout.LabelField("Collision cache", EditorStyles.boldLabel);
 
             script.RebuildCollisionCacheIfNeeded();
-
-            serializedObject.Update();
-
-            VegetationSpawner.VisualizeCells = true;
+            
             VisualizeCellsPersistent = VegetationSpawner.VisualizeCells;
-
-            EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.PropertyField(cellSize);
             EditorGUILayout.PropertyField(cellDivisions);
@@ -605,16 +633,6 @@ namespace Staggart.VegetationSpawner
             EditorGUILayout.PropertyField(collisionLayerMask);
             EditorGUILayout.PropertyField(tempColliders, true);
 
-            EditorGUILayout.Space();
-
-            EditorGUILayout.PropertyField(waterHeight);
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                EditorUtility.SetDirty(target);
-
-                serializedObject.ApplyModifiedProperties();
-            }
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Space(EditorGUIUtility.labelWidth);
@@ -627,6 +645,13 @@ namespace Staggart.VegetationSpawner
 
                     Log.Add("Rebuilding collision cache: " + sw.Elapsed.Milliseconds + "ms...");
                 }
+            }
+            
+            if (EditorGUI.EndChangeCheck())
+            {
+                EditorUtility.SetDirty(target);
+
+                serializedObject.ApplyModifiedProperties();
             }
         }
 
@@ -693,7 +718,7 @@ namespace Staggart.VegetationSpawner
                 {
                     EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
 
-                    selected.threshold = EditorGUILayout.Slider(new GUIContent("Opacity threshold", "The minimum strength the material must have underneath the item, before it will spawn"), selected.threshold, 0f, 1f);
+                    selected.threshold = EditorGUILayout.Slider(new GUIContent("Minimum strength", "The minimum strength the material must have underneath the item, before it will spawn"), selected.threshold, 0f, 1f);
                 }
 
             }
@@ -784,7 +809,7 @@ namespace Staggart.VegetationSpawner
             //Tree
             if (TabID == 1)
             {
-                script.SpawnTree(script.treeTypes[selectedTreeID]);
+                if(autoRespawnTrees.boolValue) script.SpawnTree(script.treeTypes[selectedTreeID]);
             }
             //Grass
             if (TabID == 2)
