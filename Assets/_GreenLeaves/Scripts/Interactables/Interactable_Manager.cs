@@ -89,7 +89,15 @@ public class Interactable_Manager : MonoBehaviour
             }
         }
         m_canBeOverridden = p_canBeOverridden;
+
+        if(m_currentInteractable!= null && m_currentInteractable != p_selectedSystem)
+        {
+            m_currentInteractable.ItemDeselect();
+        }
+
         m_currentInteractable = p_selectedSystem;
+
+        m_currentInteractable.ItemSelected();
 
         m_menuOpen = true;
         m_buttonUiParent.SetActive(true);
@@ -123,6 +131,10 @@ public class Interactable_Manager : MonoBehaviour
 
         if (p_selectedSystem == m_currentInteractable || m_currentInteractable == null)
         {
+            if(m_currentInteractable != null)
+            {
+                m_currentInteractable.ItemDeselect();
+            }
             m_canBeOverridden = false;
             m_menuOpen = false;
             m_buttonUiParent.SetActive(false);
@@ -153,6 +165,11 @@ public class Interactable_Manager : MonoBehaviour
         m_canBeOverridden = false;
         m_menuOpen = false;
         m_buttonUiParent.SetActive(false);
+
+        if (m_currentInteractable != null)
+        {
+            m_currentInteractable.ItemDeselect();
+        }
         m_currentInteractable = null;
 
     }
@@ -163,10 +180,12 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     public void CheckReopen()
     {
+
         m_canOpen = true; 
         if (m_menuWasOpen && m_currentInteractable != null)
         {
             DisplayButtonMenu(m_currentInteractable, m_currentInteractable.m_canBeOverridden);
+            m_currentInteractable.ItemSelected();
         }
     }
 

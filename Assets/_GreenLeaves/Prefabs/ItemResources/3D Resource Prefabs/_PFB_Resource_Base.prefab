@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4142028310542738295}
   - component: {fileID: 7150575894668746101}
   - component: {fileID: 1806350379463084203}
+  - component: {fileID: 6388834257411071431}
   m_Layer: 12
   m_Name: _PFB_Resource_Base
   m_TagString: Untagged
@@ -125,6 +126,36 @@ MonoBehaviour:
   m_playerTag: Player
   m_canBeOverridden: 1
   m_canBeInteractedWith: 1
+  m_itemSelectedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6388834257411071431}
+        m_TargetAssemblyTypeName: VFX_PerformShine, Assembly-CSharp
+        m_MethodName: StartEffect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_itemDeselectedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6388834257411071431}
+        m_TargetAssemblyTypeName: VFX_PerformShine, Assembly-CSharp
+        m_MethodName: StopEffect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_pickupable: {fileID: 229797024991320771}
 --- !u!135 &7150575894668746101
 SphereCollider:
@@ -157,3 +188,19 @@ MonoBehaviour:
   m_gizmosColor1: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   m_gizRadius: 0.5
   m_drawWire: 0
+--- !u!114 &6388834257411071431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806350379463084202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27d745437b878a0429ea4fd9b9933b60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_affectedRenderers: []
+  m_startingPoint: -0.5
+  m_endingPoint: 1.5
+  m_effectLoopTime: 1

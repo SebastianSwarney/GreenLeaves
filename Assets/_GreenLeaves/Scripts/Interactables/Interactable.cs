@@ -30,6 +30,8 @@ public class Interactable : MonoBehaviour
     public string m_playerTag;
     public bool m_canBeOverridden;
     public bool m_canBeInteractedWith = true;
+
+    public GenericWorldEvent m_itemSelectedEvent, m_itemDeselectedEvent;
     
 
     /// <summary>
@@ -134,6 +136,16 @@ public class Interactable : MonoBehaviour
     }
 
     #endregion
+
+
+    public void ItemSelected()
+    {
+        m_itemSelectedEvent.Invoke();
+    }
+    public void ItemDeselect()
+    {
+        m_itemDeselectedEvent.Invoke();
+    }
 
     private void OnEnable()
     {

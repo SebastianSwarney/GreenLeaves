@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7cc4895732852e641a2ab54d42815ad2, type: 2}
+  - {fileID: 2100000, guid: 878fcd0a922b9e74b9d456b1ecd6a0ef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -161,6 +161,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6388834257411071431, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_affectedRenderers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388834257411071431, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_affectedRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 7601092654810102681}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
 --- !u!1 &3735169774144233282 stripped
