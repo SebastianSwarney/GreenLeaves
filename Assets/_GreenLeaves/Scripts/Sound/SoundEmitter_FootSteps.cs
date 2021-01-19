@@ -54,10 +54,8 @@ public class SoundEmitter_FootSteps : MonoBehaviour
     public void PlaySound()
     {
         m_currentSound = GetFootstepEvent();
-        Debug.Log("Current Sound: " + m_currentSound);
         if (m_currentSoundTrack != m_currentSound)
         {
-            Debug.Log("Lookup");
             m_eventEmitter.Event = m_currentSound;
             m_eventEmitter.Lookup();
         }
