@@ -36,10 +36,16 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     }
     private void OnEnable()
     {
+        Player_EquipmentToolsUi.Instance.ToggleCanteenUi(true);
+        Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
         m_durabilityUi.UpdatePromptText(m_controlText);
         m_durabilityUi.UpdateText(m_durability);
         m_durabilityUi.transform.parent = m_promptAnchor;
         m_durabilityUi.transform.position = m_promptAnchor.position + Vector3.up * m_floatingDist;
+    }
+    private void OnDisable()
+    {
+        Player_EquipmentToolsUi.Instance.ToggleCanteenUi(false);
     }
     public void Update()
     {
@@ -212,6 +218,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         {
             m_durability = 0;
         }
+        Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
         UpdateIconDurability();
     }
 
