@@ -10,6 +10,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     [Header("Canteen Specific")]
     [Tooltip("Determines which stat the canteen will refill")]
     public ResourceContainer_Cosume.TypeOfCosumption.ConsumeType m_energyRefilType;
+    public int m_waterToStaminaRatio;
     //Note: May want to just substitue the normal canteen for a special canteen when using the boiling system. When that crafted canteen is fully empty, 
     //replace with a normal empty canteen to revert back to the original canteen.
 
@@ -17,7 +18,13 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     [Header("Detection Variables")]
     public LayerMask m_waterSourceMask;
     public float m_detectRadius;
-    public Transform m_detectionOrigin;
+
+    [Header("Prompt Text")]
+    public string m_controlText;
+    public string m_controlFillText;
+    public Transform m_promptAnchor;
+    public Durability_UI m_durabilityUi;
+    public float m_floatingDist;
 
     [Header("Debugging")]
     public bool m_isDebugging;
@@ -27,16 +34,94 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     {
         Instance = this;
     }
+    private void OnEnable()
+    {
+        m_durabilityUi.UpdatePromptText(m_controlText);
+        m_durabilityUi.UpdateText(m_durability);
+        m_durabilityUi.transform.parent = m_promptAnchor;
+        m_durabilityUi.transform.position = m_promptAnchor.position + Vector3.up * m_floatingDist;
+    }
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.O))
+        if (!Inventory_2DMenu.Instance.m_isOpen)
         {
-            UseEquipment();
+            if (Input.GetMouseButtonDown(0))
+            {
+
+                UseEquipment();
+            }
         }
     }
     public override void UseEquipment()
     {
 
+        int requiredEnergy = (int)(PlayerStatsController.Instance.GetMaxStat(m_energyRefilType) - PlayerStatsController.Instance.GetCurrentStat(m_energyRefilType));
+
+        ///Player at full energy?
+        if (requiredEnergy == 0)
+        {
+            ///Canteen has full water
+            if (m_durability == m_startingDurability)
+            {
+                PlayAnimation("Shake Canteen cause full");
+            }
+            else
+            {
+                ///Look for water source
+                if (WaterNearby())
+                {
+                    PlayAnimation("Fill canteen with water");
+                    AdjustCanteenCapacity(m_startingDurability);
+
+                }
+                else
+                {
+                    PlayAnimation("Look for water");
+                }
+            }
+        }
+        else
+        {
+            ///Canteen has water
+            if (m_durability > 0)
+            {
+
+                ///Determine how much energy to refil
+                if (m_durability - requiredEnergy <= 0)
+                {
+                    PlayAnimation("Drink water: Canteen empty");
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, m_durability * m_waterToStaminaRatio);
+                    AdjustCanteenCapacity(0);
+                }
+                else
+                {
+                    PlayAnimation("Drink water: Canteen still has some");
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, (float)requiredEnergy);
+                    AdjustCanteenCapacity(m_durability - requiredEnergy);
+                }
+            }
+            else
+            {
+                ///Look for water source
+                if (WaterNearby())
+                {
+                    PlayAnimation("Drink directly from water source");
+                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, 1000);
+                    AdjustCanteenCapacity(m_startingDurability);
+                }
+                else
+                {
+                    PlayAnimation("Look for water");
+                }
+            }
+        }
+
+        m_durabilityUi.UpdatePromptText(m_controlText);
+        m_durabilityUi.UpdateText(m_durability);
+    }
+
+    private void OldUseEquipment()
+    {
         int requiredEnergy = 0;
 
         ///Player at full energy?
@@ -67,7 +152,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
             ///Canteen has water
             if (m_durability > 0)
             {
-                
+
                 ///Determine how much energy to refil
                 if (m_durability - requiredEnergy <= 0)
                 {
@@ -98,6 +183,11 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         }
     }
 
+    public override void UnEquipObject()
+    {
+        m_durabilityUi.transform.parent = transform;
+        base.UnEquipObject();
+    }
 
     /// <summary>
     /// Checks if theres water near the player
@@ -105,7 +195,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     /// <returns></returns>
     private bool WaterNearby()
     {
-       return Physics.OverlapSphere(m_detectionOrigin.position, m_detectRadius, m_waterSourceMask).Length > 0;
+       return Physics.OverlapSphere(transform.position, m_detectRadius, m_waterSourceMask).Length > 0;
     }
 
     /// <summary>
@@ -140,6 +230,6 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     {
         if (!m_isDebugging) return;
         Gizmos.color = m_gizmosColor;
-        Gizmos.DrawWireSphere(m_detectionOrigin.position, m_detectRadius);
+        Gizmos.DrawWireSphere(transform.position, m_detectRadius);
     }
 }

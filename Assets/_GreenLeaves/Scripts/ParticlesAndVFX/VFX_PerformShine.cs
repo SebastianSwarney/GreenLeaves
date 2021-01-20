@@ -32,7 +32,10 @@ public class VFX_PerformShine : MonoBehaviour
     public void StartEffect()
     {
         StopAllCoroutines();
-        StartCoroutine(EffectLoop());
+        if (enabled && gameObject.activeSelf && gameObject.activeInHierarchy)
+        {
+            StartCoroutine(EffectLoop());
+        }
     }
     private IEnumerator EffectLoop()
     {

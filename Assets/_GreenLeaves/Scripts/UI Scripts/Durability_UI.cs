@@ -11,7 +11,7 @@ public class Durability_UI : MonoBehaviour
     public CanvasGroup m_cg;
     public float m_fadeTime;
 
-    public UnityEngine.UI.Text m_durabilityText;
+    public UnityEngine.UI.Text m_durabilityText, m_promptText;
 
     public GameObject m_controlUI;
     private void Awake()
@@ -27,7 +27,10 @@ public class Durability_UI : MonoBehaviour
     {
         m_durabilityText.text = "+ " + p_durabilityAmount.ToString();
     }
-
+    public void UpdatePromptText(string p_newText)
+    {
+        m_promptText.text = p_newText;
+    }
     public void HideUI()
     {
         StopAllCoroutines();
