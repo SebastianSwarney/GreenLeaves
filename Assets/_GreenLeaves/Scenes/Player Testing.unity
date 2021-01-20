@@ -15300,7 +15300,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1733280175}
   - component: {fileID: 1733280176}
-  - component: {fileID: 1733280177}
   m_Layer: 0
   m_Name: Terrain Root
   m_TagString: Untagged
@@ -15522,89 +15521,6 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
---- !u!114 &1733280177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1733280174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f710250abab6f24a954bdf3c3c1ac64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  seed: 313
-  terrains:
-  - {fileID: 429049669}
-  - {fileID: 842427075}
-  - {fileID: 1276979315}
-  - {fileID: 1489584322}
-  treeTypes: []
-  grassPrefabs:
-  - seed: 56896
-    probability: 100
-    collisionCheck: 0
-    rejectUnderwater: 0
-    heightRange: {x: 0, y: 1000}
-    slopeRange: {x: 0, y: 90}
-    curvatureRange: {x: 0, y: 1}
-    layerMasks:
-    - layerID: 1
-      threshold: 0
-    instanceCount: 9624320
-    index: 0
-    type: 1
-    prefab: {fileID: 0}
-    billboard: {fileID: 2800000, guid: 15e7dec11854bc64bac70e8cae26fd69, type: 3}
-    mainColor: {r: 0.3944, g: 0.493, b: 0.09341053, a: 1}
-    secondairyColor: {r: 0.3944, g: 0.493, b: 0.09341053, a: 1}
-    linkColors: 1
-    minMaxHeight: {x: 0.3, y: 1}
-    minMaxWidth: {x: 1.5, y: 2}
-    noiseSize: 0.1
-  - seed: 171
-    probability: 0
-    collisionCheck: 0
-    rejectUnderwater: 0
-    heightRange: {x: 0, y: 1000}
-    slopeRange: {x: 0, y: 90}
-    curvatureRange: {x: 0, y: 1}
-    layerMasks:
-    - layerID: 1
-      threshold: 0
-    instanceCount: 0
-    index: 1
-    type: 1
-    prefab: {fileID: 0}
-    billboard: {fileID: 2800000, guid: a8074f96e8c1c1b419de5448f6a2e628, type: 3}
-    mainColor: {r: 0.41176474, g: 0.4901961, b: 0.08235294, a: 1}
-    secondairyColor: {r: 0.41176474, g: 0.4901961, b: 0.08235294, a: 1}
-    linkColors: 1
-    minMaxHeight: {x: 0.5116959, y: 1.011696}
-    minMaxWidth: {x: 0.8, y: 1.2}
-    noiseSize: 0.1
-  terrainSettings:
-    drawInstanced: 1
-    detailDistance: 520
-    perservePrefabLayer: 1
-    treeLightProbes: 0
-    treeDistance: 0
-    billboardStart: 5
-    windStrength: 0
-    windSpeed: 0
-    windFrequency: 0.1
-    wintTint: {r: 1, g: 1, b: 1, a: 1}
-  maxTerrainHeight: 1000
-  cellSize: 64
-  cellDivisions: 4
-  highPrecisionCollision: 1
-  collisionLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  tempColliders: []
-  waterHeight: 0
-  autoRespawnTrees: 1
 --- !u!1 &1753025586
 GameObject:
   m_ObjectHideFlags: 0
