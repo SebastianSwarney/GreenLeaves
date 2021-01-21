@@ -552,7 +552,7 @@ namespace Staggart.VegetationSpawner
                         InitializeSeed(x * y + item.seed);
 
                         //Default
-                        int instanceCount = 5; //Change this to a bigger number for more grass
+                        int instanceCount = 10; //Change this to a bigger number for more grass
                         map[x, y] = 0;
 
                         //XZ world position

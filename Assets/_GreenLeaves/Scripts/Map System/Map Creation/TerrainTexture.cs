@@ -8,6 +8,18 @@ public class TerrainTexture : MonoBehaviour
 {
     public SplatMapSetting[] m_splatMapSettings;
 
+    public int m_terrainColumnsCount;
+    public int m_terrainRows;
+
+    public Column[] m_terrainColumns;
+
+    [System.Serializable]
+    public struct Column
+    {
+        public Terrain[] m_columnContent;
+    }
+
+
     [Button("Set Textures")]
     private void SetTextureToAllTerrains()
     {
@@ -32,6 +44,69 @@ public class TerrainTexture : MonoBehaviour
 
             terrain.Flush();
         }
+    }
+
+    [Button("Make New Terrain")]
+    private void MakeSingleTerrain()
+    {
+        Terrain[] childTerrains = GetComponentsInChildren<Terrain>();
+
+        //This just uses the first of the children terrain as a shorthand for getting variables
+        Terrain sampleTerrain = childTerrains[0];
+
+        TerrainData newTerrainData = new TerrainData();
+        newTerrainData.heightmapResolution = ((sampleTerrain.terrainData.heightmapResolution - 1) * m_terrainColumnsCount) + 1;
+        //newTerrainData.heightmapResolution = 4097;
+        GameObject terrainObject = Terrain.CreateTerrainGameObject(newTerrainData);
+        newTerrainData.size = new Vector3((m_terrainColumnsCount + 1) * sampleTerrain.terrainData.size.x, sampleTerrain.terrainData.size.y, (m_terrainRows + 1) * sampleTerrain.terrainData.size.x);
+
+
+        terrainObject.transform.position += Vector3.left * (newTerrainData.size.x / (m_terrainColumnsCount + 1));
+        terrainObject.transform.position += Vector3.back * (newTerrainData.size.x / (m_terrainColumnsCount + 1));
+
+        for (int x = 0; x < m_terrainColumns.Length; x++)
+        {
+            for (int y = 0; y < m_terrainColumns[x].m_columnContent.Length; y++)
+            {
+                TerrainData oldTerrainData = m_terrainColumns[x].m_columnContent[y].terrainData;
+                SetSingleTerrainData(oldTerrainData, newTerrainData, new Vector2Int(x, y));
+            }
+        }
+
+
+        //TerrainData terrainData = childTerrains[0].terrainData;
+        //float[,] heights = terrainData.GetHeights(0, 0, terrainData.heightmapResolution, terrainData.heightmapResolution);
+        //newTerrainData.SetHeights(0, 0, heights);
+
+        /*
+        TerrainData newTerrainData = new TerrainData();
+        newTerrainData.heightmapResolution = 1025;
+        GameObject terrainObject = Terrain.CreateTerrainGameObject(newTerrainData);
+        newTerrainData.size = new Vector3(2000, 1200, 2000);
+        TerrainData terrainData = childTerrains[0].terrainData;
+
+        float[,] heights = terrainData.GetHeights(0, 0, terrainData.heightmapResolution, terrainData.heightmapResolution);
+
+        for (int y = 0; y < terrainData.heightmapResolution; y++)
+        {
+            for (int x = 0; x < terrainData.heightmapResolution; x++)
+            {
+                heights[x, y] = heights[x, y] * 0.5f;
+            }
+        }
+
+        //newTerrainData.SetHeights(newTerrainData.heightmapResolution / 2, newTerrainData.heightmapResolution / 2, heights);
+        newTerrainData.SetHeights(0, 0, heights);
+        */
+    }
+
+    private void SetSingleTerrainData(TerrainData p_oldData, TerrainData p_newData, Vector2Int p_positionIndex)
+    {
+        float[,] heights = p_oldData.GetHeights(0, 0, p_oldData.heightmapResolution, p_oldData.heightmapResolution);
+
+        Vector2Int pos = new Vector2Int(p_oldData.heightmapResolution * p_positionIndex.x, p_oldData.heightmapResolution * p_positionIndex.y);
+
+        p_newData.SetHeights(pos.x, pos.y, heights);
     }
 
     private void SetTexture(Terrain p_terrain)
@@ -59,14 +134,21 @@ public class TerrainTexture : MonoBehaviour
 
                 for (int i = 0; i < m_splatMapSettings.Length; i++)
                 {
+                    m_splatMapSettings[i].SetLayer(ref terrainLayers);
+                }
+
+                terrainData.SetTerrainLayersRegisterUndo(terrainLayers.ToArray(), "Terrain Layers");
+
+
+                for (int i = 0; i < m_splatMapSettings.Length; i++)
+                {
                     float splatValue = 0;
 
-                    m_splatMapSettings[i].SetMap(heightNormalized, steepnessNormalized, ref splatValue, ref terrainLayers);
+                    m_splatMapSettings[i].SetMap(heightNormalized, steepnessNormalized, ref splatValue);
 
                     splatWeights[i] = splatValue;
                 }
 
-                terrainData.SetTerrainLayersRegisterUndo(terrainLayers.ToArray(), "Terrain Layers");
 
 
                 // Sum of all textures weights must add to 1, so calculate normalization factor from sum of weights
@@ -100,11 +182,14 @@ public class SplatMapSetting
 
     public TerrainLayer m_layerTexture;
 
-
-
-    public void SetMap(float p_normalizedHeight, float p_normalizedSteepness, ref float p_splatValue, ref List<TerrainLayer> p_terrainLayers)
+    public void SetLayer(ref List<TerrainLayer> p_terrainLayers)
     {
         p_terrainLayers.Add(m_layerTexture);
+    }
+
+    public void SetMap(float p_normalizedHeight, float p_normalizedSteepness, ref float p_splatValue)
+    {
+
 
         if (m_totalStrength != 0)
         {
