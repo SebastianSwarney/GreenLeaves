@@ -4,16 +4,9 @@ using UnityEngine;
 using System.Linq;
 using Sirenix.OdinInspector;
 
-
-[ExecuteInEditMode]
 public class TerrainTexture : MonoBehaviour
 {
     public SplatMapSetting[] m_splatMapSettings;
-
-    private void Update()
-    {
-        //SetTexture();
-    }
 
     [Button("Set Textures")]
     private void SetTextureToAllTerrains()
@@ -23,6 +16,21 @@ public class TerrainTexture : MonoBehaviour
         foreach (Terrain terrain in childTerrains)
         {
             SetTexture(terrain);
+        }
+    }
+
+    [Button("Set Neighbors")]
+    private void SetNeighbors()
+    {
+        Terrain[] childTerrains = GetComponentsInChildren<Terrain>();
+
+        foreach (Terrain terrain in childTerrains)
+        {
+            TerrainNeighbors terrainNeighbors = terrain.GetComponent<TerrainNeighbors>();
+
+            terrain.SetNeighbors(terrainNeighbors.m_left, terrainNeighbors.m_top, terrainNeighbors.m_right, terrainNeighbors.m_bottom);
+
+            terrain.Flush();
         }
     }
 
@@ -47,14 +55,18 @@ public class TerrainTexture : MonoBehaviour
                 float steepnessNormalized = steepness / 90f;
                 float heightNormalized = height / terrainData.heightmapResolution;
 
+                List<TerrainLayer> terrainLayers = new List<TerrainLayer>();
+
                 for (int i = 0; i < m_splatMapSettings.Length; i++)
                 {
                     float splatValue = 0;
 
-                    m_splatMapSettings[i].SetMap(heightNormalized, steepnessNormalized, ref splatValue);
+                    m_splatMapSettings[i].SetMap(heightNormalized, steepnessNormalized, ref splatValue, ref terrainLayers);
 
                     splatWeights[i] = splatValue;
                 }
+
+                terrainData.SetTerrainLayersRegisterUndo(terrainLayers.ToArray(), "Terrain Layers");
 
 
                 // Sum of all textures weights must add to 1, so calculate normalization factor from sum of weights
@@ -86,8 +98,14 @@ public class SplatMapSetting
     public SlopeMask m_slopeMask;
     public HeightMask m_heightMask;
 
-    public void SetMap(float p_normalizedHeight, float p_normalizedSteepness, ref float p_splatValue)
+    public TerrainLayer m_layerTexture;
+
+
+
+    public void SetMap(float p_normalizedHeight, float p_normalizedSteepness, ref float p_splatValue, ref List<TerrainLayer> p_terrainLayers)
     {
+        p_terrainLayers.Add(m_layerTexture);
+
         if (m_totalStrength != 0)
         {
             float slopeValue = m_slopeMask.ApplyMask(p_normalizedHeight, p_normalizedSteepness, ref p_splatValue);

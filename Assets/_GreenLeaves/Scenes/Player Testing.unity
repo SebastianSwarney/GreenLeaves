@@ -3354,7 +3354,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh64956
+  m_Name: pb_Mesh34184
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3671,7 +3671,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh65244
+  m_Name: pb_Mesh34472
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3835,7 +3835,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh65364
+  m_Name: pb_Mesh34590
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -4067,6 +4067,7 @@ GameObject:
   - component: {fileID: 429049670}
   - component: {fileID: 429049669}
   - component: {fileID: 429049668}
+  - component: {fileID: 429049671}
   m_Layer: 9
   m_Name: Terrain
   m_TagString: Untagged
@@ -4132,6 +4133,22 @@ Transform:
   m_Father: {fileID: 1733280175}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &429049671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429049667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fddc23705f40ed4e9e3f767c273c3f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_left: {fileID: 1276979315}
+  m_top: {fileID: 0}
+  m_right: {fileID: 0}
+  m_bottom: {fileID: 1489584322}
 --- !u!1 &439999398
 GameObject:
   m_ObjectHideFlags: 0
@@ -8798,6 +8815,7 @@ GameObject:
   - component: {fileID: 842427076}
   - component: {fileID: 842427075}
   - component: {fileID: 842427074}
+  - component: {fileID: 842427077}
   m_Layer: 9
   m_Name: Terrain_(-1000.0, 0.0, -1000.0)
   m_TagString: Untagged
@@ -8863,6 +8881,22 @@ Transform:
   m_Father: {fileID: 1733280175}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &842427077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842427073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fddc23705f40ed4e9e3f767c273c3f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_left: {fileID: 0}
+  m_top: {fileID: 1276979315}
+  m_right: {fileID: 1489584322}
+  m_bottom: {fileID: 0}
 --- !u!1 &915115047
 GameObject:
   m_ObjectHideFlags: 0
@@ -9628,7 +9662,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh64840
+  m_Name: pb_Mesh34068
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -9891,6 +9925,7 @@ GameObject:
   - component: {fileID: 1276979316}
   - component: {fileID: 1276979315}
   - component: {fileID: 1276979314}
+  - component: {fileID: 1276979317}
   m_Layer: 9
   m_Name: Terrain_(-1000.0, 0.0, 0.0)
   m_TagString: Untagged
@@ -9956,6 +9991,22 @@ Transform:
   m_Father: {fileID: 1733280175}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1276979317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276979313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fddc23705f40ed4e9e3f767c273c3f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_left: {fileID: 0}
+  m_top: {fileID: 0}
+  m_right: {fileID: 429049669}
+  m_bottom: {fileID: 842427075}
 --- !u!1 &1297515670
 GameObject:
   m_ObjectHideFlags: 0
@@ -10526,6 +10577,7 @@ GameObject:
   - component: {fileID: 1489584323}
   - component: {fileID: 1489584322}
   - component: {fileID: 1489584321}
+  - component: {fileID: 1489584324}
   m_Layer: 9
   m_Name: Terrain_(0.0, 0.0, -1000.0)
   m_TagString: Untagged
@@ -10591,6 +10643,22 @@ Transform:
   m_Father: {fileID: 1733280175}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1489584324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1489584320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fddc23705f40ed4e9e3f767c273c3f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_left: {fileID: 842427075}
+  m_top: {fileID: 429049669}
+  m_right: {fileID: 0}
+  m_bottom: {fileID: 0}
 --- !u!1 &1491661985
 GameObject:
   m_ObjectHideFlags: 0
@@ -15359,7 +15427,8 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-  - m_totalStrength: 1
+    m_layerTexture: {fileID: 8574412962073106934, guid: 82aea1bf4675be54487e9d7583efd53c, type: 2}
+  - m_totalStrength: 0.5
     m_slopeMask:
       m_useMask: 1
       m_strength: 1
@@ -15425,6 +15494,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
+    m_layerTexture: {fileID: 8574412962073106934, guid: a81050ac684e8ef438628a0ed178d144, type: 2}
   - m_totalStrength: 1
     m_slopeMask:
       m_useMask: 1
@@ -15464,6 +15534,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
+    m_layerTexture: {fileID: 8574412962073106934, guid: e0d9469a58c161248b9ac0a71f7750ba, type: 2}
   - m_totalStrength: 0
     m_slopeMask:
       m_useMask: 1
@@ -15521,6 +15592,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
+    m_layerTexture: {fileID: 8574412962073106934, guid: 34a7124a250b6314f803cba5555e7faa, type: 2}
 --- !u!1 &1753025586
 GameObject:
   m_ObjectHideFlags: 0
@@ -15653,7 +15725,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh65278
+  m_Name: pb_Mesh34506
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
