@@ -89,7 +89,7 @@ public class Crafting_Table : MonoBehaviour
             m_matchingAmount[i] = 0;
         }
         List<Crafting_ItemsContainer> currentItems = GatherCurrentItems();
-        
+
         int newAmount = 0;
         for (int i = 0; i < m_allRecipes.Count; i++)
         {
@@ -97,8 +97,8 @@ public class Crafting_Table : MonoBehaviour
             if (m_allRecipes[i].CanCraft(currentItems, out newAmount))
             {
                 m_matchingAmount[i] = newAmount;
-//                m_currentRecipe = recip;
-                
+                //                m_currentRecipe = recip;
+
             }
         }
 
@@ -106,13 +106,13 @@ public class Crafting_Table : MonoBehaviour
         for (int i = 0; i < m_allRecipes.Count; i++)
         {
             if (m_matchingAmount[i] == 0) continue;
-            if(currentHighest < m_matchingAmount[i])
+            if (currentHighest < m_matchingAmount[i])
             {
                 currentHighest = m_matchingAmount[i];
                 m_currentRecipe = m_allRecipes[i];
             }
         }
-        if(m_currentRecipe != null)
+        if (m_currentRecipe != null)
         {
             m_craftedItemText.text = m_currentRecipe.m_craftedItem.m_resourceData.m_resourceName;
         }
@@ -144,7 +144,7 @@ public class Crafting_Table : MonoBehaviour
             currentItems.Add(newContainer);
         }
 
-        
+
         return currentItems;
     }
 
@@ -155,6 +155,7 @@ public class Crafting_Table : MonoBehaviour
     /// </summary>
     public void CraftItem()
     {
+        RecipeBook.Instance.UnlockRecipe(m_currentRecipe.m_recipeBookIndex);
         Inventory_2DMenu.Instance.CraftNewIcon(m_currentRecipe);
         AdjustResources();
 
