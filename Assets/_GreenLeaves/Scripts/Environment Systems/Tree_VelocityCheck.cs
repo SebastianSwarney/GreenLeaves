@@ -18,13 +18,20 @@ public class Tree_VelocityCheck : MonoBehaviour
     public GenericWorldEvent m_objectHit;
     public float m_delayCheckTime;
 
+    public bool m_debugCollision;
 
     public void AssignToNewTree(GameObject p_newTree)
     {
         transform.parent = p_newTree.transform;
         m_rb = p_newTree.GetComponent<Rigidbody>();
+        m_rb.angularDrag = 0;
         enabled = true;
-        StartCoroutine(PerformCheck());
+
+        Debug.DrawLine(Vector3.zero, m_rb.centerOfMass,Color.red, 4f);
+        if (!m_debugCollision)
+        {
+            StartCoroutine(PerformCheck());
+        }
     }
 
     private IEnumerator PerformCheck()
@@ -50,4 +57,11 @@ public class Tree_VelocityCheck : MonoBehaviour
         transform.parent.gameObject.SetActive(false);
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (m_debugCollision)
+        {
+            Debug.Log("Collided with : " + collision.gameObject.name);
+        }
+    }
 }
