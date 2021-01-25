@@ -135,7 +135,7 @@ namespace Staggart.VegetationSpawner
         public class TerrainSettings
         {
             public bool drawInstanced = true;
-            [Range(0f, 1000f)]
+            [Range(0f, 5000f)]
             public float detailDistance = 1000f;
 
             [Header("Trees")]
