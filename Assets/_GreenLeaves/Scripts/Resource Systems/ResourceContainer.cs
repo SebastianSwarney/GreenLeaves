@@ -12,7 +12,7 @@ public class ResourceContainer : ScriptableObject
     public Color m_itemUseButtonColor;
     public bool m_showInventorySelectionButton;
     public bool m_stopDropping;
-
+    public bool m_isEdible = false;
     public virtual void UseItem(Inventory_Icon p_currentIcon)
     {
         Debug.Log("Use Item");

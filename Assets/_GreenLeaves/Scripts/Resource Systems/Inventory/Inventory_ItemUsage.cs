@@ -42,13 +42,11 @@ public class Inventory_ItemUsage : MonoBehaviour
     public void EquipNewItem(Inventory_Icon p_currentIcon, ResourceContainer_Equip.ToolType p_toolType)
     {
         Player_Inventory.Instance.EquipItem(p_currentIcon,p_toolType);
-        Inventory_2DMenu.Instance.ChangeSelectedButtonText("Unequip",Color.red);
     }
 
     public void UnEquipCurrent()
     {
         Player_Inventory.Instance.UnEquipCurrentTool();
-        Inventory_2DMenu.Instance.ChangeSelectedButtonText("Equip", Color.green);
     }
     #endregion
 

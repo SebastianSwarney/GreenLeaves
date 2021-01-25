@@ -234,11 +234,10 @@ public class Interactable_Manager : MonoBehaviour
             {
                 if (m_currentInteractable != cols[i].GetComponent<Interactable>())
                 {
-                    if (cols[0].GetComponent<Interactable>().m_canBeInteractedWith)
+                    if (cols[i].GetComponent<Interactable>().m_canBeInteractedWith)
                     {
                         m_currentInteractable = null;
-                        Debug.Log("Display: " + cols[i].gameObject.name);
-                        cols[0].GetComponent<Interactable>().DisplayMessage();
+                        cols[i].GetComponent<Interactable>().DisplayMessage();
                         return;
                     }
                 }

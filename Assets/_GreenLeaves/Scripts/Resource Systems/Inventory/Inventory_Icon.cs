@@ -16,7 +16,9 @@ public class Inventory_Icon : MonoBehaviour
     public bool m_isEquipped = false;
     public bool m_inCraftingTable = false;
     public bool m_inCookingTable = false;
-    [HideInInspector] public bool m_wasInEquipment;
+    public bool m_wasInEatingArea = false;
+    public bool m_inEatingArea = false;
+    public bool m_wasInEquipment;
 
     [HideInInspector] public Vector2Int m_previousGridPos;
     [HideInInspector] public Vector3 m_startingCoordPos;
@@ -45,7 +47,7 @@ public class Inventory_Icon : MonoBehaviour
             case Inventory_2DMenu.RotationType.Left:
                 transform.localEulerAngles = new Vector3(0, 0, 0);
                 m_numberTransform.localEulerAngles = new Vector3(0, 0, 0);
-                m_numberTransform.anchoredPosition = new Vector2(0,0);
+                m_numberTransform.anchoredPosition = new Vector2(0, 0);
                 break;
             case Inventory_2DMenu.RotationType.Down:
                 transform.localEulerAngles = new Vector3(0, 0, -90);
@@ -95,8 +97,8 @@ public class Inventory_Icon : MonoBehaviour
                 break;
         }
     }
-    
-    
+
+
     /// <summary>
     /// Adjusts the offset from the mouse while being dragged
     /// The offset changes depending on the rotation type
@@ -157,15 +159,15 @@ public class Inventory_Icon : MonoBehaviour
     /// 
     /// Returns true if there is no remainder. | Returns false if the full amount cant be added
     /// </summary>
-    public bool CanAddFullAmount(int p_amount,out int p_amountLeft)
+    public bool CanAddFullAmount(int p_amount, out int p_amountLeft)
     {
         p_amountLeft = p_amount;
-        if(m_currentResourceAmount >= m_itemData.m_resourceData.m_singleResourceAmount)
+        if (m_currentResourceAmount >= m_itemData.m_resourceData.m_singleResourceAmount)
         {
             return false;
         }
 
-        if(m_currentResourceAmount + p_amount <= m_itemData.m_resourceData.m_singleResourceAmount)
+        if (m_currentResourceAmount + p_amount <= m_itemData.m_resourceData.m_singleResourceAmount)
         {
             p_amountLeft = 0;
             m_currentResourceAmount += p_amount;
@@ -186,7 +188,7 @@ public class Inventory_Icon : MonoBehaviour
     /// </summary>
     public void IconTappedOn()
     {
-        
+
         StartCoroutine(WaitForMouseUp());
 
         m_previousRotType = m_rotatedDir;
@@ -199,7 +201,8 @@ public class Inventory_Icon : MonoBehaviour
         else if (m_inCraftingTable)
         {
             Crafting_Table.CraftingTable.RemoveIconFromTable(this);
-        } else if (m_inCookingTable)
+        }
+        else if (m_inCookingTable)
         {
             Crafting_Table.CookingTable.RemoveIconFromTable(this);
         }
@@ -237,6 +240,17 @@ public class Inventory_Icon : MonoBehaviour
         m_itemIcon.raycastTarget = true;
     }
 
+
+    public void ClosedWhileHolding()
+    {
+        StopAllCoroutines();
+        m_canvasGroup.alpha = 1;
+        m_itemIcon.raycastTarget = true;
+        transform.localPosition = m_startingCoordPos;
+        ResetRotation();
+        SetNumberRotation();
+
+    }
     /// <summary>
     /// Called when the 2d menu is closed while still in the dragging sequence.
     /// Will stop the coroutine, and renenable the raycast target
@@ -314,5 +328,6 @@ public class Inventory_Icon : MonoBehaviour
     {
         m_inCraftingTable = false;
         m_inCookingTable = false;
+
     }
 }

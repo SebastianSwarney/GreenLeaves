@@ -166,9 +166,9 @@ public class Inventory_Grid : MonoBehaviour
                                   pos.y + (Mathf.Sign(-pos.y)) * (m_gridIconSize.y * (p_data.m_inventoryWeight.y - 1) * .5f));
                 
                 p_icon.transform.position = pos;*/
-                
+
                 pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)),
-                                    -m_gridIconSize.y * ((p_placement.y - (m_rowSlots.Count /2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)));
+                                    -m_gridIconSize.y * ((p_placement.y - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)));
                 p_icon.transform.localPosition = pos;
 
                 for (int y = p_placement.y; y < p_placement.y + p_data.m_inventoryWeight.y; y++)
@@ -461,8 +461,11 @@ public class Inventory_Grid : MonoBehaviour
 
     public void RemoveSingleIcon(Inventory_Icon p_icon)
     {
-        ClearOldPos(p_icon.m_previousGridPos, p_icon.m_itemData.m_resourceData.m_inventoryWeight, p_icon.m_rotatedDir);
-        RemoveWeight(p_icon.m_itemData.m_resourceData);
+        if (p_icon.m_inBackpack)
+        {
+            ClearOldPos(p_icon.m_previousGridPos, p_icon.m_itemData.m_resourceData.m_inventoryWeight, p_icon.m_rotatedDir);
+            RemoveWeight(p_icon.m_itemData.m_resourceData);
+        }
         ObjectPooler.Instance.ReturnToPool(p_icon.gameObject);
     }
     #endregion
