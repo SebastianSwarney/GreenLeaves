@@ -12,6 +12,8 @@ public class Crafting_Recipe : ScriptableObject
     public ResourceContainer m_craftedItem;
     public int m_craftedAmount;
 
+    public int m_recipeBookIndex;
+
     [Header("Tool Stuff")]
     public bool m_isToolRecipe;
     public int m_startingToolDurability;

@@ -46,22 +46,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153bf4d536be4bb4e89e961a6640b44b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_soundEffect:
-  - event:/Footsteps/Steps - Bush - Redo
-  - event:/Footsteps/Steps - Dirt
-  - event:/Footsteps/Steps - Grass
-  - event:/Footsteps/Steps - Gravel
-  - event:/Footsteps/Steps - Leaves
-  - event:/Footsteps/Steps - Rock
-  - event:/Footsteps/Steps - Water Deep
-  - event:/Footsteps/Steps - Water Puddle
-  - event:/Footsteps/Steps - Water Shore
-  - event:/Footsteps/Steps - Wood Plank
+  m_playerHeadObject: {fileID: 0}
+  m_nonTerrainMask:
+    serializedVersion: 2
+    m_Bits: 0
+  m_terrainSounds: []
+  m_objectFootsteps: []
+  m_waterFootsteps: []
   m_eventEmitter: {fileID: 5166952631678028596}
   m_currentSound: 0
+  m_onTerrain: 1
   m_twigSoundEffect: []
   m_twigEmitter: {fileID: 1236397308616809963}
   m_chance: 0.1
+  m_twigChances: 
+  m_debugging: 0
 --- !u!114 &5166952631678028596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,7 +74,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollisionTag: 
-  Event: event:/Footsteps/Steps - Rock
+  Event: event:/Footsteps/Steps - Dirt
   PlayEvent: 0
   StopEvent: 0
   AllowFadeout: 1

@@ -138,11 +138,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c82e39477eda81a4fa0132e6d1d1656a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_spawnedParticle: {fileID: 794497486324550165, guid: 75394f1baa0be774c87fd4682adeb8db, type: 3}
-  m_particleOffset: {x: 0, y: 0, z: 0}
+  m_spawnedParticle: {fileID: 1103339554717655605, guid: dcf9b3db4bd11d948ad7490e505e819f, type: 3}
+  m_particleOffset: {x: 0, y: 1.3, z: 0}
   m_isDebugging: 0
-  m_gizmosColor1: {r: 0, g: 0, b: 0, a: 0}
-  m_gizRadius: 0
+  m_gizmosColor1: {r: 1, g: 0, b: 0, a: 0.8509804}
+  m_gizRadius: 0.35
   m_drawWire: 0
 --- !u!136 &7699585707789988954
 CapsuleCollider:
@@ -300,6 +300,10 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 1.5
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: d87ed5ff390c34b40afe0a45cfa2c25e, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: fe60a758d1a314d4cafba6230461c5f3, type: 2}
     - target: {fileID: -5754084199372789682, guid: d87ed5ff390c34b40afe0a45cfa2c25e, type: 3}
       propertyPath: m_Mesh
       value: 

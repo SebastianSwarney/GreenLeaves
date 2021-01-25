@@ -100,6 +100,7 @@ public class Interactable_Manager : MonoBehaviour
         m_currentInteractable.ItemSelected();
 
         m_menuOpen = true;
+        if (m_buttonUiParent == null) return;
         m_buttonUiParent.SetActive(true);
 
         m_interactableName.transform.parent.gameObject.SetActive(true);
