@@ -552,7 +552,7 @@ namespace Staggart.VegetationSpawner
                         InitializeSeed(x * y + item.seed);
 
                         //Default
-                        int instanceCount = 1;
+                        int instanceCount = 10; //Change this to a bigger number for more grass
                         map[x, y] = 0;
 
                         //XZ world position
@@ -700,7 +700,7 @@ namespace Staggart.VegetationSpawner
             }
             if (item.type == GrassType.Billboard && item.billboard)
             {
-                d.renderMode = DetailRenderMode.GrassBillboard;
+                d.renderMode = DetailRenderMode.Grass; //Hey this is the spot where I force it to be something
                 d.usePrototypeMesh = false;
                 d.prototypeTexture = item.billboard;
                 d.prototype = null;
