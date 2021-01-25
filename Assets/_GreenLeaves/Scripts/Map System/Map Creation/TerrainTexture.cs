@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Sirenix.OdinInspector;
+using UnityEditor;
 
 public class TerrainTexture : MonoBehaviour
 {
@@ -55,6 +56,10 @@ public class TerrainTexture : MonoBehaviour
         Terrain sampleTerrain = childTerrains[0];
 
         TerrainData newTerrainData = new TerrainData();
+
+        AssetDatabase.CreateAsset(newTerrainData, "Assets/MyTerrainData.asset");
+        AssetDatabase.SaveAssets();
+
         newTerrainData.heightmapResolution = ((sampleTerrain.terrainData.heightmapResolution - 1) * m_terrainColumnsCount) + 1;
         //newTerrainData.heightmapResolution = 4097;
         GameObject terrainObject = Terrain.CreateTerrainGameObject(newTerrainData);
