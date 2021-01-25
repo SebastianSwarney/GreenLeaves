@@ -566,7 +566,12 @@ public class Inventory_2DMenu : MonoBehaviour
         {
             Inventory_ItemUsage.Instance.UnEquipCurrent();
             p_tappedOn.m_isEquipped = false;
+            p_tappedOn.m_wasInEquipment = true;
             m_currentEquippedTool = null;
+        }
+        else
+        {
+            p_tappedOn.m_wasInEquipment = false;
         }
         if (p_tappedOn.gameObject.GetComponent<Inventory_Icon_ToolResource>() == null && p_tappedOn.m_inBackpack)
         {
@@ -652,7 +657,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
         ///Used to have a cached reference on whether this is a tool resource icon
         bool iconIsToolResource = p_holdingIcon.GetComponent<Inventory_Icon_ToolResource>() != null;
-        
+
 
         foreach (RaycastResult res in hitUI)
         {
@@ -802,19 +807,24 @@ public class Inventory_2DMenu : MonoBehaviour
                 {
                     if (p_holdingIcon.m_inCraftingTable)
                     {
+                        p_holdingIcon.m_isEquipped = false;
                         Crafting_Table.CraftingTable.AddIconToTable(p_holdingIcon);
                     }
                     else if (p_holdingIcon.m_inCookingTable)
                     {
+                        p_holdingIcon.m_isEquipped = false;
                         Crafting_Table.CookingTable.AddIconToTable(p_holdingIcon);
                     }
-                    else if (p_holdingIcon.m_isEquipped)
+                    else if (p_holdingIcon.m_isEquipped || p_holdingIcon.m_wasInEquipment)
                     {
+                        Debug.Log("Was in equipment: " + p_holdingIcon.m_wasInEquipment);
                         m_currentEquippedTool = p_holdingIcon;
                         m_currentEquippedTool.m_itemData.UseItem(m_currentEquippedTool);
+                        m_currentEquippedTool.m_isEquipped = true;
                     }
                     else
                     {
+                        p_holdingIcon.m_isEquipped = false;
                         if (iconIsToolResource)
                         {
                             p_holdingIcon.m_inCookingTable = false;
@@ -823,7 +833,6 @@ public class Inventory_2DMenu : MonoBehaviour
                         }
                     }
                     p_holdingIcon.m_inBackpack = false;
-                    p_holdingIcon.m_isEquipped = false;
                     p_holdingIcon.ForceIconDrop();
                     p_holdingIcon.ResetRotation();
                     p_holdingIcon.SetNumberRotation();
@@ -852,7 +861,6 @@ public class Inventory_2DMenu : MonoBehaviour
                 {
                     if (p_holdingIcon.GetComponent<Inventory_Icon_Durability>())
                     {
-                        Debug.Log("Equip");
                         if (m_currentEquippedTool != null)
                         {
                             if (!CanAddToInventory(m_currentEquippedTool, m_currentEquippedTool.m_rotatedDir))
@@ -864,6 +872,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
                         }
                         m_currentEquippedTool = p_holdingIcon;
+                        m_currentEquippedTool.RotateToFaceDir(RotationType.Left);
                         m_currentEquippedTool.m_isEquipped = true;
                         m_currentEquippedTool.m_itemData.UseItem(m_currentEquippedTool);
                         p_holdingIcon.transform.localPosition = m_equipArea.transform.localPosition;

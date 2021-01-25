@@ -16,6 +16,7 @@ public class Inventory_Icon : MonoBehaviour
     public bool m_isEquipped = false;
     public bool m_inCraftingTable = false;
     public bool m_inCookingTable = false;
+    [HideInInspector] public bool m_wasInEquipment;
 
     [HideInInspector] public Vector2Int m_previousGridPos;
     [HideInInspector] public Vector3 m_startingCoordPos;
@@ -268,6 +269,29 @@ public class Inventory_Icon : MonoBehaviour
                 m_rotatedDir = Inventory_2DMenu.RotationType.Left;
                 break;
         }
+        SetNumberRotation();
+        AdjustedDraggingOffset();
+    }
+
+    public void RotateToFaceDir(Inventory_2DMenu.RotationType p_newRotation)
+    {
+        m_rotatedDir = p_newRotation;
+        switch (m_rotatedDir)
+        {
+            case Inventory_2DMenu.RotationType.Left:
+                transform.eulerAngles = new Vector3(0, 0, 0);
+                break;
+            case Inventory_2DMenu.RotationType.Right:
+                transform.eulerAngles = new Vector3(0, 0, -90);
+                break;
+            case Inventory_2DMenu.RotationType.Up:
+                transform.eulerAngles = new Vector3(0, 0, -180);
+                break;
+            case Inventory_2DMenu.RotationType.Down:
+                transform.eulerAngles = new Vector3(0, 0, -270);
+                break;
+        }
+
         SetNumberRotation();
         AdjustedDraggingOffset();
     }
