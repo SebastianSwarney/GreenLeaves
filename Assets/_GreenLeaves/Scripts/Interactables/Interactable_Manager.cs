@@ -90,7 +90,8 @@ public class Interactable_Manager : MonoBehaviour
         }
         m_canBeOverridden = p_canBeOverridden;
 
-        if(m_currentInteractable!= null && m_currentInteractable != p_selectedSystem)
+        
+        if(m_currentInteractable != null && m_currentInteractable != p_selectedSystem)
         {
             m_currentInteractable.ItemDeselect();
         }
@@ -234,6 +235,11 @@ public class Interactable_Manager : MonoBehaviour
             {
                 if (m_currentInteractable != cols[i].GetComponent<Interactable>())
                 {
+                    if(cols[i].GetComponent<Interactable>() == null)
+                    {
+                        Debug.LogError(cols[i].gameObject + " does not have interactable", cols[i].gameObject);
+                        continue;
+                    }
                     if (cols[i].GetComponent<Interactable>().m_canBeInteractedWith)
                     {
                         m_currentInteractable = null;
