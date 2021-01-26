@@ -3,13 +3,43 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Sirenix.OdinInspector;
+using UnityEditor;
+using Staggart.VegetationSpawner;
 
 public class TerrainTexture : MonoBehaviour
 {
     [InlineEditor(InlineEditorObjectFieldModes.Boxed)]
     public TerrainTextureSettings m_terrainTextureSettings;
 
-    //public SplatMapSetting[] m_splatMapSettings;
+    public GameObject m_testRock;
+
+    [Button("Place Rock")]
+    private void PlaceRock()
+    {
+        Terrain terrain = GetComponent<Terrain>();
+
+        for (int x = 0; x < terrain.terrainData.detailWidth; x++)
+        {
+            for (int y = 0; y < terrain.terrainData.detailHeight; y++)
+            {
+                GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(m_testRock);
+
+                if (newObject == null)
+                {
+                    Debug.LogError("Error instantiating prefab");
+                    return;
+                }
+
+                Undo.RegisterCreatedObjectUndo(newObject, "Object Brush");
+
+                Vector3 wPos = terrain.DetailToWorld(y, x);
+
+                newObject.transform.localPosition = wPos;
+                //ModifyObject(newObject, hit.normal);
+                newObject.transform.parent = transform;
+            }
+        }
+    }
 
     [Button("Set Textures")]
     private void SetTextureToAllTerrains()
