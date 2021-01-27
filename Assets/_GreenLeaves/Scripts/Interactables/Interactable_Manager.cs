@@ -235,7 +235,7 @@ public class Interactable_Manager : MonoBehaviour
     {
         if (!enabled) return;
         m_canOpen = true;
-        Collider[] cols = Physics.OverlapCapsule(transform.position + (m_capCol.height / 2 * Vector3.up), transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
+        Collider[] cols = Physics.OverlapCapsule(m_capCol.transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
         if (cols.Length > 0)
         {
             for (int i = 0; i < cols.Length; i++)
@@ -277,7 +277,7 @@ public class Interactable_Manager : MonoBehaviour
     {
         if (!m_isDebugging) return;
         Gizmos.color = m_debugColor;
-        Gizmos.DrawSphere(transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
-        Gizmos.DrawSphere(transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
+        Gizmos.DrawSphere(m_capCol.transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
+        Gizmos.DrawSphere(m_capCol.transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
     }
 }
