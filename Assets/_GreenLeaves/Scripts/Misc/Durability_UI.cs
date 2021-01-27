@@ -13,13 +13,14 @@ public class Durability_UI : MonoBehaviour
 
     public UnityEngine.UI.Text m_durabilityText, m_promptText;
 
-    public GameObject m_controlUI;
+    public RotateAndScaleToPlayer m_rotate;
     private void Awake()
     {
         if (enabled)
         {
             m_cg.alpha = 0;
             m_cg.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
     }
 
@@ -42,6 +43,9 @@ public class Durability_UI : MonoBehaviour
 
     public void ShowUI()
     {
+        gameObject.SetActive(true);
+        m_cg.alpha = 0;
+        m_rotate.ForceUpdate();
         StopAllCoroutines();
         if (gameObject.activeInHierarchy)
         {
@@ -49,10 +53,6 @@ public class Durability_UI : MonoBehaviour
         }
     }
 
-    public void ShowControlUI(bool p_newState)
-    {
-        m_controlUI.SetActive(p_newState);
-    }
 
     private void OnDisable()
     {
@@ -62,6 +62,7 @@ public class Durability_UI : MonoBehaviour
     }
     private IEnumerator FadeToggle(bool p_fadeOut)
     {
+
         m_cg.gameObject.SetActive(true);
         float timer = m_fadeTime * (p_fadeOut ? (1 - m_cg.alpha) : (m_cg.alpha));
         while (timer < m_fadeTime)
@@ -73,7 +74,8 @@ public class Durability_UI : MonoBehaviour
         m_cg.alpha = (p_fadeOut ? 0 : 1);
         if (p_fadeOut)
         {
-            m_cg.gameObject.SetActive(false);
+            StopAllCoroutines();
+            gameObject.SetActive(false);
         }
 
     }

@@ -31,13 +31,11 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             if(m_currentTarget != null)
             {
                 m_currentTarget.m_durabilityUI.HideUI();
-                m_currentTarget.m_durabilityUI.ShowControlUI(false);
                 m_currentTarget = null;
             }
             if(m_currentHittable != null)
             {
                 m_currentHittable.m_durabilityUI.HideUI();
-                m_currentHittable.m_durabilityUI.ShowControlUI(false);
                 m_currentHittable = null;
             }
             return;
@@ -58,7 +56,6 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
         m_currentTarget = CheckTreeRadius();
         if (m_currentTarget != null && m_currentHittable != null)
         {
-            m_currentHittable.m_durabilityUI.ShowControlUI(false);
             m_currentHittable.m_durabilityUI.HideUI();
             m_currentHittable = null;
         }
@@ -68,8 +65,6 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
         if(currentSlice != null && m_currentTarget == null)
         {
             currentSlice.m_durabilityUI.HideUI();
-            Debug.Log("Hide Here 1 ");
-            currentSlice.m_durabilityUI.ShowControlUI(false);
         }
 
         if (m_currentTarget != null)
@@ -77,11 +72,8 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             if (currentSlice != null)
             {
                 currentSlice.m_durabilityUI.HideUI();
-                Debug.Log("Hide Here 2");
-                currentSlice.m_durabilityUI.ShowControlUI(false);
             }
             m_currentTarget.m_durabilityUI.ShowUI();
-            m_currentTarget.m_durabilityUI.ShowControlUI(true);
         }
         else
         {
@@ -91,7 +83,6 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
 
             if (currentHit != null && m_currentHittable == null)
             {
-                currentHit.m_durabilityUI.ShowControlUI(false);
                 currentHit.m_durabilityUI.HideUI();
                 m_currentHittable = null;
             }
@@ -102,10 +93,8 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
                 if (currentHit != null)
                 {
                     currentHit.m_durabilityUI.HideUI();
-                    currentHit.m_durabilityUI.ShowControlUI(false);
                 }
                 m_currentHittable.m_durabilityUI.ShowUI();
-                m_currentHittable.m_durabilityUI.ShowControlUI(true);
             }
         }
     }

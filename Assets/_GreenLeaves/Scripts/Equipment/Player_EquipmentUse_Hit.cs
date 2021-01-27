@@ -18,7 +18,6 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
             if (m_currentHit != null)
             {
                 m_currentHit.m_durabilityUI.HideUI();
-                m_currentHit.m_durabilityUI.ShowControlUI(false);
                 m_currentHit = null;
             }
             return;
@@ -39,11 +38,9 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
         if(m_currentHit != currentHittable && currentHittable != null)
         {
             currentHittable.m_durabilityUI.HideUI();
-            currentHittable.m_durabilityUI.ShowControlUI(false);
         }
         if (m_currentHit != null)
         {
-            m_currentHit.m_durabilityUI.ShowControlUI(true);
             m_currentHit.m_durabilityUI.ShowUI();
         }
     }

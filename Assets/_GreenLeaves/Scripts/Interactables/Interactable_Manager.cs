@@ -37,7 +37,6 @@ public class Interactable_Manager : MonoBehaviour
         public void SetupButton(bool p_enabled, string p_text, bool p_toggleState)
         {
             m_buttonParent.SetActive(p_toggleState);
-            Debug.Log(m_buttonParent.name + " | New Active State: " + p_toggleState);
             m_buttonEnabledImage.SetActive(p_enabled);
             m_interactionText.text = p_text;
         }
@@ -235,6 +234,10 @@ public class Interactable_Manager : MonoBehaviour
     {
         if (!enabled) return;
         m_canOpen = true;
+        if (!m_capCol)
+        {
+            return;
+        }
         Collider[] cols = Physics.OverlapCapsule(m_capCol.transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
         if (cols.Length > 0)
         {
