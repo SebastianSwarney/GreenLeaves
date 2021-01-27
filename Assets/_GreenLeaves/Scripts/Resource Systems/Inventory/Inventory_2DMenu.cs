@@ -765,6 +765,22 @@ public class Inventory_2DMenu : MonoBehaviour
                         snapBack = false;
                         cooking = true;
                     }
+                    else if (res.gameObject == m_dropArea)
+                    {
+                        snapBack = false;
+                        crafting = false;
+                        cooking = false;
+                    }
+                    else if (res.gameObject == m_equipArea)
+                    {
+                        snapBack = false;
+                        equip = true;
+                    }
+                    else if (res.gameObject == m_eatingArea)
+                    {
+                        snapBack = false;
+                        eating = true;
+                    }
                 }
             }
         }
