@@ -49,7 +49,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     }
     public void Update()
     {
-        if (!Inventory_2DMenu.Instance.m_isOpen)
+        if (!Inventory_2DMenu.Instance.m_isOpen && !PlayerUIManager.Instance.m_isPaused)
         {
             if (Input.GetMouseButtonDown(0))
             {

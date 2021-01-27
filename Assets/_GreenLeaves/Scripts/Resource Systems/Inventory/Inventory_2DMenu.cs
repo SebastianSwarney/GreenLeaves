@@ -85,13 +85,11 @@ public class Inventory_2DMenu : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("UI Inventory Mouse Down Input Here", this);
             IconTapped();
             //IconMovementBuffer();
         }
         else if (Input.GetKeyDown(m_rotateKey) && m_isDraggingObject)
         {
-            Debug.Log("UI Inventory Rotate Input Here", this);
             if (m_currentSelectedIcon == null) return;
             m_currentSelectedIcon.transform.Rotate(Vector3.forward, -90);
             m_currentSelectedIcon.RotateDir();
@@ -739,7 +737,6 @@ public class Inventory_2DMenu : MonoBehaviour
                         snapBack = false;
                         equip = true;
                         crafting = false;
-                        Debug.Log("Equip");
                     }
                     else if (res.gameObject == m_eatingArea)
                     {

@@ -13,7 +13,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     public void Update()
     {
 
-        if (Inventory_2DMenu.Instance.m_isOpen)
+        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused)
         {
             if (m_currentHit != null)
             {
