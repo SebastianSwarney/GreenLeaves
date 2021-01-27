@@ -31,13 +31,15 @@ public class Interactable_Manager : MonoBehaviour
     [System.Serializable]
     public class ButtonMenu
     {
-        public GameObject m_buttonImage;
-        public UnityEngine.UI.Text m_buttonText;
-        public void SetupButton(bool p_enabled, string p_text)
+        public GameObject m_buttonParent;
+        public GameObject m_buttonEnabledImage;
+        public UnityEngine.UI.Text m_interactionText;
+        public void SetupButton(bool p_enabled, string p_text, bool p_toggleState)
         {
-            m_buttonImage.SetActive(p_enabled);
-            m_buttonText.gameObject.SetActive(p_enabled);
-            m_buttonText.text = p_text;
+            m_buttonParent.SetActive(p_toggleState);
+            Debug.Log(m_buttonParent.name + " | New Active State: " + p_toggleState);
+            m_buttonEnabledImage.SetActive(p_enabled);
+            m_interactionText.text = p_text;
         }
     }
 
@@ -69,6 +71,11 @@ public class Interactable_Manager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        
+    }
+    private void Start()
+    {
+        m_capCol = PlayerInputToggle.Instance.GetComponent<CapsuleCollider>();
     }
 
 
@@ -108,16 +115,16 @@ public class Interactable_Manager : MonoBehaviour
         m_interactableName.text = p_selectedSystem.m_interactableName;
 
         m_topButtonEnabled = p_selectedSystem.TopButtonEnabled();
-        m_topMenu.SetupButton(m_topButtonEnabled, p_selectedSystem.TopButtonString());
+        m_topMenu.SetupButton(m_topButtonEnabled, p_selectedSystem.TopButtonString(), true);
 
         m_rightButtonEnabled = p_selectedSystem.RightButtonEnabled();
-        m_rightMenu.SetupButton(m_rightButtonEnabled, p_selectedSystem.RightButtonString());
+        m_rightMenu.SetupButton(m_rightButtonEnabled, p_selectedSystem.RightButtonString(), true);
 
         m_bottomMenuEnabled = p_selectedSystem.BottomButtonEnabled();
-        m_bottomMenu.SetupButton(m_bottomMenuEnabled, p_selectedSystem.BottomButtonString());
+        m_bottomMenu.SetupButton(m_bottomMenuEnabled, p_selectedSystem.BottomButtonString(), true);
 
         m_leftMenuEnabled = p_selectedSystem.LeftButtonEnabled();
-        m_leftMenu.SetupButton(m_leftMenuEnabled, p_selectedSystem.LeftButtonString());
+        m_leftMenu.SetupButton(m_leftMenuEnabled, p_selectedSystem.LeftButtonString(), true);
     }
 
 
