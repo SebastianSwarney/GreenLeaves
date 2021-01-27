@@ -38,17 +38,12 @@ public class PlayerStatsController : MonoBehaviour
     public Image m_hungerImage;
 
     public int m_hungerSegments;
-
-
     public float m_currentHunger;
     private float m_currentDrainMultiplier;
 
 
     [Header("Hunger Visual Properties")]
-    public GameObject m_hungerSegmentObject;
-    public Transform m_hungerSegmentRoot;
     public Gradient m_hungerColorGradient;
-    private List<Image> m_hungerSegmentImages;
 
     [Header("Stat Drain Action Properties")]
     public float m_sprintSecondaryEnergyDepletionTime;
@@ -57,14 +52,13 @@ public class PlayerStatsController : MonoBehaviour
     public bool m_pauseStatDrain;
 
     private void Awake()
-	{
+    {
         Instance = this;
     }
 
-	private void Start()
+    private void Start()
     {
         SetEnergyToMax();
-        SpawnHungerSegments();
 
         m_pauseStatDrain = false;
     }
@@ -79,9 +73,9 @@ public class PlayerStatsController : MonoBehaviour
         DrawHungerSegments();
     }
 
-	#region Drain Functions
+    #region Drain Functions
     public void EquipmentStatDrain(float p_mainEnergyAmount, float p_staminaAmount)
-	{
+    {
         if (m_usingMainEnergy)
         {
             DepleteEnergySingle(p_mainEnergyAmount);
@@ -92,14 +86,14 @@ public class PlayerStatsController : MonoBehaviour
         }
     }
 
-	public void SprintEnergyDrain()
-	{
-		if (m_usingMainEnergy)
-		{
+    public void SprintEnergyDrain()
+    {
+        if (m_usingMainEnergy)
+        {
             DepleteEnergy(m_sprintEnergyDepletionTime);
-		}
-		else
-		{
+        }
+        else
+        {
             DepleteEnergy(m_sprintSecondaryEnergyDepletionTime);
         }
     }
@@ -185,22 +179,11 @@ public class PlayerStatsController : MonoBehaviour
     #endregion
 
     #region Hunger Code
-    private void SpawnHungerSegments()
-    {
-        m_hungerSegmentImages = new List<Image>();
 
-        m_hungerSegmentImages.Add(m_hungerSegmentObject.GetComponent<Image>());
-
-        for (int i = 0; i < m_hungerSegments - 1; i++)
-        {
-            GameObject newObject = Instantiate(m_hungerSegmentObject, m_hungerSegmentRoot);
-            m_hungerSegmentImages.Add(newObject.GetComponent<Image>());
-        }
-    }
 
     private void DrawHungerSegments()
     {
-        float segmentSpace = m_hungerMax / m_hungerSegmentImages.Count;
+        /*float segmentSpace = m_hungerMax / m_hungerSegmentImages.Count;
 
         for (int i = 0; i < m_hungerSegmentImages.Count; i++)
         {
@@ -215,22 +198,29 @@ public class PlayerStatsController : MonoBehaviour
             {
                 ResetHungerSegment(m_hungerSegmentImages[i]);
             }
-        }
+        }*/
+
+       
+        
+
+        SetHungerSegment(m_hungerImage, ((m_currentHunger / m_hungerMax)));
     }
 
     private void SetHungerSegment(Image p_targetImage, float p_progress)
-	{
+    {
         p_targetImage.color = m_hungerColorGradient.Evaluate(p_progress);
-        m_currentDrainMultiplier = Mathf.Lerp(m_maxDrainMultiplier, 1f, p_progress);
+        m_currentDrainMultiplier =(int) Mathf.Lerp(m_maxDrainMultiplier, 1f, p_progress);
+
+        
     }
 
     private void ResetHungerSegment(Image p_targetImage)
-	{
+    {
         p_targetImage.color = Color.white;
     }
-	#endregion
+    #endregion
 
-	private void SetEnergyToMax()
+    private void SetEnergyToMax()
     {
         m_currentMainEnergy = m_mainEnergyMax;
         m_currentSecondaryEnergy = m_secondaryEnergyMax;
