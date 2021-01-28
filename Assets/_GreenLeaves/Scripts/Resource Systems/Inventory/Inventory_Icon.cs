@@ -30,6 +30,9 @@ public class Inventory_Icon : MonoBehaviour
     public bool m_opensInventorySelectButton;
     public CanvasGroup m_canvasGroup;
 
+    public Image m_iconHueImage;
+    public Color m_resourceColor,  m_edibleColor, m_toolColor;
+
     [Header("Number UI")]
     public Text m_numberText;
     public RectTransform m_numberTransform;
@@ -140,6 +143,19 @@ public class Inventory_Icon : MonoBehaviour
         m_startingCoordPos = Vector3.zero;
         m_rotatedDir = m_previousRotType = p_startingRotation;
 
+        switch (p_heldData.m_resourceData.m_resourceType)
+        {
+            case ResourceData.ResourceType.Resource:
+                m_iconHueImage.color = m_resourceColor;
+                break;
+            case ResourceData.ResourceType.Edible:
+                m_iconHueImage.color = m_edibleColor;
+                break;
+            case ResourceData.ResourceType.Tool:
+                m_iconHueImage.color = m_toolColor;
+                break;
+        }
+
         ResetRotation();
         SetNumberRotation();
     }
@@ -219,7 +235,7 @@ public class Inventory_Icon : MonoBehaviour
         bool beingHeld = true;
         m_parentTransform = transform.parent;
         m_canvasGroup.alpha = .5f;
-        m_itemIcon.raycastTarget = false;
+        m_iconHueImage.raycastTarget = false;
         while (beingHeld)
         {
             if (Input.GetMouseButtonUp(0))
@@ -237,7 +253,7 @@ public class Inventory_Icon : MonoBehaviour
         }
         ///Do the raycast check here
         Inventory_2DMenu.Instance.CheckIconPlacePosition(this);
-        m_itemIcon.raycastTarget = true;
+        m_iconHueImage.raycastTarget = true;
     }
 
 

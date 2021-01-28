@@ -40,6 +40,9 @@ public class ResourceData
     public GameObject m_resourcePrefab;
     public Vector2Int m_inventoryWeight;
 
+    public enum ResourceType { Resource, Edible, Tool}
+    public ResourceType m_resourceType;
+
     //Used to determine which way the icon should be rotated when initially being placed.
     public Inventory_2DMenu.RotationType m_iconStartingRotation = Inventory_2DMenu.RotationType.Left;
 

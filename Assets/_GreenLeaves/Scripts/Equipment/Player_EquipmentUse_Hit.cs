@@ -10,6 +10,14 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     public Transform m_playerObject;
 
     private Manipulation_HitObject m_currentHit;
+
+    private void Awake()
+    {
+        /*if (m_playerObject == null)
+        {
+            m_playerObject = PlayerStatsController.Instance.transform;
+        }*/
+    }
     public void Update()
     {
 
