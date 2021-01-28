@@ -10,15 +10,24 @@ public class Inventory_EatingStagingArea : MonoBehaviour
 
     public GameObject m_addButton, m_subtractButton;
     public Transform m_eatingArea;
-    public void AdjustEatAmount( int p_dir)
+    public void AdjustEatAmount(int p_dir)
     {
         m_currentEatAmount += p_dir;
-        if(m_currentEatAmount == m_currentEdible.m_currentResourceAmount)
+        if (m_currentEatAmount == m_currentEdible.m_currentResourceAmount)
         {
             m_addButton.SetActive(false);
-        }else if (m_currentEatAmount == 1)
+            if (m_currentEatAmount != 1)
+            {
+                m_subtractButton.SetActive(true);
+            }
+        }
+        else if (m_currentEatAmount == 1)
         {
             m_subtractButton.SetActive(false);
+            if(m_currentEdible.m_currentResourceAmount > 1)
+            {
+                m_addButton.SetActive(true);
+            }
         }
         else
         {
@@ -37,7 +46,7 @@ public class Inventory_EatingStagingArea : MonoBehaviour
         {
             m_currentEdible.m_itemData.UseItem(m_currentEdible);
         }
-        if(m_currentEdible.m_currentResourceAmount == 0)
+        if (m_currentEdible.m_currentResourceAmount == 0)
         {
             Inventory_2DMenu.Instance.RemoveSingleIcon(m_currentEdible);
             m_currentEdible = null;
@@ -46,9 +55,15 @@ public class Inventory_EatingStagingArea : MonoBehaviour
         else
         {
             m_currentEatAmount = 1;
-
             m_subtractButton.SetActive(false);
-            m_addButton.SetActive(true);
+            if (m_currentEdible.m_currentResourceAmount == 1)
+            {
+                m_addButton.SetActive(false);
+            }
+            else
+            {
+                m_addButton.SetActive(true);
+            }
             m_txtEatAmount.text = "1";
         }
 
@@ -63,9 +78,9 @@ public class Inventory_EatingStagingArea : MonoBehaviour
 
     public bool CanAddIconToEatingArea(Inventory_Icon p_currentIcon)
     {
-        if(!p_currentIcon.m_itemData.m_isEdible) return false;
+        if (!p_currentIcon.m_itemData.m_isEdible) return false;
 
-        if(m_currentEdible != null)
+        if (m_currentEdible != null)
         {
             m_currentEdible.m_wasInEatingArea = false;
             m_currentEdible.m_inEatingArea = false;
@@ -79,7 +94,7 @@ public class Inventory_EatingStagingArea : MonoBehaviour
         m_currentEatAmount = 1;
         m_txtEatAmount.text = m_currentEatAmount.ToString();
 
-        m_subtractButton.SetActive(true);
+        m_subtractButton.SetActive(false);
         m_addButton.SetActive(true);
 
         m_eatMenu.SetActive(true);
