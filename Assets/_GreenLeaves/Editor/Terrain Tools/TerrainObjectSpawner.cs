@@ -30,6 +30,10 @@ public class TerrainObjectSpawner : OdinEditorWindow
     public Vector2 m_slopeSpawnRange;
     public Vector2 m_heightSpawnRange;
 
+    public float m_distanceVariation;
+
+    public bool m_removeExtraObjects;
+
     [MenuItem("Tools/Terrain Object Spawner")]
     private static void OpenWindow()
     {
@@ -65,6 +69,9 @@ public class TerrainObjectSpawner : OdinEditorWindow
                 }
 
                 Vector3 wPos = terrain.DetailToWorld(y, x);
+
+                wPos += new Vector3(Random.Range(-m_distanceVariation, m_distanceVariation), 0, Random.Range(-m_distanceVariation, m_distanceVariation));
+
                 Vector2 normalizedPos = terrain.GetNormalizedPosition(wPos);
                 float curvature = terrain.SampleConvexity(normalizedPos);
                 //0=concave, 0.5=flat, 1=convex
@@ -135,22 +142,31 @@ public class TerrainObjectSpawner : OdinEditorWindow
         SpawnAllObjects(spawnPos.ToArray());
     }
 
-    private GameObject GetSpawnedObject(ref List<Transform> p_spawnedObjects, GameObject p_objectToPlace)
+    private List<GameObject> GetAllChildRootObjects()
     {
-        foreach (Transform prevObject in p_spawnedObjects)
-        {
-            if (prevObject != null)
-            {
-                if (PrefabUtility.IsPartOfAnyPrefab(prevObject.gameObject))
-                {
-                    GameObject foundPrefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(prevObject.gameObject).transform.root.gameObject;
+        List<GameObject> childObjects = new List<GameObject>();
 
-                    if (p_objectToPlace == foundPrefabAsset)
-                    {
-                        p_spawnedObjects.Remove(prevObject);
-                        return foundPrefabAsset;
-                    }
-                }
+        foreach (Transform child in m_terrain.transform)
+        {
+            if (PrefabUtility.IsAnyPrefabInstanceRoot(child.gameObject))
+            {
+                childObjects.Add(child.gameObject);
+            }
+        }
+
+        return childObjects;
+    }
+
+    private GameObject GetSpawnedObject(ref List<GameObject> p_placedObjects, GameObject p_objectToPlace)
+    {
+        foreach (GameObject placedObject in p_placedObjects)
+        {
+            GameObject foundPrefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(placedObject).transform.root.gameObject;
+
+            if (p_objectToPlace == foundPrefabAsset)
+            {
+                p_placedObjects.Remove(placedObject);
+                return placedObject;
             }
         }
 
@@ -159,8 +175,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
     private void SpawnAllObjects(Vector3[] p_spawnPositions)
     {
-        List<Transform> previouslySpawnedObjects = new List<Transform>();
-        previouslySpawnedObjects.AddRange(m_terrain.GetComponentsInChildren<Transform>());
+        List<GameObject> childObjects = GetAllChildRootObjects();
 
         for (int i = 0; i < p_spawnPositions.Length; i++)
         {
@@ -168,7 +183,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
             GameObject objectToSpawn = m_testObjects[Random.Range(0, m_testObjects.Length)];
 
-            GameObject prevObject = GetSpawnedObject(ref previouslySpawnedObjects, objectToSpawn);
+            GameObject prevObject = GetSpawnedObject(ref childObjects, objectToSpawn);
 
             if (prevObject == null)
             {
@@ -176,19 +191,21 @@ public class TerrainObjectSpawner : OdinEditorWindow
             }
             else
             {
-                SpawnObject(p_spawnPositions[i], objectToSpawn, false);
+                SpawnObject(p_spawnPositions[i], prevObject, false);
             }
-
-
         }
 
-        foreach (Transform oldObject in previouslySpawnedObjects)
+        if (m_removeExtraObjects)
         {
-            if (oldObject != m_terrain.transform)
+            foreach (GameObject child in childObjects)
             {
-                DestroyImmediate(oldObject.root.gameObject);
+                if (child != m_terrain.gameObject)
+                {
+                    DestroyImmediate(child);
+                }
             }
         }
+
     }
 
     private void SpawnObject(Vector3 p_worldPos, GameObject p_objectToSpawn, bool spawnNewObject)
@@ -213,7 +230,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
         newObject.transform.rotation = Quaternion.Euler(newObject.transform.rotation.eulerAngles.x, Random.Range(0, 360), newObject.transform.rotation.eulerAngles.z);
         newObject.transform.position += Vector3.down * 1;
 
-        newObject.transform.localPosition = p_worldPos;
+        newObject.transform.position = p_worldPos;
 
         newObject.transform.parent = m_terrain.transform;
     }
@@ -367,29 +384,41 @@ public class TerrainObjectSpawner : OdinEditorWindow
     }
     #endregion
 
-    private void OnDrawGizmos()
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        //SceneView.duringSceneGui += OnSceneGUI;
+    }
+
+    private void OnDisable()
+    {
+        //SceneView.duringSceneGui -= OnSceneGUI;
+    }
+
+    private void OnSceneGUI(SceneView screenView)
     {
         foreach (KeyValuePair<Terrain, Cell[,]> item in terrainCells)
         {
             foreach (Cell cell in item.Value)
             {
-                if ((UnityEditor.SceneView.lastActiveSceneView.camera.transform.position - cell.bounds.center).magnitude > 150f) continue;
+                if ((SceneView.lastActiveSceneView.camera.transform.position - cell.bounds.center).magnitude > 150f) continue;
 
                 foreach (Cell subCell in cell.subCells)
                 {
                     if (subCell == null) continue;
-                    Gizmos.color = new Color(1f, 0.05f, 0.05f, 1f);
-                    Gizmos.DrawWireCube(new Vector3(subCell.bounds.center.x, subCell.bounds.center.y, subCell.bounds.center.z),
-                        new Vector3(subCell.bounds.size.x, subCell.bounds.size.y, subCell.bounds.size.z));
+                    Color red = new Color(1f, 0.05f, 0.05f, 1f);
+                    //DebugExtension.DebugLocalCube(m_terrain.transform, subCell.bounds.size, red, subCell.bounds.center - m_terrain.transform.position);
+
+                    Debug.DrawRay(subCell.bounds.center, Vector3.up * 50);
                 }
 
-                Gizmos.color = new Color(0.66f, 0.66f, 1f, 0.25f);
-                Gizmos.DrawWireCube(
-                    new Vector3(cell.bounds.center.x, cell.bounds.center.y, cell.bounds.center.z),
-                    new Vector3(cell.bounds.size.x, cell.bounds.size.y, cell.bounds.size.z)
-                    );
+                Color grey = new Color(0.66f, 0.66f, 1f, 0.25f);
+                //DebugExtension.DebugLocalCube(m_terrain.transform, cell.bounds.size, grey, cell.bounds.center - m_terrain.transform.position);
             }
-        }
-    }
 
+            screenView.Repaint();
+        }
+
+        screenView.Repaint();
+    }
 }
