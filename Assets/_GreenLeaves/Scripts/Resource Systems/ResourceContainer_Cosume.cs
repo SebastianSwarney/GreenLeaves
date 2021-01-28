@@ -11,7 +11,19 @@ public class ResourceContainer_Cosume : ResourceContainer
     public List<TypeOfCosumption> m_consumeType;
     public override void UseItem(Inventory_Icon p_currentIcon)
     {
-        Inventory_ItemUsage.Instance.ConsumeItem(p_currentIcon,m_consumeType);
+        foreach (TypeOfCosumption consume in m_consumeType)
+        {
+            Debug.Log("Here is where the consuming is.");
+            if (PlayerStatsController.Instance != null)
+            {
+
+                PlayerStatsController.Instance.AddAmount(consume.m_typeOfConsume, consume.m_replenishAmount, consume.m_increasePastAmount);
+            }
+            else
+            {
+                Debug.LogError("Energy Controller singleton is not initailized");
+            }
+        }
     }
 
     [System.Serializable]

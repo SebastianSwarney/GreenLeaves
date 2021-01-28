@@ -180,7 +180,7 @@ public class Inventory_2DMenu : MonoBehaviour
     /// </summary>
     private void FinalCloseInventory()
     {
-        m_eatingStagingArea.EatEverything();
+        m_eatingStagingArea.IconRemoved();
         PlayerInputToggle.Instance.ToggleInput(true);
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = false;
@@ -267,7 +267,7 @@ public class Inventory_2DMenu : MonoBehaviour
         #endregion
     }
 
-    private bool CanAddToInventory(Inventory_Icon p_newIcon, RotationType p_iconRotationType)
+    public bool CanAddToInventory(Inventory_Icon p_newIcon, RotationType p_iconRotationType)
     {
         if (m_inventoryGrid.CanAddToRow(p_newIcon.m_itemData.m_resourceData, p_iconRotationType))
         {
@@ -398,7 +398,7 @@ public class Inventory_2DMenu : MonoBehaviour
                 buildingIconIndex = i;
 
             }
-            if (m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_isEquipped || m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_inEatingArea)
+            if (m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_isEquipped )
             {
                 continue;
             }
@@ -547,7 +547,7 @@ public class Inventory_2DMenu : MonoBehaviour
         if (p_tappedOn.m_inEatingArea)
         {
             p_tappedOn.m_wasInEatingArea = true;
-            m_eatingStagingArea.RemoveIcon(p_tappedOn);
+            m_eatingStagingArea.IconRemoved();
         }
         else
         {
@@ -808,7 +808,6 @@ public class Inventory_2DMenu : MonoBehaviour
                     }
                     else if (p_holdingIcon.m_isEquipped || p_holdingIcon.m_wasInEquipment)
                     {
-                        Debug.Log("Was in equipment: " + p_holdingIcon.m_wasInEquipment);
                         m_currentEquippedTool = p_holdingIcon;
                         m_currentEquippedTool.m_itemData.UseItem(m_currentEquippedTool);
                         m_currentEquippedTool.m_isEquipped = true;
@@ -849,10 +848,19 @@ public class Inventory_2DMenu : MonoBehaviour
                 if (crafting)
                 {
                     p_holdingIcon.m_inCraftingTable = true;
+                    p_holdingIcon.m_inEatingArea = false;
+                    p_holdingIcon.m_wasInEatingArea = false;
+                    p_holdingIcon.m_wasInEquipment = false;
+                    p_holdingIcon.m_isEquipped = false;
                     Crafting_Table.CraftingTable.AddIconToTable(p_holdingIcon);
                 }
                 else if (cooking)
                 {
+                    p_holdingIcon.m_inCraftingTable = true;
+                    p_holdingIcon.m_inEatingArea = false;
+                    p_holdingIcon.m_wasInEatingArea = false;
+                    p_holdingIcon.m_wasInEquipment = false;
+                    p_holdingIcon.m_isEquipped = false;
                     p_holdingIcon.m_inCookingTable = true;
                     Crafting_Table.CookingTable.AddIconToTable(p_holdingIcon);
                 }
@@ -880,8 +888,13 @@ public class Inventory_2DMenu : MonoBehaviour
                     else
                     {
                         Debug.Log("Cant Equip");
-                        p_holdingIcon.m_inCraftingTable = false;
                         p_holdingIcon.m_inCookingTable = false;
+                        p_holdingIcon.m_inCraftingTable = true;
+                        p_holdingIcon.m_inEatingArea = false;
+                        p_holdingIcon.m_wasInEatingArea = false;
+                        p_holdingIcon.m_wasInEquipment = false;
+                        p_holdingIcon.m_isEquipped = false;
+
                         p_holdingIcon.m_inBackpack = true;
                         //Remember to re-rotate the icon back to it's og rotation
                         p_holdingIcon.ResetRotation();
@@ -896,6 +909,7 @@ public class Inventory_2DMenu : MonoBehaviour
                 {
                     if (m_eatingStagingArea.CanAddIconToEatingArea(p_holdingIcon))
                     {
+                        p_holdingIcon.m_wasInEatingArea = false;
                         p_holdingIcon.m_inEatingArea = true;
                     }
                     else
@@ -933,6 +947,10 @@ public class Inventory_2DMenu : MonoBehaviour
         ///If the item is over a placeable spot, place it properly in the grid
         p_holdingIcon.m_inCraftingTable = false;
         p_holdingIcon.m_inCookingTable = false;
+        p_holdingIcon.m_wasInEquipment = false;
+        p_holdingIcon.m_isEquipped = false;
+        p_holdingIcon.m_wasInEatingArea = false;
+        p_holdingIcon.m_inEatingArea = false;
         p_holdingIcon.m_inBackpack = true;
         m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         m_inventoryGrid.AddWeight(p_holdingIcon.m_itemData.m_resourceData);
@@ -979,6 +997,22 @@ public class Inventory_2DMenu : MonoBehaviour
             }
         }
     }
+
+    public void RemoveSingleIcon(Inventory_Icon p_usedIcon)
+    {
+        p_usedIcon.m_currentResourceAmount = 0;
+        for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
+        {
+            if (m_backpack.m_itemsInBackpack[i].m_associatedIcon == p_usedIcon)
+            {
+                m_backpack.m_itemsInBackpack.RemoveAt(i);
+                break;
+            }
+        }
+        m_inventoryGrid.RemoveSingleIcon(p_usedIcon);
+    }
+
+    
 
     /// <summary>
     /// Used to remove the resource entirely from the inventory.<br/>

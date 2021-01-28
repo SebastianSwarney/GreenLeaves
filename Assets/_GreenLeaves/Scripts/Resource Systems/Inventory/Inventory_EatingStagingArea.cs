@@ -1,42 +1,97 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class Inventory_EatingStagingArea : MonoBehaviour
 {
-    public List<Inventory_Icon> m_edibles;
+    public Inventory_Icon m_currentEdible;
+    public GameObject m_eatMenu;
+    public Text m_txtEatAmount;
+    private int m_currentEatAmount;
 
-    public bool CanAddIconToEatingArea(Inventory_Icon p_icon)
+    public GameObject m_addButton, m_subtractButton, m_eatButton;
+    public Transform m_eatingArea;
+    public void AdjustEatAmount( int p_dir)
     {
-        if (!m_edibles.Contains(p_icon))
+        m_currentEatAmount += p_dir;
+        if(m_currentEatAmount == m_currentEdible.m_currentResourceAmount)
         {
-            if (p_icon.m_itemData.m_isEdible)
-            {
-                m_edibles.Add(p_icon);
-                return true;
-            }
+            m_addButton.SetActive(false);
+        }else if (m_currentEatAmount == 0)
+        {
+            m_subtractButton.SetActive(false);
+            m_eatButton.SetActive(false);
         }
-        return false;
+        else
+        {
+            m_eatButton.SetActive(true);
+            m_subtractButton.SetActive(true);
+            m_addButton.SetActive(true);
+        }
+        m_txtEatAmount.text = m_currentEatAmount.ToString();
     }
 
-    public void RemoveIcon(Inventory_Icon p_icon)
+    public void EatEdibles()
     {
-        Debug.Log("Attempt Removal");
-        if (m_edibles.Contains(p_icon))
+
+        m_currentEdible.m_currentResourceAmount -= m_currentEatAmount;
+        m_currentEdible.UpdateIconNumber();
+        for (int i = 0; i < m_currentEatAmount; i++)
         {
-            Debug.Log("Removed");
-            m_edibles.Remove(p_icon);
+            m_currentEdible.m_itemData.UseItem(m_currentEdible);
         }
+        if(m_currentEdible.m_currentResourceAmount == 0)
+        {
+            Inventory_2DMenu.Instance.RemoveSingleIcon(m_currentEdible);
+            m_currentEdible = null;
+            m_eatMenu.SetActive(false);
+        }
+        else
+        {
+            m_currentEatAmount = 0;
+            m_eatButton.SetActive(false);
+            m_subtractButton.SetActive(false);
+            m_addButton.SetActive(true);
+            m_txtEatAmount.text = "0";
+        }
+
     }
 
-    public void EatEverything()
+    public void IconRemoved()
     {
-        foreach(Inventory_Icon icon in m_edibles)
-        {
-            icon.m_itemData.UseItem(icon);
-        }
-        m_edibles.Clear();
+        m_currentEdible = null;
+        m_eatMenu.SetActive(false);
     }
+
+
+    public bool CanAddIconToEatingArea(Inventory_Icon p_currentIcon)
+    {
+        if(!p_currentIcon.m_itemData.m_isEdible) return false;
+
+        if(m_currentEdible != null)
+        {
+            m_currentEdible.m_wasInEatingArea = false;
+            m_currentEdible.m_inEatingArea = false;
+            Inventory_2DMenu.Instance.CanAddToInventory(m_currentEdible, m_currentEdible.m_rotatedDir);
+
+        }
+
+        m_currentEdible = p_currentIcon;
+        m_currentEdible.transform.localPosition = m_eatingArea.localPosition;
+        m_currentEdible.m_startingCoordPos = m_currentEdible.transform.localPosition;
+        m_currentEatAmount = 1;
+        m_txtEatAmount.text = m_currentEatAmount.ToString();
+
+        m_eatButton.SetActive(true);
+        m_subtractButton.SetActive(true);
+        m_addButton.SetActive(true);
+
+        m_eatMenu.SetActive(true);
+        return true;
+    }
+
+
+
+
 
 
 }
