@@ -26,6 +26,7 @@ public class PlayerUIManager : MonoBehaviour
 
     private void Update()
     {
+        if (Daytime_WaitMenu.Instance.m_isWaiting) return;
         if (m_transitionToMainMenu) return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {

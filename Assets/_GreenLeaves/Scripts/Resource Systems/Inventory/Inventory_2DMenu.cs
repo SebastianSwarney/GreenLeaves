@@ -43,7 +43,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public Inventory_Icon m_currentSelectedIcon;
 
     //[HideInInspector]
-    public Inventory_Icon m_currentBuldingIcon;
+    //public bool m_currentBuldingIcon;
 
 
     [Header("Secondary Menu")]
@@ -83,6 +83,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
     private void Update()
     {
+        if (!m_isOpen) return;
         if (Input.GetMouseButtonDown(0))
         {
             IconTapped();
@@ -393,11 +394,11 @@ public class Inventory_2DMenu : MonoBehaviour
 
         for (int i = 0; i < m_backpack.m_itemsInBackpack.Count; i++)
         {
-            if (m_currentBuldingIcon != null && m_backpack.m_itemsInBackpack[i].m_associatedIcon == m_currentBuldingIcon)
+            /*if (m_currentBuldingIcon != null && m_backpack.m_itemsInBackpack[i].m_associatedIcon == m_currentBuldingIcon)
             {
                 buildingIconIndex = i;
 
-            }
+            }*/
             if (m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_isEquipped )
             {
                 continue;
@@ -451,15 +452,15 @@ public class Inventory_2DMenu : MonoBehaviour
 
             ///Since the building system closes the inventory, but it should stay in the inventory if its being used, it "drops" the item,
             ///but changes the DropFunction's dropInWorld boolean to false so that no physical item is created, but the logic is still performed.
-            if (i == p_buildIconIndex && m_currentBuldingIcon != null)
+            /*if (i == p_buildIconIndex && m_currentBuldingIcon != null)
             {
                 Player_Inventory.Instance.DropObject(m_currentBuldingIcon, false);
             }
             else
             {
 
+            }*/
                 Player_Inventory.Instance.DropObject(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon, true);
-            }
 
 
             m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon.m_currentResourceAmount = 0;
@@ -469,7 +470,7 @@ public class Inventory_2DMenu : MonoBehaviour
             m_backpack.m_itemsInBackpack.RemoveAt(p_removeOrder[i]);
 
         }
-        m_currentBuldingIcon = null;
+        //m_currentBuldingIcon = null;
 
         FinalCloseInventory();
     }

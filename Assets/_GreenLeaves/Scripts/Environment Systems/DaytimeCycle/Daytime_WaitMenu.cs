@@ -6,63 +6,34 @@ public class Daytime_WaitMenu : MonoBehaviour
 {
 
     public static Daytime_WaitMenu Instance;
-    public KeyCode m_exitKeyCode, m_increaseKeyCode, m_decreaseKeyCode, m_acceptKeyCode;
-
     public int m_howManyHoursToWait;
 
 
 
-    private bool m_isWaiting = false;
+    public bool m_isWaiting = false;
 
     [Header("UI Elements")]
     public GameObject m_menuUi;
     public UnityEngine.UI.Text m_waitHourText;
 
+    public GameObject m_addButton, m_subtractButton, m_acceptButton, m_cancelButton;
+    public UnityEngine.UI.Text m_waitingText;
     private void Awake()
     {
         Instance = this;
         enabled = false;
     }
-    private void Update()
-    {
-        if (m_isWaiting) return;
-        if (Input.GetKeyDown(m_exitKeyCode))
-        {
-            Debug.Log("Exit key press here", this);
-            m_menuUi.gameObject.SetActive(false);
-            enabled = false;
-            PlayerInputToggle.Instance.ToggleInput(true);
 
-        }
-        else if (Input.GetKeyDown(m_increaseKeyCode))
-        {
-            Debug.Log("Increase key press here", this);
-            if (m_howManyHoursToWait + 1 < 25)
-            {
-                m_howManyHoursToWait++;
-                m_waitHourText.text = m_howManyHoursToWait.ToString();
-            }
-        }
-        else if (Input.GetKeyDown(m_decreaseKeyCode))
-        {
-            Debug.Log("Decrease key press here", this);
-            if (m_howManyHoursToWait - 1 > 0)
-            {
-                m_howManyHoursToWait--;
-                m_waitHourText.text = m_howManyHoursToWait.ToString();
-            }
-        }
-        else if (Input.GetKeyDown(m_acceptKeyCode))
-        {
-            Debug.Log("Accept key press here", this);
-            m_isWaiting = true;
-            StartCoroutine(PerformWait(m_howManyHoursToWait));
-
-        }
-    }
 
     public void OpenMenu()
     {
+        m_waitingText.text = "How long to wait?";
+        m_addButton.SetActive(true);
+        m_subtractButton.SetActive(false);
+        m_acceptButton.SetActive(true);
+        m_cancelButton.SetActive(true);
+
+        m_isWaiting = true;
         PlayerInputToggle.Instance.ToggleInput(false);
         enabled = true;
         m_howManyHoursToWait = 1;
@@ -70,16 +41,55 @@ public class Daytime_WaitMenu : MonoBehaviour
         m_menuUi.gameObject.SetActive(true);
     }
 
-    
+    public void ExitMenu()
+    {
+        m_menuUi.gameObject.SetActive(false);
+        enabled = false;
+        PlayerInputToggle.Instance.ToggleInput(true);
+        m_isWaiting = false;
+    }
+
+    public void AdjustTime(int p_dir)
+    {
+        m_howManyHoursToWait += p_dir;
+        if (m_howManyHoursToWait == 24)
+        {
+            m_addButton.SetActive(false);
+        }
+        else if (m_howManyHoursToWait == 1)
+        {
+            m_subtractButton.SetActive(false);
+        }
+        else
+        {
+            m_subtractButton.SetActive(true);
+            m_addButton.SetActive(true);
+        }
+
+        m_waitHourText.text = m_howManyHoursToWait.ToString();
+    }
+
+    public void Accept()
+    {
+        m_addButton.SetActive(false);
+        m_subtractButton.SetActive(false);
+        m_cancelButton.SetActive(false);
+        m_acceptButton.SetActive(false);
+        m_waitingText.text = "Waiting...";
+        StartCoroutine(PerformWait(m_howManyHoursToWait));
+    }
+
     private IEnumerator PerformWait(float p_hoursToWait)
     {
+        m_isWaiting = true;
         PlayerStatsController.Instance.m_pauseStatDrain = true;
 
-        yield return StartCoroutine(DaytimeCycle_Update.Instance.TimeSkip(p_hoursToWait));
+        yield return StartCoroutine(DaytimeCycle_Update.Instance.TimeSkip(p_hoursToWait, m_waitHourText));
+
 
         m_isWaiting = false;
-
         yield return new WaitForSeconds(1);
+
         PlayerInputToggle.Instance.ToggleInput(true);
         DaytimeCycle_Update.Instance.ToggleDaytimePause(false);
         PlayerStatsController.Instance.m_pauseStatDrain = false;

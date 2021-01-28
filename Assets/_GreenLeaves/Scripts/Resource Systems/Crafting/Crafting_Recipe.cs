@@ -17,6 +17,7 @@ public class Crafting_Recipe : ScriptableObject
     [Header("Tool Stuff")]
     public bool m_isToolRecipe;
     public int m_startingToolDurability;
+    public bool m_isBuilding;
 
     /// <summary>
     /// Called from the crafting table everytime a resource is placed/removed from the tables <br/>

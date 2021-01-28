@@ -86,6 +86,7 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     public void DisplayButtonMenu(Interactable p_selectedSystem, bool p_canBeOverridden)
     {
+        if (Building_PlayerPlacement.Instance.m_isPlacing) return;
         if (!m_canOpen) return;
         if (!m_canBeOverridden)
         {

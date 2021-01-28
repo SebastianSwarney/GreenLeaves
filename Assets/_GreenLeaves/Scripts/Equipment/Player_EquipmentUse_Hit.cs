@@ -21,7 +21,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     public void Update()
     {
 
-        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused)
+        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting)
         {
             if (m_currentHit != null)
             {

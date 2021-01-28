@@ -8,7 +8,7 @@ public class Inventory_EatingStagingArea : MonoBehaviour
     public Text m_txtEatAmount;
     private int m_currentEatAmount;
 
-    public GameObject m_addButton, m_subtractButton, m_eatButton;
+    public GameObject m_addButton, m_subtractButton;
     public Transform m_eatingArea;
     public void AdjustEatAmount( int p_dir)
     {
@@ -16,14 +16,12 @@ public class Inventory_EatingStagingArea : MonoBehaviour
         if(m_currentEatAmount == m_currentEdible.m_currentResourceAmount)
         {
             m_addButton.SetActive(false);
-        }else if (m_currentEatAmount == 0)
+        }else if (m_currentEatAmount == 1)
         {
             m_subtractButton.SetActive(false);
-            m_eatButton.SetActive(false);
         }
         else
         {
-            m_eatButton.SetActive(true);
             m_subtractButton.SetActive(true);
             m_addButton.SetActive(true);
         }
@@ -47,11 +45,11 @@ public class Inventory_EatingStagingArea : MonoBehaviour
         }
         else
         {
-            m_currentEatAmount = 0;
-            m_eatButton.SetActive(false);
+            m_currentEatAmount = 1;
+
             m_subtractButton.SetActive(false);
             m_addButton.SetActive(true);
-            m_txtEatAmount.text = "0";
+            m_txtEatAmount.text = "1";
         }
 
     }
@@ -81,7 +79,6 @@ public class Inventory_EatingStagingArea : MonoBehaviour
         m_currentEatAmount = 1;
         m_txtEatAmount.text = m_currentEatAmount.ToString();
 
-        m_eatButton.SetActive(true);
         m_subtractButton.SetActive(true);
         m_addButton.SetActive(true);
 

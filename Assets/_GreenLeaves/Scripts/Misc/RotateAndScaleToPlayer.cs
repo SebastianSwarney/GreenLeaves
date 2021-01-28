@@ -13,6 +13,8 @@ public class RotateAndScaleToPlayer : MonoBehaviour
     public bool m_xAxisRotation;
     private Transform m_cameraRef;
     public Transform m_transformToScale;
+
+    
     private void Start()
     {
         m_cameraRef = PlayerInputToggle.Instance.m_playerCamera;
