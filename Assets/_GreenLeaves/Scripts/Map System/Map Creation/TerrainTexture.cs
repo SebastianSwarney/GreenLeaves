@@ -11,36 +11,6 @@ public class TerrainTexture : MonoBehaviour
     [InlineEditor(InlineEditorObjectFieldModes.Boxed)]
     public TerrainTextureSettings m_terrainTextureSettings;
 
-    public GameObject m_testRock;
-
-    [Button("Place Rock")]
-    private void PlaceRock()
-    {
-        Terrain terrain = GetComponent<Terrain>();
-
-        for (int x = 0; x < terrain.terrainData.detailWidth; x++)
-        {
-            for (int y = 0; y < terrain.terrainData.detailHeight; y++)
-            {
-                GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(m_testRock);
-
-                if (newObject == null)
-                {
-                    Debug.LogError("Error instantiating prefab");
-                    return;
-                }
-
-                Undo.RegisterCreatedObjectUndo(newObject, "Object Brush");
-
-                Vector3 wPos = terrain.DetailToWorld(y, x);
-
-                newObject.transform.localPosition = wPos;
-                //ModifyObject(newObject, hit.normal);
-                newObject.transform.parent = transform;
-            }
-        }
-    }
-
     [Button("Set Textures")]
     private void SetTextureToAllTerrains()
     {
@@ -132,10 +102,15 @@ public class TerrainTexture : MonoBehaviour
 [System.Serializable]
 public class SplatMapSetting
 {
+    public enum MaskType { slopeMask, heightMask }
+    public MaskType m_currentMaskType;
+
     [Range(0, 1)]
     public float m_totalStrength;
 
+    //[HideIf("m_currentMaskType", MaskType.heightMask)]
     public SlopeMask m_slopeMask;
+    //[HideIf("m_currentMaskType", MaskType.slopeMask)]
     public HeightMask m_heightMask;
 
     public TerrainLayer m_layerTexture;
