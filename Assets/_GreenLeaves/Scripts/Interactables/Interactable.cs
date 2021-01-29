@@ -137,7 +137,10 @@ public class Interactable : MonoBehaviour
 
     #endregion
 
-
+    public virtual string GetInteractableName()
+    {
+        return m_interactableName;
+    }
     public void ItemSelected()
     {
         m_itemSelectedEvent.Invoke();

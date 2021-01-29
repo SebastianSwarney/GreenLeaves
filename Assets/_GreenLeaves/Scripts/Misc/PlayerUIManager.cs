@@ -30,6 +30,8 @@ public class PlayerUIManager : MonoBehaviour
         if (m_transitionToMainMenu) return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (Interactable_Readable_Menu.Instance.m_isOpen) Interactable_Readable_Menu.Instance.CloseReadableMenu();
+
             TogglePauseMenu(!m_isPaused);
         }
         else if (Input.GetKey(KeyCode.P))

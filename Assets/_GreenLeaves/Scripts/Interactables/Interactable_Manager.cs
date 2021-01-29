@@ -112,7 +112,7 @@ public class Interactable_Manager : MonoBehaviour
         m_buttonUiParent.SetActive(true);
 
         m_interactableName.transform.parent.gameObject.SetActive(true);
-        m_interactableName.text = p_selectedSystem.m_interactableName;
+        m_interactableName.text = p_selectedSystem.GetInteractableName();
 
         m_topButtonEnabled = p_selectedSystem.TopButtonEnabled();
         m_topMenu.SetupButton(m_topButtonEnabled, p_selectedSystem.TopButtonString(), true);
@@ -149,7 +149,7 @@ public class Interactable_Manager : MonoBehaviour
             m_buttonUiParent.SetActive(false);
 
 
-            if (p_searchForNextInteractable && !Inventory_2DMenu.Instance.m_isOpen)
+            if (p_searchForNextInteractable && !Inventory_2DMenu.Instance.m_isOpen && !Interactable_Readable_Menu.Instance.m_isOpen)
             {
                 SearchForInteractable();
             }
@@ -222,7 +222,11 @@ public class Interactable_Manager : MonoBehaviour
         }
     }
 
-
+    public void ClearInteractable()
+    {
+        m_canBeOverridden = true;
+        m_currentInteractable = null;
+    }
 
     /// <summary>
     /// Searches for an interactable within range.<br/>
