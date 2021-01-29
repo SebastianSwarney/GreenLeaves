@@ -31,13 +31,14 @@ public class Interactable_Manager : MonoBehaviour
     [System.Serializable]
     public class ButtonMenu
     {
-        public GameObject m_buttonImage;
-        public UnityEngine.UI.Text m_buttonText;
-        public void SetupButton(bool p_enabled, string p_text)
+        public GameObject m_buttonParent;
+        public GameObject m_buttonEnabledImage;
+        public UnityEngine.UI.Text m_interactionText;
+        public void SetupButton(bool p_enabled, string p_text, bool p_toggleState)
         {
-            m_buttonImage.SetActive(p_enabled);
-            m_buttonText.gameObject.SetActive(p_enabled);
-            m_buttonText.text = p_text;
+            m_buttonParent.SetActive(p_toggleState);
+            m_buttonEnabledImage.SetActive(p_enabled);
+            m_interactionText.text = p_text;
         }
     }
 
@@ -69,6 +70,11 @@ public class Interactable_Manager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        
+    }
+    private void Start()
+    {
+        m_capCol = PlayerInputToggle.Instance.GetComponent<CapsuleCollider>();
     }
 
 
@@ -80,6 +86,7 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     public void DisplayButtonMenu(Interactable p_selectedSystem, bool p_canBeOverridden)
     {
+        if (Building_PlayerPlacement.Instance.m_isPlacing) return;
         if (!m_canOpen) return;
         if (!m_canBeOverridden)
         {
@@ -90,7 +97,8 @@ public class Interactable_Manager : MonoBehaviour
         }
         m_canBeOverridden = p_canBeOverridden;
 
-        if(m_currentInteractable!= null && m_currentInteractable != p_selectedSystem)
+        
+        if(m_currentInteractable != null && m_currentInteractable != p_selectedSystem)
         {
             m_currentInteractable.ItemDeselect();
         }
@@ -107,16 +115,16 @@ public class Interactable_Manager : MonoBehaviour
         m_interactableName.text = p_selectedSystem.m_interactableName;
 
         m_topButtonEnabled = p_selectedSystem.TopButtonEnabled();
-        m_topMenu.SetupButton(m_topButtonEnabled, p_selectedSystem.TopButtonString());
+        m_topMenu.SetupButton(m_topButtonEnabled, p_selectedSystem.TopButtonString(), true);
 
         m_rightButtonEnabled = p_selectedSystem.RightButtonEnabled();
-        m_rightMenu.SetupButton(m_rightButtonEnabled, p_selectedSystem.RightButtonString());
+        m_rightMenu.SetupButton(m_rightButtonEnabled, p_selectedSystem.RightButtonString(), true);
 
         m_bottomMenuEnabled = p_selectedSystem.BottomButtonEnabled();
-        m_bottomMenu.SetupButton(m_bottomMenuEnabled, p_selectedSystem.BottomButtonString());
+        m_bottomMenu.SetupButton(m_bottomMenuEnabled, p_selectedSystem.BottomButtonString(), true);
 
         m_leftMenuEnabled = p_selectedSystem.LeftButtonEnabled();
-        m_leftMenu.SetupButton(m_leftMenuEnabled, p_selectedSystem.LeftButtonString());
+        m_leftMenu.SetupButton(m_leftMenuEnabled, p_selectedSystem.LeftButtonString(), true);
     }
 
 
@@ -227,18 +235,26 @@ public class Interactable_Manager : MonoBehaviour
     {
         if (!enabled) return;
         m_canOpen = true;
-        Collider[] cols = Physics.OverlapCapsule(transform.position + (m_capCol.height / 2 * Vector3.up), transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
+        if (!m_capCol)
+        {
+            return;
+        }
+        Collider[] cols = Physics.OverlapCapsule(m_capCol.transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
         if (cols.Length > 0)
         {
             for (int i = 0; i < cols.Length; i++)
             {
                 if (m_currentInteractable != cols[i].GetComponent<Interactable>())
                 {
-                    if (cols[0].GetComponent<Interactable>().m_canBeInteractedWith)
+                    if(cols[i].GetComponent<Interactable>() == null)
+                    {
+                        Debug.LogError(cols[i].gameObject + " does not have interactable", cols[i].gameObject);
+                        continue;
+                    }
+                    if (cols[i].GetComponent<Interactable>().m_canBeInteractedWith)
                     {
                         m_currentInteractable = null;
-                        Debug.Log("Display: " + cols[i].gameObject.name);
-                        cols[0].GetComponent<Interactable>().DisplayMessage();
+                        cols[i].GetComponent<Interactable>().DisplayMessage();
                         return;
                     }
                 }
@@ -265,7 +281,7 @@ public class Interactable_Manager : MonoBehaviour
     {
         if (!m_isDebugging) return;
         Gizmos.color = m_debugColor;
-        Gizmos.DrawSphere(transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
-        Gizmos.DrawSphere(transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
+        Gizmos.DrawSphere(m_capCol.transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
+        Gizmos.DrawSphere(m_capCol.transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
     }
 }

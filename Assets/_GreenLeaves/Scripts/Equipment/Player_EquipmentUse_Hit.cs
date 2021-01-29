@@ -10,15 +10,22 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     public Transform m_playerObject;
 
     private Manipulation_HitObject m_currentHit;
+
+    private void Awake()
+    {
+        /*if (m_playerObject == null)
+        {
+            m_playerObject = PlayerStatsController.Instance.transform;
+        }*/
+    }
     public void Update()
     {
 
-        if (Inventory_2DMenu.Instance.m_isOpen)
+        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting)
         {
             if (m_currentHit != null)
             {
                 m_currentHit.m_durabilityUI.HideUI();
-                m_currentHit.m_durabilityUI.ShowControlUI(false);
                 m_currentHit = null;
             }
             return;
@@ -39,11 +46,9 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
         if(m_currentHit != currentHittable && currentHittable != null)
         {
             currentHittable.m_durabilityUI.HideUI();
-            currentHittable.m_durabilityUI.ShowControlUI(false);
         }
         if (m_currentHit != null)
         {
-            m_currentHit.m_durabilityUI.ShowControlUI(true);
             m_currentHit.m_durabilityUI.ShowUI();
         }
     }

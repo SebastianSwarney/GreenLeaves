@@ -10,14 +10,13 @@ GameObject:
   m_Component:
   - component: {fileID: 2320248321190620903}
   - component: {fileID: 2589869103314278828}
-  - component: {fileID: 8370101290327928562}
   m_Layer: 5
   m_Name: Control UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2320248321190620903
 RectTransform:
   m_ObjectHideFlags: 0
@@ -60,18 +59,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!225 &8370101290327928562
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 726418007738576036}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
 --- !u!1 &1349154289276403740
 GameObject:
   m_ObjectHideFlags: 0
@@ -82,14 +69,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1349154289276403739}
   - component: {fileID: 1349154289276403738}
-  - component: {fileID: 1349154289276403737}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1349154289276403739
 RectTransform:
   m_ObjectHideFlags: 0
@@ -132,18 +118,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!225 &1349154289276403737
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1349154289276403740}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
 --- !u!1 &1349154289638071368
 GameObject:
   m_ObjectHideFlags: 0
@@ -189,10 +163,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa3f3f94ab6014d49b30c0995ad986cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_cg: {fileID: 1349154289276403737}
+  m_cg: {fileID: 2045318997724035240}
   m_fadeTime: 0.25
   m_durabilityText: {fileID: 1349154290405735797}
-  m_controlUI: {fileID: 726418007738576036}
+  m_promptText: {fileID: 0}
+  m_rotate: {fileID: 1349154289638071367}
 --- !u!114 &1349154289638071367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,7 +185,6 @@ MonoBehaviour:
   m_scale: 1
   m_xAxisRotation: 1
   m_transformToScale: {fileID: 1021042249302242715}
-  m_dir: 0
 --- !u!1 &1349154290405735798
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,7 +220,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 119.7, y: 72}
+  m_SizeDelta: {x: 119.7, y: 87}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1349154290405735796
 CanvasRenderer:
@@ -269,7 +243,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.028301895, g: 0.028301895, b: 0.028301895, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -277,7 +251,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 7d53bfa02f72a5e408f749e5e06a9d1c, type: 3}
     m_FontSize: 64
     m_FontStyle: 0
     m_BestFit: 0
@@ -325,7 +299,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2.82, y: 1.6}
+  m_SizeDelta: {x: 5.05, y: 9.23}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1349154290712438470
 CanvasRenderer:
@@ -355,8 +329,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: bc5187069f1b814439e76640c1351089, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -374,13 +348,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1021042249302242715}
+  - component: {fileID: 2045318997724035240}
   m_Layer: 5
   m_Name: Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1021042249302242715
 Transform:
   m_ObjectHideFlags: 0
@@ -397,6 +372,18 @@ Transform:
   m_Father: {fileID: 1349154289638071365}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!225 &2045318997724035240
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2611908827687378007}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3967377342005053124
 GameObject:
   m_ObjectHideFlags: 0
@@ -455,7 +442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.028301895, g: 0.028301895, b: 0.028301895, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -463,7 +450,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 7d53bfa02f72a5e408f749e5e06a9d1c, type: 3}
     m_FontSize: 24
     m_FontStyle: 0
     m_BestFit: 0
@@ -511,7 +498,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2.82, y: 1.6}
+  m_SizeDelta: {x: 7, y: 9.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3795970896161839321
 CanvasRenderer:
@@ -535,14 +522,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: bc5187069f1b814439e76640c1351089, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

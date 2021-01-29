@@ -13,18 +13,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_itemData: {fileID: 11400000, guid: c7b48f364042cff44881928b6339c01c, type: 2}
-  m_itemIcon: {fileID: 4465491337194984817}
+  m_itemIcon: {fileID: 8386729454133786719}
   m_iconTransform: {fileID: 8545466043617822280}
   m_rotatedDir: 0
   m_inBackpack: 0
+  m_isEquipped: 0
   m_inCraftingTable: 0
   m_inCookingTable: 0
+  m_wasInEatingArea: 0
+  m_inEatingArea: 0
+  m_wasInEquipment: 0
   m_previousGridPos: {x: 0, y: 0}
   m_startingCoordPos: {x: 0, y: 0, z: 0}
   m_previousRotType: 0
   m_currentResourceAmount: 1
   m_opensInventorySelectButton: 0
   m_canvasGroup: {fileID: 8038678827114084330}
+  m_iconHueImage: {fileID: 6282472403532258788}
+  m_resourceColor: {r: 0, g: 0, b: 0, a: 0}
+  m_edibleColor: {r: 0, g: 0, b: 0, a: 0}
+  m_toolColor: {r: 0, g: 0, b: 0, a: 0}
   m_numberText: {fileID: 8488640693391250874}
   m_numberTransform: {fileID: 5442092884215819099}
   m_toolType: 0
@@ -124,6 +132,10 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 5092368042984937251, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: cc228b8e7346b4a4db6c53605ef19ad1, type: 3}
     - target: {fileID: 5297174266768047532, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
       propertyPath: m_Name
       value: Axe Head Variant
@@ -141,9 +153,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4926805873199212852, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
   m_PrefabInstance: {fileID: 3659209614774775676}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4465491337194984817 stripped
+--- !u!225 &8038678827114084330 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 6721341023346137238, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
+  m_PrefabInstance: {fileID: 3659209614774775676}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6282472403532258788 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1094519259164277261, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
+  m_CorrespondingSourceObject: {fileID: 7343062690738483864, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
   m_PrefabInstance: {fileID: 3659209614774775676}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8884274060030415568}
@@ -152,11 +169,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!225 &8038678827114084330 stripped
-CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 6721341023346137238, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
+--- !u!114 &8386729454133786719 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5092368042984937251, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
   m_PrefabInstance: {fileID: 3659209614774775676}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &5442092884215819099 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8740973837799474215, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}

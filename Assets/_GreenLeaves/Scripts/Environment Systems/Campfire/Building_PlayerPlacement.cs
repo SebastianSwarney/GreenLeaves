@@ -8,6 +8,8 @@ public class Building_PlayerPlacement : MonoBehaviour
     //public GameObject m_buildingPrefab;
     public ResourceContainer m_buildingResourceData;
 
+    public bool m_isPlacing;
+
     [Header("Detection")]
     public Transform m_detectionOrigin;
     public float m_maxDis;
@@ -23,15 +25,18 @@ public class Building_PlayerPlacement : MonoBehaviour
     {
         m_buildingResourceData = p_resourceContainer;
         m_currentPrefab = ObjectPooler.Instance.NewObject(p_buildingPrefab, transform.position, Quaternion.identity).transform;
+        m_currentPrefab.GetComponent<Building_PlacementManager>().InitializePlacement();
         //m_currentPrefab = ObjectPooler.Instance.NewObject(m_buildingPrefab, transform.position, Quaternion.identity).transform;
         m_placementCoroutine = StartCoroutine(PlaceObject(m_currentPrefab.GetComponent<Building_PlacementManager>()));
     }
 
     private IEnumerator PlaceObject(Building_PlacementManager p_buildingObject)
     {
+        m_isPlacing = true;
         bool placed = false;
         bool canPlace = false;
         RaycastHit hit;
+
         while (!placed)
         {
             canPlace = false;
@@ -44,21 +49,25 @@ public class Building_PlayerPlacement : MonoBehaviour
             }
             else
             {
-                p_buildingObject.ToggleRendererEffects(false);
                 p_buildingObject.transform.rotation = Quaternion.identity;
                 p_buildingObject.transform.position = m_detectionOrigin.position + m_detectionOrigin.forward * m_maxDis;
             }
 
             if (canPlace)
             {
-                if (Input.GetKeyDown(KeyCode.M))
+                p_buildingObject.TogglePrompt(true);
+                if (Input.GetMouseButtonDown(0) && !PlayerUIManager.Instance.m_isPaused)
                 {
                     Debug.Log("Building Placement Input Here", this);
                     p_buildingObject.PlaceBuilding();
                     placed = true;
                 }
             }
-            if (!placed)
+            else
+            {
+                p_buildingObject.TogglePrompt(false);
+            }
+            /*if (!placed)
             {
                 ///If the player decides to cancel the placement, re-add the item to the inventory
                 if (Input.GetKeyDown(KeyCode.X))
@@ -70,11 +79,11 @@ public class Building_PlayerPlacement : MonoBehaviour
                     m_currentPrefab = null;
                     placed = true;
                 }
-            }
+            }*/
 
             yield return null;
         }
-
+        m_isPlacing = false;
         m_placementCoroutine = null;
     }
 

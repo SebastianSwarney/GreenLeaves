@@ -9,57 +9,69 @@ public class Building_PlacementManager : MonoBehaviour
     public PlacementState m_currentState;
     public Building_PlacementDetection m_buildingPlacer;
 
-    public List<MeshRenderer> m_campfireRenderers;
     public ParticleSystem m_fireParticle;
     public Vector3 m_placement;
 
-    private MaterialPropertyBlock m_propBlock;
 
     public GenericWorldEvent m_objectPlacedEvent;
+
+    public Durability_UI m_instructionPrompt;
+
     
-    private void Awake()
+    public void InitializePlacement()
     {
-        m_propBlock = new MaterialPropertyBlock();
+        
+        m_fireParticle.gameObject.SetActive(false);
     }
 
+    private bool m_togglePrompt = false;
     public bool AttemptPlacement(Vector3 p_placement)
     {
-        transform.position = p_placement;
+        transform.position =  p_placement;
         Vector3 hitNormal;
         if (m_buildingPlacer.CanPlace(out hitNormal))
         {
             transform.rotation *= Quaternion.FromToRotation(transform.up, hitNormal);
-            ToggleRendererEffects(true);
+
             return true;
         }
         else
         {
             transform.rotation = Quaternion.identity;
-            ToggleRendererEffects(false);
+
             return false;
         }
     }
 
-    public void ToggleRendererEffects(bool p_newState)
+
+
+    public void TogglePrompt(bool p_newState)
     {
-        if(m_propBlock == null)
+        if (p_newState)
         {
-            m_propBlock = new MaterialPropertyBlock();
+            if (!m_togglePrompt)
+            {
+                m_togglePrompt = true;
+                m_instructionPrompt.ShowUI();
+            }
         }
-        foreach(MeshRenderer render in m_campfireRenderers)
+        else
         {
-            render.GetPropertyBlock(m_propBlock);
-            m_propBlock.SetFloat("_EffectAmount", (p_newState ? 0 : .5f));
-            render.SetPropertyBlock(m_propBlock);
+            if (m_togglePrompt)
+            {
+                m_togglePrompt = false;
+                m_instructionPrompt.HideUI();
+            }
         }
     }
 
 
     public void PlaceBuilding()
     {
-        
+        m_instructionPrompt.HideUI();
         m_currentState = PlacementState.Placed;
-        ToggleRendererEffects(true);
+        m_fireParticle.gameObject.SetActive(true);
         m_objectPlacedEvent.Invoke();
+        Interactable_Manager.Instance.SearchForInteractable();
     }
 }

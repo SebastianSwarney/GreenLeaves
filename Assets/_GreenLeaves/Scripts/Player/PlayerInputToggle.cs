@@ -25,7 +25,6 @@ public class PlayerInputToggle : MonoBehaviour
 
         if (!p_newState)
         {
-            Debug.Log("Disable");
             m_playerController.SetFlyInput(0);
             m_playerController.SetMovementInput(Vector2.zero);
         }

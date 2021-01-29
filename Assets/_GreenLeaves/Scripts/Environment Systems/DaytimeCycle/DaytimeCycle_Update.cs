@@ -126,14 +126,20 @@ public class DaytimeCycle_Update : MonoBehaviour
     public float m_secondsToWait;
     public float m_increaseAmount;
 
-    public IEnumerator TimeSkip(float p_hoursToWait)
+    public IEnumerator TimeSkip(float p_hoursToWait, UnityEngine.UI.Text p_textEl = null)
     {
+        int startingTime = (int)p_hoursToWait;
+        float startingWait = m_secondsToWait;
         float waitingTime = m_secondsToWait;
         float increase = m_secondsToWait / p_hoursToWait;
         m_increaseAmount = (0.0041888f / increase);
         while (waitingTime > 0)
         {
             waitingTime -= 0.0041888f;
+            if(p_textEl != null)
+            {
+                p_textEl.text = ((int)(Mathf.Lerp(startingTime, 0, 1 - (waitingTime / m_secondsToWait)))+1).ToString();
+            }
             UpdateTimeOfDayThroughPass(m_increaseAmount);
             yield return null;
         }

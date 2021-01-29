@@ -49,14 +49,14 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     }
     public void Update()
     {
-        if (!Inventory_2DMenu.Instance.m_isOpen)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
 
-                UseEquipment();
-            }
+        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting) return;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            UseEquipment();
         }
+
     }
     public override void UseEquipment()
     {
@@ -201,7 +201,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     /// <returns></returns>
     private bool WaterNearby()
     {
-       return Physics.OverlapSphere(transform.position, m_detectRadius, m_waterSourceMask).Length > 0;
+        return Physics.OverlapSphere(transform.position, m_detectRadius, m_waterSourceMask).Length > 0;
     }
 
     /// <summary>
@@ -211,10 +211,11 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public void AdjustCanteenCapacity(int p_newAmount)
     {
         m_durability = p_newAmount;
-        if(m_durability > m_startingDurability)
+        if (m_durability > m_startingDurability)
         {
             m_durability = m_startingDurability;
-        }else if(m_durability < 0)
+        }
+        else if (m_durability < 0)
         {
             m_durability = 0;
         }

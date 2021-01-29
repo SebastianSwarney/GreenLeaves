@@ -92,18 +92,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_itemData: {fileID: 0}
-  m_itemIcon: {fileID: 8646802381273723432}
+  m_itemIcon: {fileID: 4495901144567389958}
   m_iconTransform: {fileID: 4364155521134354705}
   m_rotatedDir: 0
   m_inBackpack: 0
+  m_isEquipped: 0
   m_inCraftingTable: 0
   m_inCookingTable: 0
+  m_wasInEatingArea: 0
+  m_inEatingArea: 0
+  m_wasInEquipment: 0
   m_previousGridPos: {x: 0, y: 0}
   m_startingCoordPos: {x: 0, y: 0, z: 0}
   m_previousRotType: 0
   m_currentResourceAmount: 0
   m_opensInventorySelectButton: 0
   m_canvasGroup: {fileID: 2704446248673579187}
+  m_iconHueImage: {fileID: 2101161329631509181}
+  m_resourceColor: {r: 1, g: 0, b: 0.9919772, a: 1}
+  m_edibleColor: {r: 1, g: 0, b: 0.88748884, a: 1}
+  m_toolColor: {r: 0.754717, g: 0.5388383, b: 0.12459949, a: 1}
   m_numberText: {fileID: 4596686454432199395}
   m_numberTransform: {fileID: 108423806667213826}
   m_durabilityText: {fileID: 8993507959644779054}
@@ -199,6 +207,10 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 5092368042984937251, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5297174266768047532, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
       propertyPath: m_Name
       value: Item Panel Durability (1x1)
@@ -216,9 +228,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4926805873199212852, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
   m_PrefabInstance: {fileID: 8705211258147506213}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8646802381273723432 stripped
+--- !u!225 &2704446248673579187 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 6721341023346137238, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
+  m_PrefabInstance: {fileID: 8705211258147506213}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2101161329631509181 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1094519259164277261, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
+  m_CorrespondingSourceObject: {fileID: 7343062690738483864, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
   m_PrefabInstance: {fileID: 8705211258147506213}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3552293828147918217}
@@ -227,11 +244,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!225 &2704446248673579187 stripped
-CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 6721341023346137238, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
+--- !u!114 &4495901144567389958 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5092368042984937251, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}
   m_PrefabInstance: {fileID: 8705211258147506213}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &108423806667213826 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8740973837799474215, guid: 61698c352f2812b42ae8b8d24d0b48f3, type: 3}

@@ -12,7 +12,7 @@ public class ResourceContainer : ScriptableObject
     public Color m_itemUseButtonColor;
     public bool m_showInventorySelectionButton;
     public bool m_stopDropping;
-
+    public bool m_isEdible = false;
     public virtual void UseItem(Inventory_Icon p_currentIcon)
     {
         Debug.Log("Use Item");
@@ -39,6 +39,9 @@ public class ResourceData
     public Sprite m_resourceSprite;
     public GameObject m_resourcePrefab;
     public Vector2Int m_inventoryWeight;
+
+    public enum ResourceType { Resource, Edible, Tool}
+    public ResourceType m_resourceType;
 
     //Used to determine which way the icon should be rotated when initially being placed.
     public Inventory_2DMenu.RotationType m_iconStartingRotation = Inventory_2DMenu.RotationType.Left;

@@ -16,6 +16,9 @@ public class Inventory_Icon : MonoBehaviour
     public bool m_isEquipped = false;
     public bool m_inCraftingTable = false;
     public bool m_inCookingTable = false;
+    public bool m_wasInEatingArea = false;
+    public bool m_inEatingArea = false;
+    public bool m_wasInEquipment;
 
     [HideInInspector] public Vector2Int m_previousGridPos;
     [HideInInspector] public Vector3 m_startingCoordPos;
@@ -26,6 +29,9 @@ public class Inventory_Icon : MonoBehaviour
 
     public bool m_opensInventorySelectButton;
     public CanvasGroup m_canvasGroup;
+
+    public Image m_iconHueImage;
+    public Color m_resourceColor,  m_edibleColor, m_toolColor;
 
     [Header("Number UI")]
     public Text m_numberText;
@@ -44,7 +50,7 @@ public class Inventory_Icon : MonoBehaviour
             case Inventory_2DMenu.RotationType.Left:
                 transform.localEulerAngles = new Vector3(0, 0, 0);
                 m_numberTransform.localEulerAngles = new Vector3(0, 0, 0);
-                m_numberTransform.anchoredPosition = new Vector2(0,0);
+                m_numberTransform.anchoredPosition = new Vector2(0, 0);
                 break;
             case Inventory_2DMenu.RotationType.Down:
                 transform.localEulerAngles = new Vector3(0, 0, -90);
@@ -94,8 +100,8 @@ public class Inventory_Icon : MonoBehaviour
                 break;
         }
     }
-    
-    
+
+
     /// <summary>
     /// Adjusts the offset from the mouse while being dragged
     /// The offset changes depending on the rotation type
@@ -137,6 +143,19 @@ public class Inventory_Icon : MonoBehaviour
         m_startingCoordPos = Vector3.zero;
         m_rotatedDir = m_previousRotType = p_startingRotation;
 
+        switch (p_heldData.m_resourceData.m_resourceType)
+        {
+            case ResourceData.ResourceType.Resource:
+                m_iconHueImage.color = m_resourceColor;
+                break;
+            case ResourceData.ResourceType.Edible:
+                m_iconHueImage.color = m_edibleColor;
+                break;
+            case ResourceData.ResourceType.Tool:
+                m_iconHueImage.color = m_toolColor;
+                break;
+        }
+
         ResetRotation();
         SetNumberRotation();
     }
@@ -156,15 +175,15 @@ public class Inventory_Icon : MonoBehaviour
     /// 
     /// Returns true if there is no remainder. | Returns false if the full amount cant be added
     /// </summary>
-    public bool CanAddFullAmount(int p_amount,out int p_amountLeft)
+    public bool CanAddFullAmount(int p_amount, out int p_amountLeft)
     {
         p_amountLeft = p_amount;
-        if(m_currentResourceAmount >= m_itemData.m_resourceData.m_singleResourceAmount)
+        if (m_currentResourceAmount >= m_itemData.m_resourceData.m_singleResourceAmount)
         {
             return false;
         }
 
-        if(m_currentResourceAmount + p_amount <= m_itemData.m_resourceData.m_singleResourceAmount)
+        if (m_currentResourceAmount + p_amount <= m_itemData.m_resourceData.m_singleResourceAmount)
         {
             p_amountLeft = 0;
             m_currentResourceAmount += p_amount;
@@ -185,7 +204,7 @@ public class Inventory_Icon : MonoBehaviour
     /// </summary>
     public void IconTappedOn()
     {
-        
+
         StartCoroutine(WaitForMouseUp());
 
         m_previousRotType = m_rotatedDir;
@@ -198,7 +217,8 @@ public class Inventory_Icon : MonoBehaviour
         else if (m_inCraftingTable)
         {
             Crafting_Table.CraftingTable.RemoveIconFromTable(this);
-        } else if (m_inCookingTable)
+        }
+        else if (m_inCookingTable)
         {
             Crafting_Table.CookingTable.RemoveIconFromTable(this);
         }
@@ -215,7 +235,7 @@ public class Inventory_Icon : MonoBehaviour
         bool beingHeld = true;
         m_parentTransform = transform.parent;
         m_canvasGroup.alpha = .5f;
-        m_itemIcon.raycastTarget = false;
+        m_iconHueImage.raycastTarget = false;
         while (beingHeld)
         {
             if (Input.GetMouseButtonUp(0))
@@ -233,9 +253,20 @@ public class Inventory_Icon : MonoBehaviour
         }
         ///Do the raycast check here
         Inventory_2DMenu.Instance.CheckIconPlacePosition(this);
-        m_itemIcon.raycastTarget = true;
+        m_iconHueImage.raycastTarget = true;
     }
 
+
+    public void ClosedWhileHolding()
+    {
+        StopAllCoroutines();
+        m_canvasGroup.alpha = 1;
+        m_itemIcon.raycastTarget = true;
+        transform.localPosition = m_startingCoordPos;
+        ResetRotation();
+        SetNumberRotation();
+
+    }
     /// <summary>
     /// Called when the 2d menu is closed while still in the dragging sequence.
     /// Will stop the coroutine, and renenable the raycast target
@@ -272,6 +303,29 @@ public class Inventory_Icon : MonoBehaviour
         AdjustedDraggingOffset();
     }
 
+    public void RotateToFaceDir(Inventory_2DMenu.RotationType p_newRotation)
+    {
+        m_rotatedDir = p_newRotation;
+        switch (m_rotatedDir)
+        {
+            case Inventory_2DMenu.RotationType.Left:
+                transform.eulerAngles = new Vector3(0, 0, 0);
+                break;
+            case Inventory_2DMenu.RotationType.Right:
+                transform.eulerAngles = new Vector3(0, 0, -90);
+                break;
+            case Inventory_2DMenu.RotationType.Up:
+                transform.eulerAngles = new Vector3(0, 0, -180);
+                break;
+            case Inventory_2DMenu.RotationType.Down:
+                transform.eulerAngles = new Vector3(0, 0, -270);
+                break;
+        }
+
+        SetNumberRotation();
+        AdjustedDraggingOffset();
+    }
+
     /// <summary>
     /// Removes the icon from the inventory<br/>
     /// This is a virtual, as the Tool Resource variant uses this to not remove itself <br/>
@@ -290,5 +344,6 @@ public class Inventory_Icon : MonoBehaviour
     {
         m_inCraftingTable = false;
         m_inCookingTable = false;
+
     }
 }

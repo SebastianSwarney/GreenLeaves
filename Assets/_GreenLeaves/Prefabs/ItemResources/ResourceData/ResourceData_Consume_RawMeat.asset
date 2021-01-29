@@ -14,16 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_resourceData:
     m_resourceName: Raw Meat
-    m_singleResourceAmount: 1
+    m_singleResourceAmount: 2
     m_resourceSprite: {fileID: 21300000, guid: e19f6edd9eb106c4dbe9d6fc3e56080b, type: 3}
     m_resourcePrefab: {fileID: 2897684696828821491, guid: 1cfc9e0ad4392e54db50681ad86ed3b7, type: 3}
     m_inventoryWeight: {x: 2, y: 2}
+    m_resourceType: 1
     m_iconStartingRotation: 0
   m_itemUseButtonText: Eat
   m_itemUseButtonColor: {r: 0.9339623, g: 0.7371609, b: 0.13656995, a: 1}
   m_showInventorySelectionButton: 1
   m_stopDropping: 0
+  m_isEdible: 1
   m_consumeType:
-  - m_typeOfConsume: 0
-    m_replenishAmount: 1
+  - m_typeOfConsume: 1
+    m_replenishAmount: 50
+    m_increasePastAmount: 0
+  - m_typeOfConsume: 2
+    m_replenishAmount: 25
     m_increasePastAmount: 0

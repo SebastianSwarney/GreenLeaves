@@ -28,6 +28,7 @@ public class Player_Inventory : MonoBehaviour
     }
     private void Update()
     {
+        if (Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting) return;
         if (Input.GetKeyDown(m_toggleMenu))
         {
             if (m_canOpenMenu)

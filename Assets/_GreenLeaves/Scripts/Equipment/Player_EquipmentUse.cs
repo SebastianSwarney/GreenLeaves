@@ -81,8 +81,6 @@ public class Player_EquipmentUse : MonoBehaviour
 
     public virtual void UseEquipment()
     {
-        Debug.Log("Place equipment usage code here", this);
-
         PlayerStatsController.Instance.EquipmentStatDrain(m_energyLossPerEquipmentUse, m_staminaLossPerEquipmentUse);
     }
 }
