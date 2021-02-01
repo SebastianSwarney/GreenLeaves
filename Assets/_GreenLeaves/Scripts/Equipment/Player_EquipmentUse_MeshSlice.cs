@@ -26,7 +26,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     private Manipulation_HitObject m_currentHittable;
     public void Update()
     {
-        if(Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting)
+        if(Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen)
         {
             if(m_currentTarget != null)
             {
