@@ -17,8 +17,8 @@ public partial class MicroSplatTerrainEditor : Editor
    public static Texture2D GenerateTerrainNormalMap(MicroSplatTerrain bt)
    {
       Terrain t = bt.terrain;
-      int w = t.terrainData.heightmapWidth;
-      int h = t.terrainData.heightmapHeight;
+      int w = t.terrainData.heightmapResolution;
+      int h = t.terrainData.heightmapResolution;
 
       Texture2D data = new Texture2D (w, h, TextureFormat.RGBA32, true, true);
       for (int x = 0; x < w; ++x)

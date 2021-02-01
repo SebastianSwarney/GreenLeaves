@@ -41,6 +41,6 @@ public class SplatMapSetting
             return m_totalStrength;
         }
 
-		return curvatureSpawnRange * slopeSpawnChance;
+		return slopeSpawnChance;
 	}
 }
