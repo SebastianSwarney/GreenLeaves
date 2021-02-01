@@ -39,6 +39,7 @@ public class Items_SpawnItem_Transform : Items_SpawnItem
                 if(newItem.GetComponent<Resource_Pickup>() != null)
                 {
                     newItem.GetComponent<Resource_Pickup>().ResetResourceAmount();
+                    Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allResources.Add(newItem);
                 }
             }
         }

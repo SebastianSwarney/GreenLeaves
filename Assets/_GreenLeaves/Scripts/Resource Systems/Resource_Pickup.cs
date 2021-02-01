@@ -30,6 +30,10 @@ public class Resource_Pickup : MonoBehaviour
     {
         m_resourceAmount = 0;
         TogglePickup(false);
+        if (Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allResources.Contains(gameObject))
+        {
+            Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allResources.Remove(gameObject);
+        }
     }
 
     public virtual void TogglePickup(bool p_newState)
