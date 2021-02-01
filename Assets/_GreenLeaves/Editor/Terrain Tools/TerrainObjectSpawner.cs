@@ -19,20 +19,12 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
     public Dictionary<Terrain, Cell[,]> terrainCells = new Dictionary<Terrain, Cell[,]>();
 
-    public GameObject m_testRock;
-
-    public GameObject[] m_testObjects;
-
-    public AnimationCurve m_testCurve;
-
-    public float m_spawnChance;
-
-    public Vector2 m_slopeSpawnRange;
-    public Vector2 m_heightSpawnRange;
-
-    public float m_distanceVariation;
-
     public bool m_removeExtraObjects;
+
+    public bool m_limitPlacement;
+
+    [InlineEditor]
+    public TerrainObjectSpawnerPalette m_palette;
 
     [MenuItem("Tools/Terrain Object Spawner")]
     private static void OpenWindow()
@@ -52,94 +44,107 @@ public class TerrainObjectSpawner : OdinEditorWindow
     [Button("Place Objects")]
     private void PlaceObjects()
     {
-        //RemoveObjects();
         Terrain terrain = m_terrain;
 
         float reducedRange = terrain.terrainData.detailWidth / 2;
 
-        List<Vector3> spawnPos = new List<Vector3>();
+        List<ObjectSpawnData> spawnData = new List<ObjectSpawnData>();
 
-        for (int x = 0; x < terrain.terrainData.detailWidth - reducedRange; x++)
+        float width = terrain.terrainData.detailWidth;
+        float length = terrain.terrainData.detailHeight;
+
+        if (m_limitPlacement)
         {
-            for (int y = 0; y < terrain.terrainData.detailHeight - reducedRange; y++)
+            width = terrain.terrainData.detailWidth - reducedRange;
+            length = terrain.terrainData.detailHeight - reducedRange;
+        }
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < length; y++)
             {
-                if ((Random.value * 100f) >= m_spawnChance)
-                {
-                    continue;
-                }
+                ObjectBrushObjectList objectListToUse = m_palette.GetObjectList();
 
                 Vector3 wPos = terrain.DetailToWorld(y, x);
-
-                wPos += new Vector3(Random.Range(-m_distanceVariation, m_distanceVariation), 0, Random.Range(-m_distanceVariation, m_distanceVariation));
-
+                wPos += objectListToUse.GetDistanceVariation();
                 Vector2 normalizedPos = terrain.GetNormalizedPosition(wPos);
+
                 float curvature = terrain.SampleConvexity(normalizedPos);
                 //0=concave, 0.5=flat, 1=convex
                 curvature = TerrainSampler.ConvexityToCurvature(curvature);
 
                 terrain.SampleHeight(normalizedPos, out _, out wPos.y, out _);
-
                 float slope = terrain.GetSlope(normalizedPos);
 
-                float y_01 = (float)y / (float)terrain.terrainData.alphamapHeight;
-                float x_01 = (float)x / (float)terrain.terrainData.alphamapWidth;
+                Vector3 slopeNormal = terrain.terrainData.GetInterpolatedNormal(normalizedPos.x, normalizedPos.y);
 
-                Vector3 normal = terrain.terrainData.GetInterpolatedNormal(y_01, x_01);
-
-                float heightSpawnChance = Mathf.InverseLerp(m_heightSpawnRange.y, m_heightSpawnRange.x, wPos.y);
-
-                if ((Random.value) >= heightSpawnChance)
+                if (objectListToUse.CheckSpawn(wPos.y / terrain.terrainData.size.y, curvature, slope))
                 {
-                    continue;
+                    spawnData.Add(new ObjectSpawnData(objectListToUse, wPos, slopeNormal));
                 }
-
-                float slopeSpawnChance = Mathf.InverseLerp(m_slopeSpawnRange.y, m_slopeSpawnRange.x, slope);
-
-                if ((Random.value) >= slopeSpawnChance)
-                {
-                    continue;
-                }
-
-                spawnPos.Add(wPos);
-
-                #region Old
-                /*
-                if (curvature > 0.25f && curvature < 0.75 && curvature != 0.5f)
-                {
-                    if (slope < 30 && slope > 1)
-                    {
-                        if ((Random.value * 100f) <= 30f)
-                        {
-                            if (!InsideOccupiedCell(terrain, wPos, normalizedPos))
-                            {
-                                GameObject objectToSpawn = m_testObjects[Random.Range(0, m_testObjects.Length)];
-
-                                GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(objectToSpawn);
-
-                                if (newObject == null)
-                                {
-                                    Debug.LogError("Error instantiating prefab");
-                                    return;
-                                }
-
-                                newObject.transform.rotation = Quaternion.Euler(newObject.transform.rotation.eulerAngles.x, Random.Range(0, 360), newObject.transform.rotation.eulerAngles.z);
-
-                                //newObject.transform.rotation = Quaternion.LookRotation(Vector3.Cross(normal, Vector3.up), normal);
-
-                                newObject.transform.position += Vector3.down * 1;
-
-                                newObject.transform.localPosition = wPos;
-                                newObject.transform.parent = transform;
-                            }
-                        }
-                    }
-                }
-                */
-                #endregion
             }
         }
 
-        SpawnAllObjects(spawnPos.ToArray());
+        SpawnAllObjects(spawnData.ToArray());
+    }
+
+    private struct ObjectSpawnData
+    {
+        public ObjectBrushObjectList m_listInUse;
+        public Vector3 m_spawnPosition, m_slopeNormal;
+
+        public ObjectSpawnData(ObjectBrushObjectList p_listInUse, Vector3 p_spawnPosition, Vector3 p_slopeNormal)
+        {
+            m_listInUse = p_listInUse;
+            m_spawnPosition = p_spawnPosition;
+            m_slopeNormal = p_slopeNormal;
+        }
+    }
+
+
+    private void SpawnAllObjects(ObjectSpawnData[] m_allSpawnData)
+    {
+        if (m_allSpawnData.Length > 3000)
+        {
+            if (!EditorUtility.DisplayDialog("Object Count Warning", "You are trying to spawn " + m_allSpawnData.Length + " objects are you ok with that?", "Yes", "No"))
+            {
+                Debug.Log("Canceled the object placement");
+                return;
+            }
+        }
+
+        List<GameObject> childObjects = GetAllChildRootObjects();
+
+        for (int i = 0; i < m_allSpawnData.Length; i++)
+        {
+            ShowProgressBar(i, m_allSpawnData.Length, "Spawning object number " + i + " out of " + m_allSpawnData.Length + " objects");
+
+            GameObject objectToSpawn = m_allSpawnData[i].m_listInUse.GetObjectFromList();
+            GameObject prevObject = GetSpawnedObject(ref childObjects, objectToSpawn);
+
+            if (prevObject == null)
+            {
+                GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(objectToSpawn);
+                m_allSpawnData[i].m_listInUse.SpawnObject(m_allSpawnData[i].m_spawnPosition, m_allSpawnData[i].m_slopeNormal, m_terrain.transform, newObject);
+            }
+            else
+            {
+                m_allSpawnData[i].m_listInUse.SpawnObject(m_allSpawnData[i].m_spawnPosition, m_allSpawnData[i].m_slopeNormal, m_terrain.transform, prevObject);
+            }
+
+        }
+
+        if (m_removeExtraObjects)
+        {
+            foreach (GameObject child in childObjects)
+            {
+                if (child != m_terrain.gameObject)
+                {
+                    DestroyImmediate(child);
+                }
+            }
+        }
+
     }
 
     private List<GameObject> GetAllChildRootObjects()
@@ -173,41 +178,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
         return null;
     }
 
-    private void SpawnAllObjects(Vector3[] p_spawnPositions)
-    {
-        List<GameObject> childObjects = GetAllChildRootObjects();
-
-        for (int i = 0; i < p_spawnPositions.Length; i++)
-        {
-            ShowProgressBar(i, p_spawnPositions.Length, "Spawning object number " + i + " out of " + p_spawnPositions.Length + " objects");
-
-            GameObject objectToSpawn = m_testObjects[Random.Range(0, m_testObjects.Length)];
-
-            GameObject prevObject = GetSpawnedObject(ref childObjects, objectToSpawn);
-
-            if (prevObject == null)
-            {
-                SpawnObject(p_spawnPositions[i], objectToSpawn, true);
-            }
-            else
-            {
-                SpawnObject(p_spawnPositions[i], prevObject, false);
-            }
-        }
-
-        if (m_removeExtraObjects)
-        {
-            foreach (GameObject child in childObjects)
-            {
-                if (child != m_terrain.gameObject)
-                {
-                    DestroyImmediate(child);
-                }
-            }
-        }
-
-    }
-
+    /*
     private void SpawnObject(Vector3 p_worldPos, GameObject p_objectToSpawn, bool spawnNewObject)
     {
         GameObject newObject;
@@ -234,6 +205,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
         newObject.transform.parent = m_terrain.transform;
     }
+    */
 
     [Button("Remove")]
     private void RemoveObjects()
@@ -383,42 +355,4 @@ public class TerrainObjectSpawner : OdinEditorWindow
         terrainCells.Add(terrain, cellGrid);
     }
     #endregion
-
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        //SceneView.duringSceneGui += OnSceneGUI;
-    }
-
-    private void OnDisable()
-    {
-        //SceneView.duringSceneGui -= OnSceneGUI;
-    }
-
-    private void OnSceneGUI(SceneView screenView)
-    {
-        foreach (KeyValuePair<Terrain, Cell[,]> item in terrainCells)
-        {
-            foreach (Cell cell in item.Value)
-            {
-                if ((SceneView.lastActiveSceneView.camera.transform.position - cell.bounds.center).magnitude > 150f) continue;
-
-                foreach (Cell subCell in cell.subCells)
-                {
-                    if (subCell == null) continue;
-                    Color red = new Color(1f, 0.05f, 0.05f, 1f);
-                    //DebugExtension.DebugLocalCube(m_terrain.transform, subCell.bounds.size, red, subCell.bounds.center - m_terrain.transform.position);
-
-                    Debug.DrawRay(subCell.bounds.center, Vector3.up * 50);
-                }
-
-                Color grey = new Color(0.66f, 0.66f, 1f, 0.25f);
-                //DebugExtension.DebugLocalCube(m_terrain.transform, cell.bounds.size, grey, cell.bounds.center - m_terrain.transform.position);
-            }
-
-            screenView.Repaint();
-        }
-
-        screenView.Repaint();
-    }
 }

@@ -109,9 +109,9 @@ public class SplatMapSetting
     public float m_totalStrength;
 
     //[HideIf("m_currentMaskType", MaskType.heightMask)]
-    public SlopeMask m_slopeMask;
+    //public SlopeMask m_slopeMask;
     //[HideIf("m_currentMaskType", MaskType.slopeMask)]
-    public HeightMask m_heightMask;
+    //public HeightMask m_heightMask;
 
     public TerrainLayer m_layerTexture;
 
@@ -122,6 +122,7 @@ public class SplatMapSetting
 
     public void SetMap(float p_normalizedHeight, float p_normalizedSteepness, ref float p_splatValue)
     {
+        /*
         if (m_totalStrength != 0)
         {
             float slopeValue = m_slopeMask.ApplyMask(p_normalizedHeight, p_normalizedSteepness, ref p_splatValue);
@@ -148,50 +149,8 @@ public class SplatMapSetting
                 p_splatValue = m_totalStrength;
             }
         }
+        */
     }
 }
 
-[System.Serializable]
-public abstract class MaskTypeBase
-{
-    public bool m_useMask;
-
-    [Range(0, 1)]
-    public float m_strength;
-
-    public abstract float ApplyMask(float p_normalizedHeight, float p_normalizedSteepness, ref float p_splatValue);
-
-}
-
-[System.Serializable]
-public class SlopeMask : MaskTypeBase
-{
-    [MinMaxSlider(0, 1, true)]
-    public Vector2 m_minMaxSlope;
-
-    public AnimationCurve m_slopeCurve;
-
-    public override float ApplyMask(float p_normalizedHeight, float p_normalizedSteepness, ref float p_splatValue)
-    {
-        float currentSteepnessValue = Mathf.InverseLerp(m_minMaxSlope.x, m_minMaxSlope.y, p_normalizedSteepness);
-
-        return m_slopeCurve.Evaluate(currentSteepnessValue) * m_strength;
-    }
-}
-
-[System.Serializable]
-public class HeightMask : MaskTypeBase
-{
-    [MinMaxSlider(0, 1, true)]
-    public Vector2 m_minMaxHeight;
-
-    public AnimationCurve m_heightCurve;
-
-    public override float ApplyMask(float p_normalizedHeight, float p_normalizedSteepness, ref float p_splatValue)
-    {
-        float currentHeightValue = Mathf.InverseLerp(m_minMaxHeight.x, m_minMaxHeight.y, p_normalizedHeight);
-
-        return m_heightCurve.Evaluate(currentHeightValue) * m_strength;
-    }
-}
 

@@ -24,18 +24,7 @@ public class ObjectListDisplay
 [CreateAssetMenu(menuName = "Object Brush/Object List")]
 public class ObjectBrushObjectList : SerializedScriptableObject
 {
-	[AssetSelector(Paths = "Assets/_GreenLeaves/Prefabs/Environement", ExpandAllMenuItems = false)]
-	[AssetsOnly]
-	//[ListItemSelector("SetSelected")]
 	public GameObject[] m_objectsToPlace;
-
-	//[ShowInInspector, InlineEditor(InlineEditorModes.LargePreview ,InlineEditorObjectFieldModes.Hidden)]
-	private GameObject m_selectedObject;
-
-	public void SetSelected(int index)
-	{
-		this.m_selectedObject = index >= 0 ? this.m_objectsToPlace[index] : null;
-	}
 
 	[Header("Object Appearance Properties")]
 	[MinMaxSlider(1, 3, showFields: true)]
@@ -51,9 +40,76 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 	public float m_worldOffsetFromGround = 0;
 	public bool m_alignObjectToGroundNormal;
 
+	public float m_distanceVariation = 5f;
+
+	[Range(0, 100)]
+	public float m_spawnChance;
+
+	[Header("Height Mask Poperties")]
+	public HeightMask m_heightMask;
+
+	[Header("Slope Mask Poperties")]
+	public SlopeMask m_slopeMask;
+
+	[Header("Curvature Mask Poperties")]
+	public CurvatureMask m_curvatureMask;
+
+	public void SpawnObject(Vector3 p_spawnPoint, Vector3 p_slopeNormal, Transform p_objectParent, GameObject p_objectToSpawn)
+	{
+		GameObject newObject = p_objectToSpawn;
+		//newObject = (GameObject)PrefabUtility.InstantiatePrefab(p_objectToSpawn);
+
+		if (newObject == null)
+		{
+			Debug.LogError("Error instantiating prefab");
+			return;
+		}
+
+		newObject.transform.position = p_spawnPoint;
+		ModifyObject(newObject, p_slopeNormal);
+		newObject.transform.parent = p_objectParent;
+	}
+
+	public Vector3 GetDistanceVariation()
+    {
+		return new Vector3(Random.Range(-m_distanceVariation, m_distanceVariation), 0, Random.Range(-m_distanceVariation, m_distanceVariation));
+	}
+
 	public GameObject GetObjectFromList()
 	{
 		return m_objectsToPlace[Random.Range(0, m_objectsToPlace.Length)];
+	}
+
+    #region Spawn Checking
+    public bool CheckSpawn(float p_normalizedHeight, float p_curvature, float p_slope)
+    {
+		if ((Random.value * 100f) >= m_spawnChance)
+		{
+			return false;
+		}
+
+		float heightSpawnChance = m_heightMask.GetMaskValue(p_normalizedHeight);
+
+		if ((Random.value) >= heightSpawnChance)
+		{
+			return false;
+		}
+
+		float curvatureSpawnRange = m_curvatureMask.GetMaskValue(p_curvature);
+
+		if ((Random.value) >= curvatureSpawnRange)
+		{
+			return false;
+		}
+
+		float slopeSpawnChance = m_slopeMask.GetMaskValue(p_slope);
+
+		if ((Random.value) >= slopeSpawnChance)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public bool CheckSlope(float p_targetSlopeAngle)
@@ -65,8 +121,17 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 
 		return false;
 	}
+    #endregion
 
-	public void ModifyHeight(GameObject p_objectToModify, Vector3 p_slopeNormal)
+    #region Object Modification
+    public void ModifyObject(GameObject p_objectToModify, Vector3 p_slopeNormal)
+	{
+		ModifySize(p_objectToModify);
+		ModifyHeight(p_objectToModify);
+		ModifyRoation(p_objectToModify, p_slopeNormal);
+	}
+
+	public void ModifyHeight(GameObject p_objectToModify)
 	{
 		if (m_localGroundOffset.y != 0)
 		{
@@ -89,8 +154,6 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 				}
 			}
 
-			//MeshRenderer foundMeshRenderer = objectToModify.GetComponentInChildren<MeshRenderer>();
-
 			float objectHeight = tallestMesh.bounds.size.y;
 			p_objectToModify.transform.position += Vector3.up * (objectHeight * offsetAmount);
 		}
@@ -98,11 +161,6 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 		if (m_worldOffsetFromGround != 0)
 		{
 			p_objectToModify.transform.position += Vector3.up * m_worldOffsetFromGround;
-		}
-
-		if (m_alignObjectToGroundNormal)
-		{
-			p_objectToModify.transform.rotation = Quaternion.LookRotation(Vector3.Cross(p_slopeNormal, Vector3.up), p_slopeNormal);
 		}
 	}
 
@@ -128,15 +186,27 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 		}
 	}
 
-	private void ModifyRoation(GameObject p_objectToModify)
+	private void ModifyRoation(GameObject p_objectToModify, Vector3 p_slopeNormal)
 	{
 		if (m_randomYRotation)
 		{
 			p_objectToModify.transform.rotation = Quaternion.Euler(p_objectToModify.transform.rotation.eulerAngles.x, Random.Range(0, 360), p_objectToModify.transform.rotation.eulerAngles.z);
 		}
-	}
 
-	public Vector3 PlaceObject
+
+		if (m_alignObjectToGroundNormal)
+		{
+			Vector3 lookVector = Vector3.Cross(p_slopeNormal, Vector3.up);
+
+            if (lookVector.magnitude != 0)
+            {
+				p_objectToModify.transform.rotation = Quaternion.LookRotation(lookVector, p_slopeNormal);
+			}
+		}
+	}
+    #endregion
+
+    public Vector3 PlaceObject
 	(
 		Vector3 p_originPos,
 		float p_placementRadus,
@@ -191,13 +261,6 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 		}
 
 		return Vector3.zero;
-	}
-
-	public void ModifyObject(GameObject p_objectToModify, Vector3 p_slopeNormal)
-	{
-		ModifySize(p_objectToModify);
-		ModifyHeight(p_objectToModify, p_slopeNormal);
-		ModifyRoation(p_objectToModify);
 	}
 
 	public bool CheckIfObjectIsInGroup(GameObject p_objectToCheck)
