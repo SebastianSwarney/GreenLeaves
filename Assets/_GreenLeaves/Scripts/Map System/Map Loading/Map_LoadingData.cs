@@ -11,6 +11,8 @@ public class Map_LoadingData : MonoBehaviour
     public List<GameObject> m_allThornBushes;
     public List<GameObject> m_allLoadedLogs;
 
+    public List<GameObject> m_toolComponentUnlocks;
+
     public List<GameObject> m_allResources;
 
     private void OnEnable()
@@ -24,7 +26,6 @@ public class Map_LoadingData : MonoBehaviour
         Map_LoadingManager.Instance.SaveMapData(this);
         if (initialLoad)
         {
-            Debug.Log("Initial Load");
             foreach (GameObject saved in m_allResources)
             {
                 Map_LoadingManager.Instance.SaveSingleItem(saved, m_mapName);
@@ -67,6 +68,16 @@ public class Map_LoadingData : MonoBehaviour
         }
         #endregion
 
+        #region Load Tool Component
+        foreach (GameObject tool in m_toolComponentUnlocks)
+        {
+            if (p_data.m_toolComponents.Contains(m_toolComponentUnlocks.IndexOf(tool)))
+            {
+                tool.SetActive(false);
+            }
+        }
+        #endregion
+
         #region Load Resources
         foreach (GameObject resource in m_allResources)
         {
@@ -78,7 +89,7 @@ public class Map_LoadingData : MonoBehaviour
         {
             newSpawn = res.m_resourceType;
 
-            foreach(Map_LoadingManager.MapData.ItemResource.ResourceData newTra in res.m_resourceTransforms)
+            foreach (Map_LoadingManager.MapData.ItemResource.ResourceData newTra in res.m_resourceTransforms)
             {
                 GameObject newItem = ObjectPooler.Instance.NewObject(newSpawn, newTra.m_worldPos, newTra.m_rotation);
                 newItem.GetComponent<Resource_Pickup>().m_resourceAmount = newTra.m_resourceAmount;

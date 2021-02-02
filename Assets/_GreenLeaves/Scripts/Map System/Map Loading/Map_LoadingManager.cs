@@ -32,6 +32,8 @@ public class Map_LoadingManager : MonoBehaviour
         public List<int> m_cutDownThornBush = new List<int>();
         public List<int> m_cutDownLog = new List<int>();
 
+        public List<int> m_toolComponents = new List<int>();
+
         public List<BerryBushes> m_allBerryBushes = new List<BerryBushes>();
         public List<ItemResource> m_itemResources = new List<ItemResource>();
 
@@ -138,6 +140,16 @@ public class Map_LoadingManager : MonoBehaviour
                 }
             }
 
+            #endregion
+
+            #region Save Tool Components
+            foreach (GameObject loadedComponent in p_data.m_toolComponentUnlocks)
+            {
+                if (!loadedComponent.activeSelf)
+                {
+                    m_cutDownLog.Add(p_data.m_toolComponentUnlocks.IndexOf(loadedComponent));
+                }
+            }
             #endregion
 
             #region Save Resource Items

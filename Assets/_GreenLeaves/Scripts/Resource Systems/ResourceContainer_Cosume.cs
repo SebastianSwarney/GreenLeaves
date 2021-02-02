@@ -13,7 +13,6 @@ public class ResourceContainer_Cosume : ResourceContainer
     {
         foreach (TypeOfCosumption consume in m_consumeType)
         {
-            Debug.Log("Here is where the consuming is.");
             if (PlayerStatsController.Instance != null)
             {
 
