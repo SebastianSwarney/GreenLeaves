@@ -24,6 +24,11 @@ public class ResourceContainer : ScriptableObject
         dropped.GetComponent<Resource_Pickup>().m_canPickup = true;
         return dropped;
     }
+
+    public virtual ResourceContainer_Cosume AddToEdibleTable()
+    {
+        return null;
+    }
 }
 
 /// <summary>

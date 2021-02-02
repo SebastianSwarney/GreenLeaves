@@ -208,6 +208,10 @@ public class Inventory_2DMenu : MonoBehaviour
         {
             AddToInventory(pickedUpResource, p_amount, true, p_pickedUp.GetComponent<Resource_Pickup_UsedEquipment>().m_startingDurability);
         }
+        else
+        {
+            AddToInventory(pickedUpResource, p_amount);
+        }
     }
 
     public void AddToInventory(ResourceContainer pickedUpResource, int p_amount, bool p_isTool = false, int p_toolDurability = 0)

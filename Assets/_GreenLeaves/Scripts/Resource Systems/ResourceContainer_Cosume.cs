@@ -25,6 +25,11 @@ public class ResourceContainer_Cosume : ResourceContainer
         }
     }
 
+    public override ResourceContainer_Cosume AddToEdibleTable()
+    {
+        return this;
+    }
+
     [System.Serializable]
     public class TypeOfCosumption
     {
