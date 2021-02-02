@@ -108,4 +108,18 @@ public class Map_LoadingData : MonoBehaviour
 
         #endregion
     }
+
+    public float GetBerrySpawnRate()
+    {
+        //Base on player health & berries in inventory
+        //Adjust using animation curve
+        //Less berries and less health = more sawn chance
+        
+        //More chance of spawning berries when hungry
+
+        //Note down if a berry spawned with berries, and still has some
+        //Redo formula if no bushes have berries, and dont do formula if bushes have berries
+
+        return 0;
+    }
 }
