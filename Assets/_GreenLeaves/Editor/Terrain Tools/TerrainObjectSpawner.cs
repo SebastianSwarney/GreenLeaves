@@ -13,6 +13,9 @@ public class TerrainObjectSpawner : OdinEditorWindow
     public int cellSize = 64;
     public int cellDivisions = 4;
 
+    [PreviewField(Height = 250f, Alignment = ObjectFieldAlignment.Left)]
+    public Texture2D m_texture;
+
     public bool highPrecisionCollision;
 
     public LayerMask collisionLayerMask;
@@ -32,7 +35,6 @@ public class TerrainObjectSpawner : OdinEditorWindow
         GetWindow<TerrainObjectSpawner>().Show();
     }
 
-
     private void ShowProgressBar(float p_progress, float p_maxProgress, string p_message = "MeshToTerrian")
     {
         float displayProgress = p_progress / p_maxProgress;
@@ -44,6 +46,8 @@ public class TerrainObjectSpawner : OdinEditorWindow
     [Button("Place Objects")]
     private void PlaceObjects()
     {
+        BuildColliders();
+
         Terrain terrain = m_terrain;
 
         float reducedRange = terrain.terrainData.detailWidth / 2;
@@ -59,31 +63,46 @@ public class TerrainObjectSpawner : OdinEditorWindow
             length = terrain.terrainData.detailHeight - reducedRange;
         }
 
-        for (int x = 0; x < width; x++)
+        Texture2D texture = new Texture2D((int)width, (int)length, TextureFormat.Alpha8, false);
+
+        for (int i = 0; i < m_palette.m_objectList.Length; i++)
         {
-            for (int y = 0; y < length; y++)
+            for (int x = 0; x < width; x += 4)
             {
-                ObjectBrushObjectList objectListToUse = m_palette.GetObjectList();
-
-                Vector3 wPos = terrain.DetailToWorld(y, x);
-                wPos += objectListToUse.GetDistanceVariation();
-                Vector2 normalizedPos = terrain.GetNormalizedPosition(wPos);
-
-                float curvature = terrain.SampleConvexity(normalizedPos);
-                //0=concave, 0.5=flat, 1=convex
-                curvature = TerrainSampler.ConvexityToCurvature(curvature);
-
-                terrain.SampleHeight(normalizedPos, out _, out wPos.y, out _);
-                float slope = terrain.GetSlope(normalizedPos);
-
-                Vector3 slopeNormal = terrain.terrainData.GetInterpolatedNormal(normalizedPos.x, normalizedPos.y);
-
-                if (objectListToUse.CheckSpawn(wPos.y / terrain.terrainData.size.y, curvature, slope))
+                for (int y = 0; y < length; y += 4)
                 {
-                    spawnData.Add(new ObjectSpawnData(objectListToUse, wPos, slopeNormal));
+                    //ObjectBrushObjectList objectListToUse = m_palette.GetObjectList();
+                    ObjectBrushObjectList objectListToUse = m_palette.m_objectList[i].m_objectList;
+
+                    Vector3 wPos = terrain.DetailToWorld(y, x);
+                    wPos += objectListToUse.GetDistanceVariation();
+                    Vector2 normalizedPos = terrain.GetNormalizedPosition(wPos);
+
+                    float curvature = terrain.SampleConvexity(normalizedPos);
+                    //0=concave, 0.5=flat, 1=convex
+                    curvature = TerrainSampler.ConvexityToCurvature(curvature);
+
+                    terrain.SampleHeight(normalizedPos, out _, out wPos.y, out _);
+                    float slope = terrain.GetSlope(normalizedPos);
+
+                    Vector3 slopeNormal = terrain.terrainData.GetInterpolatedNormal(normalizedPos.x, normalizedPos.y);
+
+                    if (objectListToUse.CheckSpawn(wPos.y / terrain.terrainData.size.y, curvature, slope))
+                    {
+                        if (Random.value <= texture.GetPixel(x, y).a)
+                        {
+                            spawnData.Add(new ObjectSpawnData(objectListToUse, wPos, slopeNormal));
+
+                            Color color = new Color(0, 0, 0, 1f);
+                            texture.SetPixel(x, y, color);
+                        }
+                    }
                 }
             }
         }
+
+        texture.Apply();
+        m_texture = texture;
 
         SpawnAllObjects(spawnData.ToArray());
     }
@@ -177,35 +196,6 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
         return null;
     }
-
-    /*
-    private void SpawnObject(Vector3 p_worldPos, GameObject p_objectToSpawn, bool spawnNewObject)
-    {
-        GameObject newObject;
-
-        if (spawnNewObject)
-        {
-            newObject = (GameObject)PrefabUtility.InstantiatePrefab(p_objectToSpawn);
-        }
-        else
-        {
-            newObject = p_objectToSpawn;
-        }
-
-        if (newObject == null)
-        {
-            Debug.LogError("Error instantiating prefab");
-            return;
-        }
-
-        newObject.transform.rotation = Quaternion.Euler(newObject.transform.rotation.eulerAngles.x, Random.Range(0, 360), newObject.transform.rotation.eulerAngles.z);
-        newObject.transform.position += Vector3.down * 1;
-
-        newObject.transform.position = p_worldPos;
-
-        newObject.transform.parent = m_terrain.transform;
-    }
-    */
 
     [Button("Remove")]
     private void RemoveObjects()
@@ -354,5 +344,6 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
         terrainCells.Add(terrain, cellGrid);
     }
+
     #endregion
 }

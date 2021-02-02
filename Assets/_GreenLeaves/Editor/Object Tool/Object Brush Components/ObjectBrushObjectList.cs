@@ -27,7 +27,7 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 	public GameObject[] m_objectsToPlace;
 
 	[Header("Object Appearance Properties")]
-	[MinMaxSlider(1, 3, showFields: true)]
+	[MinMaxSlider(0.1f, 3, showFields: true)]
 	public Vector2 m_scaleVaritation;
 	public bool m_lockWidthToHeight = true;
 	public bool m_randomYRotation = true;
