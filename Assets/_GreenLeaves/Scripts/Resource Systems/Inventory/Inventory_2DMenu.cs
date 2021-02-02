@@ -256,7 +256,7 @@ public class Inventory_2DMenu : MonoBehaviour
         ///Determines if the icon can be placed in the grid
         #region Icon Grid Positioning
 
-        Inventory_Icon newIcon = CreateIcon(pickedUpResource, iconRotationType, existingAmount, false, 0);
+        Inventory_Icon newIcon = CreateIcon(pickedUpResource, iconRotationType, existingAmount, pickedUpResource.m_resourceData.m_resourceType == ResourceData.ResourceType.Tool, 0);
 
         newIcon.m_opensInventorySelectButton = pickedUpResource.m_showInventorySelectionButton;
 
@@ -888,7 +888,6 @@ public class Inventory_2DMenu : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("Cant Equip");
                         p_holdingIcon.m_inCookingTable = false;
                         p_holdingIcon.m_inCraftingTable = true;
                         p_holdingIcon.m_inEatingArea = false;
