@@ -49,7 +49,7 @@ public class TerrainTexture : OdinEditorWindow
 
         if (terrainData.terrainLayers != terrainLayers.ToArray())
         {
-            //terrainData.SetTerrainLayersRegisterUndo(terrainLayers.ToArray(), "Terrain Layers");
+            terrainData.SetTerrainLayersRegisterUndo(terrainLayers.ToArray(), "Terrain Layers");
         }
 
         float[,,] splatmapData = new float[terrainData.alphamapWidth, terrainData.alphamapHeight, terrainData.alphamapLayers];
