@@ -89,6 +89,15 @@ public class Map_LoadingData : MonoBehaviour
         {
             newSpawn = res.m_resourceType;
 
+            if(newSpawn == null)
+            {
+                Debug.Log("New Spawn: " + res.m_resourceName);
+            }
+            else
+            {
+                
+            }
+
             foreach (Map_LoadingManager.MapData.ItemResource.ResourceData newTra in res.m_resourceTransforms)
             {
                 GameObject newItem = ObjectPooler.Instance.NewObject(newSpawn, newTra.m_worldPos, newTra.m_rotation);
@@ -99,5 +108,4 @@ public class Map_LoadingData : MonoBehaviour
 
         #endregion
     }
-
 }

@@ -15,7 +15,7 @@ public class Resource_Pickup : MonoBehaviour
     public int m_resourceAmount;
 
     public GenericWorldEvent m_resourcePickedUpEvent, m_objectSpawned;
-    
+
     public void ResetResourceAmount()
     {
         m_resourceAmount = 1;
