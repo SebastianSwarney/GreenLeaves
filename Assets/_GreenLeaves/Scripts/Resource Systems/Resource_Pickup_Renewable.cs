@@ -44,8 +44,13 @@ public class Resource_Pickup_Renewable : Resource_Pickup
         m_setFromSave = true;
         m_currentAmount = p_newAmount;
         if (m_currentAmount == m_amountOfHarvestable) return;
+        for (int i = 0; i < m_resourceVisuals.Count; i++)
+        {
+            m_resourceVisuals[i].SetActive(true);
+        }
         for (int i = m_amountOfHarvestable; i > m_currentAmount; i--)
         {
+
             m_resourceVisuals[i].SetActive(false);
         }
         if(m_currentAmount <= 0)

@@ -7,13 +7,17 @@ public class Map_LoadingData : MonoBehaviour
     public string m_mapName;
 
     public List<GameObject> m_allTrees;
-    public List<GameObject> m_allBerryBushes;
     public List<GameObject> m_allThornBushes;
     public List<GameObject> m_allLoadedLogs;
 
     public List<GameObject> m_toolComponentUnlocks;
 
     public List<GameObject> m_allResources;
+
+    [Header("Berry Bushes")]
+    public List<GameObject> m_allHungerBushes;
+    public List<GameObject> m_allEnergyBushes;
+    public List<GameObject> m_allStaminaBushes;
 
     private void OnEnable()
     {
@@ -23,13 +27,15 @@ public class Map_LoadingData : MonoBehaviour
         {
             LoadMap(data);
         }
-        Map_LoadingManager.Instance.SaveMapData(this);
+
+        data = Map_LoadingManager.Instance.SaveMapData(this);
         if (initialLoad)
         {
             foreach (GameObject saved in m_allResources)
             {
                 Map_LoadingManager.Instance.SaveSingleItem(saved, m_mapName);
             }
+            LoadInitialMap(data);
         }
     }
 
@@ -56,18 +62,6 @@ public class Map_LoadingData : MonoBehaviour
         }
         #endregion
 
-        #region Load Berry Bushes
-        for (int i = 0; i < m_allBerryBushes.Count; i++)
-        {
-            if (p_data.m_allBerryBushes[i].m_cutDown)
-            {
-                m_allBerryBushes[i].SetActive(false);
-                continue;
-            }
-            m_allBerryBushes[i].GetComponentInChildren<Resource_Pickup_Renewable>().SetBerryAmount(p_data.m_allBerryBushes[i].m_berriesLeft);
-        }
-        #endregion
-
         #region Load Tool Component
         foreach (GameObject tool in m_toolComponentUnlocks)
         {
@@ -89,15 +83,6 @@ public class Map_LoadingData : MonoBehaviour
         {
             newSpawn = res.m_resourceType;
 
-            if(newSpawn == null)
-            {
-                Debug.Log("New Spawn: " + res.m_resourceName);
-            }
-            else
-            {
-                
-            }
-
             foreach (Map_LoadingManager.MapData.ItemResource.ResourceData newTra in res.m_resourceTransforms)
             {
                 GameObject newItem = ObjectPooler.Instance.NewObject(newSpawn, newTra.m_worldPos, newTra.m_rotation);
@@ -107,6 +92,123 @@ public class Map_LoadingData : MonoBehaviour
         }
 
         #endregion
+
+        #region Load Berry Bushes
+
+        if (m_allHungerBushes.Count > 0)
+        {
+            SetBerryRate(m_allHungerBushes, p_data.m_allHungerBushes, 0);
+        }
+        if (m_allEnergyBushes.Count > 0)
+        {
+            SetBerryRate(m_allEnergyBushes, p_data.m_allEnergyBushes, 1);
+        }
+        if (m_allStaminaBushes.Count > 0)
+        {
+            SetBerryRate(m_allStaminaBushes, p_data.m_allStaminaBushes, 2);
+        }
+        #endregion
+
+    }
+
+    private void LoadInitialMap(Map_LoadingManager.MapData p_data)
+    {
+        if (m_allHungerBushes.Count > 0)
+        {
+            SetBerryRate(m_allHungerBushes, p_data.m_allHungerBushes, 0);
+        }
+        if (m_allEnergyBushes.Count > 0)
+        {
+            SetBerryRate(m_allEnergyBushes, p_data.m_allEnergyBushes, 1);
+        }
+        if (m_allStaminaBushes.Count > 0)
+        {
+            SetBerryRate(m_allStaminaBushes, p_data.m_allStaminaBushes, 2);
+        }
+    }
+
+    private void SetBerryRate(List<GameObject> p_berryList, List<Map_LoadingManager.MapData.BerryBushes> p_berryData, int p_berryType)
+    {
+        List<Resource_Pickup_Renewable> activeBerryBushes = new List<Resource_Pickup_Renewable>();
+        int currentBerryCount = 0;
+        float chance = 0;
+
+
+
+        for (int i = 0; i < p_berryList.Count; i++)
+        {
+            if (p_berryData[i].m_cutDown)
+            {
+                p_berryList[i].SetActive(false);
+                continue;
+            }
+            else
+            {
+                activeBerryBushes.Add(p_berryList[i].GetComponentInChildren<Resource_Pickup_Renewable>());
+            }
+            p_berryList[i].GetComponentInChildren<Resource_Pickup_Renewable>().SetBerryAmount(p_berryData[i].m_berriesLeft);
+            currentBerryCount += p_berryData[i].m_berriesLeft;
+        }
+
+        if (currentBerryCount < Map_LoadingManager.Instance.m_maxBerryCount)
+        {
+            if (p_berryType == 0)
+            {
+                chance = Map_LoadingManager.Instance.GetHungerBerryChance(currentBerryCount);
+            }
+            else if (p_berryType == 1)
+            {
+                chance = Map_LoadingManager.Instance.GetEnergyBerryChance(currentBerryCount);
+            }
+            else if (p_berryType == 2)
+            {
+                chance = Map_LoadingManager.Instance.GetEnergyBerryChance(currentBerryCount);
+            }
+
+            RandomizeBerryList(ref activeBerryBushes);
+            Debug.Log("Chance: " + chance);
+            foreach (Resource_Pickup_Renewable bush in activeBerryBushes)
+            {
+                if (Random.Range(0f, 1f) < chance)
+                {
+
+                    
+                    int amountToAdd = Random.Range(0, Map_LoadingManager.Instance.m_maxBerryCount - currentBerryCount);
+                    if (amountToAdd <= 0) continue;
+
+                    int amountNeeded = bush.m_amountOfHarvestable - bush.m_currentAmount;
+                    if(amountToAdd > amountNeeded)
+                    {
+                        amountToAdd = amountNeeded;
+                    }
+
+                    currentBerryCount += amountNeeded;
+                    chance -= amountToAdd * Map_LoadingManager.Instance.m_percentDecreasePerBerry;
+                    bush.SetBerryAmount(bush.m_currentAmount + amountToAdd);
+
+                    if (bush.m_currentAmount < 0)
+                    {
+                        Debug.Log("Index Error ");
+                    }
+                }
+            }
+
+        }
+    }
+
+    private void RandomizeBerryList(ref List<Resource_Pickup_Renewable> p_list)
+    {
+
+        Resource_Pickup_Renewable temp = p_list[0];
+        int newIndex = Random.Range(0, p_list.Count);
+        for (int i = 0; i < p_list.Count; i++)
+        {
+            p_list[i] = p_list[newIndex];
+            p_list[newIndex] = temp;
+            newIndex = Random.Range(0, p_list.Count);
+            temp = p_list[i];
+        }
+
     }
 
     public float GetBerrySpawnRate()
@@ -114,7 +216,7 @@ public class Map_LoadingData : MonoBehaviour
         //Base on player health & berries in inventory
         //Adjust using animation curve
         //Less berries and less health = more sawn chance
-        
+
         //More chance of spawning berries when hungry
 
         //Note down if a berry spawned with berries, and still has some

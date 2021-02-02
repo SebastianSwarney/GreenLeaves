@@ -15,7 +15,7 @@ public class PlayerStatsController : MonoBehaviour
 
     public float m_energyGainPerHour;
 
-    private float m_currentMainEnergy;
+    public float m_currentMainEnergy;
 
     private bool m_usingMainEnergy;
 

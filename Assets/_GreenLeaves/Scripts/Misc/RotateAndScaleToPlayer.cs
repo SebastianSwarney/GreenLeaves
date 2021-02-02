@@ -15,6 +15,7 @@ public class RotateAndScaleToPlayer : MonoBehaviour
     private Transform m_cameraRef;
     public Transform m_transformToScale;
     private Transform m_transformToFollow;
+    public Vector3 m_transformOffset;
     
     private void Start()
     {
@@ -27,6 +28,8 @@ public class RotateAndScaleToPlayer : MonoBehaviour
         {
             m_transformToFollow = PlayerInputToggle.Instance.transform;
             transform.parent = m_transformToFollow;
+            transform.localPosition = m_transformOffset;
+            
         }
     }
     

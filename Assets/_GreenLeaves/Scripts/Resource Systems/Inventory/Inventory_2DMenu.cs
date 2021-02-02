@@ -1048,6 +1048,51 @@ public class Inventory_2DMenu : MonoBehaviour
         }
     }
     #endregion
+
+    #region ItemGetterFunctions
+    [Header("Berry Stats")]
+    public ResourceContainer m_hungerBerry;
+    public ResourceContainer m_staminaBerry, m_energyBerry;
+    public int GetAmountOfHungerBerries()
+    {
+        int amount = 0;
+        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        {
+            if(slot.m_currentData.m_resourceData.m_resourceName == m_hungerBerry.m_resourceData.m_resourceName)
+            {
+                amount+= slot.m_associatedIcon.m_currentResourceAmount;
+            }
+        }
+        return amount;
+    }
+
+    public int GetAmountOfStaminaBerries()
+    {
+        int amount = 0;
+        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        {
+            if(slot.m_currentData.m_resourceData.m_resourceName == m_staminaBerry.m_resourceData.m_resourceName)
+            {
+                amount += slot.m_associatedIcon.m_currentResourceAmount;
+            }
+        }
+        return amount;
+    }
+
+    public int GetAmountOfEnergyBerries()
+    {
+        int amount = 0;
+        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        {
+            if(slot.m_currentData.m_resourceData.m_resourceName == m_energyBerry.m_resourceData.m_resourceName)
+            {
+                amount += slot.m_associatedIcon.m_currentResourceAmount;
+            }
+        }
+        return amount;
+    }
+    
+    #endregion
 }
 
 

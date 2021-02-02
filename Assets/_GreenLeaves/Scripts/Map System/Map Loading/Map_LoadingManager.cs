@@ -33,10 +33,11 @@ public class Map_LoadingManager : MonoBehaviour
         public List<int> m_cutDownLog = new List<int>();
 
         public List<int> m_toolComponents = new List<int>();
-
-        public List<BerryBushes> m_allBerryBushes = new List<BerryBushes>();
         public List<ItemResource> m_itemResources = new List<ItemResource>();
 
+        public List<BerryBushes> m_allHungerBushes = new List<BerryBushes>();
+        public List<BerryBushes> m_allEnergyBushes = new List<BerryBushes>();
+        public List<BerryBushes> m_allStaminaBushes = new List<BerryBushes>();
 
         #region Data Containers
 
@@ -108,16 +109,7 @@ public class Map_LoadingManager : MonoBehaviour
             }
             #endregion
 
-            #region Save Berry Bushes
-            m_allBerryBushes.Clear();
-            foreach (GameObject loadedBush in p_data.m_allBerryBushes)
-            {
-                BerryBushes newBush = new BerryBushes();
-                newBush.m_cutDown = !loadedBush.activeSelf;
-                newBush.m_berriesLeft = loadedBush.GetComponentInChildren<Resource_Pickup_Renewable>().m_currentAmount;
-                m_allBerryBushes.Add(newBush);
-            }
-            #endregion
+
 
             #region Save Thorn Bushes
             m_cutDownThornBush.Clear();
@@ -186,6 +178,35 @@ public class Map_LoadingManager : MonoBehaviour
             #endregion
 
 
+            #region Save Berry Bushes
+            m_allHungerBushes.Clear();
+            foreach (GameObject loadedBush in p_data.m_allHungerBushes)
+            {
+                BerryBushes newBush = new BerryBushes();
+                newBush.m_cutDown = !loadedBush.activeSelf;
+                newBush.m_berriesLeft = loadedBush.GetComponentInChildren<Resource_Pickup_Renewable>().m_currentAmount;
+                m_allHungerBushes.Add(newBush);
+            }
+
+            m_allEnergyBushes.Clear();
+            foreach (GameObject loadedBush in p_data.m_allEnergyBushes)
+            {
+                BerryBushes newBush = new BerryBushes();
+                newBush.m_cutDown = !loadedBush.activeSelf;
+                newBush.m_berriesLeft = loadedBush.GetComponentInChildren<Resource_Pickup_Renewable>().m_currentAmount;
+                m_allEnergyBushes.Add(newBush);
+            }
+
+            m_allStaminaBushes.Clear();
+            foreach (GameObject loadedBush in p_data.m_allStaminaBushes)
+            {
+                BerryBushes newBush = new BerryBushes();
+                newBush.m_cutDown = !loadedBush.activeSelf;
+                newBush.m_berriesLeft = loadedBush.GetComponentInChildren<Resource_Pickup_Renewable>().m_currentAmount;
+                m_allStaminaBushes.Add(newBush);
+            }
+            #endregion
+
         }
 
     }
@@ -212,6 +233,14 @@ public class Map_LoadingManager : MonoBehaviour
         public List<int> m_unloadAreas;
     }
 
+    [Header("Berry Varaibles")]
+    public int m_maxBerryCount = 8;
+    [Tooltip("Dont Touch")]
+    public float m_percentDecreasePerBerry;
+    public AnimationCurve m_hungerPercentCurve;
+    public AnimationCurve m_energyPercentCurve, m_staminaCurve;
+
+
 
     private void Awake()
     {
@@ -225,11 +254,18 @@ public class Map_LoadingManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        m_percentDecreasePerBerry = 1f / (float)m_maxBerryCount/2;
     }
 
+    public float m_currentHungerChance;
+    public int m_currentBerryCount;
+    private void Update()
+    {
+        m_currentHungerChance = GetHungerBerryChance(m_currentBerryCount);
+    }
 
     #region Saving & Loading Functionality
-    public void SaveMapData(Map_LoadingData p_data)
+    public MapData SaveMapData(Map_LoadingData p_data)
     {
         int saveIndex = 0;
         bool saved = false;
@@ -253,7 +289,7 @@ public class Map_LoadingManager : MonoBehaviour
         }
         m_allMapData[saveIndex].m_mapLoadingData = p_data;
         m_allMapData[saveIndex].SaveMapData(p_data, m_allResourceTypes);
-
+        return m_allMapData[saveIndex];
     }
 
     public void SaveSingleItem(GameObject p_newItem, string p_mapAreaName)
@@ -338,6 +374,7 @@ public class Map_LoadingManager : MonoBehaviour
             {
                 return data.m_mapLoadingData;
             }
+            Debug.Log("Map Data: " + data.m_mapName + " | Current Area: " + m_currentMainArea);
         }
         Debug.LogError("No Map Area Data Exists for: " + m_currentMainArea);
         return null;
@@ -354,6 +391,43 @@ public class Map_LoadingManager : MonoBehaviour
         }
         Debug.LogError("No Map Data Exists for: " + m_currentMainArea);
         return null;
+    }
+
+    public float GetHungerBerryChance( int p_currentBerryCount)
+    {
+        float chance = m_hungerPercentCurve.Evaluate(PlayerStatsController.Instance.m_currentHunger / PlayerStatsController.Instance.m_hungerMax)/2;
+        chance += 0.5f - Mathf.Lerp(0, 0.5f, Inventory_2DMenu.Instance.GetAmountOfHungerBerries() / m_maxBerryCount);
+
+        chance -= p_currentBerryCount * m_percentDecreasePerBerry;
+        chance = Mathf.Clamp(chance, 0, 1);
+
+        
+
+        return chance;
+    }
+
+    public float GetStaminaBerryChance(int p_currentBerryCount)
+    {
+        float chance = m_staminaCurve.Evaluate(PlayerStatsController.Instance.m_currentSecondaryEnergy / PlayerStatsController.Instance.m_secondaryEnergyMax) / 2;
+        chance += 0.5f - Mathf.Lerp(0, 0.5f, Inventory_2DMenu.Instance.GetAmountOfStaminaBerries() / m_maxBerryCount);
+
+        chance -= p_currentBerryCount * m_percentDecreasePerBerry;
+        Debug.Log("Stamina Berry Chance: " + chance);
+
+        chance = Mathf.Clamp(chance, 0, 1);
+        return chance;
+    }
+
+    public float GetEnergyBerryChance(int p_currentBerryCount)
+    {
+        float chance = m_energyPercentCurve.Evaluate(PlayerStatsController.Instance.m_currentMainEnergy / PlayerStatsController.Instance.m_mainEnergyMax) / 2;
+        chance += 0.5f - Mathf.Lerp(0, 0.5f, Inventory_2DMenu.Instance.GetAmountOfStaminaBerries() / m_maxBerryCount);
+
+        chance -= p_currentBerryCount * m_percentDecreasePerBerry;
+        Debug.Log("Energy Berry Chance: " + chance);
+
+        chance = Mathf.Clamp(chance, 0, 1);
+        return chance;
     }
 
     #endregion
