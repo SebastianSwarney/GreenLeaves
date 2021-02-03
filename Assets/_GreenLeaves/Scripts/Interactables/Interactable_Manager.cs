@@ -98,6 +98,7 @@ public class Interactable_Manager : MonoBehaviour
         }
         m_canBeOverridden = p_canBeOverridden;
 
+        transform.position = p_selectedSystem.transform.position;
         
         if(m_currentInteractable != null && m_currentInteractable != p_selectedSystem)
         {

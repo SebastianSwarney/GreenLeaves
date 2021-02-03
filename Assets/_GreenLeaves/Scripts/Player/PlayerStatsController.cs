@@ -18,6 +18,8 @@ public class PlayerStatsController : MonoBehaviour
     public float m_currentMainEnergy;
 
     private bool m_usingMainEnergy;
+    public UI_ShakeElement m_mainEnergyShake;
+    public float m_mainEnergyStartShakingAmount;
 
     [Header("Secondary Energy Properties")]
     public float m_secondaryEnergyMax;
@@ -28,6 +30,9 @@ public class PlayerStatsController : MonoBehaviour
     private float m_secondaryEnergyReplenishWaitTimer;
 
     public float m_currentSecondaryEnergy;
+    public UI_ShakeElement m_secondaryEnergyShake;
+    public float m_secondaryEnergyStartShakingAmount;
+
 
     [Header("Hunger Properties")]
     public float m_hungerMax;
@@ -41,6 +46,8 @@ public class PlayerStatsController : MonoBehaviour
     public float m_currentHunger;
     private float m_currentDrainMultiplier;
 
+    public UI_ShakeElement m_hungerShake;
+    public float m_hungerStartShakingAmount;
 
     [Header("Hunger Visual Properties")]
     public Gradient m_hungerColorGradient;
@@ -71,6 +78,7 @@ public class PlayerStatsController : MonoBehaviour
         PassiveDrainStat(m_hungerMax, m_hungerDepletionRate, ref m_currentHunger, m_hungerImage);
 
         DrawHungerSegments();
+        UpdateUIShake();
     }
 
     #region Drain Functions
@@ -200,8 +208,8 @@ public class PlayerStatsController : MonoBehaviour
             }
         }*/
 
-       
-        
+
+
 
         SetHungerSegment(m_hungerImage, ((m_currentHunger / m_hungerMax)));
     }
@@ -209,9 +217,9 @@ public class PlayerStatsController : MonoBehaviour
     private void SetHungerSegment(Image p_targetImage, float p_progress)
     {
         p_targetImage.color = m_hungerColorGradient.Evaluate(p_progress);
-        m_currentDrainMultiplier =(int) Mathf.Lerp(m_maxDrainMultiplier, 1f, p_progress);
+        m_currentDrainMultiplier = (int)Mathf.Lerp(m_maxDrainMultiplier, 1f, p_progress);
 
-        
+
     }
 
     private void ResetHungerSegment(Image p_targetImage)
@@ -380,5 +388,12 @@ public class PlayerStatsController : MonoBehaviour
         }
         Debug.Log("Error in stats controller | No matching stat type for: " + p_typeOfStat, this);
         return 0;
+    }
+
+    public void UpdateUIShake()
+    {
+        m_mainEnergyShake.UpdateShakeAmount(Mathf.Lerp(1, 0, (m_currentMainEnergy / m_mainEnergyStartShakingAmount)));
+        m_secondaryEnergyShake.UpdateShakeAmount(Mathf.Lerp(1, 0, (m_currentSecondaryEnergy / m_secondaryEnergyStartShakingAmount)));
+        m_hungerShake.UpdateShakeAmount(Mathf.Lerp(1, 0, (m_currentHunger / m_hungerStartShakingAmount)));
     }
 }

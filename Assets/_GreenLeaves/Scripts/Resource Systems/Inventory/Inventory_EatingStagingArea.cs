@@ -54,17 +54,17 @@ public class Inventory_EatingStagingArea : MonoBehaviour
             {
                 case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Energy:
                     m_addEnergy.SetActive(true);
-                    m_addEnergyText.text = "+" + m_currentEatAmount * ty.m_replenishAmount;
+                    m_addEnergyText.text = "+" + (int)(m_currentEatAmount * ty.m_replenishAmount);
                     break;
 
                 case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Hunger:
                     m_addHunger.SetActive(true);
-                    m_addHungerText.text = "+" + m_currentEatAmount * ty.m_replenishAmount;
+                    m_addHungerText.text = "+" + (int)(m_currentEatAmount * ty.m_replenishAmount);
                     break;
 
                 case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Stamina:
                     m_addStamina.SetActive(true);
-                    m_addStaminaText.text = "+" + m_currentEatAmount * ty.m_replenishAmount;
+                    m_addStaminaText.text = "+" + (int)(m_currentEatAmount * ty.m_replenishAmount);
                     break;
 
             }
