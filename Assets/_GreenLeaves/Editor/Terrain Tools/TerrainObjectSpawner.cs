@@ -13,12 +13,15 @@ public class TerrainObjectSpawner : OdinEditorWindow
     public int cellSize = 64;
     public int cellDivisions = 4;
 
+    public int objectPlacementResolution = 256;
+
     [PreviewField(Height = 250f, Alignment = ObjectFieldAlignment.Left)]
     public Texture2D m_texture;
 
     public bool highPrecisionCollision;
 
     public LayerMask collisionLayerMask;
+    public LayerMask m_terrainMask;
 
     public Dictionary<Terrain, Cell[,]> terrainCells = new Dictionary<Terrain, Cell[,]>();
 
@@ -43,43 +46,117 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
     #region Object Placement Code
 
-    [Button("Place Objects")]
-    private void PlaceObjects()
-    {
-        BuildColliders();
+    [Button("Build Collision Texture")]
+    private void BuildCollisionTextureInspector()
+	{
+        BuildCollisionTexture(true);
+	}
 
+    private void BuildCollisionTexture(bool updateInspector)
+	{
         Terrain terrain = m_terrain;
-
-        float reducedRange = terrain.terrainData.detailWidth / 2;
-
-        List<ObjectSpawnData> spawnData = new List<ObjectSpawnData>();
 
         float width = terrain.terrainData.detailWidth;
         float length = terrain.terrainData.detailHeight;
 
-        if (m_limitPlacement)
+        int adjustmentAmount = terrain.terrainData.detailWidth / objectPlacementResolution;
+
+        float adjustedWidth = width / adjustmentAmount;
+        float adjustedLength = length / adjustmentAmount;
+
+        float cellSize = (terrain.terrainData.size.x / adjustedWidth) / 2;
+        Vector3 halfExents = new Vector3(cellSize, cellSize, cellSize);
+
+        Texture2D texture = new Texture2D((int)adjustedWidth, (int)adjustedLength, TextureFormat.RGBA32, false);
+
+        for (int x = 0; x < width; x += adjustmentAmount)
         {
-            width = terrain.terrainData.detailWidth - reducedRange;
-            length = terrain.terrainData.detailHeight - reducedRange;
+            for (int y = 0; y < length; y += adjustmentAmount)
+            {
+                Vector3 wPos = terrain.DetailToWorld(y, x);
+                wPos += halfExents;
+
+                RaycastHit terrainHit;
+
+                if (Physics.BoxCast(wPos + (Vector3.up * 600f), halfExents, -Vector3.up, out terrainHit, Quaternion.identity, 700f, collisionLayerMask))
+                {
+
+                    if (terrainHit.collider.gameObject != terrain.gameObject && terrainHit.collider.transform.root != terrain.transform)
+                    {
+                        Color color = new Color(0, 0, 0, 1f);
+
+                        if (CheckCollisionLayer(m_terrainMask, terrainHit.collider.gameObject))
+                        {
+                            color = new Color(1f, 0, 0, 1f);
+                        }
+
+                        texture.SetPixel(x / adjustmentAmount, y / adjustmentAmount, color);
+                    }
+                }
+            }
         }
 
-        Texture2D texture = new Texture2D((int)width, (int)length, TextureFormat.Alpha8, false);
+		if (updateInspector)
+		{
+            texture.Apply();
+        }
+
+        m_texture = texture;
+    }
+
+    public bool CheckCollisionLayer(LayerMask p_layerMask, GameObject p_object)
+    {
+        if (p_layerMask == (p_layerMask | (1 << p_object.layer)))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    [Button("Place Objects")]
+    private void PlaceObjects()
+    {
+        BuildCollisionTexture(false);
+
+        Terrain terrain = m_terrain;
+
+        float width = terrain.terrainData.detailWidth;
+        float length = terrain.terrainData.detailHeight;
+
+        int adjustmentAmount = terrain.terrainData.detailWidth / objectPlacementResolution;
+
+        float adjustedWidth = width / adjustmentAmount;
+        float adjustedLength = length / adjustmentAmount;
+
+        float reducedRange = adjustedWidth / 2;
+
+        if (m_limitPlacement)
+        {
+            width = adjustedWidth - reducedRange;
+            length = adjustedLength - reducedRange;
+        }
+
+        Texture2D texture = m_texture;
+        List<ObjectSpawnData> spawnData = new List<ObjectSpawnData>();
+
+        //Texture2D texture = new Texture2D((int)width, (int)length, TextureFormat.Alpha8, false);
 
         for (int i = 0; i < m_palette.m_objectList.Length; i++)
         {
-            for (int x = 0; x < width; x += 4)
+            for (int x = 0; x < width; x += adjustmentAmount)
             {
-                for (int y = 0; y < length; y += 4)
+                for (int y = 0; y < length; y += adjustmentAmount)
                 {
-                    //ObjectBrushObjectList objectListToUse = m_palette.GetObjectList();
                     ObjectBrushObjectList objectListToUse = m_palette.m_objectList[i].m_objectList;
 
                     Vector3 wPos = terrain.DetailToWorld(y, x);
-                    wPos += objectListToUse.GetDistanceVariation();
+                    //wPos += objectListToUse.GetDistanceVariation();
                     Vector2 normalizedPos = terrain.GetNormalizedPosition(wPos);
 
                     float curvature = terrain.SampleConvexity(normalizedPos);
-                    //0=concave, 0.5=flat, 1=convex
                     curvature = TerrainSampler.ConvexityToCurvature(curvature);
 
                     terrain.SampleHeight(normalizedPos, out _, out wPos.y, out _);
@@ -87,14 +164,35 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
                     Vector3 slopeNormal = terrain.terrainData.GetInterpolatedNormal(normalizedPos.x, normalizedPos.y);
 
-                    if (objectListToUse.CheckSpawn(wPos.y / terrain.terrainData.size.y, curvature, slope))
-                    {
-                        if (Random.value <= texture.GetPixel(x, y).a)
+                    Color pixelvalue = texture.GetPixel(x / adjustmentAmount, y / adjustmentAmount);
+
+                    Vector3 spawnCheckPos = wPos;
+
+                    if (pixelvalue.r > 0)
+					{
+                        RaycastHit hit;
+
+                        if (Physics.Raycast(wPos + Vector3.up * 600f, Vector3.down, out hit, 700f, m_terrainMask))
+						{
+                            float castSlope = Vector3.Angle(hit.normal, Vector3.up);
+
+                            if (objectListToUse.CheckSpawn(hit.point.y / terrain.terrainData.size.y, 0, castSlope))
+                            {
+                                spawnData.Add(new ObjectSpawnData(objectListToUse, hit.point, slopeNormal));
+
+                                Color color = new Color(0, 0, 0, 1f);
+                                texture.SetPixel(x / adjustmentAmount, y / adjustmentAmount, color);
+                            }
+                        }
+					}
+					else if (Random.value > pixelvalue.a)
+					{
+                        if (objectListToUse.CheckSpawn(wPos.y / terrain.terrainData.size.y, curvature, slope))
                         {
                             spawnData.Add(new ObjectSpawnData(objectListToUse, wPos, slopeNormal));
 
                             Color color = new Color(0, 0, 0, 1f);
-                            texture.SetPixel(x, y, color);
+                            texture.SetPixel(x / adjustmentAmount, y / adjustmentAmount, color);
                         }
                     }
                 }
