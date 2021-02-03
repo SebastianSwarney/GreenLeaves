@@ -16,11 +16,13 @@ public class Building_PlacementManager : MonoBehaviour
     public GenericWorldEvent m_objectPlacedEvent;
 
     public Durability_UI m_instructionPrompt;
+    public Interactable_Campfire m_interactable;
 
-    
+    public GameObject m_activeModel, m_burntModel;
     public void InitializePlacement()
     {
-        
+        m_activeModel.SetActive(true);
+        m_burntModel.SetActive(false);
         m_fireParticle.gameObject.SetActive(false);
     }
 
@@ -72,6 +74,20 @@ public class Building_PlacementManager : MonoBehaviour
         m_currentState = PlacementState.Placed;
         m_fireParticle.gameObject.SetActive(true);
         m_objectPlacedEvent.Invoke();
+        m_interactable.m_canBeInteractedWith = true;
         Interactable_Manager.Instance.SearchForInteractable();
+
+        Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allCampfires.Add(gameObject);
+    }
+
+    public void PlaceBuildingUnlit()
+    {
+        m_fireParticle.gameObject.SetActive(false);
+        m_activeModel.SetActive(false);
+        m_burntModel.SetActive(true);
+        m_instructionPrompt.HideUI();
+        m_currentState = PlacementState.Placed;
+        m_interactable.m_canBeInteractedWith = false;
+        m_fireParticle.gameObject.SetActive(false);
     }
 }

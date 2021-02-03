@@ -19,6 +19,9 @@ public class Map_LoadingData : MonoBehaviour
     public List<GameObject> m_allEnergyBushes;
     public List<GameObject> m_allStaminaBushes;
 
+    [Header("Campfires")]
+    public GameObject m_campfirePrefab;
+    public List<GameObject> m_allCampfires;
     private void OnEnable()
     {
         bool initialLoad = false;
@@ -109,6 +112,15 @@ public class Map_LoadingData : MonoBehaviour
         }
         #endregion
 
+        #region Load Campfire
+        m_allCampfires.Clear();
+        foreach(Map_LoadingManager.MapData.CampfireVaris fire in p_data.m_campfires)
+        {
+            GameObject newFire = ObjectPooler.Instance.NewObject(m_campfirePrefab, fire.m_position, fire.m_rotation);
+            newFire.GetComponent<Building_PlacementManager>().PlaceBuildingUnlit();
+            m_allCampfires.Add(newFire);
+        }
+        #endregion
     }
 
     private void LoadInitialMap(Map_LoadingManager.MapData p_data)

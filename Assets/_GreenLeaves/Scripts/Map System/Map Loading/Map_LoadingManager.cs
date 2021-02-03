@@ -39,6 +39,8 @@ public class Map_LoadingManager : MonoBehaviour
         public List<BerryBushes> m_allEnergyBushes = new List<BerryBushes>();
         public List<BerryBushes> m_allStaminaBushes = new List<BerryBushes>();
 
+
+        public List<CampfireVaris> m_campfires = new List<CampfireVaris>();
         #region Data Containers
 
         [System.Serializable]
@@ -46,6 +48,14 @@ public class Map_LoadingManager : MonoBehaviour
         {
             public int m_berriesLeft;
             public bool m_cutDown;
+        }
+
+        [System.Serializable]
+        public class CampfireVaris
+        {
+            public Vector3 m_position;
+            public Quaternion m_rotation;
+
         }
 
         [System.Serializable]
@@ -207,6 +217,17 @@ public class Map_LoadingManager : MonoBehaviour
             }
             #endregion
 
+            #region Save Campfires
+            m_campfires.Clear();
+            foreach(GameObject campfire in p_data.m_allCampfires)
+            {
+                CampfireVaris newFire = new CampfireVaris();
+                newFire.m_position = campfire.transform.position;
+                newFire.m_rotation = campfire.transform.rotation;
+                m_campfires.Add(newFire);
+            }
+
+            #endregion
         }
 
     }
@@ -351,13 +372,24 @@ public class Map_LoadingManager : MonoBehaviour
     {
         if (m_currentMainArea == p_unloadSpace)
         {
-            List<GameObject> poolResources = GetCurrentOccupiedMapArea().m_allResources;
+            
+
             SaveMapData(GetCurrentOccupiedMapArea());
-            foreach (GameObject pooled in poolResources)
-            {
-                ObjectPooler.Instance.ReturnToPool(pooled);
-            }
+
         }
+        List<GameObject> poolResources = GetMapDataByName(p_unloadSpace).m_mapLoadingData.m_allResources;
+        foreach (GameObject pooled in poolResources)
+        {
+            ObjectPooler.Instance.ReturnToPool(pooled);
+        }
+
+        List<GameObject> campfires = GetMapDataByName(p_unloadSpace).m_mapLoadingData.m_allCampfires;
+        foreach (GameObject pooled in campfires)
+        {
+            ObjectPooler.Instance.ReturnToPool(pooled);
+        }
+
+
         UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(p_unloadSpace);
 
     }
