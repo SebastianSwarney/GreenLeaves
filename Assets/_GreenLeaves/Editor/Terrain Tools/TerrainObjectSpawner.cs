@@ -148,6 +148,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
     private void PlaceObjects()
     {
         //BuildCollisionTexture(false);
+        //CreateNoiseTexture();
 
         Terrain terrain = m_terrain;
 
@@ -216,13 +217,6 @@ public class TerrainObjectSpawner : OdinEditorWindow
 					{
                         continue;
 					}
-
-                    Color noisePixelValue = m_noiseTexture.GetPixel(pixCord.x, pixCord.y);
-
-                    if (Random.value > noisePixelValue.r)
-					{
-                        continue;
-                    }
 
                     if (pixelvalue.r == 1)
                     {
