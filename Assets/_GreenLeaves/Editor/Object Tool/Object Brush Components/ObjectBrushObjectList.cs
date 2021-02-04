@@ -33,14 +33,10 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 	public bool m_randomYRotation = true;
 
 	[Header("Ground Properties")]
-	[MinMaxSlider(-90, 90, showFields:true)]
-	public Vector2 m_slopeAngle;
 	[MinMaxSlider(-1, 1, showFields: true)]
 	public Vector2 m_localGroundOffset;
 	public float m_worldOffsetFromGround = 0;
 	public bool m_alignObjectToGroundNormal;
-
-	public float m_distanceVariation = 5f;
 
 	[Range(0, 100)]
 	public float m_spawnChance;
@@ -68,11 +64,6 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 		newObject.transform.position = p_spawnPoint;
 		ModifyObject(newObject, p_slopeNormal);
 		newObject.transform.parent = p_objectParent;
-	}
-
-	public Vector3 GetDistanceVariation()
-    {
-		return new Vector3(Random.Range(-m_distanceVariation, m_distanceVariation), 0, Random.Range(-m_distanceVariation, m_distanceVariation));
 	}
 
 	public GameObject GetObjectFromList()
@@ -114,10 +105,12 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 
 	public bool CheckSlope(float p_targetSlopeAngle)
 	{
+		/*
 		if (p_targetSlopeAngle < m_slopeAngle.y && p_targetSlopeAngle > m_slopeAngle.x)
 		{
 			return true;
 		}
+		*/
 
 		return false;
 	}

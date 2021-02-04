@@ -10,24 +10,26 @@ public class TerrainObjectSpawner : OdinEditorWindow
 {
     public Terrain m_terrain;
 
-    public int cellSize = 64;
-    public int cellDivisions = 4;
-
     public int objectPlacementResolution = 256;
 
-    [PreviewField(Height = 250f, Alignment = ObjectFieldAlignment.Left)]
+    [PreviewField(Height = 256, Alignment = ObjectFieldAlignment.Left)]
     public Texture2D m_texture;
 
-    public bool highPrecisionCollision;
+    [PreviewField(Height = 256, Alignment = ObjectFieldAlignment.Left)]
+    public Texture2D m_noiseTexture;
 
-    public LayerMask collisionLayerMask;
+    public float xOrg;
+    public float yOrg;
+
+    public float m_noiseAmplitude;
+    public float m_noiseFrequency;
+
+    public float scale = 1.0F;
+
+    public LayerMask m_collisionLayerMask;
     public LayerMask m_terrainMask;
 
-    public Dictionary<Terrain, Cell[,]> terrainCells = new Dictionary<Terrain, Cell[,]>();
-
     public bool m_removeExtraObjects;
-
-    public bool m_limitPlacement;
 
     [InlineEditor]
     public TerrainObjectSpawnerPalette m_palette;
@@ -45,6 +47,45 @@ public class TerrainObjectSpawner : OdinEditorWindow
     }
 
     #region Object Placement Code
+
+    [Button("Make Noise")]
+    private void CreateNoiseTexture()
+    {
+        Terrain terrain = m_terrain;
+
+        float width = terrain.terrainData.detailWidth;
+        float length = terrain.terrainData.detailHeight;
+
+        int adjustmentAmount = terrain.terrainData.detailWidth / objectPlacementResolution;
+
+        float adjustedWidth = width / adjustmentAmount;
+        float adjustedLength = length / adjustmentAmount;
+
+        Texture2D noiseTex = new Texture2D((int)adjustedWidth, (int)adjustedLength, TextureFormat.RGBA32, false);
+
+        Color[] pix = new Color[noiseTex.width * noiseTex.height];
+
+        float y = 0.0F;
+
+        while (y < noiseTex.height)
+        {
+            float x = 0.0F;
+            while (x < noiseTex.width)
+            {
+                float xCoord = xOrg + x / noiseTex.width * scale;
+                float yCoord = yOrg + y / noiseTex.height * scale;
+                float sample = Mathf.PerlinNoise(xCoord / m_noiseFrequency, yCoord / m_noiseFrequency) * m_noiseAmplitude;
+                pix[(int)y * noiseTex.width + (int)x] = new Color(sample, sample, sample);
+                x++;
+            }
+            y++;
+        }
+
+        noiseTex.SetPixels(pix);
+        noiseTex.Apply();
+
+        m_noiseTexture = noiseTex;
+    }
 
     [Button("Build Collision Texture")]
     private void BuildCollisionTextureInspector()
@@ -78,9 +119,8 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
                 RaycastHit terrainHit;
 
-                if (Physics.BoxCast(wPos + (Vector3.up * 600f), halfExents, -Vector3.up, out terrainHit, Quaternion.identity, 700f, collisionLayerMask))
+                if (Physics.BoxCast(wPos + (Vector3.up * 600f), halfExents, -Vector3.up, out terrainHit, Quaternion.identity, 700f, m_collisionLayerMask))
                 {
-
                     if (terrainHit.collider.gameObject != terrain.gameObject && terrainHit.collider.transform.root != terrain.transform)
                     {
                         Color color = new Color(0, 0, 0, 1f);
@@ -104,22 +144,10 @@ public class TerrainObjectSpawner : OdinEditorWindow
         m_texture = texture;
     }
 
-    public bool CheckCollisionLayer(LayerMask p_layerMask, GameObject p_object)
-    {
-        if (p_layerMask == (p_layerMask | (1 << p_object.layer)))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     [Button("Place Objects")]
     private void PlaceObjects()
     {
-        BuildCollisionTexture(false);
+        //BuildCollisionTexture(false);
 
         Terrain terrain = m_terrain;
 
@@ -131,18 +159,12 @@ public class TerrainObjectSpawner : OdinEditorWindow
         float adjustedWidth = width / adjustmentAmount;
         float adjustedLength = length / adjustmentAmount;
 
-        float reducedRange = adjustedWidth / 2;
+        float cellSize = (terrain.terrainData.size.x / adjustedWidth) / 2;
+        Vector3 halfExents = new Vector3(cellSize, cellSize, cellSize);
 
-        if (m_limitPlacement)
-        {
-            width = adjustedWidth - reducedRange;
-            length = adjustedLength - reducedRange;
-        }
-
-        Texture2D texture = m_texture;
+        //Texture2D texture = m_texture;
+        Texture2D texture = new Texture2D((int)adjustedWidth, (int)adjustedLength, TextureFormat.RGBA32, false);
         List<ObjectSpawnData> spawnData = new List<ObjectSpawnData>();
-
-        //Texture2D texture = new Texture2D((int)width, (int)length, TextureFormat.Alpha8, false);
 
         for (int i = 0; i < m_palette.m_objectList.Length; i++)
         {
@@ -153,7 +175,26 @@ public class TerrainObjectSpawner : OdinEditorWindow
                     ObjectBrushObjectList objectListToUse = m_palette.m_objectList[i].m_objectList;
 
                     Vector3 wPos = terrain.DetailToWorld(y, x);
-                    //wPos += objectListToUse.GetDistanceVariation();
+                    wPos += halfExents;
+
+                    RaycastHit terrainHit;
+
+                    if (Physics.BoxCast(wPos + (Vector3.up * 600f), halfExents, -Vector3.up, out terrainHit, Quaternion.identity, 700f, m_collisionLayerMask))
+                    {
+                        if (terrainHit.collider.gameObject != terrain.gameObject && terrainHit.collider.transform.root != terrain.transform)
+                        {
+                            Color color = new Color(0, 0, 0, 1f);
+
+                            if (CheckCollisionLayer(m_terrainMask, terrainHit.collider.gameObject))
+                            {
+                                color = new Color(1f, 0, 0, 1f);
+                            }
+
+                            texture.SetPixel(x / adjustmentAmount, y / adjustmentAmount, color);
+                        }
+                    }
+
+                    wPos += new Vector3(Random.Range(-halfExents.x, halfExents.x), 0, Random.Range(-halfExents.y, halfExents.y));
                     Vector2 normalizedPos = terrain.GetNormalizedPosition(wPos);
 
                     float curvature = terrain.SampleConvexity(normalizedPos);
@@ -161,39 +202,46 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
                     terrain.SampleHeight(normalizedPos, out _, out wPos.y, out _);
                     float slope = terrain.GetSlope(normalizedPos);
-
                     Vector3 slopeNormal = terrain.terrainData.GetInterpolatedNormal(normalizedPos.x, normalizedPos.y);
 
-                    Color pixelvalue = texture.GetPixel(x / adjustmentAmount, y / adjustmentAmount);
+                    Vector2Int pixCord = new Vector2Int(x / adjustmentAmount, y / adjustmentAmount);
+                    Color pixelvalue = texture.GetPixel(pixCord.x, pixCord.y);
 
-                    Vector3 spawnCheckPos = wPos;
+                    Vector3 worldSpawnPos = wPos;
+                    float spawnSlope = slope;
+                    Vector3 spawnSlopeNormal = slopeNormal;
+                    float spawnCurvature = curvature;
 
-                    if (pixelvalue.r > 0)
+					if (1 == pixelvalue.a && pixelvalue.r < 1)
 					{
+                        continue;
+					}
+
+                    Color noisePixelValue = m_noiseTexture.GetPixel(pixCord.x, pixCord.y);
+
+                    if (Random.value > noisePixelValue.r)
+					{
+                        continue;
+                    }
+
+                    if (pixelvalue.r == 1)
+                    {
                         RaycastHit hit;
 
                         if (Physics.Raycast(wPos + Vector3.up * 600f, Vector3.down, out hit, 700f, m_terrainMask))
-						{
-                            float castSlope = Vector3.Angle(hit.normal, Vector3.up);
-
-                            if (objectListToUse.CheckSpawn(hit.point.y / terrain.terrainData.size.y, 0, castSlope))
-                            {
-                                spawnData.Add(new ObjectSpawnData(objectListToUse, hit.point, slopeNormal));
-
-                                Color color = new Color(0, 0, 0, 1f);
-                                texture.SetPixel(x / adjustmentAmount, y / adjustmentAmount, color);
-                            }
-                        }
-					}
-					else if (Random.value > pixelvalue.a)
-					{
-                        if (objectListToUse.CheckSpawn(wPos.y / terrain.terrainData.size.y, curvature, slope))
                         {
-                            spawnData.Add(new ObjectSpawnData(objectListToUse, wPos, slopeNormal));
-
-                            Color color = new Color(0, 0, 0, 1f);
-                            texture.SetPixel(x / adjustmentAmount, y / adjustmentAmount, color);
+                            worldSpawnPos = hit.point;
+                            spawnSlope = Vector3.Angle(hit.normal, Vector3.up);
+                            spawnSlopeNormal = hit.normal;
+                            spawnCurvature = 0;
                         }
+                    }
+
+                    if (objectListToUse.CheckSpawn(worldSpawnPos.y / terrain.terrainData.size.y, spawnCurvature, spawnSlope))
+                    {
+                        spawnData.Add(new ObjectSpawnData(objectListToUse, worldSpawnPos, spawnSlopeNormal));
+                        Color color = new Color(0, 0, 0, 1f);
+                        texture.SetPixel(pixCord.x, pixCord.y, color);
                     }
                 }
             }
@@ -203,6 +251,18 @@ public class TerrainObjectSpawner : OdinEditorWindow
         m_texture = texture;
 
         SpawnAllObjects(spawnData.ToArray());
+    }
+
+    public bool CheckCollisionLayer(LayerMask p_layerMask, GameObject p_object)
+    {
+        if (p_layerMask == (p_layerMask | (1 << p_object.layer)))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private struct ObjectSpawnData
@@ -260,6 +320,16 @@ public class TerrainObjectSpawner : OdinEditorWindow
                     DestroyImmediate(child);
                 }
             }
+		}
+		else
+		{
+            foreach (GameObject child in childObjects)
+            {
+                if (child != m_terrain.gameObject && child.activeSelf == true)
+                {
+                    child.SetActive(false);
+                }
+            }
         }
 
     }
@@ -272,6 +342,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
         {
             if (PrefabUtility.IsAnyPrefabInstanceRoot(child.gameObject))
             {
+                //child.gameObject.SetActive(true);
                 childObjects.Add(child.gameObject);
             }
         }
@@ -287,6 +358,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
             if (p_objectToPlace == foundPrefabAsset)
             {
+                placedObject.SetActive(true);
                 p_placedObjects.Remove(placedObject);
                 return placedObject;
             }
@@ -301,147 +373,5 @@ public class TerrainObjectSpawner : OdinEditorWindow
         for (int i = this.m_terrain.transform.childCount; i > 0; --i)
             DestroyImmediate(this.m_terrain.transform.GetChild(0).gameObject);
     }
-    #endregion
-
-    #region Collision Code
-
-    public bool InsideOccupiedCell(Terrain terrain, Vector3 worldPos, Vector2 normalizedPos)
-    {
-        if (terrainCells == null) return false;
-
-        //No collision cells baked for terrain, user will probably notice
-        if (terrainCells.ContainsKey(terrain) == false) return false;
-
-        Cell[,] cells = terrainCells[terrain];
-
-        Vector2Int cellIndex = Cell.PositionToCellIndex(terrain, normalizedPos, cellSize);
-        Cell mainCell = cells[cellIndex.x, cellIndex.y];
-
-        if (mainCell != null)
-        {
-            Cell subCell = mainCell.GetSubcell(worldPos, cellSize, cellDivisions);
-
-            if (subCell != null)
-            {
-                return true;
-            }
-            else
-            {
-                //Cell doesn't exist
-                return false;
-            }
-        }
-        else
-        {
-            Debug.LogErrorFormat("Position {0} falls outside of the cell grid", worldPos);
-        }
-
-        return false;
-    }
-
-
-    [Button("Build Colliders")]
-    private void BuildColliders()
-    {
-        Terrain terrain = m_terrain;
-
-        RaycastHit hit;
-
-        terrainCells.Clear();
-
-        int xCount = Mathf.CeilToInt(terrain.terrainData.size.x / cellSize);
-        int zCount = Mathf.CeilToInt(terrain.terrainData.size.z / cellSize);
-
-        Cell[,] cellGrid = new Cell[xCount, zCount];
-
-        for (int x = 0; x < xCount; x++)
-        {
-            for (int z = 0; z < zCount; z++)
-            {
-                Vector3 wPos = new Vector3(terrain.GetPosition().x + (x * cellSize) + (cellSize * 0.5f), 0f, terrain.GetPosition().z + (z * cellSize) + (cellSize * 0.5f));
-
-                Vector2 normalizeTerrainPos = terrain.GetNormalizedPosition(wPos);
-
-                terrain.SampleHeight(normalizeTerrainPos, out _, out wPos.y, out _);
-
-                Cell cell = Cell.New(wPos, cellSize);
-                cell.Subdivide(cellDivisions);
-
-                cellGrid[x, z] = cell;
-
-                for (int sX = 0; sX < cellDivisions; sX++)
-                {
-                    for (int sZ = 0; sZ < cellDivisions; sZ++)
-                    {
-                        //Sample corners of cell
-                        if (highPrecisionCollision)
-                        {
-                            Bounds b = cell.subCells[sX, sZ].bounds;
-
-                            Vector3[] corners = new Vector3[]
-                            {
-                                        //BL corner
-                                        new Vector3(b.min.x, b.center.y, b.min.z),
-                                        //TL corner
-                                        new Vector3(b.min.x, b.center.y, b.min.z + b.size.z),
-                                        //BR corner
-                                        new Vector3(b.max.x, b.center.y, b.min.z),
-                                        //TR corner
-                                        new Vector3(b.max.x, b.center.y, b.max.z),
-                            };
-
-                            int hitCount = corners.Length;
-                            for (int i = 0; i < corners.Length; i++)
-                            {
-                                if (Physics.Raycast(corners[i] + (Vector3.up * 100f), -Vector3.up, out hit, 150f, collisionLayerMask))
-                                {
-                                    //Require to check for type, since its possible to hit a neighboring terrains
-                                    if (hit.collider.GetType() == typeof(TerrainCollider))
-                                    {
-                                        hitCount--;
-                                    }
-                                }
-                                else
-                                {
-                                    hitCount--;
-                                }
-                            }
-
-                            //Remove cell when all rays missed
-                            if (hitCount == 0) cell.subCells[sX, sZ] = null;
-                        }
-                        //Sample center of cell
-                        else
-                        {
-                            /*
-                            //Remove cell if hitting terrain
-                            if (Physics.Raycast(cell.subCells[sX, sZ].bounds.center + (Vector3.up * 50f), -Vector3.up, out hit, 100f, collisionLayerMask))
-                            {
-                                if (hit.collider.gameObject == terrain.gameObject)
-                                {
-                                    cell.subCells[sX, sZ] = null;
-                                }
-                            }
-                            */
-
-                            RaycastHit terrainHit;
-
-                            if (Physics.BoxCast(cell.subCells[sX, sZ].bounds.center + (Vector3.up * 50f), cell.subCells[sX, sZ].bounds.extents, -Vector3.up, out terrainHit, Quaternion.identity, 100f, collisionLayerMask))
-                            {
-                                if (terrainHit.collider.gameObject == terrain.gameObject)
-                                {
-                                    cell.subCells[sX, sZ] = null;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-
-        terrainCells.Add(terrain, cellGrid);
-    }
-
     #endregion
 }
