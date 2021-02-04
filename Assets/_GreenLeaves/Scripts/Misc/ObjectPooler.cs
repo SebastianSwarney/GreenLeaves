@@ -15,7 +15,7 @@ public class ObjectPooler : MonoBehaviour
     public static ObjectPooler Instance { get; private set; }
     #endregion
 
-
+    private Dictionary<string, Transform> m_parentTransforms = new Dictionary<string, Transform>();
     #region Object pooler
     void Awake()
     {
@@ -129,6 +129,14 @@ public class ObjectPooler : MonoBehaviour
         {
             CreateNewPool(p_pooledObject);
         }
+        if (m_parentTransforms.ContainsKey(p_pooledObject.name))
+        {
+            p_pooledObject.transform.parent = m_parentTransforms[p_pooledObject.name];
+        }
+        else
+        {
+            p_pooledObject.transform.parent = transform;
+        }
         m_objectPool[p_pooledObject.name].Enqueue(p_pooledObject);
         p_pooledObject.SetActive(false);
     }
@@ -170,6 +178,8 @@ public class ObjectPooler : MonoBehaviour
         m_pooledObjects.Add(p_newPool);
         newParent.transform.parent = this.transform;
         newParent.name = p_newPool.name;
+        m_parentTransforms.Add(p_newPool.name, newParent.transform);
+
         Queue<GameObject> newQueue = new Queue<GameObject>();
         m_objectPool.Add(p_newPool.name, newQueue);
         IncreasePool(p_newPool.name, p_newPool, newParent);

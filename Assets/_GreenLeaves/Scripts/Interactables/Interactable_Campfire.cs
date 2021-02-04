@@ -59,7 +59,6 @@ public class Interactable_Campfire : Interactable
 
                 m_currentState = InteractionState.Interact;
                 m_currentType = InteractionType.Initial;
-                Debug.LogError("Show rest menu Here");
                 Daytime_WaitMenu.Instance.OpenMenu();
                 Interactable_Manager.Instance.HideButtonMenu(this, false);
                 break;

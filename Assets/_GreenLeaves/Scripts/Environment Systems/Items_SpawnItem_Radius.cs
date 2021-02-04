@@ -27,6 +27,7 @@ public class Items_SpawnItem_Radius : Items_SpawnItem
             if (newRes.GetComponent<Resource_Pickup>()!=null)
             {
                 newRes.GetComponent<Resource_Pickup>().ResetResourceAmount();
+                Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allResources.Add(newRes);
             }
             if(newRes.GetComponent<Manipulation_HitObject>() != null)
             {

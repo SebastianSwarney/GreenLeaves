@@ -26,10 +26,12 @@ public class Durability_UI : MonoBehaviour
 
     public void UpdateText(int p_durabilityAmount)
     {
+        if (m_durabilityText == null) return;
         m_durabilityText.text = "+ " + p_durabilityAmount.ToString();
     }
     public void UpdatePromptText(string p_newText)
     {
+        if (m_promptText.text == null) return;
         m_promptText.text = p_newText;
     }
     public void HideUI()

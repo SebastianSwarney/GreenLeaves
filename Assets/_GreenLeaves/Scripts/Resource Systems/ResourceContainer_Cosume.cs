@@ -13,7 +13,6 @@ public class ResourceContainer_Cosume : ResourceContainer
     {
         foreach (TypeOfCosumption consume in m_consumeType)
         {
-            Debug.Log("Here is where the consuming is.");
             if (PlayerStatsController.Instance != null)
             {
 
@@ -24,6 +23,11 @@ public class ResourceContainer_Cosume : ResourceContainer
                 Debug.LogError("Energy Controller singleton is not initailized");
             }
         }
+    }
+
+    public override ResourceContainer_Cosume AddToEdibleTable()
+    {
+        return this;
     }
 
     [System.Serializable]

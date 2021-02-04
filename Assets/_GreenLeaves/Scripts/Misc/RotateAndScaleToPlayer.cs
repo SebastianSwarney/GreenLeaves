@@ -11,9 +11,11 @@ public class RotateAndScaleToPlayer : MonoBehaviour
     public bool m_rotate;
     public bool m_scale;
     public bool m_xAxisRotation;
+    public bool m_followPlayer;
     private Transform m_cameraRef;
     public Transform m_transformToScale;
-
+    private Transform m_transformToFollow;
+    public Vector3 m_transformOffset;
     
     private void Start()
     {
@@ -21,6 +23,13 @@ public class RotateAndScaleToPlayer : MonoBehaviour
         if(m_transformToScale == null)
         {
             m_transformToScale = transform;
+        }
+        if (m_followPlayer)
+        {
+            m_transformToFollow = PlayerInputToggle.Instance.transform;
+            transform.parent = m_transformToFollow;
+            transform.localPosition = m_transformOffset;
+            
         }
     }
     

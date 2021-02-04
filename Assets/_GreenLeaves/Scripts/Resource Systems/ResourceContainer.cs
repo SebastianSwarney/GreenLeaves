@@ -15,7 +15,6 @@ public class ResourceContainer : ScriptableObject
     public bool m_isEdible = false;
     public virtual void UseItem(Inventory_Icon p_currentIcon)
     {
-        Debug.Log("Use Item");
     }
 
     public virtual GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot)
@@ -24,6 +23,11 @@ public class ResourceContainer : ScriptableObject
 
         dropped.GetComponent<Resource_Pickup>().m_canPickup = true;
         return dropped;
+    }
+
+    public virtual ResourceContainer_Cosume AddToEdibleTable()
+    {
+        return null;
     }
 }
 
