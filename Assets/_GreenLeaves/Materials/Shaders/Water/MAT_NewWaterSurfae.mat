@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MAT_NewWaterSurfae
+  m_Shader: {fileID: 4800000, guid: 9ef31637c4afc2a4485e12f5fd1a08e1, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DisplGuide:
+        m_Texture: {fileID: 2800000, guid: 6e91cbfa94d2e43479ab4904955cd016, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LeveledWaterTex:
+        m_Texture: {fileID: 2800000, guid: 6e91cbfa94d2e43479ab4904955cd016, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _waterFallTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _DisplAmount: 1.43
+    - _IntersectionThresholdMax: 6.1
+    - _VERTEX: 0
+    - _WaterBounceFrequency: 0.2
+    - _WaterBounceHeight: 0.05
+    - _borderColorCutoff: 0.62
+    - _leveledWaterSpeed: 1.46
+    - _leveledWaterTexScale: 0.21
+    - _waterBrightness: 1.31
+    - _waterDetailBrightness: 1.07
+    - _waterfallAngle: 0.09
+    - _waterfallFoamCutoff: 0.5
+    - _waterfallFoamFadeMin: 0.25
+    - _waterfallSpeed: 6.27
+    - _waterfallTexScale: -0.72
+    m_Colors:
+    - _Color: {r: 0, g: 0.6772113, b: 1, a: 0.5}
+    - _DarkColor: {r: 0.25342646, g: 0.520534, b: 0.8018868, a: 0.5}
+    - _IntersectionColor: {r: 0.514151, g: 0.85595274, b: 1, a: 1}
+  m_BuildTextureStacks: []

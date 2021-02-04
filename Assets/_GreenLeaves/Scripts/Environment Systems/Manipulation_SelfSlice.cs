@@ -68,6 +68,8 @@ public class Manipulation_SelfSlice : MonoBehaviour
         #endregion
 
         #region Create the sliced hulls
+        Vector3 hitPoint = new Vector3(p_worldPoint.x * transform.localScale.x, p_worldPoint.y * transform.localScale.y, p_worldPoint.z * transform.localScale.z);
+        Debug.Log("Hit Point: " + hitPoint);
         SlicedHull hull = m_mesh.Slice(p_worldPoint, p_upVector, m_crossSectionMaterials);
 
         if (hull == null)
@@ -78,6 +80,8 @@ public class Manipulation_SelfSlice : MonoBehaviour
         GameObject upperHull = hull.CreateUpperHull(m_mesh, m_crossSectionMaterials);
         GameObject lowerHull = hull.CreateLowerHull(m_mesh, m_crossSectionMaterials);
 
+        upperHull.transform.localScale = transform.localScale;
+        lowerHull.transform.localScale = transform.localScale;
         lowerHull.transform.position = upperHull.transform.position = transform.position;
         upperHull.transform.parent = lowerHull.transform.parent = transform.parent;
         #endregion
@@ -132,7 +136,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
             {
                 if (m_fallForward)
                 {
-                    lowerHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, m_mesh.transform.position + Vector3.up * m_applyForcePosition, ForceMode.Impulse);
+                    lowerHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce * transform.localScale.y, m_mesh.transform.position + (Vector3.up * m_applyForcePosition) * transform.localScale.y, ForceMode.Impulse);
                 }
                 else
                 {
@@ -141,11 +145,15 @@ public class Manipulation_SelfSlice : MonoBehaviour
             }
             if (m_fallForward)
             {
-                upperHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce, m_mesh.transform.position + Vector3.up * m_applyForcePosition, ForceMode.Impulse);
+                Rigidbody newRb = upperHull.AddComponent<Rigidbody>();
+                newRb.AddForceAtPosition(p_forwardDir * m_fallInitialForce * transform.localScale.y, m_mesh.transform.position + (Vector3.up * m_applyForcePosition) * transform.localScale.y, ForceMode.Impulse);
+                newRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             }
             else
             {
-                upperHull.AddComponent<Rigidbody>().AddExplosionForce(1, upperHull.transform.position, 3, .5f, ForceMode.Impulse);
+                Rigidbody newRb = upperHull.AddComponent<Rigidbody>();
+                newRb.AddExplosionForce(1, upperHull.transform.position, 3, .5f, ForceMode.Impulse);
+                newRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             }
         }
 
