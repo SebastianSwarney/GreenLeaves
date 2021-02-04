@@ -7,7 +7,7 @@ public class VFX_SpawnParticle : MonoBehaviour
     public GameObject m_spawnedParticle;
     public Vector3 m_particleOffset;
 
-
+    public Transform m_refScaleTransform;
 
     /// <summary>
     /// Spawns an unparented particle object at the p_position
@@ -25,9 +25,26 @@ public class VFX_SpawnParticle : MonoBehaviour
 
         Transform newParticle = ObjectPooler.Instance.NewObject(m_spawnedParticle, transform.position, Quaternion.identity).transform;
 
+
+
         if (m_particleOffset != Vector3.zero)
         {
-            newParticle.transform.position += transform.rotation * m_particleOffset;
+            newParticle.transform.position += transform.rotation * m_particleOffset * transform.parent.localScale.y;
+        }
+
+        newParticle.transform.localScale = Vector3.one;
+
+        if (m_refScaleTransform!= null)
+        {
+            if (m_refScaleTransform == transform)
+            {
+
+                newParticle.transform.localScale = transform.parent.localScale;
+            }
+            else
+            {
+                newParticle.transform.localScale = m_refScaleTransform.localScale;
+            }
         }
 
     }

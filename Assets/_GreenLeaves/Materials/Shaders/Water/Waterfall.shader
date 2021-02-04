@@ -34,11 +34,6 @@
 		_RimPower("Rim Power", Range(1,20)) = 18
 		_RimColor("Rim Color", Color) = (0,0.5,0.25,1)
 
-		[Space]
-		[Header(Vertex Movement)]
-		_Amount("Wave Amount", Range(0,10)) = 0.6
-		_SpeedV("Speed", Range(0,10)) = 0.5
-		_Height("Wave Height", Range(0,1)) = 0.1
 
 		 [Space]
 		[Header(Reflections)]
@@ -59,7 +54,7 @@
 
 	}
 		SubShader{
-			Tags{ "Queue" = "Transparent"}
+			Tags{ "Queue" = "Transparent" "RenderType" = "Transparent"}
 			LOD 200
 			Blend SrcAlpha OneMinusSrcAlpha
 
@@ -98,7 +93,6 @@
 				return refl2Refr;
 			}
 
-			float _SpeedV, _Amount, _Height;
 			fixed4 _FoamColor, _WaterColor, _RimColor, _TColor;
 			fixed _HorSpeed, _TopScale, _TopSpread, _EdgeWidth, _RimPower, _NoiseScale, _VertSpeed;
 			float _Brightness, _Foam, _Softness;
@@ -114,16 +108,15 @@
 			{
 				UNITY_INITIALIZE_OUTPUT(Input, o);
 				COMPUTE_EYEDEPTH(o.eyeDepth);
-				float3 worldNormal = mul(unity_ObjectToWorld, v.normal);
+				/*float3 worldNormal = mul(unity_ObjectToWorld, v.normal);
 				float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				half3 tex = tex2Dlod(_SideNoiseTex, float4(worldPos.xz * _TopScale * 1, 1,1));
-				float3 movement = sin(_Time.z * _SpeedV + (v.vertex.x * v.vertex.z * _Amount * tex)) * _Height * (1 - worldNormal.y);
+				*/
 
-				v.vertex.xyz += movement;
-
+				//The sin wave movement of the water
 				half3 worldSpaceVertex = mul(unity_ObjectToWorld, (v.vertex)).xyz;
 				o.viewInterpolator.xyz = worldSpaceVertex - _WorldSpaceCameraPos;
-
+				
 				float offset = (worldSpaceVertex.x + (worldSpaceVertex.z * 0.2)) * 0.5;
 				v.vertex.y += sin(_Time.y * _WaterBounceFrequency * offset*.2)  * _WaterBounceHeight;
 			}

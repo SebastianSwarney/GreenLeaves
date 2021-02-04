@@ -12,10 +12,15 @@ public class RotateAndScaleToPlayer : MonoBehaviour
     public bool m_scale;
     public bool m_xAxisRotation;
     public bool m_followPlayer;
+    public bool m_adjustToParentScale;
+    public bool m_adjustToParentTransform;
+
     private Transform m_cameraRef;
     public Transform m_transformToScale;
     private Transform m_transformToFollow;
     public Vector3 m_transformOffset;
+
+    public Vector3 m_localPosOffset;
     
     private void Start()
     {
@@ -31,6 +36,7 @@ public class RotateAndScaleToPlayer : MonoBehaviour
             transform.localPosition = m_transformOffset;
             
         }
+        m_localPosOffset = transform.localPosition;
     }
     
     
@@ -42,7 +48,20 @@ public class RotateAndScaleToPlayer : MonoBehaviour
         }
         if (m_scale)
         {
-            m_transformToScale.localScale = GetDistanceAway();
+            if (m_adjustToParentScale)
+            {
+                Vector3 currentDis = GetDistanceAway();
+                Vector3 newScale = new Vector3(currentDis.x * (1 / transform.parent.localScale.x), currentDis.y * (1 / transform.parent.localScale.y), currentDis.z * (1 / transform.parent.localScale.z));
+                m_transformToScale.localScale = newScale;
+            }
+            else
+            {
+                m_transformToScale.localScale = GetDistanceAway();
+            }
+            if (m_adjustToParentTransform)
+            {
+                transform.localPosition = new Vector3(m_localPosOffset.x * (1 / transform.parent.localScale.x), m_localPosOffset.y * (1 / transform.parent.localScale.y), m_localPosOffset.z * (1 / transform.parent.localScale.z));
+            }
         }
     }
     public void ForceUpdate()

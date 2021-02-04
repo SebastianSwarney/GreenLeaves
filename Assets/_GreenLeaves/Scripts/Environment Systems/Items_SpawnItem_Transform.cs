@@ -35,7 +35,7 @@ public class Items_SpawnItem_Transform : Items_SpawnItem
         {
             foreach (Vector3 spawn in m_spawnPoint)
             {
-                GameObject newItem = ObjectPooler.Instance.NewObject(m_spawnedItem, p_pos.position + p_pos.rotation * (spawn), Quaternion.identity);
+                GameObject newItem = ObjectPooler.Instance.NewObject(m_spawnedItem, p_pos.position + p_pos.rotation * (new Vector3(spawn.x * p_pos.parent.localScale.x, spawn.y * p_pos.parent.localScale.y, spawn.z * p_pos.parent.localScale.z)), Quaternion.identity);
                 if(newItem.GetComponent<Resource_Pickup>() != null)
                 {
                     newItem.GetComponent<Resource_Pickup>().ResetResourceAmount();
