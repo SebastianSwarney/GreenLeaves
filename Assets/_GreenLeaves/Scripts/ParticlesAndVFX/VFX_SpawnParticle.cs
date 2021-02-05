@@ -9,6 +9,9 @@ public class VFX_SpawnParticle : MonoBehaviour
 
     public Transform m_refScaleTransform;
 
+    public bool m_rotateParticleWithY;
+    
+
     /// <summary>
     /// Spawns an unparented particle object at the p_position
     /// </summary>
@@ -45,6 +48,12 @@ public class VFX_SpawnParticle : MonoBehaviour
             {
                 newParticle.transform.localScale = m_refScaleTransform.localScale;
             }
+        }
+
+        if (m_rotateParticleWithY)
+        {
+            
+            newParticle.transform.eulerAngles = new Vector3(0,transform.eulerAngles.y,0);
         }
 
     }
