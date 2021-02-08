@@ -13,15 +13,15 @@ public class WeightedTerrainPaletteItem : WeightedListItem
 [CreateAssetMenu(menuName = "Object Brush/Terrain Spawner Palette")]
 public class TerrainObjectSpawnerPalette : ObjectBrushWeightedList<WeightedTerrainPaletteItem>
 {
-	public WeightedTerrainPaletteItem[] m_objectList;
+	public WeightedTerrainPaletteItem[] m_objectListsInUse;
 
 	public ObjectBrushObjectList GetObjectList()
     {
-		return ((WeightedTerrainPaletteItem)GetItemFromWeightedList(m_objectList)).m_objectList;
+		return ((WeightedTerrainPaletteItem)GetItemFromWeightedList(m_objectListsInUse)).m_objectList;
 	}
 
 	private void OnValidate()
 	{
-		CalculatePercentages(m_objectList);
+		CalculatePercentages(m_objectListsInUse);
 	}
 }

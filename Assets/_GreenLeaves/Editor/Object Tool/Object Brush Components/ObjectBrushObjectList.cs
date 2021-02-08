@@ -159,7 +159,7 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 
 	private void ModifySize(GameObject p_objectToModify)
 	{
-		if (m_scaleVaritation.y > 1)
+		if (m_scaleVaritation.y != 0)
 		{
 			if (m_lockWidthToHeight)
 			{
