@@ -6,7 +6,8 @@ public class DaytimeCycle_Update : MonoBehaviour
 
     public static DaytimeCycle_Update Instance;
     [Header("Daytime Settings")]
-    [SerializeField, Range(0, 24)] private float TimeOfDay;
+    [Range(0, 24)]
+    public float m_timeOfDay;
     public float m_fullDayDuration = 10;
 
     public Transform m_directionalLightObject;
@@ -33,7 +34,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     {
         if (!m_updateInEditor) return;
         UpdateLightRotation();
-        m_currentGradientData.ChangeColors(TimeOfDay, m_cavePercent);
+        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent);
     }
 
 #endif
@@ -42,28 +43,28 @@ public class DaytimeCycle_Update : MonoBehaviour
     {
         if (m_isPaused) return;
         m_realtime += Time.deltaTime;
-        TimeOfDay += (24 / m_fullDayDuration) * Time.deltaTime;
-        if (TimeOfDay > 24)
+        m_timeOfDay += (24 / m_fullDayDuration) * Time.deltaTime;
+        if (m_timeOfDay > 24)
         {
-            TimeOfDay -= 24;
+            m_timeOfDay -= 24;
         }
 
         UpdateLightRotation();
-        m_currentGradientData.ChangeColors(TimeOfDay, m_cavePercent);
+        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent);
     }
 
     public void UpdateTimeOfDayThroughPass(float p_increaseAmount)
     {
-        TimeOfDay += p_increaseAmount;
-        if (TimeOfDay > 24)
+        m_timeOfDay += p_increaseAmount;
+        if (m_timeOfDay > 24)
         {
-            TimeOfDay -= 24;
+            m_timeOfDay -= 24;
         }
         UpdateLightRotation();
     }
     private void UpdateLightRotation()
     {
-        m_directionalLightObject.transform.eulerAngles = new Vector3(Mathf.Lerp(-90, 270, TimeOfDay / 24f), 0, 0);
+        m_directionalLightObject.transform.eulerAngles = new Vector3(Mathf.Lerp(-90, 270, m_timeOfDay / 24f), 0, 0);
     }
 
 
@@ -93,7 +94,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     private IEnumerator AdjustCaveLighting(bool p_darken)
     {
         float timer = m_cavePercent * m_lightingAdjustmentTime;
-        while(p_darken? (timer < m_lightingAdjustmentTime) : (timer > 0))
+        while (p_darken ? (timer < m_lightingAdjustmentTime) : (timer > 0))
         {
             if (p_darken)
             {
@@ -104,7 +105,7 @@ public class DaytimeCycle_Update : MonoBehaviour
                 timer -= Time.deltaTime;
             }
             m_cavePercent = timer / m_lightingAdjustmentTime;
-            m_directionalLight.intensity = (1 - m_cavePercent)/2;
+            m_directionalLight.intensity = (1 - m_cavePercent) / 2;
             yield return null;
         }
     }
@@ -136,9 +137,9 @@ public class DaytimeCycle_Update : MonoBehaviour
         while (waitingTime > 0)
         {
             waitingTime -= 0.0041888f;
-            if(p_textEl != null)
+            if (p_textEl != null)
             {
-                p_textEl.text = ((int)(Mathf.Lerp(startingTime, 0, 1 - (waitingTime / m_secondsToWait)))+1).ToString();
+                p_textEl.text = ((int)(Mathf.Lerp(startingTime, 0, 1 - (waitingTime / m_secondsToWait))) + 1).ToString();
             }
             UpdateTimeOfDayThroughPass(m_increaseAmount);
             yield return null;
@@ -158,20 +159,20 @@ public class DaytimeCycle_Update : MonoBehaviour
         if (p_animate)
         {
             float newTime = 0;
-            if ((int)p_setTime > (int)TimeOfDay)
+            if ((int)p_setTime > (int)m_timeOfDay)
             {
-                newTime = ((int)p_setTime - (int)TimeOfDay);
+                newTime = ((int)p_setTime - (int)m_timeOfDay);
             }
             else
             {
-                newTime = (int)(12 - (int)TimeOfDay) + (12 + (int)p_setTime);
+                newTime = (int)(12 - (int)m_timeOfDay) + (12 + (int)p_setTime);
             }
 
             StartCoroutine(AnimatedTimeSkip(newTime));
         }
         else
         {
-            TimeOfDay = p_setTime;
+            m_timeOfDay = p_setTime;
             UpdateLightRotation();
             m_canRun = true;
         }
