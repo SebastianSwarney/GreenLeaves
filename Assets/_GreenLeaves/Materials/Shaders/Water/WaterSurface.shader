@@ -32,6 +32,8 @@ Shader "Custom/WaterIntersection"
 	   [Header(Sine Bounce)]
 	   _WaterBounceFrequency("Water Bounce Frequency", float) = 1
 		   _WaterBounceHeight ("Water Bounce Height", float) = 1
+
+		   _debug("DEbug", float) =1 
 		[Toggle(VERTEX)] _VERTEX("Use Vertex Colors", Float) = 0
 
 	}
@@ -106,6 +108,7 @@ Shader "Custom/WaterIntersection"
 			  //Water bounce variables
 			  float _WaterBounceFrequency;
 				  float _WaterBounceHeight;
+				  float _debug;
 
 
 			  v2f vert(appdata v)
@@ -145,20 +148,29 @@ Shader "Custom/WaterIntersection"
 
 
 
+					   ///Waterfall
+					   float normAngle = dot(i.wNormal, fixed3(0, 1, 0)); //dot(i.normal, i.wNormal);
+					   
+					   if (normAngle > _waterfallAngle) {
+						   flowDir *= _leveledWaterSpeed;
+					   }
+					   else {
+						   flowDir *= _waterfallSpeed;
+					   }
 
 
 					   float depth = LinearEyeDepth(tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(i.scrPos)));
 
-					   float2 displ = tex2D(_DisplGuide, i.displUV + flowDir.xz * _Time.y * (_leveledWaterSpeed)).xy;
+					   float2 displ = tex2D(_DisplGuide, i.displUV + flowDir.xz * _Time.y).xy;
 					   displ = ((displ * 2) - 1) * _DisplAmount;
 
 					   float diff = (saturate(_IntersectionThresholdMax * (depth - i.scrPos.w) + displ));
 
 
-					   ///Waterfall
-					   float normAngle = dot(i.normal, i.wNormal);
+					   
+					   
 
-					   flowDir *= lerp(_leveledWaterSpeed, _waterfallSpeed, (1 - normAngle) / _waterfallAngle);
+					   
 
 
 
@@ -182,14 +194,15 @@ Shader "Custom/WaterIntersection"
 						   col = lerp(_Color, _DarkColor, col.r);
 					   }
 
-					   /* float waterfallFoam = tex2D(_waterFallTex, i.worldPos.xz * _waterfallTexScale + _Time.y * -_waterfallSpeed).x;
+					   /*if (normAngle < _waterfallAngle) {
+					    float waterfallFoam = tex2D(_waterFallTex, i.worldPos.xz * _waterfallTexScale + _Time.y * -_waterfallSpeed).x;
 						if (waterfallFoam > _waterfallFoamCutoff) {
 							waterfallFoam = 1;
 						}
 						else {
 							waterfallFoam = 0;
 						}
-						if ((1 - normAngle) / _waterfallAngle > .5) {
+						
 							if (waterfallFoam > .5f) {
 								col = _IntersectionColor;
 							}
@@ -197,24 +210,16 @@ Shader "Custom/WaterIntersection"
 
 
 
-						if (_VERTEX > 0) {
+						   if (_VERTEX > 0) {
 
-							col = i.color;
-						}
+							   col = i.color;
+						   }
+
+
 
 
 						UNITY_APPLY_FOG(i.fogCoord, col);
-
-
-
-
-
-
 						return col;
-						//col *= topTex;
-						//col *= tex2D(_LeveledWaterTex, ((i.displUV ) - _Time.y*   _leveledWaterSpeed * _leveledWaterTexScale)+ flowDir.xz);
-
-
 			   }
 
 			   ENDCG

@@ -13,7 +13,7 @@ public class Player_Inventory : MonoBehaviour
     [HideInInspector]
     public bool m_canOpenMenu = true;
 
-    public KeyCode m_toggleMenu;
+    public KeyCode m_toggleMenu, m_secondaryToggle;
 
     [Header("Equipable Tools")]
     public Player_EquipmentUse m_currentEquipedTool;
@@ -29,7 +29,7 @@ public class Player_Inventory : MonoBehaviour
     private void Update()
     {
         if (Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen) return;
-        if (Input.GetKeyDown(m_toggleMenu))
+        if (Input.GetKeyDown(m_toggleMenu) || Input.GetKeyDown(m_secondaryToggle))
         {
             if (m_canOpenMenu)
             {
