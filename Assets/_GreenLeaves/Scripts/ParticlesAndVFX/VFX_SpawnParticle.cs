@@ -71,6 +71,12 @@ public class VFX_SpawnParticle : MonoBehaviour
         newLine.SetPosition(1, p_endingPos);
     }
 
+
+    public void SpawnParticleWithAngle(Vector3 p_upCoord)
+    {
+        ObjectPooler.Instance.NewObject(m_spawnedParticle, transform.position, Quaternion.FromToRotation(Vector3.up, p_upCoord));
+    }
+
 #if UNITY_EDITOR
     [Header("Debugging")]
     public bool m_isDebugging;

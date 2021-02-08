@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+
 public class VFX_DropSound : MonoBehaviour
 {
     public LayerMask m_nonTerrainMask;
-
+    public LayerMask m_groundLayerMask;
     public LayerMask m_waterMask;
     public string m_groundMask;
-    private int m_groundLayerMask;
+    private int m_groundLayerMaskInt;
     private int m_waterLayerMask;
 
     [FMODUnity.EventRef]
@@ -22,7 +23,7 @@ public class VFX_DropSound : MonoBehaviour
     private string m_currentSoundTrack;
 
 
-    public GenericWorldEvent m_hitWaterEvent;
+    public VFX_SpawnParticle m_particleSpawner;
 
     /// <summary>
     /// Used to keep track of the different terrains the player has walked on
@@ -35,14 +36,30 @@ public class VFX_DropSound : MonoBehaviour
 
     private void Start()
     {
-        m_groundLayerMask = LayerMask.NameToLayer(m_groundMask);
+        m_groundLayerMaskInt = LayerMask.NameToLayer(m_groundMask);
         m_waterLayerMask = LayerMask.NameToLayer("Water");
     }
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.layer == m_waterLayerMask)
         {
-            m_hitWaterEvent.Invoke();
+            RaycastHit hit;
+            Debug.DrawLine(transform.position + Vector3.up * 5, transform.position + Vector3.up * 5 + Vector3.down * 100, Color.red, 2);
+            if(Physics.Raycast(transform.position + Vector3.up * 5, Vector3.down, out hit, 100, m_waterMask))
+            {
+                if(Physics.Linecast(transform.position, hit.point, m_groundLayerMask))
+                {
+                    return;
+                }
+                
+                m_particleSpawner.SpawnParticleWithAngle(hit.normal);
+            }
+            else
+            {
+                
+                m_particleSpawner.SpawnParticlePrefab();
+            }
+            
             if (!m_eventEmitter.IsPlaying())
             {
                 PlaySound(true);
@@ -52,7 +69,7 @@ public class VFX_DropSound : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
 
-        if (collision.gameObject.layer == m_groundLayerMask)
+        if (collision.gameObject.layer == m_groundLayerMaskInt)
         {
             if (!m_eventEmitter.IsPlaying())
             {
@@ -111,10 +128,9 @@ public class VFX_DropSound : MonoBehaviour
 
         }
 
-        Debug.Log("Return 0");
         return m_terrainSounds[0];//m_terrainSounds[GetActiveTerrainTextureIdx(transform.position, Terrain.activeTerrain)];
 
-        return "Oof";
+        return m_waterSound;
     }
 
     /// <summary>

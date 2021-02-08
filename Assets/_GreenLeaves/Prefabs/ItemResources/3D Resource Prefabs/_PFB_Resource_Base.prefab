@@ -224,6 +224,9 @@ MonoBehaviour:
   m_nonTerrainMask:
     serializedVersion: 2
     m_Bits: 528
+  m_groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
   m_waterMask:
     serializedVersion: 2
     m_Bits: 16
@@ -237,21 +240,7 @@ MonoBehaviour:
   m_waterSound: event:/Impacts/Impact - Water Small Item
   m_eventEmitter: {fileID: 6482272421070763448}
   m_currentSound: 2
-  m_hitWaterEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7297381408201035412}
-        m_TargetAssemblyTypeName: VFX_SpawnParticle, Assembly-CSharp
-        m_MethodName: SpawnParticlePrefab
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  m_particleSpawner: {fileID: 7297381408201035412}
 --- !u!114 &6482272421070763448
 MonoBehaviour:
   m_ObjectHideFlags: 0
