@@ -14,7 +14,7 @@ public class TerrainTexture : OdinEditorWindow
     [InlineEditor(InlineEditorObjectFieldModes.Boxed)]
     public TerrainTextureSettings m_terrainTextureSettings;
 
-    [MenuItem("Tools/Terrain Texture")]
+	[MenuItem("Tools/Terrain Texture")]
     private static void OpenWindow()
     {
         GetWindow<TerrainTexture>().Show();
@@ -23,15 +23,6 @@ public class TerrainTexture : OdinEditorWindow
     [Button("Set Textures")]
     private void SetTextureToAllTerrains()
     {
-        /*
-        Terrain[] childTerrains = m_terrain.GetComponentsInChildren<Terrain>();
-
-        foreach (Terrain terrain in childTerrains)
-        {
-            SetTexture(terrain);
-        }
-        */
-
         SetTexture(m_terrain);
     }
 
@@ -39,6 +30,9 @@ public class TerrainTexture : OdinEditorWindow
     {
         Terrain terrain = m_terrain;
         TerrainData terrainData = p_terrain.terrainData;
+
+        float width = terrain.terrainData.alphamapWidth;
+        float length = terrain.terrainData.alphamapHeight;
 
         List<TerrainLayer> terrainLayers = new List<TerrainLayer>();
 
@@ -54,21 +48,18 @@ public class TerrainTexture : OdinEditorWindow
 
         float[,,] splatmapData = new float[terrainData.alphamapWidth, terrainData.alphamapHeight, terrainData.alphamapLayers];
 
-        for (int y = 0; y < terrainData.alphamapHeight; y++)
+        for (int x = 0; x < width; x ++)
         {
-            for (int x = 0; x < terrainData.alphamapWidth; x++)
+            for (int y = 0; y < length; y ++)
             {
-                float y_01 = (float)y / (float)terrainData.alphamapHeight;
-                float x_01 = (float)x / (float)terrainData.alphamapWidth;
+                float xValue = (float)y / (float)length;
+                float yValue = (float)x / (float)width;
 
-                float height = terrainData.GetHeight(Mathf.RoundToInt(y_01 * terrainData.heightmapResolution), Mathf.RoundToInt(x_01 * terrainData.heightmapResolution));
-                Vector3 normal = terrainData.GetInterpolatedNormal(y_01, x_01);
-                float steepness = terrainData.GetSteepness(y_01, x_01);
-
-                float steepnessNormalized = steepness / 90f;
+                float height = terrainData.GetHeight(Mathf.RoundToInt(xValue * terrainData.heightmapResolution), Mathf.RoundToInt(yValue * terrainData.heightmapResolution));
                 float heightNormalized = height / terrainData.heightmapResolution;
-
-                float curvature = terrain.SampleConvexity(new Vector2(y_01, x_01));
+                float steepness = terrainData.GetSteepness(xValue, yValue);
+                Vector3 normal = terrainData.GetInterpolatedNormal(xValue, yValue);
+                float curvature = terrain.SampleConvexity(new Vector2(xValue, yValue));
                 curvature = TerrainSampler.ConvexityToCurvature(curvature);
 
                 float[] splatWeights = new float[terrainData.alphamapLayers];

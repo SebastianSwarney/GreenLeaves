@@ -128,17 +128,17 @@ public class NoiseMask : TerrainMask
         return m_curvatureCurve.Evaluate(currentHeightValue) * m_strength;
     }
 
-    private void CreateNoiseTexture()
-    {
-        Terrain terrain = null;
+    public void GenerateNoiseTexture(Terrain p_targetTerrain)
+	{
+        Terrain terrain = p_targetTerrain;
 
-        float width = terrain.terrainData.detailWidth;
-        float length = terrain.terrainData.detailHeight;
+        float width = terrain.terrainData.alphamapWidth;
+        float length = terrain.terrainData.alphamapHeight;
 
-        int adjustmentAmount = terrain.terrainData.detailWidth / 10;
+        int adjustmentAmount = terrain.terrainData.detailWidth;
 
-        float adjustedWidth = width / adjustmentAmount;
-        float adjustedLength = length / adjustmentAmount;
+        float adjustedWidth = width;
+        float adjustedLength = length;
 
         Texture2D noiseTex = new Texture2D((int)adjustedWidth, (int)adjustedLength, TextureFormat.RGBA32, false);
 
@@ -161,8 +161,10 @@ public class NoiseMask : TerrainMask
         }
 
         noiseTex.SetPixels(pix);
-        noiseTex.Apply();
+        //noiseTex.Apply();
 
+
+        Debug.Log("ran");
         m_noiseTexture = noiseTex;
     }
 }
