@@ -456,7 +456,7 @@ public class Map_LoadingManager : MonoBehaviour
         chance += 0.5f - Mathf.Lerp(0, 0.5f, Inventory_2DMenu.Instance.GetAmountOfStaminaBerries() / m_maxBerryCount);
 
         chance -= p_currentBerryCount * m_percentDecreasePerBerry;
-        Debug.Log("Energy Berry Chance: " + chance);
+        //Debug.Log("Energy Berry Chance: " + chance);
 
         chance = Mathf.Clamp(chance, 0, 1);
         return chance;

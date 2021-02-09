@@ -178,7 +178,6 @@ public class Map_LoadingData : MonoBehaviour
             }
 
             RandomizeBerryList(ref activeBerryBushes);
-            Debug.Log("Chance: " + chance);
             foreach (Resource_Pickup_Renewable bush in activeBerryBushes)
             {
                 if (Random.Range(0f, 1f) < chance)
