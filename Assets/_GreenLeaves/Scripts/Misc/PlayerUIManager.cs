@@ -15,6 +15,10 @@ public class PlayerUIManager : MonoBehaviour
     private bool m_transitionToMainMenu;
 
     public bool m_fadeInOnEnable = false;
+
+    FMOD.Studio.Bus m_ambience;
+    FMOD.Studio.Bus m_soundEffects;
+
     private void Awake()
     {
         Instance = this;
@@ -22,6 +26,8 @@ public class PlayerUIManager : MonoBehaviour
         {
             StartCoroutine(FadeScreen(false));
         }
+        m_ambience = FMODUnity.RuntimeManager.GetBus("bus:/Master/Ambience");
+        m_soundEffects = FMODUnity.RuntimeManager.GetBus("bus:/Master/SoundEffects");
     }
 
     private void Update()
@@ -84,13 +90,23 @@ public class PlayerUIManager : MonoBehaviour
     {
         m_screenFadeGroup.alpha = (p_newFadeState ? 0 : 1);
 
+        m_ambience.setVolume((p_newFadeState)? 1:0);
+        m_soundEffects.setVolume((p_newFadeState) ? 1 : 0);
+
         float timer = 0;
         while (timer < m_fadeTime)
         {
             yield return null;
             timer += Time.deltaTime;
             m_screenFadeGroup.alpha = (p_newFadeState ? (timer / m_fadeTime) : 1 - (timer / m_fadeTime));
+
+            m_ambience.setVolume((p_newFadeState) ? 1 - (timer / m_fadeTime) : (timer / m_fadeTime));
+            m_soundEffects.setVolume((p_newFadeState) ? 1 - (timer / m_fadeTime) : (timer / m_fadeTime));
+
         }
+
+        m_ambience.setVolume((p_newFadeState) ? 0 : 1);
+        m_soundEffects.setVolume((p_newFadeState) ? 0 : 1);
         m_screenFadeGroup.alpha = (p_newFadeState ? 1 : 0);
 
     }

@@ -93,7 +93,7 @@ public class Player_Inventory : MonoBehaviour
                 m_currentEquipedTool = m_torchTool;
                 break;
 
-            case ResourceContainer_Equip.ToolType.Boots:
+            case ResourceContainer_Equip.ToolType.Bow:
                 m_currentEquipedTool = m_bootsTool;
                 break;
 

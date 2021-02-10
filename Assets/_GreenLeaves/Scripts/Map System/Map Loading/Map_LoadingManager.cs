@@ -9,6 +9,8 @@ public class Map_LoadingManager : MonoBehaviour
 
     public string m_currentMainArea;
 
+    public int m_sectionLoadedOnStart;
+
     public List<MapSections> m_mapScenes;
 
     [System.Serializable]
@@ -256,7 +258,9 @@ public class Map_LoadingManager : MonoBehaviour
 
     [Header("Berry Varaibles")]
     public int m_maxBerryCount = 8;
-    [Tooltip("Dont Touch")]
+
+    
+    [HideInInspector]
     public float m_percentDecreasePerBerry;
     public AnimationCurve m_hungerPercentCurve;
     public AnimationCurve m_energyPercentCurve, m_staminaCurve;
@@ -278,13 +282,10 @@ public class Map_LoadingManager : MonoBehaviour
         m_percentDecreasePerBerry = 1f / (float)m_maxBerryCount/2;
     }
 
-    public float m_currentHungerChance;
-    public int m_currentBerryCount;
-    private void Update()
+    private void Start()
     {
-        m_currentHungerChance = GetHungerBerryChance(m_currentBerryCount);
+        LoadMapFromTrigger(m_sectionLoadedOnStart);
     }
-
     #region Saving & Loading Functionality
     public MapData SaveMapData(Map_LoadingData p_data)
     {
