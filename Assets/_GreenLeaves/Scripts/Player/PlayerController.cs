@@ -711,7 +711,7 @@ public class PlayerController : MonoBehaviour
 
             Vector3 bottom = m_characterController.transform.position - new Vector3(0, m_characterController.height / 2, 0);
 
-            if (Physics.Raycast(bottom, Vector3.down, out hit))
+            if (Physics.Raycast(bottom, Vector3.down, out hit, 0.5f))
             {
                 if (slopeInfo.m_slopeAngle > m_characterController.slopeLimit)
                 {
