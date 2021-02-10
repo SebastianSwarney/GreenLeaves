@@ -15,8 +15,11 @@ public class Map_LoadingData : MonoBehaviour
     public List<GameObject> m_allResources;
 
     [Header("Berry Bushes")]
+    [Tooltip("Green")]
     public List<GameObject> m_allHungerBushes;
+    [Tooltip("Red")]
     public List<GameObject> m_allEnergyBushes;
+    [Tooltip("Yellow / blue")]
     public List<GameObject> m_allStaminaBushes;
 
     [Header("Campfires")]

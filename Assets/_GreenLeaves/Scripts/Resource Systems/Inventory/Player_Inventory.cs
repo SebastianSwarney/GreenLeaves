@@ -64,6 +64,10 @@ public class Player_Inventory : MonoBehaviour
             if (newDropped != null)
             {
                 newDropped.GetComponent<Resource_Pickup>().m_resourceAmount = p_droppedIcon.m_currentResourceAmount;
+                if (newDropped.GetComponentInChildren<Manipulation_HitObject>())
+                {
+                    newDropped.GetComponentInChildren<Manipulation_HitObject>().ObjectRespawn();
+                }
                 Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allResources.Add(newDropped);
             }
         }
