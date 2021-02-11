@@ -13,7 +13,7 @@ public class Player_Inventory : MonoBehaviour
     [HideInInspector]
     public bool m_canOpenMenu = true;
 
-    public KeyCode m_toggleMenu;
+    public KeyCode m_toggleMenu, m_secondaryToggle;
 
     [Header("Equipable Tools")]
     public Player_EquipmentUse m_currentEquipedTool;
@@ -29,7 +29,7 @@ public class Player_Inventory : MonoBehaviour
     private void Update()
     {
         if (Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen) return;
-        if (Input.GetKeyDown(m_toggleMenu))
+        if (Input.GetKeyDown(m_toggleMenu) || Input.GetKeyDown(m_secondaryToggle))
         {
             if (m_canOpenMenu)
             {
@@ -64,6 +64,11 @@ public class Player_Inventory : MonoBehaviour
             if (newDropped != null)
             {
                 newDropped.GetComponent<Resource_Pickup>().m_resourceAmount = p_droppedIcon.m_currentResourceAmount;
+                if (newDropped.GetComponentInChildren<Manipulation_HitObject>())
+                {
+                    newDropped.GetComponentInChildren<Manipulation_HitObject>().ObjectRespawn();
+                }
+                Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allResources.Add(newDropped);
             }
         }
     }
@@ -92,7 +97,7 @@ public class Player_Inventory : MonoBehaviour
                 m_currentEquipedTool = m_torchTool;
                 break;
 
-            case ResourceContainer_Equip.ToolType.Boots:
+            case ResourceContainer_Equip.ToolType.Bow:
                 m_currentEquipedTool = m_bootsTool;
                 break;
 

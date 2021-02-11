@@ -36,7 +36,7 @@ public class Tree_VelocityCheck : MonoBehaviour
 
     private IEnumerator PerformCheck()
     {
-        yield return new WaitForSeconds(m_delayCheckTime);
+        yield return new WaitForSeconds(m_delayCheckTime * transform.parent.localScale.y);
         bool explode = false;
         float timer = 5;
         while (!explode)

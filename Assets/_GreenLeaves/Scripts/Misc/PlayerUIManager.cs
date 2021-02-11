@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerUIManager : MonoBehaviour
 {
-    public GameObject m_pauseMenu, m_runtimeMenu, m_controlsMenu, m_craftingRecipeMenu;
+    public GameObject m_pauseMenu, m_mainPause, m_craftingRecipeMenu, m_audioMenu, m_controlsMenu;
 
     public static PlayerUIManager Instance;
     public bool m_isPaused;
@@ -15,6 +15,10 @@ public class PlayerUIManager : MonoBehaviour
     private bool m_transitionToMainMenu;
 
     public bool m_fadeInOnEnable = false;
+
+    FMOD.Studio.Bus m_ambience;
+    FMOD.Studio.Bus m_soundEffects;
+
     private void Awake()
     {
         Instance = this;
@@ -22,6 +26,8 @@ public class PlayerUIManager : MonoBehaviour
         {
             StartCoroutine(FadeScreen(false));
         }
+        m_ambience = FMODUnity.RuntimeManager.GetBus("bus:/Master/Ambience");
+        m_soundEffects = FMODUnity.RuntimeManager.GetBus("bus:/Master/SoundEffects");
     }
 
     private void Update()
@@ -46,9 +52,10 @@ public class PlayerUIManager : MonoBehaviour
 
 
         m_pauseMenu.SetActive(m_isPaused);
-        m_runtimeMenu.SetActive(!m_isPaused);
-        m_controlsMenu.SetActive(true);
+        m_mainPause.SetActive(true);
         m_craftingRecipeMenu.SetActive(false);
+        m_audioMenu.SetActive(false);
+        m_controlsMenu.SetActive(false);
 
         Player_Inventory.Instance.ToggleOpenability(!p_newState);
         Inventory_2DMenu.Instance.CloseInventoryMenu(true);
@@ -83,13 +90,23 @@ public class PlayerUIManager : MonoBehaviour
     {
         m_screenFadeGroup.alpha = (p_newFadeState ? 0 : 1);
 
+        m_ambience.setVolume((p_newFadeState)? 1:0);
+        m_soundEffects.setVolume((p_newFadeState) ? 1 : 0);
+
         float timer = 0;
         while (timer < m_fadeTime)
         {
             yield return null;
             timer += Time.deltaTime;
             m_screenFadeGroup.alpha = (p_newFadeState ? (timer / m_fadeTime) : 1 - (timer / m_fadeTime));
+
+            m_ambience.setVolume((p_newFadeState) ? 1 - (timer / m_fadeTime) : (timer / m_fadeTime));
+            m_soundEffects.setVolume((p_newFadeState) ? 1 - (timer / m_fadeTime) : (timer / m_fadeTime));
+
         }
+
+        m_ambience.setVolume((p_newFadeState) ? 0 : 1);
+        m_soundEffects.setVolume((p_newFadeState) ? 0 : 1);
         m_screenFadeGroup.alpha = (p_newFadeState ? 1 : 0);
 
     }

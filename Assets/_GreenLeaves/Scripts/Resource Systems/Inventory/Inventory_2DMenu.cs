@@ -33,6 +33,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public Transform m_gameIconsParent;
     public Transform m_cantFitIconPos;
     public Transform m_itemTransferParent;
+    public UnityEngine.UI.Text m_heldItemText;
 
     [Header("Icon Selection Variables")]
     public float m_selectedBufferTime;
@@ -74,6 +75,7 @@ public class Inventory_2DMenu : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        m_heldItemText.text = "";
     }
 
     private void Start()
@@ -102,7 +104,7 @@ public class Inventory_2DMenu : MonoBehaviour
     {
         if (m_isOpen)
         {
-
+            m_heldItemText.text = "";
             m_craftingMenu.SetActive(false);
             m_cookingMenu.SetActive(false);
 
@@ -119,6 +121,7 @@ public class Inventory_2DMenu : MonoBehaviour
         }
         else
         {
+            m_heldItemText.text = "";
             PlayerInputToggle.Instance.ToggleInput(false);
             m_isOpen = true;
 
@@ -200,10 +203,18 @@ public class Inventory_2DMenu : MonoBehaviour
 
 
         p_pickedUp.GetComponent<Resource_Pickup>().PickupResource();
-        AddToInventory(pickedUpResource, p_amount);
+
+        if (pickedUpResource.m_resourceData.m_resourceType == ResourceData.ResourceType.Tool)
+        {
+            AddToInventory(pickedUpResource, p_amount, true, p_pickedUp.GetComponent<Resource_Pickup_UsedEquipment>().m_startingDurability);
+        }
+        else
+        {
+            AddToInventory(pickedUpResource, p_amount);
+        }
     }
 
-    public void AddToInventory(ResourceContainer pickedUpResource, int p_amount)
+    public void AddToInventory(ResourceContainer pickedUpResource, int p_amount, bool p_isTool = false, int p_toolDurability = 0)
     {
         ///Determine if there are any existing items like this in the inventory
         ///Used for items that can have more than 1 item in a slot IE. Arrows
@@ -256,7 +267,9 @@ public class Inventory_2DMenu : MonoBehaviour
         ///Determines if the icon can be placed in the grid
         #region Icon Grid Positioning
 
-        Inventory_Icon newIcon = CreateIcon(pickedUpResource, iconRotationType, existingAmount, false, 0);
+
+        Inventory_Icon newIcon = CreateIcon(pickedUpResource, iconRotationType, existingAmount, p_isTool, p_toolDurability);
+
 
         newIcon.m_opensInventorySelectButton = pickedUpResource.m_showInventorySelectionButton;
 
@@ -399,7 +412,7 @@ public class Inventory_2DMenu : MonoBehaviour
                 buildingIconIndex = i;
 
             }*/
-            if (m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_isEquipped )
+            if (m_backpack.m_itemsInBackpack[i].m_associatedIcon.m_isEquipped)
             {
                 continue;
             }
@@ -460,7 +473,7 @@ public class Inventory_2DMenu : MonoBehaviour
             {
 
             }*/
-                Player_Inventory.Instance.DropObject(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon, true);
+            Player_Inventory.Instance.DropObject(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon, true);
 
 
             m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon.m_currentResourceAmount = 0;
@@ -517,6 +530,7 @@ public class Inventory_2DMenu : MonoBehaviour
             {
                 m_currentSelectedIcon = res.gameObject.GetComponent<Inventory_Icon>();
                 m_currentSelectedIcon.IconTappedOn();
+                m_heldItemText.text = m_currentSelectedIcon.m_itemData.m_resourceData.m_resourceName;
                 return;
             }
         }
@@ -568,7 +582,7 @@ public class Inventory_2DMenu : MonoBehaviour
     /// </summary>
     public void CloseWhileHoldinObject(Inventory_Icon p_holdingIcon)
     {
-        
+
         m_isDraggingObject = false;
         m_currentSelectedIcon.ClosedWhileHolding();
         if (m_currentSelectedIcon.m_inBackpack)
@@ -624,6 +638,8 @@ public class Inventory_2DMenu : MonoBehaviour
     /// </summary>
     public void CheckIconPlacePosition(Inventory_Icon p_holdingIcon)
     {
+
+        m_heldItemText.text = "";
         m_isDraggingObject = false;
 
         #region Perform the UI Raycast using the events system
@@ -888,7 +904,6 @@ public class Inventory_2DMenu : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("Cant Equip");
                         p_holdingIcon.m_inCookingTable = false;
                         p_holdingIcon.m_inCraftingTable = true;
                         p_holdingIcon.m_inEatingArea = false;
@@ -973,9 +988,9 @@ public class Inventory_2DMenu : MonoBehaviour
     #endregion
 
     #region Menu Selected Button
-    
 
-    /// <summary>
+
+    /*/// <summary>
     /// Updates the resource amount on the icon.
     /// Called from consumables
     /// </summary>
@@ -998,7 +1013,7 @@ public class Inventory_2DMenu : MonoBehaviour
             }
         }
     }
-
+*/
     public void RemoveSingleIcon(Inventory_Icon p_usedIcon)
     {
         p_usedIcon.m_currentResourceAmount = 0;
@@ -1013,7 +1028,7 @@ public class Inventory_2DMenu : MonoBehaviour
         m_inventoryGrid.RemoveSingleIcon(p_usedIcon);
     }
 
-    
+
 
     /// <summary>
     /// Used to remove the resource entirely from the inventory.<br/>
@@ -1032,6 +1047,51 @@ public class Inventory_2DMenu : MonoBehaviour
             }
         }
     }
+    #endregion
+
+    #region ItemGetterFunctions
+    [Header("Berry Stats")]
+    public ResourceContainer m_hungerBerry;
+    public ResourceContainer m_staminaBerry, m_energyBerry;
+    public int GetAmountOfHungerBerries()
+    {
+        int amount = 0;
+        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        {
+            if(slot.m_currentData.m_resourceData.m_resourceName == m_hungerBerry.m_resourceData.m_resourceName)
+            {
+                amount+= slot.m_associatedIcon.m_currentResourceAmount;
+            }
+        }
+        return amount;
+    }
+
+    public int GetAmountOfStaminaBerries()
+    {
+        int amount = 0;
+        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        {
+            if(slot.m_currentData.m_resourceData.m_resourceName == m_staminaBerry.m_resourceData.m_resourceName)
+            {
+                amount += slot.m_associatedIcon.m_currentResourceAmount;
+            }
+        }
+        return amount;
+    }
+
+    public int GetAmountOfEnergyBerries()
+    {
+        int amount = 0;
+        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        {
+            if(slot.m_currentData.m_resourceData.m_resourceName == m_energyBerry.m_resourceData.m_resourceName)
+            {
+                amount += slot.m_associatedIcon.m_currentResourceAmount;
+            }
+        }
+        return amount;
+    }
+    
     #endregion
 }
 

@@ -1,0 +1,310 @@
+﻿// post vertex
+
+
+
+#if _MSRENDERLOOP_SURFACESHADER
+               #include "Tessellation.cginc"
+               float4 TessDistance (appdata v0, appdata v1, appdata v2) 
+               {
+                  return UnityDistanceBasedTess(v0.vertex, v1.vertex, v2.vertex, _TessData2.x, _TessData2.y, _TessData1.x);
+               }
+
+#elif _MSRENDERLOOP_UNITYLD || _MSRENDERLOOP_UNITYHD
+
+
+#if defined(SHADER_API_XBOXONE) || defined(SHADER_API_PSSL)
+   // AMD recommand this value for GCN http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2013/05/GCNPerformanceTweets.pdf
+   #define MAX_TESSELLATION_FACTORS 15.0
+#else
+   #define MAX_TESSELLATION_FACTORS 64.0
+#endif
+
+            struct OutputPatchConstant 
+            {
+                float edge[3]         : SV_TessFactor;
+                float inside          : SV_InsideTessFactor;
+            };
+             
+            struct TessVertex 
+            {
+               float4 vertex : INTERNALTESSPOS;
+               float3 normal : NORMAL;
+               float4 tangent : TANGENT;
+               float4 texcoord0 : TEXCOORD0;
+               float4 texcoord1 : TEXCOORD1;
+
+               DECALREMSVERTEXSEMANTIC
+               
+               UNITY_VERTEX_INPUT_INSTANCE_ID
+               UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+
+            float MSCalcDistanceTessFactor (float3 wpos, float minDist, float maxDist, float tess, float3 camPos)
+            {
+               #if _MSRENDERLOOP_UNITYHD // in HD, we might be camera relative rendering
+                  wpos = TransformWorldToObject(GetAbsolutePositionWS(wpos));
+                  #if _MICROTERRAIN
+                     wpos += GetAbsolutePositionWS(TransformObjectToWorld(float3(0,0,0)));
+                  #endif
+               #endif
+
+               float dist = distance (wpos, camPos);
+               float f = clamp(1.0 - (dist - minDist) / (maxDist - minDist), 0.01, 1.0) * tess;
+               return f;
+            }
+
+            float4 MSCalcTriEdgeTessFactors (float3 triVertexFactors)
+            {
+               float4 tess;
+               tess.x = 0.5 * (triVertexFactors.y + triVertexFactors.z);
+               tess.y = 0.5 * (triVertexFactors.x + triVertexFactors.z);
+               tess.z = 0.5 * (triVertexFactors.x + triVertexFactors.y);
+               tess.w = (triVertexFactors.x + triVertexFactors.y + triVertexFactors.z) / 3.0f;
+               return tess;
+            }
+
+
+            float4 MSDistanceBasedTess (float3 v0, float3 v1, float3 v2, float minDist, float maxDist, float tess)
+            {
+               float3 f;
+
+               #if _MSRENDERLOOP_UNITYHD || _MSRENDERLOOP_UNITYLD
+                  // I don't understand why the space for a terrain is different? Perhaps it's not
+                  // having some aspect of it relatively transformed?
+                  #if _MICROTERRAIN
+                     float3 camPos = TransformWorldToObject(GetAbsolutePositionWS(_WorldSpaceCameraPos));
+                  #else
+                     float3 camPos = TransformWorldToObject(_WorldSpaceCameraPos);
+                  #endif
+                  
+               #else
+                  float3 camPos = mul(unity_WorldToObject, _WorldSpaceCameraPos);
+               #endif
+         
+               f.x = MSCalcDistanceTessFactor (v0,minDist,maxDist,tess, camPos);
+               f.y = MSCalcDistanceTessFactor (v1,minDist,maxDist,tess, camPos);
+               f.z = MSCalcDistanceTessFactor (v2,minDist,maxDist,tess, camPos);
+
+               return MSCalcTriEdgeTessFactors (f);
+            }
+
+            float4 Tessellation (TessVertex v0, TessVertex v1, TessVertex v2) 
+            {
+               return MSDistanceBasedTess(v0.vertex.xyz, v1.vertex.xyz, v2.vertex.xyz, _TessData2.x, _TessData2.y, _TessData1.x);
+            }
+
+            OutputPatchConstant hullconst (InputPatch<TessVertex,3> v) 
+            {
+               OutputPatchConstant o = (OutputPatchConstant)0;
+               float4 tf = Tessellation( v[0], v[1], v[2] );
+               tf = min(tf, MAX_TESSELLATION_FACTORS);
+               o.edge[0] = tf.x;
+               o.edge[1] = tf.y;
+               o.edge[2] = tf.z;
+               o.inside  = tf.w;
+               return o;
+            }
+
+             [maxtessfactor(MAX_TESSELLATION_FACTORS)]
+             [domain("tri")]
+             [partitioning("fractional_odd")]
+             [outputtopology("triangle_cw")]
+             [patchconstantfunc("hullconst")]
+             [outputcontrolpoints(3)]
+             TessVertex hull (InputPatch<TessVertex,3> v, uint id : SV_OutputControlPointID) 
+             {
+                 return v[id];
+             }
+             
+             
+             #if _MSRENDERLOOP_UNITYHD
+             TessVertex tessvert(AttributesMesh i)
+             #elif _MSRENDERLOOP_UNITYLD
+             TessVertex tessvert(GraphVertexInput i)
+             #endif
+             {
+                UNITY_SETUP_INSTANCE_ID(i);
+                TessVertex o = (TessVertex)o;
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
+                #if _MSRENDERLOOP_UNITYHD
+                   o.vertex = float4(i.positionOS.xyz, 1);
+                   o.normal = i.normalOS;
+                   o.tangent = i.tangentOS;
+                   o.texcoord0 = i.uv0;
+                   o.texcoord1 = i.uv1;
+                #else
+                   o.vertex = i.vertex;
+                   o.normal = i.normal;
+                   o.tangent = i.tangent;
+                   o.texcoord0 = i.texcoord0;
+                   o.texcoord1 = i.texcoord1;
+                #endif
+                
+
+                #if !_DEBUG_USE_TOPOLOGY && UNITY_VERSION >= 201830 && !_TERRAINBLENDABLESHADER && _MICROTERRAIN && defined(UNITY_INSTANCING_ENABLED) && !defined(SHADER_API_D3D11_9X)
+                    float2 patchVertex = o.vertex.xy;
+                    float4 instanceData = UNITY_ACCESS_INSTANCED_PROP(Terrain, _TerrainPatchInstanceData);
+                    
+                    float4 uvscale = instanceData.z * _TerrainHeightmapRecipSize;
+                    float4 uvoffset = instanceData.xyxy * uvscale;
+                    uvoffset.xy += 0.5f * _TerrainHeightmapRecipSize.xy;
+                    float2 sampleCoords = (patchVertex.xy * uvscale.xy + uvoffset.xy);
+                    float hm = UnpackHeightmap(SAMPLE_TEXTURE2D_LOD(_TerrainHeightmapTexture, sampler_TerrainHeightmapTexture, sampleCoords, 0));
+                    o.vertex.xz = (patchVertex.xy + instanceData.xy) * _TerrainHeightmapScale.xz * instanceData.z;  //(x + xBase) * hmScale.x * skipScale;
+                    o.vertex.y = hm * _TerrainHeightmapScale.y;
+                    o.vertex.w = 1.0f;
+                    
+                    o.texcoord0.xy = (patchVertex.xy * uvscale.zw + uvoffset.zw);
+                    
+                    o.normal = float3(0,1,0);
+                #endif 
+                 
+                
+
+                #if _MEGASPLAT
+                   Input inp = (Input)0;
+                   EncodeMegaSplatVertex(ToAppData(i), inp);
+                   CopyMSVertexData(inp, o);
+                #elif _MICRODIGGERMESH || _MICROVERTEXMESH
+                   Input inp = (Input)0;
+                   #if _MICROVERTEXMESH
+                      EncodeVertex(ToAppData(i), inp);
+                   #elif _MICRODIGGERMESH
+                      DiggerEncodeVertex(ToAppData(i), inp);
+                   #endif
+                   CopyMSVertexData(inp, o);
+                #endif // megasplat
+
+                
+                
+                UNITY_TRANSFER_INSTANCE_ID(i, o);
+   
+                return o;
+            }
+
+           
+             [domain("tri")]
+             #if _MSRENDERLOOP_UNITYLD && (PASSSHADOW || PASSDEPTH || PASSMETA)
+                VertexOutput
+             #elif _MSRENDERLOOP_UNITYLD
+                GraphVertexOutput
+             #elif _MSRENDERLOOP_UNITYHD
+                MeshToPS
+             #endif
+                 domain (OutputPatchConstant tessFactors, const OutputPatch<TessVertex,3> vi, float3 bary : SV_DomainLocation) 
+             {
+                 #if _MSRENDERLOOP_UNITYHD
+                    AttributesMesh v = (AttributesMesh)0;
+                 #else
+                    GraphVertexInput v = (GraphVertexInput)0;
+                 #endif
+
+                 UNITY_TRANSFER_INSTANCE_ID(vi[0], v);
+
+                 Input inp = (Input)0;
+
+                 #if _MEGASPLAT
+                   v.layer0 = vi[0].layer0 * bary.x + vi[1].layer0 * bary.y + vi[2].layer0 * bary.z;
+                   v.layer1 = vi[0].layer1 * bary.x + vi[1].layer1 * bary.y + vi[2].layer1 * bary.z;
+                   v.baryWeights = vi[0].baryWeights * bary.x + vi[1].baryWeights * bary.y + vi[2].baryWeights * bary.z;
+                   inp.layer0 = v.layer0;
+                   inp.layer1 = v.layer1;
+                   inp.baryWeights = v.baryWeights;
+
+                   #if _SCATTER
+                      v.scatter0 = vi[0].scatter0 * bary.x + vi[1].scatter0 * bary.y + vi[2].scatter0 * bary.z;
+                      inp.scatter0 = v.scatter0;
+                   #endif
+                   #if _SPLATTERSECONDLAYER
+                      v.scatter1 = vi[0].scatter1 * bary.x + vi[1].scatter1 * bary.y + vi[2].scatter1 * bary.z;
+                      inp.scatter1 = v.scatter1;
+                   #endif
+            
+                   #if _STEAMS || _WETNESS || _LAVA || _PUDDLES
+                      v.fx = vi[0].fx * bary.x + vi[1].fx * bary.y + vi[2].fx * bary.z;
+                      inp.fx = v.fx;
+                   #endif
+                 #elif _MICRODIGGERMESH || _MICROVERTEXMESH
+                    v.w0 = vi[0].w0 * bary.x + vi[1].w0 * bary.y + vi[2].w0 * bary.z;
+                    inp.w0 = v.w0;
+                    #if !_MAX4TEXTURES
+                       v.w1 = vi[0].w1 * bary.x + vi[1].w1 * bary.y + vi[2].w1 * bary.z;
+                       inp.w1 = v.w1;
+                    #endif
+                    #if !_MAX4TEXTURES && !_MAX8TEXTURES
+                       v.w2 = vi[0].w2 * bary.x + vi[1].w2 * bary.y + vi[2].w2 * bary.z;
+                       inp.w2 = v.w2;
+                    #endif
+                    #if !_MAX4TEXTURES && !_MAX8TEXTURES && !_MAX12TEXTURES
+                       v.w3 = vi[0].w3 * bary.x + vi[1].w3 * bary.y + vi[2].w3 * bary.z;
+                       inp.w3 = v.w3;
+                    #endif
+                    #if _MAX20TEXTURES || _MAX24TEXTURES || _MAX28TEXTURES || _MAX32TEXTURES
+                       v.w4 = vi[0].w4 * bary.x + vi[1].w4 * bary.y + vi[2].w4 * bary.z;
+                       inp.w4 = v.w4;
+                    #endif
+                    #if _MAX24TEXTURES || _MAX28TEXTURES || _MAX32TEXTURES
+                       v.w5 = vi[0].w5 * bary.x + vi[1].w5 * bary.y + vi[2].w5 * bary.z;
+                       inp.w5 = v.w5;
+                    #endif
+                    #if (_MAX28TEXTURES || _MAX32TEXTURES) && !_STREAMS && !_LAVA && !_WETNESS && !_PUDDLES
+                       v.w6 = vi[0].w6 * bary.x + vi[1].w6 * bary.y + vi[2].w6 * bary.z;
+                       inp.w6 = v.w6;
+                    #endif
+
+                    #if _STEAMS || _WETNESS || _LAVA || _PUDDLES
+                       v.s0 = vi[0].s0 * bary.x + vi[1].s0 * bary.y + vi[2].s0 * bary.z;
+                       inp.s0 = v.s0;
+                    #endif
+                   
+                 #endif // megasplat
+
+
+                  #if _MSRENDERLOOP_UNITYLD
+                    v.vertex = vi[0].vertex * bary.x + vi[1].vertex * bary.y + vi[2].vertex * bary.z;
+                    v.normal = vi[0].normal * bary.x + vi[1].normal * bary.y + vi[2].normal * bary.z;
+                    v.tangent = vi[0].tangent * bary.x + vi[1].tangent * bary.y + vi[2].tangent * bary.z;
+                    v.texcoord0 = vi[0].texcoord0 * bary.x + vi[1].texcoord0 * bary.y + vi[2].texcoord0 * bary.z;
+                    v.texcoord1 = vi[0].texcoord1 * bary.x + vi[1].texcoord1 * bary.y + vi[2].texcoord1 * bary.z;
+                    v.vertex.xyz += OffsetVertex(float4(v.vertex.xyz, 1), v.normal, v.tangent, v.texcoord0, inp).xyz; 
+                 
+                    #if (defined(UNITY_INSTANCING_ENABLED) || _PERPIXNORMAL) && _MICROTERRAIN
+                    v.normal = float3(0,1,0);
+                    #endif
+
+                 
+
+                    #if PASSSHADOW
+                       VertexOutput o = ShadowPassVertex(v);
+                    #elif PASSDEPTH || PASSMETA
+                       VertexOutput o = vert(v);
+                    #else
+                       GraphVertexOutput o = vert(v);
+                    #endif
+
+                    return o;
+
+                 #else  // hd
+                    v.positionOS.xyz = vi[0].vertex.xyz * bary.x + vi[1].vertex.xyz * bary.y + vi[2].vertex.xyz * bary.z;
+                    v.normalOS = vi[0].normal * bary.x + vi[1].normal * bary.y + vi[2].normal * bary.z;
+                    v.tangentOS = vi[0].tangent * bary.x + vi[1].tangent * bary.y + vi[2].tangent * bary.z;
+                    v.uv0 =  vi[0].texcoord0 * bary.x + vi[1].texcoord0 * bary.y + vi[2].texcoord0 * bary.z;
+                    v.uv1 = vi[0].texcoord1 * bary.x + vi[1].texcoord1 * bary.y + vi[2].texcoord1 * bary.z;
+                    v.positionOS.xyz += OffsetVertex(float4(v.positionOS.xyz, 1), v.normalOS, v.tangentOS, v.uv0.xy, inp).xyz; 
+
+                    #if (defined(UNITY_INSTANCING_ENABLED) || _PERPIXNORMAL) && _MICROTERRAIN
+                    v.normalOS = float3(0,1,0);
+                    #endif
+
+                    return Vert(v);
+                 #endif
+                 
+                 
+             }
+             
+#endif // LD/HD
+             
+
+             

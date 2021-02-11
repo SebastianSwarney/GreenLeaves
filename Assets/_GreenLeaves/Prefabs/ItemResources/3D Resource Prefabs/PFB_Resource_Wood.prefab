@@ -119,6 +119,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_spawnedParticle: {fileID: 5715961015872795951, guid: fa5bdac66a608ca47813adac7e77c3b0, type: 3}
   m_particleOffset: {x: 0, y: 0, z: 0}
+  m_refScaleTransform: {fileID: 0}
+  m_rotateParticleWithY: 0
   m_isDebugging: 0
   m_gizmosColor1: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   m_gizRadius: 0.5
@@ -1026,7 +1028,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8250125246857356322}
   m_LocalRotation: {x: 0.000000021855694, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.17, z: 0}
   m_LocalScale: {x: 0.75, y: 1, z: 1}
   m_Children:
   - {fileID: 8813008723853116391}
@@ -1199,6 +1201,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 47183942673771704, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47183942673771704, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_Size.x
+      value: 0.46
+      objectReference: {fileID: 0}
+    - target: {fileID: 47183942673771704, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_Size.y
+      value: 0.38
+      objectReference: {fileID: 0}
+    - target: {fileID: 47183942673771704, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_Size.z
+      value: 1.08
+      objectReference: {fileID: 0}
     - target: {fileID: 229797024991320771, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_objectSpawned.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -1238,7 +1256,11 @@ PrefabInstance:
     - target: {fileID: 1806350379463084202, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_Icon
       value: 
-      objectReference: {fileID: 7422848464349959988, guid: 0000000000000000d000000000000000, type: 0}
+      objectReference: {fileID: 0}
+    - target: {fileID: 2316559166084059685, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4142028310542738295, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_interactableName
       value: Wood

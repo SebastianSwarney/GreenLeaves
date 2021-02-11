@@ -267,6 +267,7 @@ public class PlayerController : MonoBehaviour
 	{
         SetAnimations();
 
+        /*
 		if (Input.GetKeyDown(KeyCode.J))
 		{
             m_controllerEnabled = !m_controllerEnabled;
@@ -281,6 +282,7 @@ public class PlayerController : MonoBehaviour
                 //m_rigidbody.AddForce(transform.forward * 50f, ForceMode.Impulse);
             }
 		}
+        */
 	}
 
 	private void FixedUpdate()
@@ -1055,7 +1057,11 @@ public class PlayerController : MonoBehaviour
 
             m_slopeTransform.rotation = Quaternion.LookRotation(slopeDir);
             m_slopeAngle = Vector3.Angle(Vector3.up, slopeInfo.m_slopeNormal);
-        }
+		}
+		else
+		{
+            m_slopeAngle = 0;
+		}
     }
 
     private IEnumerator RunSlide()

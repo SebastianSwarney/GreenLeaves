@@ -9,6 +9,7 @@ public class Interactable_Manager : MonoBehaviour
     public static Interactable_Manager Instance;
 
     public GameObject m_buttonUiParent;
+    public GameObject m_worldInteractableNameUi;
 
     public Interactable m_currentInteractable;
 
@@ -97,6 +98,7 @@ public class Interactable_Manager : MonoBehaviour
         }
         m_canBeOverridden = p_canBeOverridden;
 
+        transform.position = p_selectedSystem.transform.position;
         
         if(m_currentInteractable != null && m_currentInteractable != p_selectedSystem)
         {
@@ -110,6 +112,7 @@ public class Interactable_Manager : MonoBehaviour
         m_menuOpen = true;
         if (m_buttonUiParent == null) return;
         m_buttonUiParent.SetActive(true);
+        m_worldInteractableNameUi.SetActive(true);
 
         m_interactableName.transform.parent.gameObject.SetActive(true);
         m_interactableName.text = p_selectedSystem.GetInteractableName();
@@ -147,6 +150,8 @@ public class Interactable_Manager : MonoBehaviour
             m_canBeOverridden = false;
             m_menuOpen = false;
             m_buttonUiParent.SetActive(false);
+            m_worldInteractableNameUi.SetActive(false);
+
 
 
             if (p_searchForNextInteractable && !Inventory_2DMenu.Instance.m_isOpen && !Interactable_Readable_Menu.Instance.m_isOpen)
@@ -174,6 +179,7 @@ public class Interactable_Manager : MonoBehaviour
         m_canBeOverridden = false;
         m_menuOpen = false;
         m_buttonUiParent.SetActive(false);
+        m_worldInteractableNameUi.SetActive(false);
 
         if (m_currentInteractable != null)
         {

@@ -81,6 +81,52 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5982061187874024596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5229742732652447115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0262cce1916bd7144b7f72582626c585, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_resourceInfo: {fileID: 11400000, guid: e5027cacf76d8e74eb31a673471f9d30, type: 2}
+  m_canPickup: 1
+  m_resourceAmount: 1
+  m_resourcePickedUpEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5229742732652447114}
+        m_TargetAssemblyTypeName: VFX_SpawnParticle, Assembly-CSharp
+        m_MethodName: SpawnParticlePrefab
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 5229742732652447115}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_objectSpawned:
+    m_PersistentCalls:
+      m_Calls: []
+  m_startingDurability: 6
 --- !u!1001 &5873456249674403105
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -92,9 +138,21 @@ PrefabInstance:
       propertyPath: m_resourceInfo
       value: 
       objectReference: {fileID: 11400000, guid: e5027cacf76d8e74eb31a673471f9d30, type: 2}
+    - target: {fileID: 279694099201793301, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_waterMask.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 279694099201793301, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1806350379463084202, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_Name
-      value: _PFB_Resource_Tool_Knife
+      value: _PFB_Resource_Tool_Knife Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 2316559166084059685, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2686065726063999899, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_IsKinematic
@@ -112,6 +170,10 @@ PrefabInstance:
       propertyPath: m_interactableName
       value: Old Knife
       objectReference: {fileID: 0}
+    - target: {fileID: 4142028310542738295, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_pickupable
+      value: 
+      objectReference: {fileID: 5982061187874024596}
     - target: {fileID: 5575367404257671582, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 543.04767
@@ -164,10 +226,33 @@ PrefabInstance:
       propertyPath: m_affectedRenderers.Array.data[0]
       value: 
       objectReference: {fileID: 626882706}
-    m_RemovedComponents: []
+    - target: {fileID: 7109535030383296671, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 229797024991320771, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+    - {fileID: 279694099201793301, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+    - {fileID: 6482272421070763448, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+--- !u!1 &5229742732652447115 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1806350379463084202, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+  m_PrefabInstance: {fileID: 5873456249674403105}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2079847509164160191 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5575367404257671582, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
   m_PrefabInstance: {fileID: 5873456249674403105}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5229742732652447114 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1806350379463084203, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+  m_PrefabInstance: {fileID: 5873456249674403105}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5229742732652447115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c82e39477eda81a4fa0132e6d1d1656a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

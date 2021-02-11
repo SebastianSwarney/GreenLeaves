@@ -8,7 +8,7 @@ Shader "Unlit/SkyboxProc"
 		_StarsCutoff("Stars Cutoff",  Range(0, 1)) = 0.08
 		_StarsSpeed("Stars Move Speed",  Range(0, 1)) = 0.3
 		_StarsSkyColor("Stars Sky Color", Color) = (0.0,0.2,0.1,1)
-
+		_StarsAppearAdjustment("Stars Appear Adjustment", float) = 0.5
 
 		 [Header(Horizon Settings)]
 		_OffsetHorizon("Horizon Offset",  Range(-1, 1)) = 0
@@ -99,6 +99,8 @@ Shader "Unlit/SkyboxProc"
 				float4 _CloudColorDayEdge, _CloudColorDayMain, _CloudColorDayUnder;
 				float4 _CloudColorNightEdge, _CloudColorNightMain, _CloudColorNightUnder, _StarsSkyColor;
 
+
+				float _StarsAppearAdjustment;
 				v2f vert(appdata v)
 				{
 					v2f o;
@@ -116,6 +118,8 @@ Shader "Unlit/SkyboxProc"
 
 				// uv for the sky
 				float2 skyUV = i.worldPos.xz / i.worldPos.y;
+				
+
 
 				// moving clouds
 				float baseNoise = tex2D(_BaseNoise, (skyUV - _Time.x) * _BaseNoiseScale).x;
@@ -164,9 +168,11 @@ Shader "Unlit/SkyboxProc"
 				float3 sunAndMoon = (sunDisc * _SunColor) + (moonDisc * _MoonColor);
 				sunAndMoon *= cloudsNegative;
 
+
+				float2 starsUV = i.worldPos.xz / i.worldPos.y;
 				//stars
-				float3 stars = tex2D(_Stars, skyUV + (_StarsSpeed * _Time.x));
-				stars *= saturate(-_WorldSpaceLightPos0.y);
+				float3 stars = tex2D(_Stars, starsUV + (_StarsSpeed * _Time.x));
+				stars *= saturate(-_WorldSpaceLightPos0.y+ _StarsAppearAdjustment);
 				stars = step(_StarsCutoff, stars);
 				stars += (baseNoise * _StarsSkyColor);
 				stars *= cloudsNegative;
