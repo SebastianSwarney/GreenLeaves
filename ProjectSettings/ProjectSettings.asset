@@ -577,6 +577,7 @@ PlayerSettings:
   webGLDecompressionFallback: 0
   scriptingDefineSymbols:
     1: __DIGGER__;ODIN_INSPECTOR;ODIN_INSPECTOR_3;AMPLIFY_SHADER_EDITOR;__MICROSPLAT__;USING_URP;__MICROSPLAT_TRIPLANAR__;__MICROSPLAT_TESSELLATION__;__MICROSPLAT_DETAILRESAMPLE__
+    13: __MICROSPLAT__;ODIN_INSPECTOR;ODIN_INSPECTOR_3;USING_URP;__MICROSPLAT_DETAILRESAMPLE__;__MICROSPLAT_TESSELLATION__;__MICROSPLAT_TRIPLANAR__
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}
@@ -584,7 +585,9 @@ PlayerSettings:
   incrementalIl2cppBuild: {}
   allowUnsafeCode: 0
   useDeterministicCompilation: 1
-  additionalIl2CppArgs: 
+  additionalIl2CppArgs: --additional-cpp="A:/Libraries/_Projects/Unity/_Capstone/New
+    Green Leaves/Current/GreenLeaves/Assets/../Temp/fmod_register_static_plugins.cpp"
+    --additional-cpp="A:/Libraries/_Projects/Unity/_Capstone/New Green Leaves/Current/GreenLeaves/Assets/Plugins/FMOD/src/Runtime/fmod_static_plugin_support.h"
   scriptingRuntimeVersion: 1
   gcIncremental: 1
   gcWBarrierValidation: 0
