@@ -8,6 +8,8 @@ public class WeightedTerrainPaletteItem : WeightedListItem
 {
 	[InlineEditor]
 	public ObjectBrushObjectList m_objectList;
+
+	public int m_objectPlacementResolution = 256;
 }
 
 [CreateAssetMenu(menuName = "Object Brush/Terrain Spawner Palette")]
