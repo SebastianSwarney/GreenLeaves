@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Staggart.VegetationSpawner;
 
+#if UNITY_EDITOR
 public class TerrainCollision : MonoBehaviour
 {
     public bool VisualizeCells;
@@ -39,3 +40,5 @@ public class TerrainCollision : MonoBehaviour
         }
     }
 }
+
+#endif
