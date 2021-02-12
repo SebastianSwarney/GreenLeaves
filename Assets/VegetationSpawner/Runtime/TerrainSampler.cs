@@ -39,10 +39,8 @@ namespace Staggart.VegetationSpawner
         /// <param name="normalizedHeight">0-1 height value, same as heightmap</param>
         public static void SampleHeight(this Terrain terrain, Vector2 position, out float height, out float worldHeight, out float normalizedHeight)
         {
-            height = terrain.terrainData.GetHeight(
-                Mathf.CeilToInt(position.x * terrain.terrainData.heightmapTexture.width),
-                Mathf.CeilToInt(position.y * terrain.terrainData.heightmapTexture.height)
-                );
+            //height = terrain.terrainData.GetHeight( Mathf.CeilToInt(position.x * terrain.terrainData.heightmapTexture.width),Mathf.CeilToInt(position.y * terrain.terrainData.heightmapTexture.height));
+            height = terrain.terrainData.GetHeight( Mathf.FloorToInt(position.x * terrain.terrainData.heightmapTexture.width), Mathf.FloorToInt(position.y * terrain.terrainData.heightmapTexture.height));
 
             worldHeight = height + terrain.transform.position.y;
             //Normalized height value (0-1)

@@ -23,10 +23,78 @@ MonoBehaviour:
     SerializationNodes: []
   m_objectsToPlace:
   - {fileID: 1208723027752964450, guid: c6eb1baa66dcfcc458a28690b0e7cfcc, type: 3}
-  m_scaleVaritation: {x: 1, y: 1}
+  - {fileID: 7503662179652919006, guid: 4708558a0de152b40a66655a885210fa, type: 3}
+  - {fileID: 3871172666040907353, guid: 5f44d6a1ac8a0be4c854133952e0f477, type: 3}
+  m_scaleVaritation: {x: 0.8, y: 1.2}
   m_lockWidthToHeight: 1
   m_randomYRotation: 1
-  m_slopeAngle: {x: -50, y: 50}
   m_localGroundOffset: {x: 0, y: 0}
   m_worldOffsetFromGround: 0
   m_alignObjectToGroundNormal: 0
+  m_spawnChance: 10
+  m_heightMask:
+    m_useMask: 1
+    m_strength: 1
+    m_minMaxHeight: {x: 0, y: 0.6}
+    m_heightCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -3.9775348
+        outSlope: -3.9775348
+        tangentMode: 0
+        weightedMode: 3
+        inWeight: 0
+        outWeight: 0.09323578
+      - serializedVersion: 3
+        time: 1.0008545
+        value: 0
+        inSlope: -0.15089467
+        outSlope: -0.15089467
+        tangentMode: 0
+        weightedMode: 3
+        inWeight: 0.5164536
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  m_slopeMask:
+    m_useMask: 1
+    m_strength: 1
+    m_minMaxSlope: {x: 0, y: 50}
+    m_slopeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  m_curvatureMask:
+    m_useMask: 0
+    m_strength: 1
+    m_minMaxCurvature: {x: 0, y: 0}
+    m_curvatureCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4

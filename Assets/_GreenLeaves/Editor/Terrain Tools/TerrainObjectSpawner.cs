@@ -101,10 +101,10 @@ public class TerrainObjectSpawner : OdinEditorWindow
 	[Button("Build Collision Texture")]
     private void BuildCollisionTextureInspector()
 	{
-        BuildCollisionTexture(true);
+        BuildCollisionTexture(true, false);
 	}
 
-    private void BuildCollisionTexture(bool updateInspector)
+    private void BuildCollisionTexture(bool updateInspector, bool p_ignoreChildObjects)
 	{
         Terrain terrain = m_terrain;
 
@@ -134,7 +134,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
                 Vector2Int texturePosition = new Vector2Int(x / adjustmentAmount, y / adjustmentAmount);
 
-                GetCollisionPixel(worldPos, texturePosition, halfExents, texture, terrain);
+                GetCollisionPixel(worldPos, texturePosition, halfExents, texture, terrain, p_ignoreChildObjects);
             }
         }
 
@@ -146,19 +146,26 @@ public class TerrainObjectSpawner : OdinEditorWindow
         m_texture = texture;
     }
 
-    private void GetCollisionPixel(Vector3 p_worldPosition, Vector2Int p_texturePosition, Vector3 p_halfExtents, Texture2D p_texture, Terrain p_terrain)
+    private void GetCollisionPixel(Vector3 p_worldPosition, Vector2Int p_texturePosition, Vector3 p_halfExtents, Texture2D p_texture, Terrain p_terrain, bool p_ignoreChildObjects)
     {
         RaycastHit terrainHit;
 
         if (Physics.BoxCast(p_worldPosition + (Vector3.up * 600f), p_halfExtents, -Vector3.up, out terrainHit, Quaternion.identity, 700f, m_collisionLayerMask))
         {
-            if (terrainHit.collider.gameObject != p_terrain.gameObject && terrainHit.collider.transform.root != p_terrain.transform)
+            if (terrainHit.collider.gameObject != p_terrain.gameObject)
             {
                 Color color = new Color(0, 0, 0, 1f);
 
                 if (CheckCollisionLayer(m_terrainMask, terrainHit.collider.gameObject))
                 {
-                    color = new Color(1f, 0, 0, 1f);
+					if (p_ignoreChildObjects)
+					{
+                        color = new Color(1f, 0, 0, 1f);
+                    }
+					else if (terrainHit.collider.transform.root != p_terrain.transform)
+					{
+                        color = new Color(1f, 0, 0, 1f);
+                    }
                 }
 
                 p_texture.SetPixel(p_texturePosition.x, p_texturePosition.y, color);
@@ -171,7 +178,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
     [Button("Place Objects")]
     private void ObjectPlacementLoop()
     {
-        BuildCollisionTexture(false);
+        BuildCollisionTexture(false, true);
 
         List<GameObject> childObjects = GetAllChildRootObjects();
         DisableAllChildObjects(childObjects);
@@ -253,14 +260,13 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
 					ObjectBrushObjectList objectListToUse = m_palette.m_objectListsInUse[i].m_objectList;
 
+                    //terrain.SampleHeight(normalizedPos, out _, out worldPos.y, out _);
+
+                    float adjustedWorldHeight = terrain.SampleHeight(worldPos);
+
                     if (objectListToUse.CheckSpawn(worldPos.y / terrain.terrainData.size.y, curvature, slope))
                     {
-						if (i != 0)
-						{
-                            Debug.Log("tried to spawn a flower");
-						}
-
-                        spawnData.Add(new ObjectSpawnData(objectListToUse, worldPos, slopeNormal));
+                        spawnData.Add(new ObjectSpawnData(objectListToUse, new Vector3(worldPos.x, adjustedWorldHeight, worldPos.z), slopeNormal));
                         //Color color = new Color(0, 0, 0, 1f);
                         Color color = Color.black;
                         texture.SetPixel(x, y, color);
