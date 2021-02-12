@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 
 
 #if UNITY_EDITOR
+
 public class MeshCombineWizard : ScriptableWizard
 {
 	public GameObject combineParent;
