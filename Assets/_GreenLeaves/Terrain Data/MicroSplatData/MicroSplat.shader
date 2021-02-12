@@ -16,7 +16,6 @@ Shader "MicroSplat/Terrain" {
       [HideInInspector] _Control2 ("Control2", 2D) = "black" {}
       [HideInInspector] _Control3 ("Control3", 2D) = "black" {}
       [HideInInspector] _Control4 ("Control4", 2D) = "black" {}
-      [HideInInspector] _Control5 ("Control5", 2D) = "black" {}
       
 
       // Splats
@@ -29,8 +28,20 @@ Shader "MicroSplat/Terrain" {
       _UVScale("UV Scales", Vector) = (45, 45, 0, 0)
       
 
+      // terrain
+      [NoScaleOffset]_DetailNoise("Detail Noise (Lum/Normal)", 2D) = "grey" {}
+      _DetailNoiseScaleStrengthFade("Detail Scale", Vector) = (4, 0.5, 5, 0)
+      // distance noise
+      [NoScaleOffset]_DistanceNoise("Detail Noise (Lum/Normal)", 2D) = "grey" {}
+      _DistanceNoiseScaleStrengthFade("Detail Scale", Vector) = (0.25, 0.5, 100, 250)
+      _NoiseHeightData("Noise Height Data", Vector) = (1, 0.15, 0, 0)
 
 
+      _TessData1("TessData1", Vector) = (12, 0.8, 4, 0)   // tess, displacement, mipBias, unused
+      _TessData2("TessData2", Vector) = (20, 45, 0.2, 0.25) // distance min, max, shaping, upbias
+
+
+      _TriplanarContrast("Triplanar Contrast", Range(1.0, 8)) = 4
       _TriplanarUVScale("Triplanar UV Scale", Vector) = (1, 1, 0, 0)
 
    }
@@ -39,7 +50,7 @@ Shader "MicroSplat/Terrain" {
    ENDCG
 
    SubShader {
-      Tags{ "RenderType" = "Opaque"  "Queue" = "Geometry+100" "SplatCount" = "24"}
+      Tags{ "RenderType" = "Opaque"  "Queue" = "Geometry+100" "SplatCount" = "20"}
       Cull Back
       ZTest LEqual
       UsePass "Hidden/Nature/Terrain/Utilities/PICKING"
@@ -52,20 +63,48 @@ Shader "MicroSplat/Terrain" {
       #include "UnityPBSLighting.cginc"
       #include "UnityStandardBRDF.cginc"
 
-      #pragma surface surf Standard vertex:vert fullforwardshadows addshadow
+      #pragma surface surf Standard vertex:vert tessellate:TessDistance fullforwardshadows addshadow
 
 
      #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap forwardadd
-      #pragma target 3.5
+      #pragma target 4.6
       #pragma multi_compile_local __ _ALPHATEST_ON
 
 
 
       #define _MICROSPLAT 1
+      #define _MICROTERRAIN 1
+      #define _PERTEXMICROSHADOWS 1
+      #define _USEGRADMIP 1
+      #define _MAX20TEXTURES 1
+      #define _PERTEXUVSCALEOFFSET 1
+      #define _PERTEXUVROTATION 1
+      #define _PERTEXFUZZYSHADE 1
+      #define _PERTEXHEIGHTOFFSET 1
+      #define _PERTEXHEIGHTCONTRAST 1
+      #define _PERTEXSATURATION 1
+      #define _PERTEXTINT 1
+      #define _PERTEXBRIGHTNESS 1
+      #define _PERTEXCOLORINTENSITY 1
+      #define _PERTEXCONTRAST 1
+      #define _PERTEXAOSTR 1
+      #define _PERTEXNORMSTR 1
+      #define _PERTEXSMOOTHSTR 1
       #define _BRANCHSAMPLES 1
       #define _BRANCHSAMPLESAGR 1
-      #define _USEGRADMIP 1
-      #define _MAX24TEXTURES 1
+      #define _DETAILNOISE 1
+      #define _PERTEXDETAILNOISESTRENGTH 1
+      #define _DISTANCENOISE 1
+      #define _PERTEXDISTANCENOISESTRENGTH 1
+      #define _NOISEHEIGHT 1
+      #define _NOISEHEIGHTFBM 1
+      #define _PERTEXNOISEHEIGHTFREQ 1
+      #define _PERTEXNOISEHEIGHTAMP 1
+      #define _TESSDISTANCE 1
+      #define _TRIPLANAR 1
+      #define _TRIPLANARLOCALSPACE 1
+      #define _TRIPLANARHEIGHTBLEND 1
+      #define _MSRENDERLOOP_SURFACESHADER 1
 
       #define _MSRENDERLOOP_SURFACESHADER 1
 
@@ -135,6 +174,61 @@ Shader "MicroSplat/Terrain" {
          float3 surfNormal;
       #endif
 
+
+         #if _DETAILNOISE
+         half3 _DetailNoiseScaleStrengthFade;
+         #endif
+
+         #if _DISTANCENOISE
+         half4 _DistanceNoiseScaleStrengthFade;
+         #endif
+
+         #if _DISTANCERESAMPLE
+         float3  _ResampleDistanceParams;
+         
+            #if _DISTANCERESAMPLENOFADE || _DISTANCERESAMPLENOISE
+               half _DistanceResampleConstant;
+            #endif
+            #if _DISTANCERESAMPLENOISE
+               float2 _DistanceResampleNoiseParams;
+            #endif
+         #endif
+
+         #if _NORMALNOISE
+         half2 _NormalNoiseScaleStrength;
+         #endif
+
+         #if _NORMALNOISE2
+         half2 _NormalNoiseScaleStrength2;
+         #endif
+
+         #if _NORMALNOISE3
+         half2 _NormalNoiseScaleStrength3;
+         #endif
+         
+         #if _NOISEHEIGHT
+            half2 _NoiseHeightData; // scale, amp
+         #endif
+
+         #if _NOISEUV
+            half2 _NoiseUVData; // scale, amp
+         #endif
+         
+
+
+
+            half4 _TessData1; // tess, displacement, mipBias, edge length
+            half4 _TessData2; // distance min, max, shaping, upbias
+
+
+            #if _MESHCOMBINEDHEIGHT || _MESHCOMBINEDPACKEDMAP
+               half _MeshCombineTessBlend;
+            #endif
+
+
+            
+      float _TriplanarContrast;
+      float4 _TriplanarUVScale;
 
 
       // dynamic branching helpers, for regular and aggressive branching
@@ -1496,6 +1590,2054 @@ Shader "MicroSplat/Terrain" {
 
 
 
+      void PrepTriplanar(float3 n, float3 worldPos, Config c, inout TriplanarConfig tc, half4 weights, inout MIPFORMAT albedoLOD,
+          inout MIPFORMAT normalLOD, inout MIPFORMAT emisLOD, inout MIPFORMAT origAlbedoLOD)
+      {
+         #if _TRIPLANARLOCALSPACE && !_FORCELOCALSPACE
+            worldPos = mul(unity_WorldToObject, float4(worldPos, 1));
+            n = mul((float3x3)unity_WorldToObject, n).xyz;
+         #endif
+         n = normalize(n);
+         tc.pN = pow(abs(n), abs(_TriplanarContrast));
+         tc.pN = TotalOne(tc.pN);
+     
+         // Get the sign (-1 or 1) of the surface normal
+         half3 axisSign = n < 0 ? -1 : 1;
+         axisSign.z *= -1;
+         tc.axisSign = axisSign;
+         tc.uv0 = float3x3(c.uv0, c.uv0, c.uv0);
+         tc.uv1 = float3x3(c.uv1, c.uv1, c.uv1);
+         tc.uv2 = float3x3(c.uv2, c.uv2, c.uv2);
+         tc.uv3 = float3x3(c.uv3, c.uv3, c.uv3);
+         tc.pN0 = tc.pN;
+         tc.pN1 = tc.pN;
+         tc.pN2 = tc.pN;
+         tc.pN3 = tc.pN;
+
+
+
+         float2 uscale = 0.1 * _TriplanarUVScale.xy; // closer values to terrain scales..
+         
+         
+         
+         tc.uv0[0].xy = (worldPos.zy * uscale + _TriplanarUVScale.zw);
+         tc.uv0[1].xy = (worldPos.xz * uscale + _TriplanarUVScale.zw);
+         tc.uv0[2].xy = (worldPos.xy * uscale + _TriplanarUVScale.zw);
+         #if !_SURFACENORMALS
+         tc.uv0[0].x *= axisSign.x;
+         tc.uv0[1].x *= axisSign.y;
+         tc.uv0[2].x *= axisSign.z;
+         #endif
+
+         tc.uv1[0].xy = tc.uv0[0].xy;
+         tc.uv1[1].xy = tc.uv0[1].xy;
+         tc.uv1[2].xy = tc.uv0[2].xy;
+
+         tc.uv2[0].xy = tc.uv0[0].xy;
+         tc.uv2[1].xy = tc.uv0[1].xy;
+         tc.uv2[2].xy = tc.uv0[2].xy;
+
+         tc.uv3[0].xy = tc.uv0[0].xy;
+         tc.uv3[1].xy = tc.uv0[1].xy;
+         tc.uv3[2].xy = tc.uv0[2].xy;
+
+         
+
+         #if _USEGRADMIP
+            albedoLOD.d0 = float4(ddx(tc.uv0[0].xy), ddy(tc.uv0[0].xy));
+            albedoLOD.d1 = float4(ddx(tc.uv0[1].xy), ddy(tc.uv0[1].xy));
+            albedoLOD.d2 = float4(ddx(tc.uv0[2].xy), ddy(tc.uv0[2].xy));
+            normalLOD = albedoLOD;
+            emisLOD = albedoLOD;
+         #elif _USELODMIP
+            albedoLOD.x = ComputeMipLevel(tc.uv0[0].xy, _Diffuse_TexelSize.zw);
+            albedoLOD.y = ComputeMipLevel(tc.uv0[1].xy, _Diffuse_TexelSize.zw);
+            albedoLOD.z = ComputeMipLevel(tc.uv0[2].xy, _Diffuse_TexelSize.zw);
+            normalLOD = albedoLOD;
+            emisLOD = albedoLOD;
+         #endif
+
+         origAlbedoLOD = albedoLOD;
+         
+         #if _PERTEXUVSCALEOFFSET
+            SAMPLE_PER_TEX(ptUVScale, 0.5, c, half4(1,1,0,0));
+            tc.uv0[0].xy = tc.uv0[0].xy * ptUVScale0.xy + ptUVScale0.zw;
+            tc.uv0[1].xy = tc.uv0[1].xy * ptUVScale0.xy + ptUVScale0.zw;
+            tc.uv0[2].xy = tc.uv0[2].xy * ptUVScale0.xy + ptUVScale0.zw;
+
+            tc.uv1[0].xy = tc.uv1[0].xy * ptUVScale1.xy + ptUVScale1.zw;
+            tc.uv1[1].xy = tc.uv1[1].xy * ptUVScale1.xy + ptUVScale1.zw;
+            tc.uv1[2].xy = tc.uv1[2].xy * ptUVScale1.xy + ptUVScale1.zw;
+
+            #if !_MAX2LAYER
+               tc.uv2[0].xy = tc.uv2[0].xy * ptUVScale2.xy + ptUVScale2.zw;
+               tc.uv2[1].xy = tc.uv2[1].xy * ptUVScale2.xy + ptUVScale2.zw;
+               tc.uv2[2].xy = tc.uv2[2].xy * ptUVScale2.xy + ptUVScale2.zw;
+            #endif
+            #if !_MAX3LAYER || !_MAX2LAYER
+               tc.uv3[0].xy = tc.uv3[0].xy * ptUVScale3.xy + ptUVScale3.zw;
+               tc.uv3[1].xy = tc.uv3[1].xy * ptUVScale3.xy + ptUVScale3.zw;
+               tc.uv3[2].xy = tc.uv3[2].xy * ptUVScale3.xy + ptUVScale3.zw;
+            #endif
+            
+            #if _USEGRADMIP
+               albedoLOD.d0 = albedoLOD.d0 * ptUVScale0.xyxy * weights.x + 
+                  albedoLOD.d0 * ptUVScale1.xyxy * weights.y + 
+                  albedoLOD.d0 * ptUVScale2.xyxy * weights.z + 
+                  albedoLOD.d0 * ptUVScale3.xyxy * weights.w;
+               
+               albedoLOD.d1 = albedoLOD.d1 * ptUVScale0.xyxy * weights.x + 
+                  albedoLOD.d1 * ptUVScale1.xyxy * weights.y + 
+                  albedoLOD.d1 * ptUVScale2.xyxy * weights.z + 
+                  albedoLOD.d1 * ptUVScale3.xyxy * weights.w;
+               
+               albedoLOD.d2 = albedoLOD.d2 * ptUVScale0.xyxy * weights.x + 
+                  albedoLOD.d2 * ptUVScale1.xyxy * weights.y + 
+                  albedoLOD.d2 * ptUVScale2.xyxy * weights.z + 
+                  albedoLOD.d2 * ptUVScale3.xyxy * weights.w;
+                       
+               
+               normalLOD.d0 = albedoLOD.d0;
+               normalLOD.d1 = albedoLOD.d1;
+               normalLOD.d2 = albedoLOD.d2;
+               
+               #if _USEEMISSIVEMETAL
+                  emisLOD.d0 = albedoLOD.d0;
+                  emisLOD.d1 = albedoLOD.d1;
+                  emisLOD.d2 = albedoLOD.d2;
+               #endif
+               
+            #endif
+         #else
+            #if _USEGRADMIP
+               albedoLOD.d0 = albedoLOD.d0 * weights.x + 
+                  albedoLOD.d0 * weights.y + 
+                  albedoLOD.d0 * weights.z + 
+                  albedoLOD.d0 * weights.w;
+               
+               albedoLOD.d1 = albedoLOD.d1 * weights.x + 
+                  albedoLOD.d1 * weights.y + 
+                  albedoLOD.d1 * weights.z + 
+                  albedoLOD.d1 * weights.w;
+               
+               albedoLOD.d2 = albedoLOD.d2 * weights.x + 
+                  albedoLOD.d2 * weights.y + 
+                  albedoLOD.d2 * weights.z + 
+                  albedoLOD.d2 * weights.w;
+                       
+               
+               normalLOD.d0 = albedoLOD.d0;
+               normalLOD.d1 = albedoLOD.d1;
+               normalLOD.d2 = albedoLOD.d2;
+               
+               #if _USEEMISSIVEMETAL
+                  emisLOD.d0 = albedoLOD.d0;
+                  emisLOD.d1 = albedoLOD.d1;
+                  emisLOD.d2 = albedoLOD.d2;
+               #endif
+            #endif
+         #endif
+
+         #if _PERTEXUVROTATION
+            SAMPLE_PER_TEX(ptUVRot, 16.5, c, half4(0,0,0,0));
+            tc.uv0[0].xy = RotateUV(tc.uv0[0].xy, ptUVRot0.x);
+            tc.uv0[1].xy = RotateUV(tc.uv0[1].xy, ptUVRot0.y);
+            tc.uv0[2].xy = RotateUV(tc.uv0[2].xy, ptUVRot0.z);
+            
+            tc.uv1[0].xy = RotateUV(tc.uv1[0].xy, ptUVRot1.x);
+            tc.uv1[1].xy = RotateUV(tc.uv1[1].xy, ptUVRot1.y);
+            tc.uv1[2].xy = RotateUV(tc.uv1[2].xy, ptUVRot1.z);
+            #if !_MAX2LAYER
+               tc.uv2[0].xy = RotateUV(tc.uv2[0].xy, ptUVRot2.x);
+               tc.uv2[1].xy = RotateUV(tc.uv2[1].xy, ptUVRot2.y);
+               tc.uv2[2].xy = RotateUV(tc.uv2[2].xy, ptUVRot2.z);
+            #endif
+            #if !_MAX3LAYER || !_MAX2LAYER
+               tc.uv3[0].xy = RotateUV(tc.uv3[0].xy, ptUVRot3.x);
+               tc.uv3[1].xy = RotateUV(tc.uv3[1].xy, ptUVRot3.y);
+               tc.uv3[2].xy = RotateUV(tc.uv3[2].xy, ptUVRot3.z);
+            #endif
+         #endif
+         
+
+      }
+         
+
+         #if _DETAILNOISE
+         UNITY_DECLARE_TEX2D_NOSAMPLER(_DetailNoise);
+         #endif
+
+         #if _DISTANCENOISE
+         UNITY_DECLARE_TEX2D_NOSAMPLER(_DistanceNoise);
+         #endif
+
+         #if _NORMALNOISE
+         UNITY_DECLARE_TEX2D_NOSAMPLER(_NormalNoise);
+         #endif
+
+         #if _NORMALNOISE2
+         UNITY_DECLARE_TEX2D_NOSAMPLER(_NormalNoise2);
+         #endif
+
+         #if _NORMALNOISE3
+         UNITY_DECLARE_TEX2D_NOSAMPLER(_NormalNoise3);
+         #endif
+         
+         #if _NOISEHEIGHT && !_NOISEHEIGHTFBM
+         UNITY_DECLARE_TEX2D_NOSAMPLER(_NoiseHeight);
+         #endif
+
+         #if _NOISEUV
+         UNITY_DECLARE_TEX2D_NOSAMPLER(_NoiseUV);
+         #endif
+
+         struct AntiTileTriplanarConfig
+         {
+            float3 pn;
+            float2 uv0;
+            float2 uv1;
+            float2 uv2;
+         };
+         
+         void PrepAntiTileTriplanarConfig(inout AntiTileTriplanarConfig tc, float3 worldPos, float3 normal)
+         {
+            tc.pn = pow(abs(normal), 3);
+            tc.pn = tc.pn / (tc.pn.x + tc.pn.y + tc.pn.z);
+            
+            half3 axisSign = sign(normal);
+
+            tc.uv0 = worldPos.zy * axisSign.x;
+            tc.uv1 = worldPos.xz * axisSign.y;
+            tc.uv2 = worldPos.xy * axisSign.z;
+         }
+         
+         #if _ANTITILETRIPLANAR
+            #define AntiTileTriplanarSample(tex, uv, tc, scale) (UNITY_SAMPLE_TEX2D_SAMPLER(tex, _Diffuse, tc.uv0 * scale) * tc.pn.x + UNITY_SAMPLE_TEX2D_SAMPLER(tex, _Diffuse, tc.uv1 * scale) * tc.pn.y + UNITY_SAMPLE_TEX2D_SAMPLER(tex, _Diffuse, tc.uv2 * scale) * tc.pn.z)
+         #else
+            #define AntiTileTriplanarSample(tex, uv, tc, scale) UNITY_SAMPLE_TEX2D_SAMPLER(tex, _Diffuse, uv * scale)
+         #endif
+
+         #if _ANTITILETRIPLANAR
+            #define AntiTileTriplanarSampleLOD(tex, uv, tc, scale) (MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(tex, _Diffuse, tc.uv0 * scale, 0) * tc.pn.x + MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(tex, _Diffuse, tc.uv1 * scale, 0) * tc.pn.y + MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(tex, _Diffuse, tc.uv2 * scale, 0) * tc.pn.z)
+         #else
+            #define AntiTileTriplanarSampleLOD(tex, uv, tc, scale) MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(tex, _Diffuse, uv * scale, 0)
+         #endif
+
+         #if _ANTITILETRIPLANAR
+            #define AntiTileTriplanarSampleGrad(tex, uv, tc, scale) (MICROSPLAT_SAMPLE_TEX2D_SAMPLER_GRAD(tex, _Diffuse, tc.uv0 * scale, ddx(tc.uv0) * scale, ddy(tc.uv0) * scale) * tc.pn.x + MICROSPLAT_SAMPLE_TEX2D_SAMPLER_GRAD(tex, _Diffuse, tc.uv1 * scale, ddx(tc.uv1) * scale, ddy(tc.uv1) * scale) * tc.pn.y + MICROSPLAT_SAMPLE_TEX2D_SAMPLER_GRAD(tex, _Diffuse, tc.uv2 * scale, ddx(tc.uv2) * scale, ddy(tc.uv2) * scale) * tc.pn.z)
+         #else
+            #define AntiTileTriplanarSampleGrad(tex, uv, tc, scale) MICROSPLAT_SAMPLE_TEX2D_SAMPLER_GRAD(tex, _Diffuse, uv * scale, ddx(uv) * scale, ddy(uv)* scale)
+         #endif
+         
+
+         
+         #if _NOISEHEIGHT
+         
+         void ApplyNoiseHeight(inout RawSamples s, float2 uv, Config config, float3 worldPos, float3 worldNormal)
+         {
+            float2 offset = float2(0.27, 0.17);
+            float3 offset3 = float3(0.27, 0.17, 0.37);
+
+            half freq0 = _NoiseHeightData.x;
+            half freq1 = _NoiseHeightData.x;
+            half freq2 = _NoiseHeightData.x;
+            half freq3 = _NoiseHeightData.x;
+
+            half amp0 = _NoiseHeightData.y;
+            half amp1 = _NoiseHeightData.y;
+            half amp2 = _NoiseHeightData.y;
+            half amp3 = _NoiseHeightData.y;
+
+            #if _PERTEXNOISEHEIGHTFREQ || _PERTEXNOISEHEIGHTAMP
+               SAMPLE_PER_TEX(pt, 22.5, config, half4(1, 0, 1, 0));
+
+               #if _PERTEXNOISEHEIGHTFREQ
+                  freq0 += pt0.r;
+                  freq1 += pt1.r;
+                  freq2 += pt2.r;
+                  freq3 += pt3.r;
+               #endif
+               #if _PERTEXNOISEHEIGHTAMP
+                  amp0 *= pt0.g;
+                  amp1 *= pt1.g;
+                  amp2 *= pt2.g;
+                  amp3 *= pt3.g;
+               #endif
+            #endif
+
+            #if !_NOISEHEIGHTFBM
+               AntiTileTriplanarConfig tc = (AntiTileTriplanarConfig)0;
+               UNITY_INITIALIZE_OUTPUT(AntiTileTriplanarConfig,tc);
+            
+               #if _ANTITILETRIPLANAR
+                   PrepAntiTileTriplanarConfig(tc, worldPos, worldNormal);
+               #endif
+            
+
+               half noise0 = AntiTileTriplanarSample(_NoiseHeight, uv, tc, freq0 + config.uv0.z * offset).g - 0.5;
+               COUNTSAMPLE
+               half noise1 = AntiTileTriplanarSample(_NoiseHeight, uv, tc, freq1 + config.uv1.z * offset).g - 0.5;
+               COUNTSAMPLE
+               half noise2 = 0;
+               half noise3 = 0;
+           
+               #if !_MAXLAYER2
+                  noise2 = AntiTileTriplanarSample(_NoiseHeight, uv, tc, freq2 + config.uv2.z * offset).g - 0.5;
+                  COUNTSAMPLE
+               #endif
+               #if !_MAXLAYER2 && !_MAXLAYER3
+                  noise3 = AntiTileTriplanarSample(_NoiseHeight, uv, tc, freq3 + config.uv3.z * offset).g - 0.5;
+                  COUNTSAMPLE
+               #endif
+
+            #else
+               #if _ANTITILETRIPLANAR // 3d noise
+                  half noise0 = FBM3D(worldPos * freq0 + config.uv0.z * offset3);
+                  half noise1 = FBM3D(worldPos * freq1 + config.uv1.z * offset3);
+
+                  half noise2 = 0;
+                  half noise3 = 0;
+                  #if !_MAXLAYER2
+                     noise2 = FBM3D(worldPos * freq2 + config.uv2.z * offset3);
+                  #endif
+                  #if !_MAXLAYER2 && !_MAXLAYER3
+                     noise3 = FBM3D(worldPos * freq3 + config.uv3.z * offset3);
+                  #endif
+               #else // 2d noise
+                  half noise0 = FBM2D(uv * freq0 + config.uv0.z * offset);
+                  half noise1 = FBM2D(uv * freq1 + config.uv1.z * offset);
+
+                  half noise2 = 0;
+                  half noise3 = 0;
+                  #if !_MAXLAYER2
+                     noise2 = FBM2D(uv * freq2 + config.uv2.z * offset);
+                  #endif
+                  #if !_MAXLAYER2 && !_MAXLAYER3
+                     noise3 = FBM2D(uv * freq3 + config.uv3.z * offset);
+                  #endif
+               #endif // ANTITILETRIPLANAR
+            #endif
+
+            s.albedo0.a = saturate(s.albedo0.a + noise0 * amp0);
+            s.albedo1.a = saturate(s.albedo1.a + noise1 * amp1);
+            s.albedo2.a = saturate(s.albedo2.a + noise2 * amp2);
+            s.albedo3.a = saturate(s.albedo3.a + noise3 * amp3);
+            
+         }
+
+         void ApplyNoiseHeightLOD(inout half h0, inout half h1, inout half h2, inout half h3, float2 uv, Config config, float3 worldPos, float3 worldNormal)
+         {
+            float2 offset = float2(0.27, 0.17);
+            float3 offset3 = float3(0.27, 0.17, 0.37);
+
+            half freq0 = _NoiseHeightData.x;
+            half freq1 = _NoiseHeightData.x;
+            half freq2 = _NoiseHeightData.x;
+            half freq3 = _NoiseHeightData.x;
+
+            half amp0 = _NoiseHeightData.y;
+            half amp1 = _NoiseHeightData.y;
+            half amp2 = _NoiseHeightData.y;
+            half amp3 = _NoiseHeightData.y;
+
+            #if _PERTEXNOISEHEIGHTFREQ || _PERTEXNOISEHEIGHTAMP
+               SAMPLE_PER_TEX(pt, 22.5, config, half4(1, 0, 1, 0));
+
+               #if _PERTEXNOISEHEIGHTFREQ
+                  freq0 += pt0.r;
+                  freq1 += pt1.r;
+                  freq2 += pt2.r;
+                  freq3 += pt3.r;
+               #endif
+               #if _PERTEXNOISEHEIGHTAMP
+                  amp0 *= pt0.g;
+                  amp1 *= pt1.g;
+                  amp2 *= pt2.g;
+                  amp3 *= pt3.g;
+               #endif
+            #endif
+            
+            #if !_NOISEHEIGHTFBM
+
+               AntiTileTriplanarConfig tc = (AntiTileTriplanarConfig)0;
+               UNITY_INITIALIZE_OUTPUT(AntiTileTriplanarConfig,tc);
+            
+               #if _ANTITILETRIPLANAR
+                  PrepAntiTileTriplanarConfig(tc, worldPos, worldNormal);
+               #endif
+            
+            
+               half noise0 = AntiTileTriplanarSampleLOD(_NoiseHeight, uv, tc, freq0 + config.uv0.z * offset).g;
+               half noise1 = AntiTileTriplanarSampleLOD(_NoiseHeight, uv, tc, freq1 + config.uv1.z * offset).g;
+               half noise2 = 0;
+               half noise3 = 0;
+           
+               #if !_MAXLAYER2
+                  noise2 = AntiTileTriplanarSampleLOD(_NoiseHeight, uv, tc, freq2 + config.uv2.z * offset).g;
+               #endif
+               #if !_MAXLAYER2 && !_MAXLAYER3
+                  noise3 = AntiTileTriplanarSampleLOD(_NoiseHeight, uv, tc, freq3 + config.uv3.z * offset).g;
+               #endif
+            #else
+               #if _ANTITILETRIPLANAR // 3d noise
+                  half noise0 = FBM3D(worldPos * freq0 + config.uv0.z * offset3);
+                  half noise1 = FBM3D(worldPos * freq0 + config.uv0.z * offset3);
+
+                  half noise2 = 0;
+                  half noise3 = 0;
+                  #if !_MAXLAYER2
+                     noise2 = FBM3D(worldPos * freq0 + config.uv0.z * offset3);
+                  #endif
+                  #if !_MAXLAYER2 && !_MAXLAYER3
+                     noise3 = FBM3D(worldPos * freq0 + config.uv0.z * offset3);
+                  #endif
+               #else // 2d noise
+                  half noise0 = FBM2D(uv * freq0 + config.uv0.z * offset);
+                  half noise1 = FBM2D(uv * freq0 + config.uv0.z * offset);
+
+                  half noise2 = 0;
+                  half noise3 = 0;
+                  #if !_MAXLAYER2
+                     noise2 = FBM2D(uv * freq0 + config.uv0.z * offset);
+                  #endif
+                  #if !_MAXLAYER2 && !_MAXLAYER3
+                     noise3 = FBM2D(uv * freq0 + config.uv0.z * offset);
+                  #endif
+               #endif // ANTITILETRIPLANAR
+            #endif
+
+            h0 = saturate(h0 + noise0 * amp0);
+            h1 = saturate(h1 + noise1 * amp1);
+            h2 = saturate(h2 + noise2 * amp2);
+            h3 = saturate(h3 + noise3 * amp3);
+         }
+         #endif
+
+
+         void DistanceResample(inout RawSamples o, Config config, TriplanarConfig tc, float camDist, float3 viewDir, half4 fxLevels, MIPFORMAT mipLevel, float3 worldPos, half4 weights, float3 worldNormal)
+         {
+         #if _DISTANCERESAMPLE
+
+            
+            #if _DISTANCERESAMPLENOFADE
+               float distanceBlend = 1;
+            #elif _DISTANCERESAMPLENOISE
+               #if _TRIPLANAR
+                  float distanceBlend = 1 + FBM3D(worldPos * _DistanceResampleNoiseParams.x) * _DistanceResampleNoiseParams.y;
+               #else
+                  float distanceBlend = 1 + FBM2D(config.uv * _DistanceResampleNoiseParams.x) * _DistanceResampleNoiseParams.y;
+               #endif // triplanar
+            #else
+               float distanceBlend = saturate((camDist - _ResampleDistanceParams.y) / (_ResampleDistanceParams.z - _ResampleDistanceParams.y));
+            #endif
+            
+            float dblend0 = distanceBlend;
+            float dblend1 = distanceBlend;
+            float dblend2 = 0;
+            float dblend3 = 0;
+
+            #if _DISTANCERESAMPLEMAXLAYER3
+               dblend2 = distanceBlend;
+               dblend3 = 0;
+            #elif _DISTANCERESAMPLEMAXLAYER4
+               dblend2 = distanceBlend;
+               dblend3 = distanceBlend;
+            #endif
+            
+            float uvScale0 = _ResampleDistanceParams.x;
+            float uvScale1 = _ResampleDistanceParams.x;
+            float uvScale2 = _ResampleDistanceParams.x;
+            float uvScale3 = _ResampleDistanceParams.x;
+
+
+            #if _PERTEXDISTANCERESAMPLEUVSCALE
+               SAMPLE_PER_TEX(uvsc, 13.5, config, half4(1.0, 1.0, 1.0, 1.0));
+               uvScale0 *= uvsc0.w;
+               uvScale1 *= uvsc1.w;
+               uvScale2 *= uvsc2.w;
+               uvScale3 *= uvsc3.w;
+            #endif
+            
+
+            #if _PERTEXDISTANCERESAMPLEUVSCALE && _USEGRADMIP && !_TRIPLANAR
+                  mipLevel.xy = ddx(config.uv0.xy);
+                  mipLevel.zw = ddy(config.uv0.xy);
+                  mipLevel = mipLevel * uvScale0 * weights.x + 
+                             mipLevel * uvScale1 * weights.y + 
+                             mipLevel * uvScale2 * weights.z + 
+                             mipLevel * uvScale3 * weights.w;
+            #endif
+            
+            config.uv0.xy *= uvScale0;
+            config.uv1.xy *= uvScale1;
+            config.uv2.xy *= uvScale2;
+            config.uv3.xy *= uvScale3;
+            
+            #if _TRIPLANAR
+               tc.uv0[0].xy *= uvScale0;
+               tc.uv1[0].xy *= uvScale1;
+               tc.uv2[0].xy *= uvScale2;
+               tc.uv3[0].xy *= uvScale3;
+
+               tc.uv0[1].xy *= uvScale0;
+               tc.uv1[1].xy *= uvScale1;
+               tc.uv2[1].xy *= uvScale2;
+               tc.uv3[1].xy *= uvScale3;
+
+               tc.uv0[2].xy *= uvScale0;
+               tc.uv1[2].xy *= uvScale1;
+               tc.uv2[2].xy *= uvScale2;
+               tc.uv3[2].xy *= uvScale3;
+            #endif
+            
+
+            #if _TRIPLANAR
+               #if _USEGRADMIP
+                  mipLevel.d0 *= uvScale0;
+                  mipLevel.d1 *= uvScale0;
+                  mipLevel.d2 *= uvScale0;
+               #elif _USELODMIP
+                  mipLevel.x = ComputeMipLevel(tc.uv0[0], _Diffuse_TexelSize.zw);
+                  mipLevel.y = ComputeMipLevel(tc.uv0[1], _Diffuse_TexelSize.zw);
+                  mipLevel.z = ComputeMipLevel(tc.uv0[2], _Diffuse_TexelSize.zw);
+               #endif
+            #else
+               #if _USEGRADMIP && !_PERTEXDISTANCERESAMPLEUVSCALE
+                  mipLevel.xy = ddx(config.uv0.xy);
+                  mipLevel.zw = ddy(config.uv0.xy);
+               #elif _USELODMIP
+                  mipLevel = ComputeMipLevel(config.uv0.xy, _Diffuse_TexelSize.zw);
+               #endif
+            #endif
+
+
+            
+
+            half4 albedo0 = 0;
+            half4 albedo1 = 0;
+            half4 albedo2 = 0;
+            half4 albedo3 = 0;
+
+
+            #if _DISTANCERESAMPLENORMAL
+               half4 nsao0 = half4(0, 0, 0, 1);
+               half4 nsao1 = half4(0, 0, 0, 1);
+               half4 nsao2 = half4(0, 0, 0, 1);
+               half4 nsao3 = half4(0, 0, 0, 1);
+            #endif
+
+            #if _PERTEXDISTANCERESAMPLESTRENGTH
+               SAMPLE_PER_TEX(strs, 4.5, config, half4(1.0, 1.0, 1.0, 0.0));
+               dblend0 *= strs0.b;
+               dblend1 *= strs1.b;
+               dblend2 *= strs2.b;
+               dblend3 *= strs3.b;
+            #endif
+            
+
+            // scale for effects
+            #if _STREAMS || _PUDDLES || _LAVA
+               half fac = 1.0 - min(fxLevels.y + fxLevels.z + fxLevels.w, 1.0f);
+               dblend0 *= fac;
+               dblend1 *= fac;
+               dblend2 *= fac;
+               dblend3 *= fac;
+            #endif
+
+            #if _TRIPLANAR
+               #if _USEGRADMIP
+                  float4 d0 = mipLevel.d0;
+                  float4 d1 = mipLevel.d1;
+                  float4 d2 = mipLevel.d2;
+               #else
+                  MIPFORMAT d0 = mipLevel;
+                  MIPFORMAT d1 = mipLevel;
+                  MIPFORMAT d2 = mipLevel;
+               #endif
+            MSBRANCHOTHER(dblend0)
+            {
+               half4 a0 = half4(0,0,0,0.0);
+               half4 a1 = half4(0,0,0,0.0);
+               half4 a2 = half4(0,0,0,0.0);
+               half4 n0 = half4(0.5,0.5,0,1);
+               half4 n1 = half4(0.5,0.5,0,1);
+               half4 n2 = half4(0.5,0.5,0,1);
+               #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+                  MSBRANCHTRIPLANAR(tc.pN0.x)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                       a0 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv0[0], config.cluster0, d0);
+                       COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n0 = MICROSPLAT_SAMPLE_NORMAL(tc.uv0[0], config.cluster0, d0).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.y)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a1 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv0[1], config.cluster0, d1);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n1 = MICROSPLAT_SAMPLE_NORMAL(tc.uv0[1], config.cluster0, d1).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.z)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a2 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv0[2], config.cluster0, d2);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n2 = MICROSPLAT_SAMPLE_NORMAL(tc.uv0[2], config.cluster0, d2).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+               #else
+                  MSBRANCHTRIPLANAR(tc.pN0.x)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a0 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv0[0], d0);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n0 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv0[0], d0).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.y)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a1 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv0[1], d1);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n1 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv0[1], d1).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.z)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a2 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv0[2], d2);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n2 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv0[2], d2).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+               #endif // _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+
+               #if !_DISTANCERESAMPLENOALBEDO
+                  albedo0 = a0 * tc.pN0.x + a1 * tc.pN0.y + a2 * tc.pN0.z;
+               #endif
+
+               #if _DISTANCERESAMPLENORMAL
+                  nsao0 = n0 * tc.pN0.x + n1 * tc.pN0.y + n2 * tc.pN0.z;
+               #endif // _DISTANCERESAMPLENORMAL
+            }
+            MSBRANCHOTHER(weights.y * dblend1)
+            {
+               half4 a0 = half4(0,0,0,0.0);
+               half4 a1 = half4(0,0,0,0.0);
+               half4 a2 = half4(0,0,0,0.0);
+               half4 n0 = half4(0.5,0.5,0,1);
+               half4 n1 = half4(0.5,0.5,0,1);
+               half4 n2 = half4(0.5,0.5,0,1);
+
+               #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+                  MSBRANCHTRIPLANAR(tc.pN0.x)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a0 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv1[0], config.cluster1, d0);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n0 = MICROSPLAT_SAMPLE_NORMAL(tc.uv1[0], config.cluster1, d0).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.y)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a1 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv1[1], config.cluster1, d1);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n1 = MICROSPLAT_SAMPLE_NORMAL(tc.uv1[1], config.cluster1, d1).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.z)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a2 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv1[2], config.cluster1, d2);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n2 = MICROSPLAT_SAMPLE_NORMAL(tc.uv1[2], config.cluster1, d2).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+               #else
+                  MSBRANCHTRIPLANAR(tc.pN1.x)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a0 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv1[0], d0);
+                        COUNTSAMPLE
+                     #endif
+                     
+                     #if _DISTANCERESAMPLENORMAL
+                        n0 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv1[0], d0).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN1.y)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a1 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv1[1], d1);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n1 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv1[1], d1).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN1.z)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a2 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv1[2], d2);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n2 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv1[2], d2).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+               #endif // #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+
+               #if !_DISTANCERESAMPLENOALBEDO
+                  albedo1 = a0 * tc.pN1.x + a1 * tc.pN1.y + a2 * tc.pN1.z;
+               #endif
+
+               #if _DISTANCERESAMPLENORMAL
+                  nsao1 = n0 * tc.pN0.x + n1 * tc.pN0.y + n2 * tc.pN0.z;
+               #endif // _DISTANCERESAMPLENORMAL
+            }
+
+            #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+            MSBRANCHOTHER(weights.z * dblend2)
+            {
+               half4 a0 = half4(0,0,0,0.0);
+               half4 a1 = half4(0,0,0,0.0);
+               half4 a2 = half4(0,0,0,0.0);
+               half4 n0 = half4(0.5,0.5,0,1);
+               half4 n1 = half4(0.5,0.5,0,1);
+               half4 n2 = half4(0.5,0.5,0,1);
+
+               #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+                  MSBRANCHTRIPLANAR(tc.pN0.x)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a0 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv2[0], config.cluster2, d0);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n0 = MICROSPLAT_SAMPLE_NORMAL(tc.uv2[0], config.cluster2, d0).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.y)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a1 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv2[1], config.cluster2, d1);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n1 = MICROSPLAT_SAMPLE_NORMAL(tc.uv2[1], config.cluster2, d1).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.z)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a2 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv2[2], config.cluster2, d2);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n2 = MICROSPLAT_SAMPLE_NORMAL(tc.uv2[2], config.cluster2, d2).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+               #else
+                  MSBRANCHTRIPLANAR(tc.pN1.x)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a0 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv2[0], d0);
+                        COUNTSAMPLE
+                     #endif
+                     
+                     #if _DISTANCERESAMPLENORMAL
+                        n0 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv2[0], d0).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN1.y)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a1 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv2[1], d1);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n1 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv2[1], d1).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN1.z)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a2 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv2[2], d2);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n2 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv2[2], d2).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+               #endif // #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+
+               #if !_DISTANCERESAMPLENOALBEDO
+                  albedo2 = a0 * tc.pN1.x + a1 * tc.pN1.y + a2 * tc.pN1.z;
+               #endif
+
+               #if _DISTANCERESAMPLENORMAL
+                  nsao2 = n0 * tc.pN0.x + n1 * tc.pN0.y + n2 * tc.pN0.z;
+               #endif // _DISTANCERESAMPLENORMAL
+            }
+            #endif // _DISTANCERESAMPLEMAXLAYER3 ||  _DISTANCERESAMPLEMAXLAYER4
+            #if _DISTANCERESAMPLEMAXLAYER4
+            MSBRANCHOTHER(weights.w * dblend3)
+            {
+               half4 a0 = half4(0,0,0,0.0);
+               half4 a1 = half4(0,0,0,0.0);
+               half4 a2 = half4(0,0,0,0.0);
+               half4 n0 = half4(0.5,0.5,0,1);
+               half4 n1 = half4(0.5,0.5,0,1);
+               half4 n2 = half4(0.5,0.5,0,1);
+
+               #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+                  MSBRANCHTRIPLANAR(tc.pN0.x)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a0 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv3[0], config.cluster3, d0);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n0 = MICROSPLAT_SAMPLE_NORMAL(tc.uv3[0], config.cluster3, d0).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.y)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a1 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv3[1], config.cluster3, d1);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        n1 = MICROSPLAT_SAMPLE_NORMAL(tc.uv3[1], config.cluster3, d1).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN0.z)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a2 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv3[2], config.cluster3, d2);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n2 = MICROSPLAT_SAMPLE_NORMAL(tc.uv3[2], config.cluster3, d2).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+               #else
+                  MSBRANCHTRIPLANAR(tc.pN1.x)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a0 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv3[0], d0);
+                        COUNTSAMPLE
+                     #endif
+                     
+                     #if _DISTANCERESAMPLENORMAL
+                        n0 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv3[0], d0).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN1.y)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a1 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv3[1], d1);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n1 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv3[1], d1).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHTRIPLANAR(tc.pN1.z)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        a2 = MICROSPLAT_SAMPLE(_Diffuse, tc.uv3[2], d2);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        n2 = MICROSPLAT_SAMPLE(_NormalSAO, tc.uv3[2], d2).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+               #endif // #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+
+               #if !_DISTANCERESAMPLENOALBEDO
+                  albedo3 = a0 * tc.pN1.x + a1 * tc.pN1.y + a2 * tc.pN1.z;
+               #endif
+
+               #if _DISTANCERESAMPLENORMAL
+                  nsao3 = n0 * tc.pN0.x + n1 * tc.pN0.y + n2 * tc.pN0.z;
+               #endif // _DISTANCERESAMPLENORMAL
+            }
+            #endif
+
+
+            #else // _TRIPLANAR
+               #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3 || _STOCHASTIC)
+                  MSBRANCHOTHER(dblend0)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        albedo0 = MICROSPLAT_SAMPLE_DIFFUSE(config.uv0, config.cluster0, mipLevel);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        nsao0 = MICROSPLAT_SAMPLE_NORMAL(config.uv0, config.cluster0, mipLevel).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHOTHER(weights.y * dblend1)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        albedo1 = MICROSPLAT_SAMPLE_DIFFUSE(config.uv1, config.cluster1, mipLevel);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        nsao1 = MICROSPLAT_SAMPLE_NORMAL(config.uv1, config.cluster1, mipLevel).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+                  MSBRANCHOTHER(weights.z * dblend2)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        albedo2 = MICROSPLAT_SAMPLE_DIFFUSE(config.uv2, config.cluster2, mipLevel);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        nsao2 = MICROSPLAT_SAMPLE_NORMAL(config.uv2, config.cluster2, mipLevel).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  #endif
+                  #if _DISTANCERESAMPLEMAXLAYER4
+                  MSBRANCHOTHER(weights.w * dblend3)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        albedo3 = MICROSPLAT_SAMPLE_DIFFUSE(config.uv3, config.cluster3, mipLevel);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        nsao3 = MICROSPLAT_SAMPLE_NORMAL(config.uv3, config.cluster3, mipLevel).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  #endif
+
+               #else
+                  MSBRANCHOTHER(dblend0)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        albedo0 = MICROSPLAT_SAMPLE(_Diffuse, config.uv0, mipLevel);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        nsao0 = MICROSPLAT_SAMPLE(_NormalSAO, config.uv0, mipLevel).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  MSBRANCHOTHER(weights.y * dblend1)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        albedo1 = MICROSPLAT_SAMPLE(_Diffuse, config.uv1, mipLevel);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        nsao1 = MICROSPLAT_SAMPLE(_NormalSAO, config.uv1, mipLevel).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+                  MSBRANCHOTHER(weights.z * dblend2)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        albedo2 = MICROSPLAT_SAMPLE(_Diffuse, config.uv2, mipLevel);
+                        COUNTSAMPLE
+                     #endif
+                     #if _DISTANCERESAMPLENORMAL
+                        nsao2 = MICROSPLAT_SAMPLE(_NormalSAO, config.uv2, mipLevel).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  #endif
+                  #if _DISTANCERESAMPLEMAXLAYER4
+                  MSBRANCHOTHER(weights.w * dblend3)
+                  {
+                     #if !_DISTANCERESAMPLENOALBEDO
+                        albedo3 = MICROSPLAT_SAMPLE(_Diffuse, config.uv3, mipLevel);
+                        COUNTSAMPLE
+                     #endif
+
+                     #if _DISTANCERESAMPLENORMAL
+                        nsao3 = MICROSPLAT_SAMPLE(_NormalSAO, config.uv3, mipLevel).garb;
+                        COUNTSAMPLE
+                     #endif
+                  }
+                  #endif
+               #endif // _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3)
+            #endif // _TRIPLANAR
+            
+            #if _DISTANCERESAMPLEHEIGHTBLEND
+               dblend0 = HeightBlend(o.albedo0.a, albedo0.a, dblend0, _Contrast);
+               dblend1 = HeightBlend(o.albedo1.a, albedo1.a, dblend1, _Contrast);
+               #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+                  dblend2 = HeightBlend(o.albedo2.a, albedo1.a, dblend2, _Contrast);
+               #endif
+               #if _DISTANCERESAMPLEMAXLAYER4
+                  dblend3 = HeightBlend(o.albedo3.a, albedo1.a, dblend3, _Contrast);
+               #endif
+            #endif
+
+            #if !_DISTANCERESAMPLENOALBEDO
+               #if _DISTANCERESAMPLENOFADE || _DISTANCERESAMPLENOISE
+                  #if _DISTANCERESAMPLEALBEDOBLENDOVERLAY
+                     o.albedo0.rgb = lerp(o.albedo0.rgb, BlendOverlay(o.albedo0.rgb, albedo0.rgb), dblend0 * _DistanceResampleAlbedoStrength);
+                     o.albedo1.rgb = lerp(o.albedo1.rgb, BlendOverlay(o.albedo1.rgb, albedo1.rgb), dblend1 * _DistanceResampleAlbedoStrength);
+                     #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+                        o.albedo2.rgb = lerp(o.albedo2.rgb, BlendOverlay(o.albedo2.rgb, albedo2.rgb), dblend2 * _DistanceResampleAlbedoStrength);
+                     #endif
+                     #if _DISTANCERESAMPLEMAXLAYER4
+                        o.albedo3.rgb = lerp(o.albedo3.rgb, BlendOverlay(o.albedo3.rgb, albedo3.rgb), dblend3 * _DistanceResampleAlbedoStrength);
+                     #endif
+                  #elif _DISTANCERESAMPLEALBEDOBLENDLIGHTERCOLOR
+                     o.albedo0.rgb = lerp(o.albedo0.rgb, BlendLighterColor(o.albedo0.rgb, albedo0.rgb), dblend0 * _DistanceResampleAlbedoStrength);
+                     o.albedo1.rgb = lerp(o.albedo1.rgb, BlendLighterColor(o.albedo1.rgb, albedo1.rgb), dblend1 * _DistanceResampleAlbedoStrength);
+                     #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+                        o.albedo2.rgb = lerp(o.albedo2.rgb, BlendLighterColor(o.albedo2.rgb, albedo2.rgb), dblend2 * _DistanceResampleAlbedoStrength);
+                     #endif
+                     #if _DISTANCERESAMPLEMAXLAYER4
+                        o.albedo3.rgb = lerp(o.albedo3.rgb, BlendLighterColor(o.albedo3.rgb, albedo3.rgb), dblend3 * _DistanceResampleAlbedoStrength);
+                     #endif
+                  #else
+                     o.albedo0 = lerp(o.albedo0, albedo0, dblend0 * _DistanceResampleAlbedoStrength);
+                     o.albedo1 = lerp(o.albedo1, albedo1, dblend1 * _DistanceResampleAlbedoStrength);
+                     #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+                        o.albedo2 = lerp(o.albedo2, albedo2, dblend2 * _DistanceResampleAlbedoStrength);
+                     #endif
+                     #if _DISTANCERESAMPLEMAXLAYER4
+                        o.albedo3 = lerp(o.albedo3, albedo3, dblend3 * _DistanceResampleAlbedoStrength);
+                     #endif
+                  #endif
+               #else
+                  o.albedo0 = lerp(o.albedo0, albedo0, dblend0 * _DistanceResampleAlbedoStrength);
+                  o.albedo1 = lerp(o.albedo1, albedo1, dblend1 * _DistanceResampleAlbedoStrength);
+                  #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+                     o.albedo2 = lerp(o.albedo2, albedo2, dblend2 * _DistanceResampleAlbedoStrength);
+                  #endif
+                  #if _DISTANCERESAMPLEMAXLAYER4
+                     o.albedo3 = lerp(o.albedo3, albedo3, dblend3 * _DistanceResampleAlbedoStrength);
+                  #endif
+               #endif
+            #endif
+
+            #if _DISTANCERESAMPLENORMAL
+               nsao0.xy *= 2;
+               nsao1.xy *= 2;
+               nsao0.xy -= 1;
+               nsao1.xy -= 1;
+               o.normSAO0.zw = lerp(o.normSAO0.zw, nsao0.zw, dblend0);
+               o.normSAO1.zw = lerp(o.normSAO1.zw, nsao1.zw, dblend1);
+
+               #if _SURFACENORMALS
+                  o.surf0 += ConvertNormal2ToGradient(nsao0.xy) * _DistanceResampleNormalStrength * dblend0;
+                  o.surf1 += ConvertNormal2ToGradient(nsao1.xy) * _DistanceResampleNormalStrength * dblend1;
+               #else
+                  o.normSAO0.xy = lerp(o.normSAO0.xy, BlendNormal2(o.normSAO0.xy, nsao0.xy * _DistanceResampleNormalStrength), dblend0);
+                  o.normSAO1.xy = lerp(o.normSAO1.xy, BlendNormal2(o.normSAO1.xy, nsao1.xy * _DistanceResampleNormalStrength), dblend1);
+               #endif
+
+               #if _DISTANCERESAMPLEMAXLAYER3 || _DISTANCERESAMPLEMAXLAYER4
+                  nsao2.xy *= 2;
+                  nsao2.xy -= 1;
+                  o.normSAO2.zw = lerp(o.normSAO2.zw, nsao2.zw, dblend2);
+
+                  #if _SURFACENORMALS
+                     o.surf2 += ConvertNormal2ToGradient(nsao2.xy) * _DistanceResampleNormalStrength * dblend2;
+                  #else
+                     o.normSAO2.xy = lerp(o.normSAO2.xy, BlendNormal2(o.normSAO2.xy, nsao2.xy * _DistanceResampleNormalStrength), dblend2);
+                  #endif
+
+               #endif
+               #if _DISTANCERESAMPLEMAXLAYER4
+                  nsao3.xy *= 2;
+                  nsao3.xy -= 1;
+                  o.normSAO3.zw = lerp(o.normSAO3.zw, nsao3.zw, dblend3);
+
+                  #if _SURFACENORMALS
+                     o.surf3 += ConvertNormal2ToGradient(nsao3.xy) * _DistanceResampleNormalStrength * dblend3;
+                  #else
+                     o.normSAO3.xy = lerp(o.normSAO3.xy, BlendNormal2(o.normSAO3.xy, nsao3.xy * _DistanceResampleNormalStrength), dblend3);
+                  #endif
+                  
+                  
+               #endif
+
+            #endif
+
+         #endif // _DISTANCERESAMPLE
+         }
+
+         // non-pertex
+         void ApplyDetailDistanceNoise(inout half3 albedo, inout half4 normSAO, inout half3 surfGrad, Config config, float camDist, float3 worldPos, float3 normal)
+         {
+            AntiTileTriplanarConfig tc = (AntiTileTriplanarConfig)0;
+            UNITY_INITIALIZE_OUTPUT(AntiTileTriplanarConfig,tc);
+            
+            #if _ANTITILETRIPLANAR
+                PrepAntiTileTriplanarConfig(tc, worldPos, normal);
+            #endif
+            
+            #if _DETAILNOISE && !_PERTEXDETAILNOISESTRENGTH 
+            {
+               float2 uv = config.uv;
+               #if _WORLDUV
+                  uv = worldPos.xz;
+               #endif
+
+               MSBRANCHOTHER(_DetailNoiseScaleStrengthFade.z - camDist)
+               {
+                  half3 noise = AntiTileTriplanarSample(_DetailNoise, uv, tc, _UVScale.xy * _DetailNoiseScaleStrengthFade.x).rgb;
+                  COUNTSAMPLE
+                  
+                  float fade = 1.0 - saturate((_DetailNoiseScaleStrengthFade.z - camDist) / _DetailNoiseScaleStrengthFade.z);
+                  fade = 1.0 - (fade*fade);
+                  fade *= _DetailNoiseScaleStrengthFade.y;
+
+                  albedo = lerp(albedo, BlendMult2X(albedo, noise.zzz), fade);
+                  noise *= 0.5;
+                  #if _SURFACENORMALS
+                     surfGrad += ConvertNormal2ToGradient(noise.xy-0.25) * fade;
+                  #else
+                     normSAO.xy += ((noise.xy-0.25) * fade);
+                  #endif
+               }
+            }
+            #endif
+            #if _DISTANCENOISE && !_PERTEXDISTANCENOISESTRENGTH
+            {
+               MSBRANCHOTHER(camDist - _DistanceNoiseScaleStrengthFade.z)
+               {       
+                  float2 uv = config.uv;
+                  #if _WORLDUV
+                     uv = worldPos.xz;
+                  #endif
+               
+                  uv *= _DistanceNoiseScaleStrengthFade.x;    
+                  half3 noise = AntiTileTriplanarSample(_DistanceNoise, uv, tc, _UVScale.xy * _DistanceNoiseScaleStrengthFade.x).rgb;
+                  COUNTSAMPLE
+
+                  float fade = saturate ((camDist - _DistanceNoiseScaleStrengthFade.z) / _DistanceNoiseScaleStrengthFade.w);
+                  fade *= _DistanceNoiseScaleStrengthFade.y;
+
+                  albedo = lerp(albedo, BlendMult2X(albedo, noise.zzz), fade);
+                  noise *= 0.5;
+                  #if _SURFACENORMALS
+                     surfGrad += ConvertNormal2ToGradient(noise.xy-0.25) * fade;
+                  #else
+                     normSAO.xy += ((noise.xy-0.25) * fade);
+                  #endif
+                 
+               }
+            }
+            #endif
+
+            #if _NORMALNOISE && !_PERTEXNORMALNOISESTRENGTH
+            {
+               float2 uv = config.uv;
+               #if _WORLDUV
+                  uv = worldPos.xz;
+               #endif
+               half2 noise = UnpackNormal2(AntiTileTriplanarSample(_NormalNoise, uv, tc, _NormalNoiseScaleStrength.xx));
+               COUNTSAMPLE
+
+               #if _SURFACENORMALS
+                  surfGrad += ConvertNormal2ToGradient(noise.xy) * _NormalNoiseScaleStrength.y;
+               #else
+                  normSAO.xy = lerp(normSAO.xy, BlendNormal2(normSAO.xy, noise.xy), _NormalNoiseScaleStrength.y);
+               #endif
+
+              
+            }
+            #endif
+
+            #if _NORMALNOISE2 && !_PERTEXNORMALNOISESTRENGTH2
+            {
+               float2 uv = config.uv;
+               #if _WORLDUV
+                  uv = worldPos.xz;
+               #endif
+               half2 noise = UnpackNormal2(AntiTileTriplanarSample(_NormalNoise2, uv, tc, _NormalNoiseScaleStrength2.xx));
+               COUNTSAMPLE
+               #if _SURFACENORMALS
+                  surfGrad += ConvertNormal2ToGradient(noise.xy) * _NormalNoiseScaleStrength2.y;
+               #else
+                  normSAO.xy = lerp(normSAO.xy, BlendNormal2(normSAO.xy, noise.xy), _NormalNoiseScaleStrength2.y);
+               #endif
+            }
+            #endif
+
+            #if _NORMALNOISE3 && !_PERTEXNORMALNOISESTRENGTH3
+            {
+               float2 uv = config.uv;
+               #if _WORLDUV
+                  uv = worldPos.xz;
+               #endif
+               half2 noise = UnpackNormal2(AntiTileTriplanarSample(_NormalNoise3, uv, tc, _NormalNoiseScaleStrength3.xx));
+               COUNTSAMPLE
+               #if _SURFACENORMALS
+                  surfGrad += ConvertNormal2ToGradient(noise.xy) * _NormalNoiseScaleStrength3.y;
+               #else
+                  normSAO.xy = lerp(normSAO.xy, BlendNormal2(normSAO.xy, noise.xy), _NormalNoiseScaleStrength3.y);
+               #endif
+            }
+            #endif
+         }
+
+         // per tex version
+         
+         void AddNormalNoisePerTex(inout RawSamples o, half2 noise, float4 fades)
+         {
+            #if _SURFACENORMALS
+               float3 grad = ConvertNormal2ToGradient(noise.xy);
+               o.surf0 += grad * fades.x;
+               o.surf1 += grad * fades.y;
+               #if !_MAX2LAYER
+                  o.surf2 += grad * fades.z;
+               #endif
+               #if !_MAX2LAYER && !_MAX3LAYER
+                  o.surf3 += grad * fades.w;
+               #endif
+            #else
+               o.normSAO0.xy += noise.xy * fades.x;
+               o.normSAO1.xy += noise.xy * fades.y;
+               #if !_MAX2LAYER
+                  o.normSAO2.xy += noise.xy * fades.z;
+               #endif
+               #if !_MAX2LAYER && !_MAX3LAYER
+                  o.normSAO3.xy += noise.xy * fades.w;
+               #endif
+            #endif
+         }
+         
+         
+         void ApplyDetailDistanceNoisePerTex(inout RawSamples o, Config config, float camDist, float3 worldPos, float3 normal)
+         {
+            AntiTileTriplanarConfig tc = (AntiTileTriplanarConfig)0;
+            UNITY_INITIALIZE_OUTPUT(AntiTileTriplanarConfig,tc);
+            
+            #if _ANTITILETRIPLANAR
+                PrepAntiTileTriplanarConfig(tc, worldPos, normal);
+            #endif
+         
+            #if _PERTEXDETAILNOISESTRENGTH || _PERTEXDISTANCENOISESTRENGTH
+            SAMPLE_PER_TEX(strs, 4.5, config, half4(1.0, 1.0, 1.0, 1.0));
+            #endif
+            
+            float2 uv = config.uv;
+            #if _WORLDUV
+               uv = worldPos.xz;
+            #endif
+
+            #if _DETAILNOISE && _PERTEXDETAILNOISESTRENGTH
+            {
+               MSBRANCHOTHER(_DetailNoiseScaleStrengthFade.z - camDist)
+               {
+                  half3 noise = AntiTileTriplanarSample(_DetailNoise, uv, tc, _UVScale.xy * _DetailNoiseScaleStrengthFade.x);
+                  COUNTSAMPLE
+                  
+                  half fade = 1.0 - saturate((_DetailNoiseScaleStrengthFade.z - camDist) / _DetailNoiseScaleStrengthFade.z);
+                  fade = 1.0 - (fade*fade);
+                  fade *= _DetailNoiseScaleStrengthFade.y;
+
+   
+                  o.albedo0.rgb = lerp(o.albedo0.rgb, BlendMult2X(o.albedo0.rgb, noise.zzz), fade * strs0.x);
+                  o.albedo1.rgb = lerp(o.albedo1.rgb, BlendMult2X(o.albedo1.rgb, noise.zzz), fade * strs1.x);
+                  #if !_MAX2LAYER
+                  o.albedo2.rgb = lerp(o.albedo2.rgb, BlendMult2X(o.albedo2.rgb, noise.zzz), fade * strs2.x);
+                  #endif
+                  #if !_MAX2LAYER && !_MAX3LAYER
+                  o.albedo3.rgb = lerp(o.albedo3.rgb, BlendMult2X(o.albedo3.rgb, noise.zzz), fade * strs3.x);
+                  #endif
+
+
+                  noise.xy *= 0.5;
+                  noise.xy -= 0.25;
+                  AddNormalNoisePerTex(o, noise.xy, float4(strs0.x, strs1.x, strs2.x, strs3.x) * fade);
+               }
+            }
+            #endif
+            #if _DISTANCENOISE && _PERTEXDISTANCENOISESTRENGTH
+            {
+               MSBRANCHOTHER(camDist - _DistanceNoiseScaleStrengthFade.z)
+               {
+                  half3 noise = AntiTileTriplanarSample(_DistanceNoise, uv, tc, _UVScale.xy * _DistanceNoiseScaleStrengthFade.x);
+                  COUNTSAMPLE
+
+                  float fade = saturate ((camDist - _DistanceNoiseScaleStrengthFade.z) / _DistanceNoiseScaleStrengthFade.w);
+                  fade *= _DistanceNoiseScaleStrengthFade.y;
+
+                  o.albedo0.rgb = lerp(o.albedo0.rgb, BlendMult2X(o.albedo0.rgb, noise.zzz), fade * strs0.y);
+                  o.albedo1.rgb = lerp(o.albedo1.rgb, BlendMult2X(o.albedo1.rgb, noise.zzz), fade * strs1.y);
+                  #if !_MAX2LAYER
+                  o.albedo2.rgb = lerp(o.albedo2.rgb, BlendMult2X(o.albedo2.rgb, noise.zzz), fade * strs2.y);
+                  #endif
+                  #if !_MAX2LAYER && !_MAX3LAYER
+                  o.albedo3.rgb = lerp(o.albedo3.rgb, BlendMult2X(o.albedo3.rgb, noise.zzz), fade * strs3.y);
+                  #endif
+
+                  noise.xy *= 0.5;
+                  noise.xy -= 0.25;
+                  AddNormalNoisePerTex(o, noise.xy, float4(strs0.y, strs1.y, strs2.y, strs3.y) * fade);
+                  
+               }
+            }
+            #endif
+
+
+            #if _PERTEXNORMALNOISESTRENGTH
+            SAMPLE_PER_TEX(noiseStrs, 7.5, config, half4(0.5, 0.5, 0.5, 0.5));
+            #endif
+
+            #if _NORMALNOISE && _PERTEXNORMALNOISESTRENGTH
+            {
+               half2 noise = UnpackNormal2(AntiTileTriplanarSample(_NormalNoise, uv, tc, _NormalNoiseScaleStrength.xx));
+               COUNTSAMPLE
+               BlendNormalPerTex(o, noise, float4(noiseStrs0.x, noiseStrs1.y, noiseStrs2.y, noiseStrs3.y) * _NormalNoiseScaleStrength.y);
+            }
+            #endif
+
+            #if _NORMALNOISE2 && _PERTEXNORMALNOISESTRENGTH
+
+            {
+               half2 noise = UnpackNormal2(AntiTileTriplanarSample(_NormalNoise2, uv, tc, _NormalNoiseScaleStrength2.xx));
+               COUNTSAMPLE
+
+               BlendNormalPerTex(o, noise, float4(noiseStrs0.x, noiseStrs1.y, noiseStrs2.y, noiseStrs3.y) * _NormalNoiseScaleStrength2.y);
+            }
+            #endif
+
+            #if _NORMALNOISE3 && _PERTEXNORMALNOISESTRENGTH
+            {
+               half2 noise =  UnpackNormal2(AntiTileTriplanarSample(_NormalNoise3, uv, tc, _NormalNoiseScaleStrength3.xx));
+               COUNTSAMPLE
+
+               BlendNormalPerTex(o, noise, float4(noiseStrs0.x, noiseStrs1.y, noiseStrs2.y, noiseStrs3.y) * _NormalNoiseScaleStrength3.y);
+            }
+
+            #endif
+
+         }
+         
+        
+
+            #if _MSRENDERLOOP_UNITYLD || _MSRENDERLOOP_UNITYHD
+                // this shouldn't need to be here, but does..
+                SAMPLER(sampler_Control0);
+            #endif
+
+            #if _DISPLACEMENTDAMPENING
+               UNITY_DECLARE_TEX2D_NOSAMPLER(_DisplacementDampening);
+            #endif
+
+
+            #if _MESHCOMBINEDHEIGHT || _MESHCOMBINEDPACKEDMAP
+            float SampleMeshCombinedTess(half h, half4 heightWeights, Config config, float mipLevel)
+            {
+               float stAlpha = 1;
+               if (config.uv0.z == _MeshAlphaIndex)
+                  stAlpha = 1 - heightWeights.x;
+               else if (config.uv1.z == _MeshAlphaIndex)
+                  stAlpha = 1 - heightWeights.y;
+               else if (config.uv2.z == _MeshAlphaIndex)
+                  stAlpha = 1 - heightWeights.z;
+               else if (config.uv3.z == _MeshAlphaIndex)
+                  stAlpha = 1 - heightWeights.w;
+
+               float2 stuv = config.uv * _StandardUVScaleOffset.xy + _StandardUVScaleOffset.zw;
+               #if _MESHCOMBINEDPACKEDMAP
+                  half standardHeight = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_StandardPackedMap, _StandardDiffuse, stuv, mipLevel).b;
+               #elif _MESHCOMBINEDHEIGHT
+                  half standardHeight = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_StandardHeight, _StandardDiffuse, stuv, mipLevel).g;
+               #endif
+
+               // offset
+               standardHeight += _MeshCombineTessOffset;
+               // weight
+               standardHeight *= (1-_MeshCombineTessBlend);
+               h *= _MeshCombineTessBlend;
+               h *= stAlpha;
+
+               return standardHeight + h;
+
+            }
+            #endif
+
+            
+            #if _DISTANCERESAMPLE
+            void DistanceResampleLOD(inout half oalbedo0, inout half oalbedo1, Config config, TriplanarConfig tc, half4 fxLevels, float3 worldPos, half4 weights, float3 worldNormalVertex)
+            {
+               float distanceBlend = 0;
+               #if _DISTANCERESAMPLENOISE
+                  #if _TRIPLANAR
+                     distanceBlend = _DistanceResampleConstant + FBM3D(worldPos * _DistanceResampleNoiseParams.x) * _DistanceResampleNoiseParams.y;
+                  #else
+                     distanceBlend = _DistanceResampleConstant + FBM2D(config.uv * _DistanceResampleNoiseParams.x) * _DistanceResampleNoiseParams.y;
+                  #endif // triplanar
+               #elif _DISTANCERESAMPLENOFADE
+                  distanceBlend = _DistanceResampleConstant;
+               #endif
+               
+               float dblend0 = distanceBlend;
+               float dblend1 = distanceBlend;
+                  
+               config.uv0.xy *= _ResampleDistanceParams.xx;
+               config.uv1.xy *= _ResampleDistanceParams.xx;
+              
+               half albedo0;
+               half albedo1;
+               half4 mipLevel = _TessData1.z;
+               #if _PERTEXTESSMIPLEVEL
+                  SAMPLE_PER_TEX(perTexMipLevel, 4.5, config, half4(1.0, 0.0, 0, 0.0));
+                  mipLevel.x = perTexMipLevel0.a;
+                  mipLevel.y = perTexMipLevel1.a;
+                  mipLevel.z = perTexMipLevel2.a;
+                  mipLevel.w = perTexMipLevel3.a;
+               #endif
+
+               #if _PERTEXDISTANCERESAMPLESTRENGTH
+                  SAMPLE_PER_TEX(strs, 4.5, config, half4(1.0, 1.0, 1.0, 0.0));
+                  dblend0 *= strs0.b;
+                  dblend1 *= strs1.b;
+               #endif
+
+               #if _STREAMS || _PUDDLES || _LAVA
+                  half fac = 1.0 - min(fxLevels.y + fxLevels.z + fxLevels.w, 1.0f);
+                  dblend0 *= fac;
+                  dblend1 *= fac;
+               #endif
+               
+               #if _TRIPLANAR
+               #if _BRANCHSAMPLES
+               UNITY_BRANCH if (dblend0 > 0)
+               #endif
+               {
+                  #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3)
+                     half a0 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv0[0], config.cluster0, mipLevel.x).a;
+                     half a1 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv0[1], config.cluster0, mipLevel.x).a;
+                     half a2 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv0[2], config.cluster0, mipLevel.x).a;
+                  #else
+                     half a0 = UNITY_SAMPLE_TEX2DARRAY_LOD(_Diffuse, tc.uv0[0], mipLevel.x).a;
+                     half a1 = UNITY_SAMPLE_TEX2DARRAY_LOD(_Diffuse, tc.uv0[1], mipLevel.x).a;
+                     half a2 = UNITY_SAMPLE_TEX2DARRAY_LOD(_Diffuse, tc.uv0[2], mipLevel.x).a;
+                  #endif
+
+                  albedo0 = a0 * tc.pN0.x + a1 * tc.pN0.y + a2 * tc.pN0.z;
+               }
+               #if _BRANCHSAMPLES
+               UNITY_BRANCH if (dblend1 * weights.y > 0)
+               #endif
+               {
+                  #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3)
+                     half a0 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv1[0], config.cluster1, mipLevel.y).a;
+                     half a1 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv1[1], config.cluster1, mipLevel.y).a;
+                     half a2 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv1[2], config.cluster1, mipLevel.y).a;
+                  #else
+                     half a0 = UNITY_SAMPLE_TEX2DARRAY_LOD(_Diffuse, tc.uv1[0], mipLevel.y).a;
+                     half a1 = UNITY_SAMPLE_TEX2DARRAY_LOD(_Diffuse, tc.uv1[1], mipLevel.y).a;
+                     half a2 = UNITY_SAMPLE_TEX2DARRAY_LOD(_Diffuse, tc.uv1[2], mipLevel.y).a;
+                  #endif
+                  albedo1 = a0 * tc.pN1.x + a1 * tc.pN1.y + a2 * tc.pN1.z;
+               }
+               #else
+                  #if _RESAMPLECLUSTERS && (_TEXTURECLUSTER2 || _TEXTURECLUSTER3)
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (dblend0 > 0)
+                     #endif
+                     {
+                        albedo0 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(config.uv0, config.cluster0, mipLevel.x).a;
+                     }
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (dblend1 * weights.y > 0)
+                     #endif
+                     {
+                        albedo1 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(config.uv1, config.cluster1, mipLevel.y).a;
+                     }
+                  #else
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (dblend0 > 0)
+                     #endif
+                     {
+                        albedo0 = UNITY_SAMPLE_TEX2DARRAY_LOD(_Diffuse, config.uv0, mipLevel.x).a;
+                     }
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (dblend1 * weights.y > 0)
+                     #endif
+                     {
+                        albedo1 = UNITY_SAMPLE_TEX2DARRAY_LOD(_Diffuse, config.uv1, mipLevel.y).a;
+                     }
+                  #endif
+               #endif
+
+
+               #if _DISTANCERESAMPLEHEIGHTBLEND
+                  dblend0 = HeightBlend(oalbedo0, albedo0, dblend0, _Contrast);
+                  dblend1 = HeightBlend(oalbedo1, albedo1, dblend1, _Contrast);
+               #endif
+
+               oalbedo0 = lerp(oalbedo0, albedo0, dblend0);
+               oalbedo1 = lerp(oalbedo1, albedo1, dblend1);
+
+               
+            }
+            #endif
+
+            void SampleSplatsLOD(float2 controlUV, inout fixed4 w0, inout fixed4 w1, inout fixed4 w2, inout fixed4 w3, inout fixed4 w4, inout fixed4 w5, inout fixed4 w6, inout fixed4 w7)
+            {
+
+               #if _CUSTOMSPLATTEXTURES
+                  #if !_MICROMESH
+                     controlUV = (controlUV * (_CustomControl0_TexelSize.zw - 1.0f) + 0.5f) * _CustomControl0_TexelSize.xy;
+                  #endif
+
+                  #if  _CONTROLNOISEUV
+                     controlUV += (MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_NoiseUV, _Diffuse, controlUV * _CustomControl0_TexelSize.zw * 0.2 * _NoiseUVParams.x, 0).ga - 0.5) *  _CustomControl0_TexelSize.xy * _NoiseUVParams.y;
+                  #endif
+                  
+                  w0 = MICROSPLAT_SAMPLE_TEX2D_LOD(_CustomControl0, controlUV.xy, 0);
+                  #if !_MAX4TEXTURES
+                  w1 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_CustomControl1, _CustomControl0, controlUV.xy, 0);
+                  #endif
+
+                  #if !_MAX4TEXTURES && !_MAX8TEXTURES
+                  w2 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_CustomControl2, _CustomControl0, controlUV.xy, 0);
+                  #endif
+
+                  #if !_MAX4TEXTURES && !_MAX8TEXTURES && !_MAX12TEXTURES
+                  w3 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_CustomControl3, _CustomControl0, controlUV.xy, 0);
+                  #endif
+
+                  #if _MAX20TEXTURES || _MAX24TEXTURES || _MAX28TEXTURES || _MAX32TEXTURES
+                  w4 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_CustomControl4, _CustomControl0, controlUV.xy, 0);
+                  #endif
+
+                  #if _MAX24TEXTURES || _MAX28TEXTURES || _MAX32TEXTURES
+                  w5 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_CustomControl5, _CustomControl0, controlUV.xy, 0);
+                  #endif
+
+                  #if _MAX28TEXTURES || _MAX32TEXTURES
+                  w6 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_CustomControl6, _CustomControl0, controlUV.xy, 0);
+                  #endif
+
+                  #if _MAX32TEXTURES
+                  w7 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_CustomControl7, _CustomControl0, controlUV.xy, 0);
+                  #endif
+               #else
+                  #if !_MICROMESH
+                     controlUV = (controlUV * (_Control0_TexelSize.zw - 1.0f) + 0.5f) * _Control0_TexelSize.xy;
+                  #endif
+                  
+                  #if  _CONTROLNOISEUV
+                     controlUV += (MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_NoiseUV, _Diffuse, controlUV * _Control0_TexelSize.zw * 0.2 * _NoiseUVParams.x, 0).ga - 0.5) * _Control0_TexelSize.xy * _NoiseUVParams.y;
+                  #endif
+
+                  w0 = MICROSPLAT_SAMPLE_TEX2D_LOD(_Control0, controlUV.xy, 0);
+                  #if !_MAX4TEXTURES
+                  w1 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_Control1, _Control0, controlUV.xy, 0);
+                  #endif
+
+                  #if !_MAX4TEXTURES && !_MAX8TEXTURES
+                  w2 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_Control2, _Control0, controlUV.xy, 0);
+                  #endif
+
+                  #if !_MAX4TEXTURES && !_MAX8TEXTURES && !_MAX12TEXTURES
+                  w3 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_Control3, _Control0, controlUV.xy, 0);
+                  #endif
+
+                  #if _MAX20TEXTURES || _MAX24TEXTURES || _MAX28TEXTURES || _MAX32TEXTURES
+                  w4 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_Control4, _Control0, controlUV.xy, 0);
+                  #endif
+
+                  #if _MAX24TEXTURES || _MAX28TEXTURES || _MAX32TEXTURES
+                  w5 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_Control5, _Control0, controlUV.xy, 0);
+                  #endif
+
+                  #if _MAX28TEXTURES || _MAX32TEXTURES
+                  w6 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_Control6, _Control0, controlUV.xy, 0);
+                  #endif
+
+                  #if _MAX32TEXTURES
+                  w7 = MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_Control7, _Control0, controlUV.xy, 0);
+                  #endif
+               #endif
+            }
+            
+            float3 OffsetVertex(float4 vertex, float3 normal, inout float4 tangent, float2 texcoord, Input inp)
+            {
+               
+               #if !_MICROTERRAIN
+                  tangent.xyz = cross(normal, float3(0,0,1));
+                  tangent.w = -1;
+                  tangent = tangent;
+               #endif
+
+
+
+               float2 controlUV = texcoord;
+               #if _MICROMESH
+                  controlUV = InverseLerp(_UVMeshRange.xy, _UVMeshRange.zw, controlUV);
+               #endif
+
+               half4 weights;
+               #if _MSRENDERLOOP_UNITYHD || _MSRENDERLOOP_UNITYLD
+                  float3 worldPos = GetAbsolutePositionWS(TransformObjectToWorld(vertex.xyz));
+               #else
+                  float3 worldPos = mul(unity_ObjectToWorld, vertex).xyz;
+               #endif
+
+               #if _FORCELOCALSPACE
+                  worldPos = vertex;
+               #endif
+
+               float3 worldNormal = float3(0,0,1);
+               #if _SNOW || _TRIPLANAR
+               worldNormal = UnityObjectToWorldNormal(normal);
+               #endif
+
+               Config config = (Config)0;
+
+               half4 mipLevel = _TessData1.z;
+              
+
+              
+
+               fixed4 w0 = fixed4(1,0,0,0);
+               fixed4 w1 = 0; fixed4 w2 = 0; fixed4 w3 = 0; fixed4 w4 = 0; fixed4 w5 = 0; fixed4 w6 = 0; fixed4 w7 = 0;
+
+
+               DecalOutput decalOutput = (DecalOutput)0;
+               #if _DECAL_TESS || _DECAL_SPLATS
+                  decalOutput = DoDecalsTess(texcoord, worldPos, 0, normal);
+               #endif
+               
+               #if _MICRODIGGERMESH
+                  DiggerSetup(inp, weights, texcoord, config, worldPos, decalOutput);
+               #elif _MEGASPLAT
+                   MegaSplatVertexSetup(inp, weights, texcoord, config, worldPos, decalOutput);
+               #elif _MICROVERTEXMESH
+                  VertexSetup(inp, weights, texcoord, config, worldPos, decalOutput);
+               #elif _PROCEDURALTEXTURE && !_DISABLESPLATMAPS && _PROCEDURALBLENDSPLATS
+                  SampleSplatsLOD(controlUV, w0, w1, w2, w3, w4, w5, w6, w7);
+                  Setup(weights, texcoord.xy, config, w0, w1, w2, w3, w4, w5, w6, w7, worldPos, decalOutput);
+                  float3 up = float3(0,1,0);
+                  float3 procNormal = normal;
+                  float height = worldPos.y;
+                  Input i = (Input)0;
+                  ProceduralSetup(i, worldPos, height, procNormal, up, weights, texcoord.xy, config, 0, 0, 0, 0, decalOutput);
+               #elif _PROCEDURALTEXTURE && !_DISABLESPLATMAPS
+                  float3 up = float3(0,1,0);
+                  float3 procNormal = normal;
+                  float height = worldPos.y;
+                  Input i = (Input)0;
+                  ProceduralSetup(inp, worldPos, height, procNormal, up, weights, texcoord.xy, config, 0, 0, 0, 0, decalOutput);
+               #elif !_DISABLESPLATMAPS
+                  SampleSplatsLOD(controlUV, w0, w1, w2, w3, w4, w5, w6, w7);
+                  Setup(weights, texcoord.xy, config, w0, w1, w2, w3, w4, w5, w6, w7, worldPos, decalOutput);
+               #endif // _DISABLESPLATMAPS
+               
+
+                #if _PERTEXTESSMIPLEVEL && !_DISABLESPLATMAPS
+                  SAMPLE_PER_TEX(perTexMipLevel, 4.5, config, half4(1.0, 0.0, 0, 0.0));
+                  mipLevel.x = perTexMipLevel0.a;
+                  mipLevel.y = perTexMipLevel1.a;
+                  mipLevel.z = perTexMipLevel2.a;
+                  mipLevel.w = perTexMipLevel3.a;
+               #endif
+
+               #if _PERTEXCURVEWEIGHT
+                   SAMPLE_PER_TEX(ptCurveWeight, 19.5, config, half4(0.5,1,1,1));
+                   weights.x = smoothstep(0.5 - ptCurveWeight0.r, 0.5 + ptCurveWeight0.r, weights.x);
+                   weights.y = smoothstep(0.5 - ptCurveWeight1.r, 0.5 + ptCurveWeight1.r, weights.y);
+                   weights.z = smoothstep(0.5 - ptCurveWeight2.r, 0.5 + ptCurveWeight2.r, weights.z);
+                   weights.w = smoothstep(0.5 - ptCurveWeight3.r, 0.5 + ptCurveWeight3.r, weights.w);
+                   weights = TotalOne(weights);
+               #endif
+
+               float traxBuffer = 0;
+               #if _SNOWFOOTSTEPS || _TRAXSINGLE || _TRAXARRAY || _TRAXNOTEXTURE
+                  traxBuffer = SampleTraxBufferLOD(worldPos, 1);
+               #endif
+               
+               fixed4 levelFx = 0;
+               #if _PUDDLES || _STREAMS || _LAVA || _WETNESSMASKSNOW
+                  #if _MICROMESH
+                  levelFx = SampleFXLevelsLOD(controlUV.xy, traxBuffer);
+                  #else
+                  levelFx = SampleFXLevelsLOD(texcoord.xy, traxBuffer);
+                  #endif
+               #endif
+
+               
+                // uvScale before anything
+               #if _PERTEXUVSCALEOFFSET && !_TRIPLANAR && !_DISABLESPLATMAPS
+                  SAMPLE_PER_TEX(ptUVScale, 0.5, config, half4(1,1,0,0));
+                  config.uv0.xy = config.uv0.xy * ptUVScale0.rg + ptUVScale0.ba;
+                  config.uv1.xy = config.uv1.xy * ptUVScale1.rg + ptUVScale1.ba;
+                  #if !_MAX2LAYER
+                     config.uv2.xy = config.uv2.xy * ptUVScale2.rg + ptUVScale2.ba;
+                  #endif
+                  #if !_MAX3LAYER || !_MAX2LAYER
+                     config.uv3.xy = config.uv3.xy * ptUVScale3.rg + ptUVScale3.ba;
+                  #endif
+               #endif
+
+
+               TriplanarConfig tc = (TriplanarConfig)0;
+               UNITY_INITIALIZE_OUTPUT(TriplanarConfig,tc);
+
+               #if _TRIPLANAR && !_DISABLESPLATMAPS
+                  MIPFORMAT a = INITMIPFORMAT
+                  MIPFORMAT b = INITMIPFORMAT
+                  MIPFORMAT c = INITMIPFORMAT
+                  MIPFORMAT d = INITMIPFORMAT
+                  PrepTriplanar(worldNormal, worldPos, config, tc, weights, a, b, c, d);
+               #endif
+
+               #if _TEXTURECLUSTER2 || _TEXTURECLUSTER3 && !_DISABLESPLATMAPS
+                  PrepClustersDisplace(config.uv, config, worldPos, worldNormal);
+               #endif
+
+               half albedo0 = 0;
+               half albedo1 = 0;
+               half albedo2 = 0;
+               half albedo3 = 0;
+               
+
+               #if !_DISABLESPLATMAPS
+                  #if _TRIPLANAR 
+                     half4 contrasts = _Contrast.xxxx;
+                     #if _PERTEXTRIPLANARCONTRAST
+                        SAMPLE_PER_TEX(ptc, 5.5, config, half4(1,0.5,0,0));
+                        contrasts = half4(ptc0.y, ptc1.y, ptc2.y, ptc3.y);
+                     #endif
+
+                     {
+                        half4 a0 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv0[0], config.cluster0, mipLevel.x);
+                        half4 a1 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv0[1], config.cluster0, mipLevel.x);
+                        half4 a2 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv0[2], config.cluster0, mipLevel.x);
+                        half3 bf = tc.pN0;
+                        #if _TRIPLANARHEIGHTBLEND
+                        bf = TriplanarHBlend(a0.a, a1.a, a2.a, tc.pN0, contrasts.x);
+                        tc.pN0 = bf;
+                        #endif
+
+                        albedo0 = a0.a * bf.x + a1.a * bf.y + a2.a * bf.z;
+                     }
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (weights.y > 0)
+                     #endif
+                     {
+                        half4 a0 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv1[0], config.cluster1, mipLevel.y);
+                        half4 a1 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv1[1], config.cluster1, mipLevel.y);
+                        half4 a2 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv1[2], config.cluster1, mipLevel.y);
+                        half3 bf = tc.pN1;
+                        #if _TRIPLANARHEIGHTBLEND
+                        bf = TriplanarHBlend(a0.a, a1.a, a2.a, tc.pN1, contrasts.x);
+                        tc.pN1 = bf;
+                        #endif
+                        albedo1 = a0.a * bf.x + a1.a * bf.y + a2.a * bf.z;
+                     }
+                     #if !_MAX2LAYER
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (weights.z > 0)
+                     #endif
+                     {
+                        half4 a0 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv2[0], config.cluster2, mipLevel.z);
+                        half4 a1 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv2[1], config.cluster2, mipLevel.z);
+                        half4 a2 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv2[2], config.cluster2, mipLevel.z);
+                        half3 bf = tc.pN2;
+                        #if _TRIPLANARHEIGHTBLEND
+                        bf = TriplanarHBlend(a0.a, a1.a, a2.a, tc.pN2, contrasts.x);
+                        tc.pN2 = bf;
+                        #endif
+                        albedo2 = a0.a * bf.x + a1.a * bf.y + a2.a * bf.z;
+                     }
+                     #endif
+                     #if !_MAX3LAYER || !_MAX2LAYER
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (weights.w > 0)
+                     #endif
+                     {
+                        half4 a0 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv3[0], config.cluster3, mipLevel.w);
+                        half4 a1 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv3[1], config.cluster3, mipLevel.w);
+                        half4 a2 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(tc.uv3[2], config.cluster3, mipLevel.w);
+                        half3 bf = tc.pN3;
+                        #if _TRIPLANARHEIGHTBLEND
+                        bf = TriplanarHBlend(a0.a, a1.a, a2.a, tc.pN3, contrasts.x);
+                        tc.pN3 = bf;
+                        #endif
+                        albedo3 = a0.a * bf.x + a1.a * bf.y + a2.a * bf.z;
+                     }
+                     #endif
+
+                  #else
+                     albedo0 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(config.uv0, config.cluster0, mipLevel.x).a;
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (weights.y > 0)
+                     #endif
+                        albedo1 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(config.uv1, config.cluster1, mipLevel.y).a;
+                     #if !_MAX2LAYER
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (weights.z > 0)
+                     #endif
+                        albedo2 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(config.uv2, config.cluster2, mipLevel.z).a; 
+                     #endif
+                     #if !_MAX3LAYER || !_MAX2LAYER
+                     #if _BRANCHSAMPLES
+                     UNITY_BRANCH if (weights.w > 0)
+                     #endif
+                        albedo3 = MICROSPLAT_SAMPLE_DIFFUSE_LOD(config.uv3, config.cluster3, mipLevel.w).a;
+                     #endif
+                  #endif
+               #endif //_DISABLESPLATMAPS
+
+               
+
+               #if !_DISABLESPLATMAPS && _DISTANCERESAMPLE && (_DISTANCERESAMPLENOFADE || _DISTANCERESAMPLENOISE)
+                  DistanceResampleLOD(albedo0, albedo1, config, tc, levelFx, worldPos, weights, normal);
+               #endif
+
+               #if (_PERTEXTESSDISPLACE || _PERTEXTESSOFFSET || _PERTEXTESSUPBIAS) && !_DISABLESPLATMAPS
+               SAMPLE_PER_TEX(perTexDispOffsetBias, 6.5, config, half4(1.0, 0.0, 0, 0.0));
+               #endif
+
+               #if _PERTEXTESSOFFSET && !_DISABLESPLATMAPS
+                  albedo0 += perTexDispOffsetBias0.z;
+                  albedo1 += perTexDispOffsetBias1.z;
+                  albedo2 += perTexDispOffsetBias2.z;
+                  albedo3 += perTexDispOffsetBias3.z;
+               #endif
+
+               float shaping = _TessData2.z;
+               #if _PERTEXTESSSHAPING && !_DISABLESPLATMAPS
+                  SAMPLE_PER_TEX(perTexShaping, 14.5, config, half4(0.5, 0.5, 0.5, 0.5));
+                  shaping = perTexShaping0.a * weights.x + perTexShaping1.a * weights.y + perTexShaping2.a * weights.z + perTexShaping3.a * weights.w;
+               #endif
+
+
+               #if _NOISEHEIGHT
+                 float oldAlb0 = albedo0;
+                 float oldAlb1 = albedo1;
+                 float oldAlb2 = albedo2;
+                 float oldAlb3 = albedo3;
+
+                 ApplyNoiseHeightLOD(albedo0, albedo1, albedo2, albedo3, config.uv, config, vertex.rgb, normal);
+               #endif
+
+               float4 heightWeights = ComputeWeights(weights, albedo0, albedo1, albedo2, albedo3, shaping);
+
+               #if _NOISEHEIGHT
+                 albedo0 = oldAlb0;
+                 albedo1 = oldAlb1;
+                 albedo2 = oldAlb2;
+                 albedo3 = oldAlb3;
+               #endif
+
+               
+
+               #if _PERTEXTESSDISPLACE && !_DISABLESPLATMAPS
+                  albedo0 *= perTexDispOffsetBias0.x;
+                  albedo1 *= perTexDispOffsetBias1.x;
+                  #if !_MAX2LAYER
+                     albedo2 *= perTexDispOffsetBias2.x;
+                  #endif
+                  #if !_MAX3LAYER || !_MAX2LAYER
+                     albedo3 *= perTexDispOffsetBias3.x;
+                  #endif
+               #endif
+
+               #if _MESHOVERLAYSPLATS || _MESHCOMBINED
+                  if (_MeshAlphaIndex == config.uv0.z)
+                  {
+                     albedo0 = 0;
+                  }
+                  else if (_MeshAlphaIndex == config.uv1.z)
+                  {
+                     albedo1 = 0;
+                  }
+                  #if !_MAX2LAYER
+                  else if (_MeshAlphaIndex == config.uv2.z)
+                  {
+                     albedo2 = 0;
+                  }
+                  #endif
+                  #if !_MAX3LAYER || !_MAX2LAYER
+                  else if (_MeshAlphaIndex == config.uv3.z)
+                  {
+                     albedo3 = 0;
+                  }
+                  #endif
+               #endif
+
+               #if _DECAL_TESS
+                  DoDecalBlendTess(decalOutput, albedo0, albedo1, albedo2, albedo3, mipLevel);
+               #endif
+
+               #if _TRAXSINGLE || _TRAXARRAY || _TRAXNOTEXTURE
+                  ApplyTraxTess(albedo0, albedo1, albedo2, albedo3, config, worldPos, traxBuffer, _TessData1.z, _TessData1.y);
+               #endif
+
+               
+               half h = albedo0 * heightWeights.x + albedo1 * heightWeights.y + albedo2 * heightWeights.z + albedo3 * heightWeights.w;
+
+
+
+               #if _MESHCOMBINEDHEIGHT || _MESHCOMBINEDPACKEDMAP
+                  h = SampleMeshCombinedTess(h, heightWeights, config, _TessData1.z);
+               #endif
+
+               half maxLevel = 0;
+               #if _PUDDLES || _STREAMS || _LAVA
+                  #if _STREAMS && _STREAMHEIGHTFILTER
+                  {
+                     float shf = saturate((worldPos.y - _StreamFades.x) / max(_StreamFades.y - _StreamFades.x, 0.0001));
+                     shf *= 1.0 - saturate((worldPos.y - _StreamFades.z) / max(_StreamFades.w - _StreamFades.z, 0.0001));
+                     levelFx.b *= shf;
+                  }
+                  #endif
+
+                  #if _LAVA && _LAVAHEIGHTFILTER
+                  {
+                     float lhf = saturate((worldPos.y - _LavaFades.x) / max(_LavaFades.y - _LavaFades.x, 0.0001));
+                     lhf *= 1.0 - saturate((worldPos.y - _LavaFades.z) / max(_LavaFades.w - _LavaFades.z, 0.0001));
+                     levelFx.a *= lhf;
+                  }
+                  #endif
+
+                  maxLevel = max(max(levelFx.g, levelFx.b), levelFx.a);
+                  
+                  h = max(h, maxLevel);
+               #endif
+
+              
+
+               #if _SNOW
+                  float snowAmount = DoSnowDisplace(h, texcoord.xy, worldNormal, worldPos, 0, config, weights);
+                  #if _SNOWFOOTSTEPS
+                     snowAmount *= traxBuffer;
+                  #endif
+
+                  #if _WETNESSMASKSNOW
+                     snowAmount *= 1-levelFx.x;
+                  #endif
+                  
+                  h += snowAmount * _TessDisplaceSnowMultiplier; 
+
+               #endif
+
+               #if _SNOW && _SNOWFOOTSTEPS
+               h = lerp(h/3.0, h, traxBuffer); // maybe expose this?
+               #endif
+
+               float dist = distance(_WorldSpaceCameraPos, worldPos);
+               float tessFade = saturate((dist - _TessData2.x) / (_TessData2.y - _TessData2.x));
+               tessFade *= tessFade;
+               tessFade = 1 - tessFade;
+
+               half upBias = _TessData2.w;
+
+               #if _PERTEXTESSUPBIAS && !_DISABLESPLATMAPS
+                  upBias = BlendWeights(perTexDispOffsetBias0.y, perTexDispOffsetBias1.y, perTexDispOffsetBias2.y, perTexDispOffsetBias3.y, weights);
+               #endif
+               
+               float3 offset = (lerp(normal, float3(0,1,0), upBias) * (_TessData1.y * h * tessFade));
+
+               #if _DISPLACEMENTDAMPENING
+                  offset *= (1.0 - MICROSPLAT_SAMPLE_TEX2D_SAMPLER_LOD(_DisplacementDampening, _Diffuse, controlUV, 0).g);
+               #endif
+               
+               // fade tessellation near alpha holes. This helps seem stuff with digger, etc.
+               #ifdef _ALPHATEST_ON
+               {
+                  float2 cuv = floor(controlUV * _TerrainHolesTexture_TexelSize.zw + 0.5) * _TerrainHolesTexture_TexelSize.xy;
+                  float hole = MICROSPLAT_SAMPLE_TEX2D_LOD(_TerrainHolesTexture, cuv, 0).r;
+                  hole = saturate((hole - 0.5) * 2);
+                  offset *= hole;
+               }
+               #endif
+               
+               #if _ALPHAHOLETEXTURE
+               {
+                  float2 cuv2 = floor(controlUV * _AlphaHoleTexture_TexelSize.zw + 0.5) * _AlphaHoleTexture_TexelSize.xy;
+                  offset *= tex2Dlod(_AlphaHoleTexture, cuv2, 0).r;
+               }
+               #endif
+             
+
+               return offset;
+            }
+
+            float3 OffsetVertex(inout float4 vertex, float3 normal, inout float4 tangent, float2 texcoord)
+            {
+               Input i = (Input)0;
+               return OffsetVertex(vertex, normal, tangent, texcoord, i);
+            }
+            
+            
+
 
 #if !_MICROMESH && !_MICRODIGGERMESH && !_MICROVERTEXMESH
    UNITY_DECLARE_TEX2D(_TerrainHeightmapTexture); // must be declared with sampler or windows will strip it if sampled with _Control0, also, iOS requires this to work when aniso is enabled
@@ -1580,6 +3722,316 @@ UNITY_INSTANCING_BUFFER_END(Terrain)
 
 
    
+// post vertex
+
+
+
+#if _MSRENDERLOOP_SURFACESHADER
+               #include "Tessellation.cginc"
+               float4 TessDistance (appdata v0, appdata v1, appdata v2) 
+               {
+                  return UnityDistanceBasedTess(v0.vertex, v1.vertex, v2.vertex, _TessData2.x, _TessData2.y, _TessData1.x);
+               }
+
+#elif _MSRENDERLOOP_UNITYLD || _MSRENDERLOOP_UNITYHD
+
+
+#if defined(SHADER_API_XBOXONE) || defined(SHADER_API_PSSL)
+   // AMD recommand this value for GCN http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2013/05/GCNPerformanceTweets.pdf
+   #define MAX_TESSELLATION_FACTORS 15.0
+#else
+   #define MAX_TESSELLATION_FACTORS 64.0
+#endif
+
+            struct OutputPatchConstant 
+            {
+                float edge[3]         : SV_TessFactor;
+                float inside          : SV_InsideTessFactor;
+            };
+             
+            struct TessVertex 
+            {
+               float4 vertex : INTERNALTESSPOS;
+               float3 normal : NORMAL;
+               float4 tangent : TANGENT;
+               float4 texcoord0 : TEXCOORD0;
+               float4 texcoord1 : TEXCOORD1;
+
+               DECALREMSVERTEXSEMANTIC
+               
+               UNITY_VERTEX_INPUT_INSTANCE_ID
+               UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+
+            float MSCalcDistanceTessFactor (float3 wpos, float minDist, float maxDist, float tess, float3 camPos)
+            {
+               #if _MSRENDERLOOP_UNITYHD // in HD, we might be camera relative rendering
+                  wpos = TransformWorldToObject(GetAbsolutePositionWS(wpos));
+                  #if _MICROTERRAIN
+                     wpos += GetAbsolutePositionWS(TransformObjectToWorld(float3(0,0,0)));
+                  #endif
+               #endif
+
+               float dist = distance (wpos, camPos);
+               float f = clamp(1.0 - (dist - minDist) / (maxDist - minDist), 0.01, 1.0) * tess;
+               return f;
+            }
+
+            float4 MSCalcTriEdgeTessFactors (float3 triVertexFactors)
+            {
+               float4 tess;
+               tess.x = 0.5 * (triVertexFactors.y + triVertexFactors.z);
+               tess.y = 0.5 * (triVertexFactors.x + triVertexFactors.z);
+               tess.z = 0.5 * (triVertexFactors.x + triVertexFactors.y);
+               tess.w = (triVertexFactors.x + triVertexFactors.y + triVertexFactors.z) / 3.0f;
+               return tess;
+            }
+
+
+            float4 MSDistanceBasedTess (float3 v0, float3 v1, float3 v2, float minDist, float maxDist, float tess)
+            {
+               float3 f;
+
+               #if _MSRENDERLOOP_UNITYHD || _MSRENDERLOOP_UNITYLD
+                  // I don't understand why the space for a terrain is different? Perhaps it's not
+                  // having some aspect of it relatively transformed?
+                  #if _MICROTERRAIN
+                     float3 camPos = TransformWorldToObject(GetAbsolutePositionWS(_WorldSpaceCameraPos));
+                  #else
+                     float3 camPos = TransformWorldToObject(_WorldSpaceCameraPos);
+                  #endif
+                  
+               #else
+                  float3 camPos = mul(unity_WorldToObject, _WorldSpaceCameraPos);
+               #endif
+         
+               f.x = MSCalcDistanceTessFactor (v0,minDist,maxDist,tess, camPos);
+               f.y = MSCalcDistanceTessFactor (v1,minDist,maxDist,tess, camPos);
+               f.z = MSCalcDistanceTessFactor (v2,minDist,maxDist,tess, camPos);
+
+               return MSCalcTriEdgeTessFactors (f);
+            }
+
+            float4 Tessellation (TessVertex v0, TessVertex v1, TessVertex v2) 
+            {
+               return MSDistanceBasedTess(v0.vertex.xyz, v1.vertex.xyz, v2.vertex.xyz, _TessData2.x, _TessData2.y, _TessData1.x);
+            }
+
+            OutputPatchConstant hullconst (InputPatch<TessVertex,3> v) 
+            {
+               OutputPatchConstant o = (OutputPatchConstant)0;
+               float4 tf = Tessellation( v[0], v[1], v[2] );
+               tf = min(tf, MAX_TESSELLATION_FACTORS);
+               o.edge[0] = tf.x;
+               o.edge[1] = tf.y;
+               o.edge[2] = tf.z;
+               o.inside  = tf.w;
+               return o;
+            }
+
+             [maxtessfactor(MAX_TESSELLATION_FACTORS)]
+             [domain("tri")]
+             [partitioning("fractional_odd")]
+             [outputtopology("triangle_cw")]
+             [patchconstantfunc("hullconst")]
+             [outputcontrolpoints(3)]
+             TessVertex hull (InputPatch<TessVertex,3> v, uint id : SV_OutputControlPointID) 
+             {
+                 return v[id];
+             }
+             
+             
+             #if _MSRENDERLOOP_UNITYHD
+             TessVertex tessvert(AttributesMesh i)
+             #elif _MSRENDERLOOP_UNITYLD
+             TessVertex tessvert(GraphVertexInput i)
+             #endif
+             {
+                UNITY_SETUP_INSTANCE_ID(i);
+                TessVertex o = (TessVertex)o;
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
+                #if _MSRENDERLOOP_UNITYHD
+                   o.vertex = float4(i.positionOS.xyz, 1);
+                   o.normal = i.normalOS;
+                   o.tangent = i.tangentOS;
+                   o.texcoord0 = i.uv0;
+                   o.texcoord1 = i.uv1;
+                #else
+                   o.vertex = i.vertex;
+                   o.normal = i.normal;
+                   o.tangent = i.tangent;
+                   o.texcoord0 = i.texcoord0;
+                   o.texcoord1 = i.texcoord1;
+                #endif
+                
+
+                #if !_DEBUG_USE_TOPOLOGY && UNITY_VERSION >= 201830 && !_TERRAINBLENDABLESHADER && _MICROTERRAIN && defined(UNITY_INSTANCING_ENABLED) && !defined(SHADER_API_D3D11_9X)
+                    float2 patchVertex = o.vertex.xy;
+                    float4 instanceData = UNITY_ACCESS_INSTANCED_PROP(Terrain, _TerrainPatchInstanceData);
+                    
+                    float4 uvscale = instanceData.z * _TerrainHeightmapRecipSize;
+                    float4 uvoffset = instanceData.xyxy * uvscale;
+                    uvoffset.xy += 0.5f * _TerrainHeightmapRecipSize.xy;
+                    float2 sampleCoords = (patchVertex.xy * uvscale.xy + uvoffset.xy);
+                    float hm = UnpackHeightmap(SAMPLE_TEXTURE2D_LOD(_TerrainHeightmapTexture, sampler_TerrainHeightmapTexture, sampleCoords, 0));
+                    o.vertex.xz = (patchVertex.xy + instanceData.xy) * _TerrainHeightmapScale.xz * instanceData.z;  //(x + xBase) * hmScale.x * skipScale;
+                    o.vertex.y = hm * _TerrainHeightmapScale.y;
+                    o.vertex.w = 1.0f;
+                    
+                    o.texcoord0.xy = (patchVertex.xy * uvscale.zw + uvoffset.zw);
+                    
+                    o.normal = float3(0,1,0);
+                #endif 
+                 
+                
+
+                #if _MEGASPLAT
+                   Input inp = (Input)0;
+                   EncodeMegaSplatVertex(ToAppData(i), inp);
+                   CopyMSVertexData(inp, o);
+                #elif _MICRODIGGERMESH || _MICROVERTEXMESH
+                   Input inp = (Input)0;
+                   #if _MICROVERTEXMESH
+                      EncodeVertex(ToAppData(i), inp);
+                   #elif _MICRODIGGERMESH
+                      DiggerEncodeVertex(ToAppData(i), inp);
+                   #endif
+                   CopyMSVertexData(inp, o);
+                #endif // megasplat
+
+                
+                
+                UNITY_TRANSFER_INSTANCE_ID(i, o);
+   
+                return o;
+            }
+
+           
+             [domain("tri")]
+             #if _MSRENDERLOOP_UNITYLD && (PASSSHADOW || PASSDEPTH || PASSMETA)
+                VertexOutput
+             #elif _MSRENDERLOOP_UNITYLD
+                GraphVertexOutput
+             #elif _MSRENDERLOOP_UNITYHD
+                MeshToPS
+             #endif
+                 domain (OutputPatchConstant tessFactors, const OutputPatch<TessVertex,3> vi, float3 bary : SV_DomainLocation) 
+             {
+                 #if _MSRENDERLOOP_UNITYHD
+                    AttributesMesh v = (AttributesMesh)0;
+                 #else
+                    GraphVertexInput v = (GraphVertexInput)0;
+                 #endif
+
+                 UNITY_TRANSFER_INSTANCE_ID(vi[0], v);
+
+                 Input inp = (Input)0;
+
+                 #if _MEGASPLAT
+                   v.layer0 = vi[0].layer0 * bary.x + vi[1].layer0 * bary.y + vi[2].layer0 * bary.z;
+                   v.layer1 = vi[0].layer1 * bary.x + vi[1].layer1 * bary.y + vi[2].layer1 * bary.z;
+                   v.baryWeights = vi[0].baryWeights * bary.x + vi[1].baryWeights * bary.y + vi[2].baryWeights * bary.z;
+                   inp.layer0 = v.layer0;
+                   inp.layer1 = v.layer1;
+                   inp.baryWeights = v.baryWeights;
+
+                   #if _SCATTER
+                      v.scatter0 = vi[0].scatter0 * bary.x + vi[1].scatter0 * bary.y + vi[2].scatter0 * bary.z;
+                      inp.scatter0 = v.scatter0;
+                   #endif
+                   #if _SPLATTERSECONDLAYER
+                      v.scatter1 = vi[0].scatter1 * bary.x + vi[1].scatter1 * bary.y + vi[2].scatter1 * bary.z;
+                      inp.scatter1 = v.scatter1;
+                   #endif
+            
+                   #if _STEAMS || _WETNESS || _LAVA || _PUDDLES
+                      v.fx = vi[0].fx * bary.x + vi[1].fx * bary.y + vi[2].fx * bary.z;
+                      inp.fx = v.fx;
+                   #endif
+                 #elif _MICRODIGGERMESH || _MICROVERTEXMESH
+                    v.w0 = vi[0].w0 * bary.x + vi[1].w0 * bary.y + vi[2].w0 * bary.z;
+                    inp.w0 = v.w0;
+                    #if !_MAX4TEXTURES
+                       v.w1 = vi[0].w1 * bary.x + vi[1].w1 * bary.y + vi[2].w1 * bary.z;
+                       inp.w1 = v.w1;
+                    #endif
+                    #if !_MAX4TEXTURES && !_MAX8TEXTURES
+                       v.w2 = vi[0].w2 * bary.x + vi[1].w2 * bary.y + vi[2].w2 * bary.z;
+                       inp.w2 = v.w2;
+                    #endif
+                    #if !_MAX4TEXTURES && !_MAX8TEXTURES && !_MAX12TEXTURES
+                       v.w3 = vi[0].w3 * bary.x + vi[1].w3 * bary.y + vi[2].w3 * bary.z;
+                       inp.w3 = v.w3;
+                    #endif
+                    #if _MAX20TEXTURES || _MAX24TEXTURES || _MAX28TEXTURES || _MAX32TEXTURES
+                       v.w4 = vi[0].w4 * bary.x + vi[1].w4 * bary.y + vi[2].w4 * bary.z;
+                       inp.w4 = v.w4;
+                    #endif
+                    #if _MAX24TEXTURES || _MAX28TEXTURES || _MAX32TEXTURES
+                       v.w5 = vi[0].w5 * bary.x + vi[1].w5 * bary.y + vi[2].w5 * bary.z;
+                       inp.w5 = v.w5;
+                    #endif
+                    #if (_MAX28TEXTURES || _MAX32TEXTURES) && !_STREAMS && !_LAVA && !_WETNESS && !_PUDDLES
+                       v.w6 = vi[0].w6 * bary.x + vi[1].w6 * bary.y + vi[2].w6 * bary.z;
+                       inp.w6 = v.w6;
+                    #endif
+
+                    #if _STEAMS || _WETNESS || _LAVA || _PUDDLES
+                       v.s0 = vi[0].s0 * bary.x + vi[1].s0 * bary.y + vi[2].s0 * bary.z;
+                       inp.s0 = v.s0;
+                    #endif
+                   
+                 #endif // megasplat
+
+
+                  #if _MSRENDERLOOP_UNITYLD
+                    v.vertex = vi[0].vertex * bary.x + vi[1].vertex * bary.y + vi[2].vertex * bary.z;
+                    v.normal = vi[0].normal * bary.x + vi[1].normal * bary.y + vi[2].normal * bary.z;
+                    v.tangent = vi[0].tangent * bary.x + vi[1].tangent * bary.y + vi[2].tangent * bary.z;
+                    v.texcoord0 = vi[0].texcoord0 * bary.x + vi[1].texcoord0 * bary.y + vi[2].texcoord0 * bary.z;
+                    v.texcoord1 = vi[0].texcoord1 * bary.x + vi[1].texcoord1 * bary.y + vi[2].texcoord1 * bary.z;
+                    v.vertex.xyz += OffsetVertex(float4(v.vertex.xyz, 1), v.normal, v.tangent, v.texcoord0, inp).xyz; 
+                 
+                    #if (defined(UNITY_INSTANCING_ENABLED) || _PERPIXNORMAL) && _MICROTERRAIN
+                    v.normal = float3(0,1,0);
+                    #endif
+
+                 
+
+                    #if PASSSHADOW
+                       VertexOutput o = ShadowPassVertex(v);
+                    #elif PASSDEPTH || PASSMETA
+                       VertexOutput o = vert(v);
+                    #else
+                       GraphVertexOutput o = vert(v);
+                    #endif
+
+                    return o;
+
+                 #else  // hd
+                    v.positionOS.xyz = vi[0].vertex.xyz * bary.x + vi[1].vertex.xyz * bary.y + vi[2].vertex.xyz * bary.z;
+                    v.normalOS = vi[0].normal * bary.x + vi[1].normal * bary.y + vi[2].normal * bary.z;
+                    v.tangentOS = vi[0].tangent * bary.x + vi[1].tangent * bary.y + vi[2].tangent * bary.z;
+                    v.uv0 =  vi[0].texcoord0 * bary.x + vi[1].texcoord0 * bary.y + vi[2].texcoord0 * bary.z;
+                    v.uv1 = vi[0].texcoord1 * bary.x + vi[1].texcoord1 * bary.y + vi[2].texcoord1 * bary.z;
+                    v.positionOS.xyz += OffsetVertex(float4(v.positionOS.xyz, 1), v.normalOS, v.tangentOS, v.uv0.xy, inp).xyz; 
+
+                    #if (defined(UNITY_INSTANCING_ENABLED) || _PERPIXNORMAL) && _MICROTERRAIN
+                    v.normalOS = float3(0,1,0);
+                    #endif
+
+                    return Vert(v);
+                 #endif
+                 
+                 
+             }
+             
+#endif // LD/HD
+             
+
+             
 
       void SampleAlbedo(inout Config config, inout TriplanarConfig tc, inout RawSamples s, MIPFORMAT mipLevel, half4 weights)
       {
@@ -3485,6 +5937,7 @@ UNITY_INSTANCING_BUFFER_END(Terrain)
 ENDCG
 
    }
+   Dependency "BaseMapShader" = "Hidden/MicroSplat/Terrain_Base-1928186731"
    CustomEditor "MicroSplatShaderGUI"
    Fallback "Nature/Terrain/Diffuse"
 }

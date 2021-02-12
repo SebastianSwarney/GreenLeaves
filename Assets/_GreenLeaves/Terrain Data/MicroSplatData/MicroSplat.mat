@@ -43,8 +43,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DetailNoise:
+        m_Texture: {fileID: 2800000, guid: c3e57cb2426d34f64af1fc986aa89fcf, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Diffuse:
         m_Texture: {fileID: 18700000, guid: 913201fc07845334aa2e0f3e2a9e231e, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DistanceNoise:
+        m_Texture: {fileID: 2800000, guid: c3e57cb2426d34f64af1fc986aa89fcf, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalSAO:
@@ -64,8 +72,14 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _Contrast: 0.4
+    - _Contrast: 1
+    - _TriplanarContrast: 4
     m_Colors:
-    - _TriplanarUVScale: {r: 1, g: 1, b: 0, a: 0}
-    - _UVScale: {r: 45, g: 45, b: 0, a: 0}
+    - _DetailNoiseScaleStrengthFade: {r: 2, g: 0.76, b: 5.29, a: 0}
+    - _DistanceNoiseScaleStrengthFade: {r: 0.13, g: 0.24, b: 101.46, a: 233}
+    - _NoiseHeightData: {r: 1, g: 0.27, b: 0, a: 0}
+    - _TessData1: {r: 11, g: 0.14, b: 3, a: 0}
+    - _TessData2: {r: 17.61, g: 43.6, b: 0.26099998, a: 0.237}
+    - _TriplanarUVScale: {r: 2, g: 2, b: 0, a: 0}
+    - _UVScale: {r: 10, g: 10, b: 0, a: 0}
   m_BuildTextureStacks: []
