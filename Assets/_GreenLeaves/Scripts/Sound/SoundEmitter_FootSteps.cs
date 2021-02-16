@@ -77,7 +77,7 @@ public class SoundEmitter_FootSteps : MonoBehaviour
 
             if (hit.transform.GetComponent<SoundChanger_FootSteps>())
             {
-                newStepObject = hit.transform.parent.GetComponent<SoundChanger_FootSteps>();
+                newStepObject = hit.transform.GetComponent<SoundChanger_FootSteps>();
             }else if (hit.transform.parent != null)
             {
                 if (hit.transform.parent.GetComponent<SoundChanger_FootSteps>())
