@@ -68,8 +68,12 @@ public class TerrainTexture : OdinEditorWindow
 
                 for (int i = 0; i < m_terrainTextureSettings.m_splatMapSettings.Length; i++)
                 {
-                    float splatValue = m_terrainTextureSettings.m_splatMapSettings[i].GetSplatValue(heightNormalized, curvature, steepness);
-                    splatWeights[i] = splatValue;
+					if (i != 3)
+					{
+                        float splatValue = m_terrainTextureSettings.m_splatMapSettings[i].GetSplatValue(heightNormalized, curvature, steepness);
+                        splatWeights[i] = splatValue;
+                    }
+
                 }
 
                 // Sum of all textures weights must add to 1, so calculate normalization factor from sum of weights

@@ -266,7 +266,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
                     if (objectListToUse.CheckSpawn(worldPos.y / terrain.terrainData.size.y, curvature, slope))
                     {
-                        spawnData.Add(new ObjectSpawnData(objectListToUse, new Vector3(worldPos.x, adjustedWorldHeight, worldPos.z), slopeNormal));
+                        spawnData.Add(new ObjectSpawnData(objectListToUse, new Vector3(worldPos.x, adjustedWorldHeight + m_terrain.transform.position.y, worldPos.z), slopeNormal));
                         //Color color = new Color(0, 0, 0, 1f);
                         Color color = Color.black;
                         texture.SetPixel(x, y, color);
@@ -420,18 +420,20 @@ public class TerrainObjectSpawner : OdinEditorWindow
                     instanceCount = 0;
 				}
 
-                /*
                 Vector3 wPos = terrain.DetailToWorld(y, x);
                 Vector2 normalizedPos = terrain.GetNormalizedPosition(wPos);
                 float spawnChance = 0;
-                Texture2D splat = terrain.terrainData.GetAlphamapTexture(SpawnerBase.GetSplatmapID(1));
+
+                int layer = 2;
+
+                Texture2D splat = terrain.terrainData.GetAlphamapTexture(SpawnerBase.GetSplatmapID(layer));
                 Vector2Int texelIndex = terrain.SplatmapTexelIndex(normalizedPos);
                 Color color = splat.GetPixel(texelIndex.x, texelIndex.y);
-                int channel = 1 % 4;
+                int channel = layer % 4;
                 float value = SpawnerBase.SampleChannel(color, channel);
                 if (value > 0)
                 {
-                    value = Mathf.Clamp01(value - 0.5f);
+                    value = Mathf.Clamp01(value);
                 }
                 value *= 100f;
                 spawnChance += value;
@@ -439,7 +441,6 @@ public class TerrainObjectSpawner : OdinEditorWindow
                 {
                     instanceCount = 0;
                 }
-                */
 
                 map[x, y] = instanceCount;
             }
