@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 
 public abstract class TerrainMask
 {
-    public bool m_useMask = true;
+    public bool m_useMask = false;
 
     [Range(0, 1)]
     public float m_strength = 1f;

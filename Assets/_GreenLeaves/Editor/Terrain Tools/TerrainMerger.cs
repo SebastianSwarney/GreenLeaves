@@ -62,20 +62,30 @@ public class TerrainMerger : OdinEditorWindow
 
         //This is currently kinda hardcoded to work for the terrain that we have rn but I think thats ok
         int terrainTileDimensions = m_terrainColumns.Length;
-        newTerrainData.heightmapResolution = ((m_sampleTerrain.terrainData.heightmapResolution - 1) * terrainTileDimensions) + 1;
+        //newTerrainData.heightmapResolution = ((m_sampleTerrain.terrainData.heightmapResolution - 1) * terrainTileDimensions) + 1;
+        //newTerrainData.heightmapResolution = 4097;
+        newTerrainData.heightmapResolution = 2049;
 
         //newTerrainData.alphamapResolution = newTerrainData.heightmapResolution - 1;
 
         GameObject terrainObject = Terrain.CreateTerrainGameObject(newTerrainData);
-        newTerrainData.size = new Vector3((terrainTileDimensions + 1) * m_sampleTerrain.terrainData.size.x, m_sampleTerrain.terrainData.size.y, (terrainTileDimensions + 1) * m_sampleTerrain.terrainData.size.x);
+        newTerrainData.size = new Vector3((terrainTileDimensions) * m_sampleTerrain.terrainData.size.x, m_sampleTerrain.terrainData.size.y, (terrainTileDimensions) * m_sampleTerrain.terrainData.size.x);
 
-        terrainObject.transform.position += Vector3.left * (newTerrainData.size.x / (terrainTileDimensions + 1));
-        terrainObject.transform.position += Vector3.back * (newTerrainData.size.x / (terrainTileDimensions + 1));
+        terrainObject.transform.position += Vector3.left * (newTerrainData.size.x / (terrainTileDimensions));
+        terrainObject.transform.position += Vector3.back * (newTerrainData.size.x / (terrainTileDimensions));
 
         for (int x = 0; x < m_terrainColumns.Length; x++)
         {
             for (int y = 0; y < m_terrainColumns[x].m_columnContent.Length; y++)
             {
+				if (x == 0)
+				{
+					if (y == 0)
+					{
+
+                    }
+                }
+
                 TerrainData oldTerrainData = m_terrainColumns[x].m_columnContent[y].terrainData;
                 SetSingleTerrainData(oldTerrainData, newTerrainData, new Vector2Int(x, y));
             }
@@ -87,9 +97,7 @@ public class TerrainMerger : OdinEditorWindow
     private void SetSingleTerrainData(TerrainData p_oldData, TerrainData p_newData, Vector2Int p_positionIndex)
     {
         float[,] heights = p_oldData.GetHeights(0, 0, p_oldData.heightmapResolution, p_oldData.heightmapResolution);
-
-        Vector2Int pos = new Vector2Int(p_oldData.heightmapResolution * p_positionIndex.x, p_oldData.heightmapResolution * p_positionIndex.y);
-
+        Vector2Int pos = new Vector2Int((p_oldData.heightmapResolution - 1) * p_positionIndex.x, (p_oldData.heightmapResolution - 1) * p_positionIndex.y);
         p_newData.SetHeights(pos.x, pos.y, heights);
     }
 }
