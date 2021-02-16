@@ -59,7 +59,9 @@ public class TerrainTexture : OdinEditorWindow
                 float heightNormalized = height / terrainData.heightmapResolution;
                 float steepness = terrainData.GetSteepness(xValue, yValue);
                 Vector3 normal = terrainData.GetInterpolatedNormal(xValue, yValue);
-                float curvature = terrain.SampleConvexity(new Vector2(xValue, yValue));
+
+
+                float curvature = terrain.SampleConvexity(new Vector2(xValue, yValue), 10f);
                 curvature = TerrainSampler.ConvexityToCurvature(curvature);
 
                 float[] splatWeights = new float[terrainData.alphamapLayers];
