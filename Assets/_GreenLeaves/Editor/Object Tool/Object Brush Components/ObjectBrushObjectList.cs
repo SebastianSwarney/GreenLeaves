@@ -81,21 +81,21 @@ public class ObjectBrushObjectList : SerializedScriptableObject
 
 		float heightSpawnChance = m_heightMask.GetMaskValue(p_normalizedHeight);
 
-		if ((Random.value) >= heightSpawnChance)
+		if ((Random.value) >= heightSpawnChance && m_heightMask.m_useMask)
 		{
 			return false;
 		}
 
 		float curvatureSpawnRange = m_curvatureMask.GetMaskValue(p_curvature);
 
-		if ((Random.value) >= curvatureSpawnRange)
+		if ((Random.value) >= curvatureSpawnRange && m_curvatureMask.m_useMask)
 		{
 			return false;
 		}
 
 		float slopeSpawnChance = m_slopeMask.GetMaskValue(p_slope);
 
-		if ((Random.value) >= slopeSpawnChance)
+		if ((Random.value) >= slopeSpawnChance && m_slopeMask.m_useMask)
 		{
 			return false;
 		}

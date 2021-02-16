@@ -59,15 +59,21 @@ public class TerrainTexture : OdinEditorWindow
                 float heightNormalized = height / terrainData.heightmapResolution;
                 float steepness = terrainData.GetSteepness(xValue, yValue);
                 Vector3 normal = terrainData.GetInterpolatedNormal(xValue, yValue);
-                float curvature = terrain.SampleConvexity(new Vector2(xValue, yValue));
+
+
+                float curvature = terrain.SampleConvexity(new Vector2(xValue, yValue), 10f);
                 curvature = TerrainSampler.ConvexityToCurvature(curvature);
 
                 float[] splatWeights = new float[terrainData.alphamapLayers];
 
                 for (int i = 0; i < m_terrainTextureSettings.m_splatMapSettings.Length; i++)
                 {
-                    float splatValue = m_terrainTextureSettings.m_splatMapSettings[i].GetSplatValue(heightNormalized, curvature, steepness);
-                    splatWeights[i] = splatValue;
+					if (i != 3)
+					{
+                        float splatValue = m_terrainTextureSettings.m_splatMapSettings[i].GetSplatValue(heightNormalized, curvature, steepness);
+                        splatWeights[i] = splatValue;
+                    }
+
                 }
 
                 // Sum of all textures weights must add to 1, so calculate normalization factor from sum of weights

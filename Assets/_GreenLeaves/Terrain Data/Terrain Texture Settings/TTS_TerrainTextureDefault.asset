@@ -13,25 +13,61 @@ MonoBehaviour:
   m_Name: TTS_TerrainTextureDefault
   m_EditorClassIdentifier: 
   m_splatMapSettings:
-  - m_totalStrength: 0.1
-    m_layerTexture: {fileID: 8574412962073106934, guid: 82aea1bf4675be54487e9d7583efd53c, type: 2}
+  - m_totalStrength: 0.01
+    m_layerTexture: {fileID: 8574412962073106934, guid: a9e150c5a14fc9f4da3745d21f0948ee, type: 2}
     m_heightMask:
       m_useMask: 0
       m_strength: 1
-      m_minMaxHeight: {x: 0, y: 0}
+      m_minMaxHeight: {x: 0, y: 1}
       m_heightCurve:
         serializedVersion: 2
-        m_Curve: []
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
     m_slopeMask:
       m_useMask: 0
       m_strength: 1
-      m_minMaxSlope: {x: 0, y: 0}
+      m_minMaxSlope: {x: 0, y: 30}
       m_slopeCurve:
         serializedVersion: 2
-        m_Curve: []
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
@@ -63,10 +99,10 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-  - m_totalStrength: 1
-    m_layerTexture: {fileID: 8574412962073106934, guid: a81050ac684e8ef438628a0ed178d144, type: 2}
+  - m_totalStrength: 0.6
+    m_layerTexture: {fileID: 8574412962073106934, guid: 07beab8e0d61ede4dbb5e83f83fc1f3e, type: 2}
     m_heightMask:
-      m_useMask: 1
+      m_useMask: 0
       m_strength: 1
       m_minMaxHeight: {x: 0, y: 0}
       m_heightCurve:
@@ -78,7 +114,93 @@ MonoBehaviour:
     m_slopeMask:
       m_useMask: 1
       m_strength: 1
-      m_minMaxSlope: {x: 0, y: 50}
+      m_minMaxSlope: {x: 25, y: 90}
+      m_slopeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 1
+          outSlope: 1
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 1
+          outSlope: 1
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+    m_curvatureMask:
+      m_useMask: 1
+      m_strength: 1
+      m_minMaxCurvature: {x: 0, y: 0.6}
+      m_curvatureCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+  - m_totalStrength: 0.8
+    m_layerTexture: {fileID: 8574412962073106934, guid: 825b91f4308954d49b510241d9e3c56e, type: 2}
+    m_heightMask:
+      m_useMask: 0
+      m_strength: 1
+      m_minMaxHeight: {x: 0, y: 0}
+      m_heightCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+    m_slopeMask:
+      m_useMask: 1
+      m_strength: 1
+      m_minMaxSlope: {x: 0, y: 25}
       m_slopeCurve:
         serializedVersion: 2
         m_Curve:
@@ -106,19 +228,46 @@ MonoBehaviour:
     m_curvatureMask:
       m_useMask: 1
       m_strength: 1
-      m_minMaxCurvature: {x: 0, y: 0}
+      m_minMaxCurvature: {x: 0.2, y: 1}
       m_curvatureCurve:
         serializedVersion: 2
-        m_Curve: []
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.5
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
   - m_totalStrength: 1
-    m_layerTexture: {fileID: 8574412962073106934, guid: e0d9469a58c161248b9ac0a71f7750ba, type: 2}
+    m_layerTexture: {fileID: 8574412962073106934, guid: b77f5474e43f54642b879099eca2d597, type: 2}
     m_heightMask:
-      m_useMask: 1
+      m_useMask: 0
       m_strength: 1
-      m_minMaxHeight: {x: 0, y: 0}
+      m_minMaxHeight: {x: 0.25797537, y: 0.48545736}
       m_heightCurve:
         serializedVersion: 2
         m_Curve: []
@@ -128,15 +277,92 @@ MonoBehaviour:
     m_slopeMask:
       m_useMask: 1
       m_strength: 1
-      m_minMaxSlope: {x: 50, y: 90}
+      m_minMaxSlope: {x: 20, y: 90}
       m_slopeCurve:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
           time: 0
           value: 0
-          inSlope: 1
-          outSlope: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+    m_curvatureMask:
+      m_useMask: 0
+      m_strength: 1
+      m_minMaxCurvature: {x: 0.5, y: 1}
+      m_curvatureCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.5
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+  - m_totalStrength: 1
+    m_layerTexture: {fileID: 8574412962073106934, guid: 3e0255e0be5f07549b8388eb9c8ab26f, type: 2}
+    m_heightMask:
+      m_useMask: 0
+      m_strength: 1
+      m_minMaxHeight: {x: 0, y: 0}
+      m_heightCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+    m_slopeMask:
+      m_useMask: 0
+      m_strength: 1
+      m_minMaxSlope: {x: 0, y: 1}
+      m_slopeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
@@ -144,8 +370,8 @@ MonoBehaviour:
         - serializedVersion: 3
           time: 1
           value: 1
-          inSlope: 1
-          outSlope: 1
+          inSlope: 0
+          outSlope: 0
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
@@ -156,10 +382,28 @@ MonoBehaviour:
     m_curvatureMask:
       m_useMask: 1
       m_strength: 1
-      m_minMaxCurvature: {x: 0, y: 0}
+      m_minMaxCurvature: {x: 0, y: 0.2}
       m_curvatureCurve:
         serializedVersion: 2
-        m_Curve: []
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
