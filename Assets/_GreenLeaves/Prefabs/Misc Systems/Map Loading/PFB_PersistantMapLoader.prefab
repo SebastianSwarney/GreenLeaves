@@ -43,8 +43,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ca12d34efb6bbe4794ff1285c59b3cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_currentMainArea: 
-  m_mapScenes: []
+  m_currentMainArea: SCN_Map_Blocking_Playtesting_Loading
+  m_sectionLoadedOnStart: 0
+  m_mapScenes:
+  - m_areaSceneName: SCN_Map_Blocking_Playtesting_Loading
+    m_areaLoaded: 0
   m_allMapData: []
   m_allResourceTypes:
   - m_resourceType: {fileID: 11400000, guid: f5271adb58d906349943de64b22d057b, type: 2}
@@ -71,4 +74,81 @@ MonoBehaviour:
     m_resourcePrefab: {fileID: 2756998065156982919, guid: 4f2842d1361ce9240ab58d31c2f743fa, type: 3}
   - m_resourceType: {fileID: 11400000, guid: e5027cacf76d8e74eb31a673471f9d30, type: 2}
     m_resourcePrefab: {fileID: 5229742732652447115, guid: 70b9e51574abc364291cf65d94289d22, type: 3}
-  m_sceneTriggerLoaders: []
+  m_sceneTriggerLoaders:
+  - m_mainLoadingAreaScene: SCN_Map_Blocking_Playtesting_Loading
+    m_loadAreas: 00000000
+    m_unloadAreas: 
+  m_maxBerryCount: 8
+  m_percentDecreasePerBerry: 0
+  m_hungerPercentCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_energyPercentCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_staminaCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

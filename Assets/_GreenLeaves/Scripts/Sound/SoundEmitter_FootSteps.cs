@@ -73,7 +73,24 @@ public class SoundEmitter_FootSteps : MonoBehaviour
         Debug.DrawLine(m_playerHeadObject.position, m_playerHeadObject.position + (transform.position - m_playerHeadObject.position) * 5, Color.red, .5f);
         if (Physics.Raycast(m_playerHeadObject.position, transform.position - m_playerHeadObject.position, out hit, 5, m_nonTerrainMask))
         {
-            SoundChanger_FootSteps newStepObject = hit.transform.parent.GetComponent<SoundChanger_FootSteps>();
+            SoundChanger_FootSteps newStepObject;
+
+            if (hit.transform.GetComponent<SoundChanger_FootSteps>())
+            {
+                newStepObject = hit.transform.parent.GetComponent<SoundChanger_FootSteps>();
+            }else if (hit.transform.parent != null)
+            {
+                if (hit.transform.parent.GetComponent<SoundChanger_FootSteps>())
+                {
+                    newStepObject = hit.transform.parent.GetComponent<SoundChanger_FootSteps>();
+                }else
+                {
+                    return m_terrainSounds[0];
+                }
+            }else
+            {
+                return m_terrainSounds[0];
+            }
             if (newStepObject == null)
             {
                 if (hit.transform.parent.parent != null)

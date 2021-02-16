@@ -45,21 +45,21 @@ public class VFX_DropSound : MonoBehaviour
         {
             RaycastHit hit;
             Debug.DrawLine(transform.position + Vector3.up * 5, transform.position + Vector3.up * 5 + Vector3.down * 100, Color.red, 2);
-            if(Physics.Raycast(transform.position + Vector3.up * 5, Vector3.down, out hit, 100, m_waterMask))
+            if (Physics.Raycast(transform.position + Vector3.up * 5, Vector3.down, out hit, 100, m_waterMask))
             {
-                if(Physics.Linecast(transform.position, hit.point, m_groundLayerMask))
+                if (Physics.Linecast(transform.position, hit.point, m_groundLayerMask))
                 {
                     return;
                 }
-                
+
                 m_particleSpawner.SpawnParticleWithAngle(hit.normal);
             }
             else
             {
-                
+
                 m_particleSpawner.SpawnParticlePrefab();
             }
-            
+
             if (!m_eventEmitter.IsPlaying())
             {
                 PlaySound(true);
@@ -113,7 +113,26 @@ public class VFX_DropSound : MonoBehaviour
 
         if (Physics.Raycast(transform.position, transform.position - Vector3.up, out hit, 10, m_nonTerrainMask))
         {
-            SoundChanger_FootSteps newStepObject = hit.transform.parent.GetComponent<SoundChanger_FootSteps>();
+            SoundChanger_FootSteps newStepObject;
+            if (hit.transform.GetComponent<SoundChanger_FootSteps>())
+            {
+                newStepObject = hit.transform.GetComponent<SoundChanger_FootSteps>();
+            }
+            else if (hit.transform.parent != null)
+            {
+                if (hit.transform.parent.GetComponent<SoundChanger_FootSteps>())
+                {
+                    newStepObject = hit.transform.parent.GetComponent<SoundChanger_FootSteps>();
+                }
+                else
+                {
+                    return m_terrainSounds[0];
+                }
+            }
+            else
+            {
+                return m_terrainSounds[0];
+            }
             if (newStepObject == null)
             {
                 if (hit.transform.parent.parent != null)
