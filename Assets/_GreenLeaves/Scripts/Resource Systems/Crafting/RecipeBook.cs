@@ -17,9 +17,12 @@ public class RecipeBook : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        foreach (Recipes rec in m_recipes)
+        for (int i = 0; i < m_recipes.Length; i++)
         {
-            rec.m_unlocked = false;
+            if (m_recipes[i].m_unlocked)
+            {
+                UnlockRecipe(i);
+            }
         }
     }
 
