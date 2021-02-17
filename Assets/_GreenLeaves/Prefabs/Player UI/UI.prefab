@@ -695,7 +695,7 @@ RectTransform:
   m_GameObject: {fileID: 496540812768593811}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 1}
   m_Children: []
   m_Father: {fileID: 496540814701806501}
   m_RootOrder: 1
@@ -703,7 +703,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 57.46}
+  m_SizeDelta: {x: 400, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &496540812768593814
 CanvasRenderer:
@@ -735,11 +735,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 7d53bfa02f72a5e408f749e5e06a9d1c, type: 3}
-    m_FontSize: 14
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
+    m_MinSize: 4
+    m_MaxSize: 48
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1096,11 +1096,6 @@ MonoBehaviour:
   m_canteenResource: {fileID: 9069080841668841989}
   m_bowResource: {fileID: 0}
   m_climbingAxeResource: {fileID: 0}
-  m_axePos: {x: 0, y: 0, z: 0}
-  m_torchPos: {x: 0, y: 0, z: 0}
-  m_canteenPos: {x: 0, y: 0, z: 0}
-  m_bowPos: {x: 0, y: 0, z: 0}
-  m_climbingAxePos: {x: 0, y: 0, z: 0}
 --- !u!114 &496540812864191056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1960,7 +1955,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.26666668, g: 0.27058825, b: 0.26666668, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2931,7 +2926,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: R
+  m_Text: T
 --- !u!1 &496540814251881925
 GameObject:
   m_ObjectHideFlags: 0
@@ -4035,7 +4030,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 830c271234f4fb040b98e76536bb4edb, type: 2}
   - {fileID: 11400000, guid: b7656f93c2b878a4da94ce4190ee0166, type: 2}
   - {fileID: 11400000, guid: fdc070df7a13dbf4c933808a200f882a, type: 2}
-  - {fileID: 11400000, guid: 3ee0c182eafba2b4ca212fde3f30229b, type: 2}
   - {fileID: 11400000, guid: e91a90d15dc33db4899243b2115c063e, type: 2}
   - {fileID: 11400000, guid: d378f36226e97644abf22d89f3163207, type: 2}
   m_craftButton: {fileID: 4483244460993229830}
@@ -4195,7 +4189,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'How long to wait?
+  m_Text: 'How long to sleep?
 
 '
 --- !u!1 &496540814727214321
@@ -5096,7 +5090,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Wait
+  m_Text: Sleep
 --- !u!1 &1173240555936271134
 GameObject:
   m_ObjectHideFlags: 0

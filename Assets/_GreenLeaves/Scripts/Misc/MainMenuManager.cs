@@ -14,6 +14,11 @@ public class MainMenuManager : MonoBehaviour
     public List<FMODUnity.StudioEventEmitter> m_randomSounds;
     public float m_minTime = 15, m_maxTime = 20;
 
+    private int m_enterPressed;
+
+    public GenericWorldEvent m_firstEnterPressed, m_secondEnterPressed;
+    private float m_enterBufferTime = 1;
+    private float m_enterTimer;
     private void Start()
     {
         if (m_playRandomSounds)
@@ -24,16 +29,16 @@ public class MainMenuManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return) && m_enterTimer > m_enterBufferTime)
         {
-            GlobalSceneManager.Instance.LoadNewScene(1, true);
+            EnterPressed();
         }
         else
         {
             if (m_isAppearing)
             {
                 m_enterCanvasGroup.alpha = 1;
-                if(m_currentFadeTimer > m_appearTime)
+                if (m_currentFadeTimer > m_appearTime)
                 {
                     m_isAppearing = false;
                     m_isFading = true;
@@ -45,7 +50,7 @@ public class MainMenuManager : MonoBehaviour
                 if (m_isFading)
                 {
                     m_enterCanvasGroup.alpha = 1 - (m_currentFadeTimer / m_fadeTime);
-                    if(m_currentFadeTimer >= m_fadeTime)
+                    if (m_currentFadeTimer >= m_fadeTime)
                     {
                         m_currentFadeTimer = 0;
                         m_isFading = false;
@@ -67,8 +72,32 @@ public class MainMenuManager : MonoBehaviour
 
             m_currentFadeTimer += Time.deltaTime;
         }
+
+        if (m_enterTimer < m_enterBufferTime)
+        {
+            m_enterTimer += Time.deltaTime;
+        }
     }
 
+
+    public void EnterPressed()
+    {
+        m_enterTimer = 0;
+        if (m_enterPressed == 0)
+        {
+            m_firstEnterPressed.Invoke();
+        }
+        else if (m_enterPressed == 1)
+        {
+            m_secondEnterPressed.Invoke();
+        }
+        m_enterPressed++;
+    }
+
+    public void StartFade()
+    {
+        GlobalSceneManager.Instance.LoadNewScene(1, true);
+    }
     private IEnumerator RandomSounds()
     {
         float timer = 0;
