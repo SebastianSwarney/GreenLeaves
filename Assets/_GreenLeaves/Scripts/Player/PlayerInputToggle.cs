@@ -14,6 +14,12 @@ public class PlayerInputToggle : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+
+    }
+    private void Start()
+    {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void ToggleInput(bool p_newState)
@@ -21,7 +27,7 @@ public class PlayerInputToggle : MonoBehaviour
         m_playerInput.enabled = p_newState;
         m_cameraRotation.enabled = p_newState;
         Cursor.visible = !p_newState;
-        Cursor.lockState = (p_newState) ? CursorLockMode.Confined : CursorLockMode.None;
+        Cursor.lockState = (p_newState) ? CursorLockMode.Confined : CursorLockMode.Locked;
 
         if (!p_newState)
         {
