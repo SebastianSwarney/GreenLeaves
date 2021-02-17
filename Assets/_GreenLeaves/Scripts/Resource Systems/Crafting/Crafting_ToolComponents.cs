@@ -6,9 +6,6 @@ public class Crafting_ToolComponents : MonoBehaviour
 
     private void Start()
     {
-        m_axePos = m_axeResource.transform.localPosition;
-        m_torchPos = m_torchResource.transform.localPosition;
-        m_canteenPos = m_canteenResource.transform.localPosition;
         //m_climbingAxePos = m_climbingAxeResource.transform.localPosition;
         //m_bowPos = m_bowResource.transform.localPosition;
     }
