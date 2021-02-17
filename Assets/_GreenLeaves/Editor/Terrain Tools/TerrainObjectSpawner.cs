@@ -25,6 +25,12 @@ public class TerrainObjectSpawner : OdinEditorWindow
 
     public int m_grassDensity;
 
+    public int m_minGrassDensity;
+
+    public SlopeMask m_grassSlopeMask;
+    public CurvatureMask m_grassCurvatureMask;
+
+
     #region Old variables
     /*
     [PreviewField(Height = 256, Alignment = ObjectFieldAlignment.Left)]
@@ -420,6 +426,31 @@ public class TerrainObjectSpawner : OdinEditorWindow
                     instanceCount = 0;
 				}
 
+                Vector3 worldPos = terrain.DetailToWorld(y, x);
+                Vector2 normalizedPos = terrain.GetNormalizedPosition(worldPos);
+                float curvature = terrain.SampleConvexity(normalizedPos);
+                curvature = TerrainSampler.ConvexityToCurvature(curvature);
+                terrain.SampleHeight(normalizedPos, out _, out worldPos.y, out _);
+                float slope = terrain.GetSlope(normalizedPos);
+
+                float curvatureSpawnRange = m_grassCurvatureMask.GetMaskValue(curvature);
+
+                if ((Random.value) >= curvatureSpawnRange && m_grassCurvatureMask.m_useMask)
+                {
+                    instanceCount = 0;
+
+                    instanceCount = (int)Mathf.InverseLerp(0, m_grassDensity, curvatureSpawnRange);
+                }
+
+                float slopeSpawnChance = m_grassSlopeMask.GetMaskValue(slope);
+
+                if ((Random.value) >= slopeSpawnChance && m_grassSlopeMask.m_useMask)
+                {
+                    instanceCount = 0;
+                    instanceCount = (int)Mathf.InverseLerp(0, m_grassDensity, slopeSpawnChance);
+                }
+
+                /*
                 Vector3 wPos = terrain.DetailToWorld(y, x);
                 Vector2 normalizedPos = terrain.GetNormalizedPosition(wPos);
                 float spawnChance = 0;
@@ -441,6 +472,7 @@ public class TerrainObjectSpawner : OdinEditorWindow
                 {
                     instanceCount = 0;
                 }
+                */
 
                 map[x, y] = instanceCount;
             }
