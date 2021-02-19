@@ -15,16 +15,6 @@ public class Manipulation_HitObject : MonoBehaviour
 
     public GenericWorldEvent m_objectHit, m_objectDied;
 
-    public Durability_UI m_durabilityUI;
-    private void Awake()
-    {
-        if(m_durabilityUI == null)
-        {
-            Debug.LogError("Missing UI: " + gameObject.name, gameObject);
-            return;
-        }
-        m_durabilityUI.UpdateText(m_hitAmount - m_currentHit);
-    }
 
     private void OnDisable()
     {
@@ -47,7 +37,8 @@ public class Manipulation_HitObject : MonoBehaviour
         }
         else
         {
-            m_durabilityUI.UpdateText(m_hitAmount - m_currentHit);
+            Durability_UI.Instance.ShowUI();
+            Durability_UI.Instance.UpdateText(m_hitAmount - m_currentHit);
             m_objectHit.Invoke();
         }
     }
@@ -62,5 +53,20 @@ public class Manipulation_HitObject : MonoBehaviour
     public void SetHitAmount(int p_hitAmount)
     {
         m_currentHit = p_hitAmount;
+    }
+
+    public void ShowUI()
+    {
+        Durability_UI.Instance.ShowUI();
+        Durability_UI.Instance.UpdateText(m_hitAmount - m_currentHit);
+    }
+    public void HideUI()
+    {
+        Durability_UI.Instance.HideUI();
+    }
+
+    public void DisableTree()
+    {
+        transform.parent.gameObject.SetActive(false);
     }
 }

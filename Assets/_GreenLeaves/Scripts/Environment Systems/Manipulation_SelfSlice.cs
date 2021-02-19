@@ -28,31 +28,26 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
     public GameObject m_mesh;
     public float m_applyForcePosition;
-
-    public Durability_UI m_durabilityUI;
     public Transform m_durabilityObject;
 
     public bool m_meshCollider = true;
-    private void Awake()
-    {
-        m_durabilityUI.UpdateText(m_hitsToSlice - m_currentHits);
-    }
 
+    public Vector3 m_cutPosition;
     /// <summary>
     /// <para>Called to slice the mesh. The parameters passed will affect the direction of the slice. </para>
     /// World point is the origin point of the slice<br/>
     /// Up Vecotor is the up vector of the slice. Determines the angle of the slice<br/>
     /// Forward Dir is used to push the mesh in a direction after it's been sliced<br/>
     /// </summary>
-    public void SliceMe(Vector3 p_worldPoint, Vector3 p_upVector, Vector3 p_forwardDir)
+    public void SliceMe(Vector3 p_forwardDir)
     {
-
+        Vector3 hitPos = transform.position + m_cutPosition;
         #region Determine the hit amount
-        m_choppingParticle.SpawnParticlePrefab(new Vector3(transform.position.x, p_worldPoint.y, transform.position.z));
+        m_choppingParticle.SpawnParticlePrefab(new Vector3(transform.position.x, hitPos.y, transform.position.z));
         m_currentHits++;
         if (m_currentHits < m_hitsToSlice)
         {
-            m_durabilityUI.UpdateText(m_hitsToSlice - m_currentHits);
+            Durability_UI.Instance.UpdateText(m_hitsToSlice - m_currentHits);
             if (m_hitsToSlice - m_currentHits == 1)
             {
                 m_oneMoreHitEvent.Invoke();
@@ -66,8 +61,8 @@ public class Manipulation_SelfSlice : MonoBehaviour
         #endregion
 
         #region Create the sliced hulls
-        Vector3 hitPoint = new Vector3(p_worldPoint.x * transform.localScale.x, p_worldPoint.y * transform.localScale.y, p_worldPoint.z * transform.localScale.z);
-        SlicedHull hull = m_mesh.Slice(p_worldPoint, p_upVector, m_crossSectionMaterials);
+        Vector3 hitPoint = new Vector3(hitPos.x * transform.localScale.x, hitPos.y * transform.localScale.y, hitPos.z * transform.localScale.z);
+        SlicedHull hull = m_mesh.Slice(hitPos, Vector3.up, m_crossSectionMaterials);
 
         if (hull == null)
         {
@@ -90,6 +85,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
         #region Children assignment
         Transform[] childs = new Transform[m_mesh.transform.childCount + 1];
         childs[childs.Length - 1] = m_durabilityObject;
+        m_durabilityObject.gameObject.SetActive(true);
         for (int i = 0; i < m_mesh.transform.childCount; i++)
         {
             childs[i] = m_mesh.transform.GetChild(i);
@@ -98,7 +94,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
         foreach (Transform chi in childs)
         {
             if (chi == null) continue;
-            if (Vector3.Angle(chi.transform.position - p_worldPoint, p_upVector) < 90)
+            if (Vector3.Angle(chi.transform.position - m_cutPosition, Vector3.up) < 90)
             {
                 chi.transform.parent = upperHull.transform;
             }
@@ -114,17 +110,6 @@ public class Manipulation_SelfSlice : MonoBehaviour
         ///Disable this later if we are adding our own collider for the cut parts
 
         lowerHull.AddComponent<MeshCollider>().convex = true;
-
-        if (m_meshCollider)
-        {
-            upperHull.AddComponent<MeshCollider>().convex = true;
-        }
-        else
-        {
-            BoxCollider upp = upperHull.AddComponent<BoxCollider>();
-            //upp.size = upperHull.GetComponent<MeshRenderer>().bounds.size;
-            //upp.center = upperHull.GetComponent<MeshRenderer>().bounds.center;
-        }
 
         if (m_addRB)
         {
@@ -156,15 +141,24 @@ public class Manipulation_SelfSlice : MonoBehaviour
         #endregion
 
 
-        m_slicedEvent.Invoke(upperHull);
+        m_slicedEvent.Invoke(upperHull.transform);
         gameObject.SetActive(false);
     }
 
+    public void HideUI()
+    {
+        Durability_UI.Instance.HideUI();
+    }
+    public void ShowUI()
+    {
+        Durability_UI.Instance.ShowUI();
+        Durability_UI.Instance.UpdateText(m_hitsToSlice - m_currentHits);
+    }
 
 #if UNITY_EDITOR
     [Header("DEbug")]
     public bool m_debug;
-    public Color m_debugColor;
+    public Color m_debugColor, m_debugColor2;
     public float m_boxSize;
 
     private void OnDrawGizmos()
@@ -172,6 +166,8 @@ public class Manipulation_SelfSlice : MonoBehaviour
         if (!m_debug) return;
         Gizmos.color = m_debugColor;
         Gizmos.DrawCube(transform.position + Vector3.up * m_applyForcePosition, Vector3.one * m_boxSize);
+        Gizmos.color = m_debugColor2;
+        Gizmos.DrawCube(transform.position + m_cutPosition, new Vector3(1, .25f, 1));
     }
 #endif
 }

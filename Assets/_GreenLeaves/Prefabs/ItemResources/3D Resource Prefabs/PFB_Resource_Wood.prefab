@@ -104,7 +104,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_durabilityUI: {fileID: 1310745994560412273}
 --- !u!114 &61724306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,6 +117,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_spawnedParticle: {fileID: 5715961015872795951, guid: fa5bdac66a608ca47813adac7e77c3b0, type: 3}
+  m_spawnedParticleList: []
   m_particleOffset: {x: 0, y: 0, z: 0}
   m_refScaleTransform: {fileID: 0}
   m_rotateParticleWithY: 0
@@ -1126,74 +1126,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1001 &38733751074178615
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 8217958979717102003}
-    m_Modifications:
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -1.07
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.0000000037252899
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.0000000037252899
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_RootOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071365, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1349154289638071368, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-      propertyPath: m_Name
-      value: PFB_DurabilityUI
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
---- !u!114 &1310745994560412273 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1349154289638071366, guid: 39f39d476d1ba244da4b724edee06d36, type: 3}
-  m_PrefabInstance: {fileID: 38733751074178615}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa3f3f94ab6014d49b30c0995ad986cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &4563168124711796781
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1255,7 +1187,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2316559166084059685, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4142028310542738295, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_interactableName

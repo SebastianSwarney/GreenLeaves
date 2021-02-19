@@ -5,6 +5,8 @@ using UnityEngine;
 public class VFX_SpawnParticle : MonoBehaviour
 {
     public GameObject m_spawnedParticle;
+
+    public List<GameObject> m_spawnedParticleList;
     public Vector3 m_particleOffset;
 
     public Transform m_refScaleTransform;
@@ -58,24 +60,45 @@ public class VFX_SpawnParticle : MonoBehaviour
 
     }
 
-    /// <summary>
-    /// Spawns a line renderer, and requires a starting position, and ending position.
-    /// </summary>
-    /// <param name="p_startingPos"></param>
-    /// <param name="p_endingPos"></param>
-    public void SpawnParticleLineRenderer(Vector3 p_startingPos, Vector3 p_endingPos)
-    {
-        LineRenderer newLine = ObjectPooler.Instance.NewObject(m_spawnedParticle, p_startingPos, Quaternion.identity).GetComponent<LineRenderer>();
-
-        newLine.SetPosition(0, p_startingPos);
-        newLine.SetPosition(1, p_endingPos);
-    }
-
-
     public void SpawnParticleWithAngle(Vector3 p_upCoord)
     {
         ObjectPooler.Instance.NewObject(m_spawnedParticle, transform.position, Quaternion.FromToRotation(Vector3.up, p_upCoord));
     }
+
+
+    public void SpawnParticleFromList(int p_index)
+    {
+        Transform newParticle = ObjectPooler.Instance.NewObject(m_spawnedParticleList[p_index], transform.position, Quaternion.identity).transform;
+
+
+
+        if (m_particleOffset != Vector3.zero)
+        {
+            newParticle.transform.position += transform.rotation * m_particleOffset * transform.parent.localScale.y;
+        }
+
+        newParticle.transform.localScale = Vector3.one;
+
+        if (m_refScaleTransform != null)
+        {
+            if (m_refScaleTransform == transform)
+            {
+
+                newParticle.transform.localScale = transform.parent.localScale;
+            }
+            else
+            {
+                newParticle.transform.localScale = m_refScaleTransform.localScale;
+            }
+        }
+
+        if (m_rotateParticleWithY)
+        {
+
+            newParticle.transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+        }
+    }
+
 
 #if UNITY_EDITOR
     [Header("Debugging")]

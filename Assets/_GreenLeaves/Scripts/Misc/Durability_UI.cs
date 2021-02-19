@@ -8,22 +8,32 @@ using UnityEngine;
 /// </summary>
 public class Durability_UI : MonoBehaviour
 {
+    public static Durability_UI Instance;
     public CanvasGroup m_cg;
     public float m_fadeTime;
 
     public UnityEngine.UI.Text m_durabilityText, m_promptText;
 
     public RotateAndScaleToPlayer m_rotate;
+    public Transform m_playerRoot;
+
+    public float m_heightOffset;
     private void Awake()
     {
-        if (enabled)
-        {
-            m_cg.alpha = 0;
-            m_cg.gameObject.SetActive(false);
-            gameObject.SetActive(false);
-        }
+        m_cg.alpha = 0;
+        m_cg.gameObject.SetActive(false);
+        Instance = this;
+        
+    }
+    private void Start()
+    {
+        m_playerRoot = PlayerInputToggle.Instance.transform;
     }
 
+    private void Update()
+    {
+        transform.position = m_playerRoot.transform.position + Vector3.up * m_heightOffset;
+    }
     public void UpdateText(int p_durabilityAmount)
     {
         if (m_durabilityText == null) return;
@@ -45,6 +55,7 @@ public class Durability_UI : MonoBehaviour
 
     public void ShowUI()
     {
+        Debug.Log("Show UI");
         gameObject.SetActive(true);
         m_cg.alpha = 0;
         m_rotate.ForceUpdate();

@@ -25,7 +25,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
         {
             if (m_currentHit != null)
             {
-                m_currentHit.m_durabilityUI.HideUI();
+                m_currentHit.HideUI();
                 m_currentHit = null;
             }
             return;
@@ -45,11 +45,11 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
         if (m_currentHit == currentHittable) return;
         if(m_currentHit != currentHittable && currentHittable != null)
         {
-            currentHittable.m_durabilityUI.HideUI();
+            currentHittable.HideUI();
         }
         if (m_currentHit != null)
         {
-            m_currentHit.m_durabilityUI.ShowUI();
+            m_currentHit.ShowUI();
         }
     }
     public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
@@ -94,7 +94,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
         base.ObjectBroke();
         if(m_currentHit != null)
         {
-            m_currentHit.m_durabilityUI.HideUI();
+            m_currentHit.HideUI();
         }
     }
 }
