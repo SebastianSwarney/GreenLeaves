@@ -127,7 +127,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
             if (m_fallForward)
             {
                 Rigidbody newRb = upperHull.AddComponent<Rigidbody>();
-                newRb.AddForceAtPosition(p_forwardDir * m_fallInitialForce * transform.localScale.y, m_mesh.transform.position + (Vector3.up * m_applyForcePosition) * transform.localScale.y, ForceMode.Impulse);
+                newRb.AddForceAtPosition(p_forwardDir.normalized * m_fallInitialForce, m_mesh.transform.position + (Vector3.up * m_applyForcePosition) * transform.localScale.y, ForceMode.Impulse);
                 newRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             }
             else
