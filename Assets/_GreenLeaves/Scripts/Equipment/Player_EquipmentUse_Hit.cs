@@ -89,4 +89,12 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
         return null;
     }
 
+    public override void ObjectBroke()
+    {
+        base.ObjectBroke();
+        if(m_currentHit != null)
+        {
+            m_currentHit.m_durabilityUI.HideUI();
+        }
+    }
 }

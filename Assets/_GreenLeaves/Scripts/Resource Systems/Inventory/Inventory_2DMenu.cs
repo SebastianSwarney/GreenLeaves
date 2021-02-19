@@ -63,7 +63,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public Inventory_EatingStagingArea m_eatingStagingArea;
 
     public Transform m_craftedIconPlacement;
-    private Inventory_Icon m_currentEquippedTool;
+    public Inventory_Icon m_currentEquippedTool;
 
     ///Used to toggle the menu open and closed.
     //[HideInInspector]
@@ -216,6 +216,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public void AddToInventory(ResourceContainer pickedUpResource, int p_amount, bool p_isTool = false, int p_toolDurability = 0)
     {
+        Debug.Log("Add Inven Check");
         ///Determine if there are any existing items like this in the inventory
         ///Used for items that can have more than 1 item in a slot IE. Arrows
         #region Existing Item Check
@@ -283,6 +284,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public bool CanAddToInventory(Inventory_Icon p_newIcon, RotationType p_iconRotationType)
     {
+        Debug.Log("Inv Check");
         if (m_inventoryGrid.CanAddToRow(p_newIcon.m_itemData.m_resourceData, p_iconRotationType))
         {
             m_inventoryGrid.AddWeight(p_newIcon.m_itemData.m_resourceData);
@@ -462,17 +464,6 @@ public class Inventory_2DMenu : MonoBehaviour
 
         for (int i = 0; i < p_removeOrder.Count; i++)
         {
-
-            ///Since the building system closes the inventory, but it should stay in the inventory if its being used, it "drops" the item,
-            ///but changes the DropFunction's dropInWorld boolean to false so that no physical item is created, but the logic is still performed.
-            /*if (i == p_buildIconIndex && m_currentBuldingIcon != null)
-            {
-                Player_Inventory.Instance.DropObject(m_currentBuldingIcon, false);
-            }
-            else
-            {
-
-            }*/
             Player_Inventory.Instance.DropObject(m_backpack.m_itemsInBackpack[p_removeOrder[i]].m_associatedIcon, true);
 
 
@@ -687,7 +678,6 @@ public class Inventory_2DMenu : MonoBehaviour
                     ///If the player lets go on the grid
                     if (res.gameObject.GetComponent<Inventory_SlotDetector>() != null)
                     {
-
                         ///Checks if the item can fit there
                         if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_holdingIcon.m_itemData.m_resourceData.m_inventoryWeight, p_holdingIcon.m_rotatedDir))
                         {

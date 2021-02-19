@@ -137,7 +137,10 @@ public class Inventory_EatingStagingArea : MonoBehaviour
         UpdateStatsText();
 
         m_subtractButton.SetActive(false);
-        m_addButton.SetActive(true);
+        if (m_currentEdible.m_currentResourceAmount > 1)
+        {
+            m_addButton.SetActive(true);
+        }
 
         m_eatMenu.SetActive(true);
         return true;

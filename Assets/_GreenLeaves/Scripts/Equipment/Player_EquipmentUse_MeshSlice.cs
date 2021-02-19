@@ -181,4 +181,16 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             Gizmos.DrawWireSphere(transform.position, m_detectionRadius);
         }
     }
+    public override void ObjectBroke()
+    {
+        base.ObjectBroke();
+        if (m_currentHittable != null)
+        {
+            m_currentHittable.m_durabilityUI.HideUI();
+        }
+        if(m_currentTarget != null)
+        {
+            m_currentTarget.m_durabilityUI.HideUI();
+        }
+    }
 }

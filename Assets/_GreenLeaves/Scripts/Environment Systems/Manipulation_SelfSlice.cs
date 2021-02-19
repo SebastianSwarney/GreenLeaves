@@ -49,14 +49,12 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
         #region Determine the hit amount
         m_choppingParticle.SpawnParticlePrefab(new Vector3(transform.position.x, p_worldPoint.y, transform.position.z));
-        Debug.Log(p_worldPoint);
         m_currentHits++;
         if (m_currentHits < m_hitsToSlice)
         {
             m_durabilityUI.UpdateText(m_hitsToSlice - m_currentHits);
             if (m_hitsToSlice - m_currentHits == 1)
             {
-                Debug.Log("1 Slice left");
                 m_oneMoreHitEvent.Invoke();
             }
             else
@@ -69,7 +67,6 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
         #region Create the sliced hulls
         Vector3 hitPoint = new Vector3(p_worldPoint.x * transform.localScale.x, p_worldPoint.y * transform.localScale.y, p_worldPoint.z * transform.localScale.z);
-        Debug.Log("Hit Point: " + hitPoint);
         SlicedHull hull = m_mesh.Slice(p_worldPoint, p_upVector, m_crossSectionMaterials);
 
         if (hull == null)
@@ -115,7 +112,6 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
 
         ///Disable this later if we are adding our own collider for the cut parts
-        Debug.Log("Disable this later if we are adding our own collider for the cut parts");
 
         lowerHull.AddComponent<MeshCollider>().convex = true;
 

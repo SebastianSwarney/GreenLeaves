@@ -33,8 +33,15 @@ public class Inventory_Icon_ToolResource : Inventory_Icon
     public void ReEnableIcon()
     {
         Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(m_toolType);
+        ResetPlacement();
     }
 
+    public void ResetPlacement()
+    {
+        transform.localPosition = m_toolBeltPlacement;
+        m_inCraftingTable = false;
+        m_inCookingTable = false;
+    }
     /// <summary>
     /// This function is specifically used to remove the icon from the crafting table<br/>
     /// in the event that it is still there, but the player closes the crafting menu.

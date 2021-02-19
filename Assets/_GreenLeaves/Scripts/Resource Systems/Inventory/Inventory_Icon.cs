@@ -192,7 +192,7 @@ public class Inventory_Icon : MonoBehaviour
         }
 
         p_amountLeft = p_amount - (m_itemData.m_resourceData.m_singleResourceAmount - m_currentResourceAmount);
-        m_currentResourceAmount += p_amount;
+        m_currentResourceAmount = m_itemData.m_resourceData.m_singleResourceAmount;
         UpdateIconNumber();
         return false;
     }
@@ -261,7 +261,7 @@ public class Inventory_Icon : MonoBehaviour
     {
         StopAllCoroutines();
         m_canvasGroup.alpha = 1;
-        m_itemIcon.raycastTarget = true;
+        m_iconHueImage.raycastTarget = true;
         transform.localPosition = m_startingCoordPos;
         ResetRotation();
         SetNumberRotation();

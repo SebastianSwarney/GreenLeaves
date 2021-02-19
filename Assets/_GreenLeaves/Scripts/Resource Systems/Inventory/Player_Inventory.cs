@@ -114,9 +114,10 @@ public class Player_Inventory : MonoBehaviour
     public void UnEquipCurrentTool()
     {
         if (m_currentEquipedTool == null) return;
-
+        Debug.Log("Unequip Current");
         m_currentEquipedTool.UnEquipObject();
         m_currentEquipedTool = null;
+        Inventory_2DMenu.Instance.m_currentEquippedTool = null;
     }
     #endregion
 }
