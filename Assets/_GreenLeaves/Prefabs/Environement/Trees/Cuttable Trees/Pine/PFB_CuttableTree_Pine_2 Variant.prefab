@@ -236,18 +236,18 @@ LODGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3658912701695143836}
   serializedVersion: 2
-  m_LocalReferencePoint: {x: -377.43246, y: 47.18715, z: 344.52866}
-  m_Size: 777.39655
+  m_LocalReferencePoint: {x: 0.6586151, y: 25.439583, z: 0.0090818405}
+  m_Size: 50.92344
   m_FadeMode: 1
-  m_AnimateCrossFading: 0
+  m_AnimateCrossFading: 1
   m_LastLODIsBillboard: 0
   m_LODs:
-  - screenRelativeHeight: 0.6
+  - screenRelativeHeight: 0.34596944
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 7842187912953664847}
     - renderer: {fileID: 142212828529158656}
-  - screenRelativeHeight: 0.3
+  - screenRelativeHeight: 0.15410648
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 4647404781177071033}
@@ -325,6 +325,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 03e44df9aa2016c42af959285a7f4940, type: 2}
+    - target: {fileID: -3255130296528533630, guid: bfa6cb4b79176cf4d8c3c0836309e46b, type: 3}
+      propertyPath: m_ScaleInLightmap
+      value: 0.9823483
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: bfa6cb4b79176cf4d8c3c0836309e46b, type: 3}
       propertyPath: m_Name
       value: SM_Pine_Tree_03_Summer_LOD2
@@ -333,6 +337,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 360d9820fedb35341bebb5d06ef3661f, type: 2}
+    - target: {fileID: 4611481195367299277, guid: bfa6cb4b79176cf4d8c3c0836309e46b, type: 3}
+      propertyPath: m_ScaleInLightmap
+      value: 0.9823483
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bfa6cb4b79176cf4d8c3c0836309e46b, type: 3}
 --- !u!4 &1524234579778391998 stripped
@@ -417,6 +425,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: fdfad8f323eba164c86f1ce890d13343, type: 2}
+    - target: {fileID: -3255130296528533630, guid: db4192d056343d14fbbdf0a29e1dfa87, type: 3}
+      propertyPath: m_ScaleInLightmap
+      value: 0.9982405
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: db4192d056343d14fbbdf0a29e1dfa87, type: 3}
       propertyPath: m_Name
       value: SM_Pine_Tree_03_Summer_LOD1
@@ -425,6 +437,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 360d9820fedb35341bebb5d06ef3661f, type: 2}
+    - target: {fileID: 4611481195367299277, guid: db4192d056343d14fbbdf0a29e1dfa87, type: 3}
+      propertyPath: m_ScaleInLightmap
+      value: 0.9982405
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db4192d056343d14fbbdf0a29e1dfa87, type: 3}
 --- !u!4 &1524234578987943376 stripped
@@ -557,7 +573,8 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1949547941, guid: 5ea9a2cdc5d36b643a9dabcd89d416d4, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 5ea9a2cdc5d36b643a9dabcd89d416d4, type: 3}
 --- !u!4 &4790136200984788022 stripped
 Transform:
