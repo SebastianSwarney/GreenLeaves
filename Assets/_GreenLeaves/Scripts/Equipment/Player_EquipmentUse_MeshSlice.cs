@@ -114,7 +114,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
         {
             base.UseEquipment();
             ///The parameters will determine the angle, and position of the slice
-            m_currentTarget.SliceMe(m_playerObject.transform.forward);
+            m_currentTarget.SliceMe(new Vector3(0, m_playerObject.transform.position.y, 0),m_playerObject.transform.forward);
             ReduceDurability();
         }
         else if (m_currentHittable != null)

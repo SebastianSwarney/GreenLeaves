@@ -14,7 +14,6 @@ public class Manipulation_SelfSlice : MonoBehaviour
     [Header("Slicing Properties")]
     public int m_hitsToSlice = 1;
     private int m_currentHits;
-    public bool m_freezeBottomHalf;
     public VFX_SpawnParticle m_choppingParticle;
 
     [Header("Fall Properties")]
@@ -31,17 +30,17 @@ public class Manipulation_SelfSlice : MonoBehaviour
     public Transform m_durabilityObject;
 
     public bool m_meshCollider = true;
+    public float m_startingTreeMass = 100;
 
-    public Vector3 m_cutPosition;
     /// <summary>
     /// <para>Called to slice the mesh. The parameters passed will affect the direction of the slice. </para>
     /// World point is the origin point of the slice<br/>
     /// Up Vecotor is the up vector of the slice. Determines the angle of the slice<br/>
     /// Forward Dir is used to push the mesh in a direction after it's been sliced<br/>
     /// </summary>
-    public void SliceMe(Vector3 p_forwardDir)
+    public void SliceMe(Vector3 p_worldPos,Vector3 p_forwardDir)
     {
-        Vector3 hitPos = transform.position + m_cutPosition;
+        Vector3 hitPos = p_worldPos;
         #region Determine the hit amount
         m_choppingParticle.SpawnParticlePrefab(new Vector3(transform.position.x, hitPos.y, transform.position.z));
         m_currentHits++;
@@ -94,7 +93,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
         foreach (Transform chi in childs)
         {
             if (chi == null) continue;
-            if (Vector3.Angle(chi.transform.position - m_cutPosition, Vector3.up) < 90)
+            if (Vector3.Angle(chi.transform.position - p_worldPos, Vector3.up) < 90)
             {
                 chi.transform.parent = upperHull.transform;
             }
@@ -107,27 +106,18 @@ public class Manipulation_SelfSlice : MonoBehaviour
         #endregion
 
 
-        ///Disable this later if we are adding our own collider for the cut parts
+        
 
         lowerHull.AddComponent<MeshCollider>().convex = true;
 
         if (m_addRB)
         {
-            if (!m_freezeBottomHalf)
-            {
-                if (m_fallForward)
-                {
-                    lowerHull.AddComponent<Rigidbody>().AddForceAtPosition(p_forwardDir * m_fallInitialForce * transform.localScale.y, m_mesh.transform.position + (Vector3.up * m_applyForcePosition) * transform.localScale.y, ForceMode.Impulse);
-                }
-                else
-                {
-                    lowerHull.AddComponent<Rigidbody>().AddExplosionForce(1, upperHull.transform.position, 3, .5f, ForceMode.Impulse);
-                }
-            }
             if (m_fallForward)
             {
                 Rigidbody newRb = upperHull.AddComponent<Rigidbody>();
-                newRb.AddForceAtPosition(p_forwardDir.normalized * m_fallInitialForce, m_mesh.transform.position + (Vector3.up * m_applyForcePosition) * transform.localScale.y, ForceMode.Impulse);
+                newRb.mass = m_startingTreeMass * transform.localScale.y;
+                newRb.AddForceAtPosition(p_forwardDir.normalized * m_fallInitialForce, m_mesh.transform.position + (Vector3.up * m_applyForcePosition * transform.localScale.y), ForceMode.Impulse);
+                Debug.DrawLine(transform.position, m_mesh.transform.position + (Vector3.up * m_applyForcePosition * transform.localScale.y),Color.magenta, 2f);
                 newRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             }
             else
@@ -142,7 +132,12 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
 
         m_slicedEvent.Invoke(upperHull.transform);
+        MeshCollider col = upperHull.transform.GetChild(1).gameObject.AddComponent<MeshCollider>();
+        col.sharedMesh = upperHull.GetComponent<MeshFilter>().mesh;
+        col.convex = true;
         gameObject.SetActive(false);
+        col.transform.localPosition = Vector3.zero;
+        col.transform.localRotation = Quaternion.identity;
     }
 
     public void HideUI()
@@ -165,9 +160,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
     {
         if (!m_debug) return;
         Gizmos.color = m_debugColor;
-        Gizmos.DrawCube(transform.position + Vector3.up * m_applyForcePosition, Vector3.one * m_boxSize);
-        Gizmos.color = m_debugColor2;
-        Gizmos.DrawCube(transform.position + m_cutPosition, new Vector3(1, .25f, 1));
+        Gizmos.DrawCube(transform.position + Vector3.up * m_applyForcePosition * transform.localScale.y, Vector3.one * m_boxSize);
     }
 #endif
 }
