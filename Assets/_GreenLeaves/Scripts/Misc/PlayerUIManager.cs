@@ -58,18 +58,22 @@ public class PlayerUIManager : MonoBehaviour
         m_controlsMenu.SetActive(false);
 
         Player_Inventory.Instance.ToggleOpenability(!p_newState);
-        Inventory_2DMenu.Instance.CloseInventoryMenu(true);
+        //Inventory_2DMenu.Instance.CloseInventoryMenu(true);
 
         if (m_isPaused)
         {
             Interactable_Manager.Instance.ForceCloseMenu();
         }
-        else
+        else if (!Inventory_2DMenu.Instance.m_isOpen)
         {
             Interactable_Manager.Instance.SearchForInteractable();
+            
+        }
+        if (!Inventory_2DMenu.Instance.m_isOpen)
+        {
+            PlayerInputToggle.Instance.ToggleInput(!m_isPaused);
         }
 
-        PlayerInputToggle.Instance.ToggleInput(!m_isPaused);
     }
 
     public void GoToMainMenu()
@@ -90,7 +94,7 @@ public class PlayerUIManager : MonoBehaviour
     {
         m_screenFadeGroup.alpha = (p_newFadeState ? 0 : 1);
 
-        m_ambience.setVolume((p_newFadeState)? 1:0);
+        m_ambience.setVolume((p_newFadeState) ? 1 : 0);
         m_soundEffects.setVolume((p_newFadeState) ? 1 : 0);
 
         float timer = 0;
