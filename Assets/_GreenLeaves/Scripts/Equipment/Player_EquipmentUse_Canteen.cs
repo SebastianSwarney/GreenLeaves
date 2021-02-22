@@ -23,7 +23,6 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public string m_controlText;
     public string m_controlFillText;
     public Transform m_promptAnchor;
-    public Durability_UI m_durabilityUi;
     public float m_floatingDist;
 
     [Header("Debugging")]
@@ -38,10 +37,6 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     {
         Player_EquipmentToolsUi.Instance.ToggleCanteenUi(true);
         Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
-        m_durabilityUi.UpdatePromptText(m_controlText);
-        m_durabilityUi.UpdateText(m_durability);
-        m_durabilityUi.transform.parent = m_promptAnchor;
-        m_durabilityUi.transform.position = m_promptAnchor.position + Vector3.up * m_floatingDist;
     }
     private void OnDisable()
     {
@@ -121,9 +116,6 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 }
             }
         }
-
-        m_durabilityUi.UpdatePromptText(m_controlText);
-        m_durabilityUi.UpdateText(m_durability);
     }
 
     private void OldUseEquipment()
@@ -191,7 +183,6 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
 
     public override void UnEquipObject()
     {
-        m_durabilityUi.transform.parent = transform;
         base.UnEquipObject();
     }
 
