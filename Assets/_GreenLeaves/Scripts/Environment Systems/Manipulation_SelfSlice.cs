@@ -132,12 +132,19 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
 
         m_slicedEvent.Invoke(upperHull.transform);
-        MeshCollider col = upperHull.transform.GetChild(1).gameObject.AddComponent<MeshCollider>();
+        /*MeshCollider col = upperHull.transform.GetChild(1).gameObject.AddComponent<MeshCollider>();
         col.sharedMesh = upperHull.GetComponent<MeshFilter>().mesh;
-        col.convex = true;
+        col.convex = true;*/
+        BoxCollider col = upperHull.transform.GetChild(1).gameObject.AddComponent<BoxCollider>();
+        Mesh mesh = upperHull.GetComponent<MeshFilter>().mesh;
+        col.size = mesh.bounds.size;
+        col.center = mesh.bounds.center;
+
         gameObject.SetActive(false);
-        col.transform.localPosition = Vector3.zero;
-        col.transform.localRotation = Quaternion.identity;
+        upperHull.transform.GetChild(1).transform.localPosition = Vector3.zero;
+        upperHull.transform.GetChild(1).transform.localRotation = Quaternion.identity;
+        upperHull.transform.GetComponentInChildren<Tree_VelocityCheck>().AssignTree();
+        
     }
 
     public void HideUI()

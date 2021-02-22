@@ -11,57 +11,31 @@ using System.Collections;
 /// </summary>
 public class Tree_VelocityCheck : MonoBehaviour
 {
-    public Rigidbody m_rb;
-    public float m_prevVel;
-    public Transform m_woodSpawn;
-    public GameObject m_woodObject;
     public GenericWorldEvent m_objectHit;
-    public float m_delayCheckTime;
 
-    public bool m_debugCollision;
+    private Rigidbody m_rb;
+    public float m_maxVelocityDifference;
+    private float m_previousVelocity;
 
-    public void AssignToNewTree(GameObject p_newTree)
+    public void AssignTree()
     {
-        transform.parent = p_newTree.transform;
-        m_rb = p_newTree.GetComponent<Rigidbody>();
-        m_rb.angularDrag = 0;
-        enabled = true;
-
-        Debug.DrawLine(Vector3.zero, m_rb.centerOfMass,Color.red, 4f);
-        if (!m_debugCollision)
-        {
-            StartCoroutine(PerformCheck());
-        }
+        m_rb = transform.parent.GetComponent<Rigidbody>();
+        StartCoroutine(CheckVelocity());
     }
 
-    private IEnumerator PerformCheck()
+    private IEnumerator CheckVelocity()
     {
-        yield return new WaitForSeconds(m_delayCheckTime * transform.parent.localScale.y);
-        bool explode = false;
-        float timer = 5;
-        while (!explode)
+        while (true)
         {
-            if (m_prevVel - m_rb.velocity.magnitude > 0)
+            if(Mathf.Abs(m_rb.velocity.magnitude - m_previousVelocity) > m_maxVelocityDifference)
             {
-                explode = true;
+                transform.parent.GetChild(0).gameObject.SetActive(false);
+                m_objectHit.Invoke();
+                yield break;
+
             }
-            m_prevVel = m_rb.velocity.magnitude;
-            timer -= Time.deltaTime;
-            if(timer < 0)
-            {
-                explode = true;
-            }
+            m_previousVelocity = m_rb.velocity.magnitude;
             yield return null;
-        }
-        m_objectHit.Invoke();
-        transform.parent.gameObject.SetActive(false);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (m_debugCollision)
-        {
-            Debug.Log("Collided with : " + collision.gameObject.name);
         }
     }
 }

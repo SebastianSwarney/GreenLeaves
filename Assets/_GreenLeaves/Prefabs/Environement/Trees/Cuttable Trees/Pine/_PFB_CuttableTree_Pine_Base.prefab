@@ -104,7 +104,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_crossSectionMaterials: {fileID: 2100000, guid: 0b6410a3ed3318641987b9892f005f6b, type: 2}
   m_hitsToSlice: 3
-  m_freezeBottomHalf: 1
   m_choppingParticle: {fileID: 6743183030149687122}
   m_addRB: 1
   m_fallForward: 1
@@ -194,7 +193,7 @@ MonoBehaviour:
   m_applyForcePosition: 44.21
   m_durabilityObject: {fileID: 7591002294224644552}
   m_meshCollider: 0
-  m_cutPosition: {x: 0, y: 0, z: 0}
+  m_startingTreeMass: 100
   m_debug: 1
   m_debugColor: {r: 0, g: 0.19600534, b: 1, a: 1}
   m_debugColor2: {r: 1, g: 0, b: 0, a: 1}
@@ -317,6 +316,7 @@ GameObject:
   - component: {fileID: 5261798739797291323}
   - component: {fileID: 5997535284305883942}
   - component: {fileID: 306519371220472927}
+  - component: {fileID: 6434894179147914265}
   m_Layer: 10
   m_Name: TreeVelocityCheck
   m_TagString: Untagged
@@ -334,7 +334,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 3993885643403720731}
   m_Father: {fileID: 7985463932365466317}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -499,6 +500,7 @@ MonoBehaviour:
   m_events:
   - event:/Impacts/Impact - Tree Chop
   - event:/Impacts/Impact - Tree Chop  - Break
+  - event:/Impacts/Impact - Tree Hit Ground
 --- !u!114 &306519371220472927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,3 +524,110 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!114 &6434894179147914265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7591002294224644555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 414a1f8d535f1034bad7c3fa4702f64a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_objectHit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3993885643403720724}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 5997535284305883942}
+        m_TargetAssemblyTypeName: SoundEmitter_MultipleSounds, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  m_maxVelocityDifference: 3
+--- !u!1001 &1992279193958889047
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 7591002294224644552}
+    m_Modifications:
+    - target: {fileID: 3227073817730764355, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_Name
+      value: PFB_Particle_FallingPines
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 28.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.9217209
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.38785386
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+--- !u!1 &3993885643403720724 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3227073817730764355, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+  m_PrefabInstance: {fileID: 1992279193958889047}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3993885643403720731 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3227073817730764364, guid: 6bf87d89d603beb4b9a571bb673b0f80, type: 3}
+  m_PrefabInstance: {fileID: 1992279193958889047}
+  m_PrefabAsset: {fileID: 0}

@@ -173,7 +173,7 @@ public class VFX_DropSound : MonoBehaviour
                 return m_objectFootsteps[2];
                 break;
         }
-        return "Oof";
+        return m_terrainSounds[0];
     }
 
     /// <summary>

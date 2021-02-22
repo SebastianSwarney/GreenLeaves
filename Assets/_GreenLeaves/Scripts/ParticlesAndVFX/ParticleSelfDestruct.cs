@@ -11,7 +11,7 @@ using UnityEngine;
 public class ParticleSelfDestruct : MonoBehaviour
 {
     private ParticleSystem m_attachedParticalSystem;
-
+    public bool m_returnToPool = true;
     private void Start()
     {
         m_attachedParticalSystem = GetComponent<ParticleSystem>();
@@ -21,7 +21,14 @@ public class ParticleSelfDestruct : MonoBehaviour
     {
         if (!m_attachedParticalSystem.IsAlive())
         {
-            ObjectPooler.Instance.ReturnToPool(gameObject);
+            if (m_returnToPool)
+            {
+                ObjectPooler.Instance.ReturnToPool(gameObject);
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
         }
     }
 }
