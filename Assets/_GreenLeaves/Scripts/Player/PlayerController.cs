@@ -299,6 +299,15 @@ public class PlayerController : MonoBehaviour
 
 	public void PerformController()
     {
+		if (!PlayerStatsController.Instance.HasEnergy())
+		{
+            m_states.m_movementControllState = MovementControllState.MovementDisabled;
+		}
+		else
+		{
+            m_states.m_movementControllState = MovementControllState.MovementEnabled;
+        }
+
 		CalculateVelocity();
 
         SetSlideSlopeVariables();

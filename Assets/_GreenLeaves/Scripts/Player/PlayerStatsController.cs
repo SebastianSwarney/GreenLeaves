@@ -64,6 +64,8 @@ public class PlayerStatsController : MonoBehaviour
 
     private bool m_hasRunThisFrame;
 
+    public GameObject m_passedOutCam;
+
     private void Awake()
     {
         Instance = this;
@@ -99,6 +101,11 @@ public class PlayerStatsController : MonoBehaviour
             {
                 m_sweatParticle.Stop();
             }
+        }
+
+        if (m_currentMainEnergy <= 0)
+        {
+            m_passedOutCam.SetActive(true);
         }
     }
 
@@ -268,6 +275,12 @@ public class PlayerStatsController : MonoBehaviour
 
     private void ReplenishSecondaryEnergy()
     {
+		if (m_currentMainEnergy <= 0)
+		{
+            m_currentSecondaryEnergy = 0;
+            return;
+		}
+
         m_secondaryEnergyReplenishWaitTimer += Time.deltaTime;
 
         if (m_secondaryEnergyReplenishWaitTimer >= m_secondaryEnergyReplenishWaitTime)
