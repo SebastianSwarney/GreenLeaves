@@ -284,7 +284,6 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public bool CanAddToInventory(Inventory_Icon p_newIcon, RotationType p_iconRotationType)
     {
-        Debug.Log("Inv Check");
         if (m_inventoryGrid.CanAddToRow(p_newIcon.m_itemData.m_resourceData, p_iconRotationType))
         {
             m_inventoryGrid.AddWeight(p_newIcon.m_itemData.m_resourceData);
@@ -520,6 +519,7 @@ public class Inventory_2DMenu : MonoBehaviour
             if (res.gameObject.GetComponent<Inventory_Icon>() != null)
             {
                 m_currentSelectedIcon = res.gameObject.GetComponent<Inventory_Icon>();
+                
                 m_currentSelectedIcon.IconTappedOn();
                 m_heldItemText.text = m_currentSelectedIcon.m_itemData.m_resourceData.m_resourceName;
                 return;
@@ -590,7 +590,7 @@ public class Inventory_2DMenu : MonoBehaviour
             p_holdingIcon.m_inCookingTable = false;
 
             //Remember to re-rotate the icon back to it's og rotation
-            m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
+            m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, Vector2Int.zero, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         }
         else if (p_holdingIcon.m_inCraftingTable)
         {
@@ -627,7 +627,7 @@ public class Inventory_2DMenu : MonoBehaviour
     ///     If it is not over the crafting table UI, snap the icon back to it's original placement
     ///     If it is on the crafting table ui, leave it there, and set it to be in the crafting table
     /// </summary>
-    public void CheckIconPlacePosition(Inventory_Icon p_holdingIcon)
+    public void CheckIconPlacePosition(Inventory_Icon p_holdingIcon, Vector2Int p_clickedOffset)
     {
 
         m_heldItemText.text = "";
@@ -679,7 +679,7 @@ public class Inventory_2DMenu : MonoBehaviour
                     if (res.gameObject.GetComponent<Inventory_SlotDetector>() != null)
                     {
                         ///Checks if the item can fit there
-                        if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_holdingIcon.m_itemData.m_resourceData.m_inventoryWeight, p_holdingIcon.m_rotatedDir))
+                        if (m_inventoryGrid.CanPlaceHere(res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos, p_clickedOffset, p_holdingIcon.m_itemData.m_resourceData.m_inventoryWeight, p_holdingIcon.m_rotatedDir))
                         {
                             newPlace = res.gameObject.GetComponent<Inventory_SlotDetector>().m_gridPos;
                             placedIcon = true;
@@ -795,7 +795,7 @@ public class Inventory_2DMenu : MonoBehaviour
                     //Remember to re-rotate the icon back to it's og rotation
                     p_holdingIcon.ResetRotation();
                     p_holdingIcon.SetNumberRotation();
-                    m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
+                    m_inventoryGrid.PlaceIcon(p_holdingIcon, p_holdingIcon.m_previousGridPos, p_holdingIcon.m_prevClickedIndex, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
                 }
 
                 ///If snapping back and the item was previously not in the backpack, return it to the outer, and it's original orientation
@@ -958,10 +958,11 @@ public class Inventory_2DMenu : MonoBehaviour
         p_holdingIcon.m_wasInEatingArea = false;
         p_holdingIcon.m_inEatingArea = false;
         p_holdingIcon.m_inBackpack = true;
-        m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
+        m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_clickedOffset,p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         m_inventoryGrid.AddWeight(p_holdingIcon.m_itemData.m_resourceData);
         p_holdingIcon.m_previousGridPos = newPlace;
         p_holdingIcon.m_startingCoordPos = p_holdingIcon.transform.localPosition;
+        p_holdingIcon.IconProperlyPlaced();
 
         #endregion
     }
@@ -970,9 +971,9 @@ public class Inventory_2DMenu : MonoBehaviour
     /// Called to clear the grid of the current lifeted icon
     /// Called when the icon is being dragged.
     /// </summary>
-    public void ClearGridPosition(Vector2Int p_gridPos, Vector2Int p_gridWeight, RotationType p_rotatedDir)
+    public void ClearGridPosition(Vector2Int p_gridPos, Vector2Int p_offset, Vector2Int p_gridWeight, RotationType p_rotatedDir)
     {
-        m_inventoryGrid.ClearOldPos(p_gridPos, p_gridWeight, p_rotatedDir);
+        m_inventoryGrid.ClearOldPos(p_gridPos, p_offset, p_gridWeight, p_rotatedDir);
     }
 
     #endregion
