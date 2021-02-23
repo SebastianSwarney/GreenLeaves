@@ -142,7 +142,7 @@ public class Inventory_Grid : MonoBehaviour
 
 
         p_placement = m_newPlacement;
-        PlaceIcon(p_iconObject, p_placement, p_data, p_rotationType);
+        PlaceIcon(p_iconObject, p_placement, Vector2Int.zero, p_data, p_rotationType);
 
 
 
@@ -154,7 +154,7 @@ public class Inventory_Grid : MonoBehaviour
     /// As the icon can be rotated in different ways, the placing function adjusts accoridingly.
     /// (Have fun if anyone else tries to go through this)
     /// </summary>
-    public void PlaceIcon(Inventory_Icon p_icon, Vector2Int p_placement, ResourceData p_data, Inventory_2DMenu.RotationType p_rotateType)
+    public void PlaceIcon(Inventory_Icon p_icon, Vector2Int p_placement, Vector2Int p_cellOffset, ResourceData p_data, Inventory_2DMenu.RotationType p_rotateType)
     {
         Vector2 pos = Vector3.zero;
         switch (p_rotateType)
@@ -162,18 +162,15 @@ public class Inventory_Grid : MonoBehaviour
 
             #region Left Placement
             case Inventory_2DMenu.RotationType.Left:
-                /*pos = new Vector2(pos.x + (Mathf.Sign(pos.x)) * (m_gridIconSize.x * (p_data.m_inventoryWeight.x - 1) * .5f),
-                                  pos.y + (Mathf.Sign(-pos.y)) * (m_gridIconSize.y * (p_data.m_inventoryWeight.y - 1) * .5f));
-                
-                p_icon.transform.position = pos;*/
 
-                pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)),
-                                    -m_gridIconSize.y * ((p_placement.y - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)));
+
+                pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (m_rowSlots[0].m_gridCells.Count / 2) - p_cellOffset.x) + ((p_data.m_inventoryWeight.x - 1) * .5f)),
+                                    -m_gridIconSize.y * ((p_placement.y - (m_rowSlots.Count / 2) - p_cellOffset.y) + ((p_data.m_inventoryWeight.y - 1) * .5f)));
                 p_icon.transform.localPosition = pos;
 
-                for (int y = p_placement.y; y < p_placement.y + p_data.m_inventoryWeight.y; y++)
+                for (int y = p_placement.y - p_cellOffset.y; y < p_placement.y + p_data.m_inventoryWeight.y - p_cellOffset.y; y++)
                 {
-                    for (int x = p_placement.x; x < p_placement.x + p_data.m_inventoryWeight.x; x++)
+                    for (int x = p_placement.x - p_cellOffset.x; x < p_placement.x + p_data.m_inventoryWeight.x - p_cellOffset.x; x++)
                     {
 
                         m_itemGrids[y].m_itemGrids[x] = p_icon.GetComponent<Inventory_Icon>();
@@ -185,18 +182,21 @@ public class Inventory_Grid : MonoBehaviour
 
             #region Down Placement
             case Inventory_2DMenu.RotationType.Down:
-                /*pos = new Vector2(pos.x + (Mathf.Sign(pos.x)) * (m_gridIconSize.x * -(p_data.m_inventoryWeight.y - 1) * .5f),
-                                  pos.y + (Mathf.Sign(-pos.y)) * (m_gridIconSize.y * (p_data.m_inventoryWeight.x - 1) * .5f));
 
-                p_icon.transform.position = pos;*/
-
-                pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (m_rowSlots.Count / 2)) - ((p_data.m_inventoryWeight.y - 1) * .5f)),
-                                    -m_gridIconSize.y * ((p_placement.y - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)));
+                pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (p_data.m_inventoryWeight.y - 1 - p_cellOffset.y) - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)),
+                                    -m_gridIconSize.y * ((p_placement.y - ( p_cellOffset.x) - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)));
                 p_icon.transform.localPosition = pos;
 
-                for (int y = p_placement.y; y <= p_placement.y + (p_data.m_inventoryWeight.x - 1); y++)
+                int downStartingX = p_placement.x - (p_data.m_inventoryWeight.y - 1 - p_cellOffset.y);
+                int downStartingY = p_placement.y - p_cellOffset.x;
+
+                int downFinalX = p_placement.x + p_cellOffset.y;
+                int downFinalY = p_placement.y + (p_data.m_inventoryWeight.x - 1 - p_cellOffset.x);
+
+
+                for (int y = downStartingY; y <= downFinalY; y++)
                 {
-                    for (int x = p_placement.x; x >= p_placement.x - (p_data.m_inventoryWeight.y - 1); x--)
+                    for (int x = downStartingX; x <= downFinalX; x++)
                     {
 
                         m_itemGrids[y].m_itemGrids[x] = p_icon.GetComponent<Inventory_Icon>();
@@ -207,18 +207,24 @@ public class Inventory_Grid : MonoBehaviour
 
             #region Right Placement
             case Inventory_2DMenu.RotationType.Right:
-                /*pos = new Vector2(pos.x + (Mathf.Sign(pos.x)) * (m_gridIconSize.x * -(p_data.m_inventoryWeight.x - 1) * .5f),
-                                  pos.y + (Mathf.Sign(-pos.y)) * (m_gridIconSize.y * -(p_data.m_inventoryWeight.y - 1) * .5f));
 
-                p_icon.transform.position = pos;*/
 
-                pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (m_rowSlots[0].m_gridCells.Count / 2)) - ((p_data.m_inventoryWeight.x - 1) * .5f)),
-                                    -m_gridIconSize.y * ((p_placement.y - (m_rowSlots.Count / 2)) - ((p_data.m_inventoryWeight.y - 1) * .5f)));
+
+
+                pos = new Vector2(m_gridIconSize.x * ((p_placement.x  - (p_data.m_inventoryWeight.x-1 - p_cellOffset.x) - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)),
+                    -m_gridIconSize.y * ((p_placement.y  - (p_data.m_inventoryWeight.y-1 - p_cellOffset.y) - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)));
                 p_icon.transform.localPosition = pos;
 
-                for (int y = p_placement.y; y >= p_placement.y - (p_data.m_inventoryWeight.y - 1); y--)
+                int startingX = p_placement.x - (p_data.m_inventoryWeight.x - 1 - p_cellOffset.x);
+                int startingY = p_placement.y - (p_data.m_inventoryWeight.y - 1 - p_cellOffset.y);
+
+                int finalX = p_placement.x + p_cellOffset.x;
+                int finalY = p_placement.y + p_cellOffset.y;
+
+
+                for (int y = startingY; y <= finalY; y++)
                 {
-                    for (int x = p_placement.x; x >= p_placement.x - (p_data.m_inventoryWeight.x - 1); x--)
+                    for (int x = startingX; x <= finalX; x++)
                     {
 
                         m_itemGrids[y].m_itemGrids[x] = p_icon.GetComponent<Inventory_Icon>();
@@ -230,18 +236,21 @@ public class Inventory_Grid : MonoBehaviour
 
             #region Up Placement
             case Inventory_2DMenu.RotationType.Up:
-                /*pos = new Vector2(pos.x + (Mathf.Sign(pos.x)) * (m_gridIconSize.x * (p_data.m_inventoryWeight.y - 1) * .5f),
-                  pos.y + (Mathf.Sign(-pos.y)) * (m_gridIconSize.y * -(p_data.m_inventoryWeight.x - 1) * .5f));
 
-                p_icon.transform.position = pos;*/
-
-                pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)),
-                                    -m_gridIconSize.y * ((p_placement.y - (m_rowSlots[0].m_gridCells.Count / 2)) - ((p_data.m_inventoryWeight.x - 1) * .5f)));
+                pos = new Vector2(m_gridIconSize.x * ((p_placement.x -  p_cellOffset.y- (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)),
+                                     -m_gridIconSize.y * ((p_placement.y - (p_data.m_inventoryWeight.x - 1 - p_cellOffset.x) - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)));
                 p_icon.transform.localPosition = pos;
 
-                for (int y = p_placement.y; y >= p_placement.y - (p_data.m_inventoryWeight.x - 1); y--)
+                int upStartingX = p_placement.x - p_cellOffset.y;
+                int upStartingY = p_placement.y - (p_data.m_inventoryWeight.x - 1 - p_cellOffset.x);
+
+                int upFinalX = p_placement.x + (p_data.m_inventoryWeight.y - 1 - p_cellOffset.y);
+                int upFinalY = p_placement.y + p_cellOffset.x;
+
+
+                for (int y = upStartingY; y <= upFinalY; y++)
                 {
-                    for (int x = p_placement.x; x <= p_placement.x + (p_data.m_inventoryWeight.y - 1); x++)
+                    for (int x = upStartingX; x <= upFinalX; x++)
                     {
 
                         m_itemGrids[y].m_itemGrids[x] = p_icon.GetComponent<Inventory_Icon>();
@@ -286,42 +295,61 @@ public class Inventory_Grid : MonoBehaviour
     /// As icons can be greater than 1x1, this function performs the check to see if the
     /// entire icon can fit into the space. The icon's size is represented by the Resource_Data's Inventory Weight type
     /// </summary>
-    public bool CanPlaceHere(Vector2Int p_gridPos, Vector2Int p_gridWeight, Inventory_2DMenu.RotationType p_rotatedType)
+    public bool CanPlaceHere(Vector2Int p_gridPos, Vector2Int p_cellOffset, Vector2Int p_gridWeight, Inventory_2DMenu.RotationType p_rotatedType)
     {
+
+
         switch (p_rotatedType)
         {
 
             #region Rotated Left
             case Inventory_2DMenu.RotationType.Left:
-                if (p_gridPos.y + (p_gridWeight.y - 1) >= m_itemGrids.Count || p_gridPos.x + (p_gridWeight.x - 1) >= m_itemGrids[0].m_itemGrids.Count) return false;
+                if (p_gridPos.y + (p_gridWeight.y - 1 - p_gridPos.y) >= m_itemGrids.Count || p_gridPos.x + (p_gridWeight.x - 1 - p_gridPos.x) >= m_itemGrids[0].m_itemGrids.Count) return false;
 
-                for (int y = p_gridPos.y; y <= p_gridPos.y + (p_gridWeight.y - 1); y++)
+                if (p_gridPos.y - p_cellOffset.y < 0 || p_gridPos.x - p_cellOffset.x < 0) return false;
+
+                for (int y = p_gridPos.y - p_cellOffset.y; y <= p_gridPos.y + (p_gridWeight.y - 1) - p_cellOffset.y; y++)
                 {
-                    for (int x = p_gridPos.x; x <= p_gridPos.x + (p_gridWeight.x - 1); x++)
+                    for (int x = p_gridPos.x - p_cellOffset.x; x <= p_gridPos.x + (p_gridWeight.x - 1) - p_cellOffset.x; x++)
                     {
+                        if (y >= m_itemGrids.Count || y < 0) return false;
+                        if (x >= m_itemGrids[0].m_itemGrids.Count || x < 0) return false;
                         if (m_itemGrids[y].m_itemGrids[x] != null)
                         {
                             return false;
                         }
                     }
                 }
+                Debug.Log("Return true left");
                 return true;
                 break;
             #endregion
 
             #region Rotated Down
             case Inventory_2DMenu.RotationType.Down:
-                if (p_gridPos.y + (p_gridWeight.x - 1) >= m_itemGrids.Count || p_gridPos.x - (p_gridWeight.y - 1) < 0) return false;
-                for (int y = p_gridPos.y; y <= p_gridPos.y + (p_gridWeight.x - 1); y++)
+                int downStartingX = p_gridPos.x - (p_gridWeight.y - 1 - p_cellOffset.y);
+                int downStartingY = p_gridPos.y - p_cellOffset.x;
+
+                int downFinalX = p_gridPos.x + p_cellOffset.y;
+                int downFinalY = p_gridPos.y + (p_gridWeight.x - 1 - p_cellOffset.x);
+                if (downStartingY < 0 || downStartingX < 0) return false;
+
+                if (downFinalX >= m_itemGrids[0].m_itemGrids.Count || downFinalY >= m_itemGrids.Count) return false;
+
+                for (int y = downStartingY; y <= downFinalY; y++)
                 {
-                    for (int x = p_gridPos.x; x >= p_gridPos.x - (p_gridWeight.y - 1); x--)
+                    for (int x = downStartingX; x <= downFinalX; x++)
                     {
+                        if (y >= m_itemGrids.Count || y < 0) return false;
+                        if (x >= m_itemGrids[0].m_itemGrids.Count || x < 0) return false;
+
                         if (m_itemGrids[y].m_itemGrids[x] != null)
                         {
                             return false;
                         }
                     }
                 }
+                Debug.Log("Return true Down");
                 return true;
                 break;
 
@@ -329,36 +357,57 @@ public class Inventory_Grid : MonoBehaviour
 
             #region Rotated Right
             case Inventory_2DMenu.RotationType.Right:
-                if (p_gridPos.y - (p_gridWeight.y - 1) < 0 || p_gridPos.x - (p_gridWeight.x - 1) < 0) return false;
 
-                for (int y = p_gridPos.y; y >= p_gridPos.y - (p_gridWeight.y - 1); y--)
+                int startingX = p_gridPos.x - (p_gridWeight.x - 1 - p_cellOffset.x);
+                int startingY = p_gridPos.y - (p_gridWeight.y - 1 - p_cellOffset.y);
+
+                int finalX = p_gridPos.x + p_cellOffset.x;
+                int finalY = p_gridPos.y + p_cellOffset.y;
+                if (startingY < 0 || startingX < 0) return false;
+
+                if (finalX >= m_itemGrids[0].m_itemGrids.Count || finalY >= m_itemGrids.Count) return false;
+
+                for (int y = startingY; y <= finalY; y++)
                 {
-                    for (int x = p_gridPos.x; x >= p_gridPos.x - (p_gridWeight.x - 1); x--)
+                    for (int x = startingX; x <= finalX; x++)
                     {
+                        if (y >= m_itemGrids.Count || y < 0) return false;
+                        if (x >= m_itemGrids[0].m_itemGrids.Count || x < 0) return false;
                         if (m_itemGrids[y].m_itemGrids[x] != null)
                         {
                             return false;
                         }
                     }
                 }
+                Debug.Log("Return true right");
                 return true;
                 break;
             #endregion
 
             #region Rotated Up
             case Inventory_2DMenu.RotationType.Up:
-                if (p_gridPos.y - (p_gridWeight.x - 1) < 0 || p_gridPos.x + (p_gridWeight.y - 1) >= m_itemGrids[0].m_itemGrids.Count) return false;
+                int upStartingX = p_gridPos.x - p_cellOffset.y;
+                int upStartingY = p_gridPos.y - (p_gridWeight.x - 1 - p_cellOffset.x);
 
-                for (int y = p_gridPos.y; y >= p_gridPos.y - (p_gridWeight.x - 1); y--)
+                int upFinalX = p_gridPos.x + (p_gridWeight.y - 1 - p_cellOffset.y);
+                int upFinalY = p_gridPos.y + p_cellOffset.x;
+                if (upStartingY < 0 || upStartingX < 0) return false;
+
+                if (upFinalX >= m_itemGrids[0].m_itemGrids.Count || upFinalY >= m_itemGrids.Count) return false;
+
+                for (int y = upStartingY; y <= upFinalY; y++)
                 {
-                    for (int x = p_gridPos.x; x <= p_gridPos.x + (p_gridWeight.y - 1); x++)
+                    for (int x = upStartingX; x <= upFinalX; x++)
                     {
+                        if (y >= m_itemGrids.Count || y < 0) return false;
+                        if (x >= m_itemGrids[0].m_itemGrids.Count || x < 0) return false;
                         if (m_itemGrids[y].m_itemGrids[x] != null)
                         {
                             return false;
                         }
                     }
                 }
+                Debug.Log("Return true up");
                 return true;
                 break;
                 #endregion
@@ -401,16 +450,20 @@ public class Inventory_Grid : MonoBehaviour
     /// Clears the backpack' data of the current held icon. Changes it to null.
     /// Is called when the icon is tapped on, and dragging initialized
     /// </summary>
-    public void ClearOldPos(Vector2Int p_gridPos, Vector2Int p_gridWeight, Inventory_2DMenu.RotationType p_rotatedDir)
+    public void ClearOldPos(Vector2Int p_gridPos, Vector2Int p_prevLiftPos, Vector2Int p_gridWeight, Inventory_2DMenu.RotationType p_rotatedDir)
     {
+
+        int newYPos = 0;
+        int newXPos = 0;
         switch (p_rotatedDir)
         {
-
             #region Rotated Left
             case Inventory_2DMenu.RotationType.Left:
-                for (int y = p_gridPos.y; y <= p_gridPos.y + (p_gridWeight.y - 1); y++)
+                newYPos = p_gridPos.y - p_prevLiftPos.y;
+                newXPos = p_gridPos.x - p_prevLiftPos.x;
+                for (int y = newYPos; y <= newYPos + (p_gridWeight.y - 1); y++)
                 {
-                    for (int x = p_gridPos.x; x <= p_gridPos.x + (p_gridWeight.x - 1); x++)
+                    for (int x = newXPos; x <= newXPos + (p_gridWeight.x - 1); x++)
                     {
                         m_itemGrids[y].m_itemGrids[x] = null;
                     }
@@ -420,9 +473,13 @@ public class Inventory_Grid : MonoBehaviour
 
             #region Rotated Down
             case Inventory_2DMenu.RotationType.Down:
-                for (int y = p_gridPos.y; y <= p_gridPos.y + (p_gridWeight.x - 1); y++)
+
+                newXPos = p_gridPos.x - (p_gridWeight.y - 1 - p_prevLiftPos.y);
+                newYPos = p_gridPos.y- p_prevLiftPos.x;
+
+                for (int y = newYPos; y <= (p_gridWeight.x - 1) + newYPos; y++)
                 {
-                    for (int x = p_gridPos.x; x >= p_gridPos.x - (p_gridWeight.y - 1); x--)
+                    for (int x = newXPos; x <= (p_gridWeight.y - 1) + newXPos; x++)
                     {
                         m_itemGrids[y].m_itemGrids[x] = null;
                     }
@@ -433,9 +490,12 @@ public class Inventory_Grid : MonoBehaviour
             #region Rotated Right
 
             case Inventory_2DMenu.RotationType.Right:
-                for (int y = p_gridPos.y; y >= p_gridPos.y - (p_gridWeight.y - 1); y--)
+
+                newYPos = p_gridPos.y - (p_gridWeight.y-1 - p_prevLiftPos.y);
+                newXPos = p_gridPos.x - (p_gridWeight.x-1 - p_prevLiftPos.x);
+                for (int y = newYPos; y <=p_gridWeight.y-1 + newYPos; y++)
                 {
-                    for (int x = p_gridPos.x; x >= p_gridPos.x - (p_gridWeight.x - 1); x--)
+                    for (int x = newXPos; x <= p_gridWeight.x-1 +newXPos; x++)
                     {
                         m_itemGrids[y].m_itemGrids[x] = null;
                     }
@@ -446,9 +506,12 @@ public class Inventory_Grid : MonoBehaviour
             #region Rotated Up
 
             case Inventory_2DMenu.RotationType.Up:
-                for (int y = p_gridPos.y; y >= p_gridPos.y - (p_gridWeight.x - 1); y--)
+                newXPos = p_gridPos.x - p_prevLiftPos.y;
+                newYPos = p_gridPos.y - (p_gridWeight.x - 1 - p_prevLiftPos.x);
+
+                for (int y = newYPos; y <= (p_gridWeight.x - 1) + newYPos; y++)
                 {
-                    for (int x = p_gridPos.x; x <= p_gridPos.x + (p_gridWeight.y - 1); x++)
+                    for (int x = newXPos; x <= (p_gridWeight.y - 1) + newXPos; x++)
                     {
                         m_itemGrids[y].m_itemGrids[x] = null;
                     }
@@ -463,7 +526,7 @@ public class Inventory_Grid : MonoBehaviour
     {
         if (p_icon.m_inBackpack)
         {
-            ClearOldPos(p_icon.m_previousGridPos, p_icon.m_itemData.m_resourceData.m_inventoryWeight, p_icon.m_rotatedDir);
+            ClearOldPos(p_icon.m_previousGridPos, Vector2Int.zero, p_icon.m_itemData.m_resourceData.m_inventoryWeight, p_icon.m_rotatedDir);
             RemoveWeight(p_icon.m_itemData.m_resourceData);
         }
         ObjectPooler.Instance.ReturnToPool(p_icon.gameObject);

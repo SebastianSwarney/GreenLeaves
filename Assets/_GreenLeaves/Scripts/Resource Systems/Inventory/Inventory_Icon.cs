@@ -31,13 +31,19 @@ public class Inventory_Icon : MonoBehaviour
     public CanvasGroup m_canvasGroup;
 
     public Image m_iconHueImage;
-    public Color m_resourceColor,  m_edibleColor, m_toolColor;
+    public Color m_resourceColor, m_edibleColor, m_toolColor;
 
     [Header("Number UI")]
     public Text m_numberText;
     public RectTransform m_numberTransform;
 
     private Transform m_parentTransform;
+
+    public Vector2Int m_clickedIndex;
+    public Vector2Int m_prevClickedIndex;
+    public Vector2 m_debugOffset, m_clickedOffset;
+    public float m_iconCellSize = 45;
+    public Vector2 m_referenceScreenSize;
 
     /// <summary>
     /// Changes the rotation of the icon to match it's current rotation type
@@ -70,7 +76,6 @@ public class Inventory_Icon : MonoBehaviour
                 m_numberTransform.anchoredPosition = new Vector2(0, -m_iconTransform.sizeDelta.y);
                 break;
         }
-        AdjustedDraggingOffset();
     }
 
     /// <summary>
@@ -101,35 +106,6 @@ public class Inventory_Icon : MonoBehaviour
         }
     }
 
-
-    /// <summary>
-    /// Adjusts the offset from the mouse while being dragged
-    /// The offset changes depending on the rotation type
-    /// </summary>
-    public void AdjustedDraggingOffset()
-    {
-        m_dragOffset = GetComponent<RectTransform>().sizeDelta;
-        m_dragOffset = new Vector2(m_dragOffset.x / m_itemData.m_resourceData.m_inventoryWeight.x, m_dragOffset.y / m_itemData.m_resourceData.m_inventoryWeight.y);
-
-        switch (m_rotatedDir)
-        {
-            case Inventory_2DMenu.RotationType.Left:
-                m_dragOffset = new Vector2(m_dragOffset.x * (m_itemData.m_resourceData.m_inventoryWeight.x - 1) * .5f, m_dragOffset.y * -(m_itemData.m_resourceData.m_inventoryWeight.y - 1) * .5f);
-                break;
-
-            case Inventory_2DMenu.RotationType.Down:
-                m_dragOffset = new Vector2(m_dragOffset.x * -(m_itemData.m_resourceData.m_inventoryWeight.y - 1) * .5f, m_dragOffset.y * -(m_itemData.m_resourceData.m_inventoryWeight.x - 1) * .5f);
-                break;
-
-            case Inventory_2DMenu.RotationType.Right:
-                m_dragOffset = new Vector2(m_dragOffset.x * -(m_itemData.m_resourceData.m_inventoryWeight.x - 1) * .5f, m_dragOffset.y * (m_itemData.m_resourceData.m_inventoryWeight.y - 1) * .5f);
-                break;
-
-            case Inventory_2DMenu.RotationType.Up:
-                m_dragOffset = new Vector2(m_dragOffset.x * (m_itemData.m_resourceData.m_inventoryWeight.y - 1) * .5f, m_dragOffset.y * (m_itemData.m_resourceData.m_inventoryWeight.x - 1) * .5f);
-                break;
-        }
-    }
 
     /// <summary>
     /// Called to update the icon, and it's data
@@ -204,15 +180,51 @@ public class Inventory_Icon : MonoBehaviour
     /// </summary>
     public void IconTappedOn()
     {
+        #region Get ClickedIndex
+        Vector2 rectSize = transform.GetComponent<RectTransform>().sizeDelta;
 
+        switch (m_rotatedDir)
+        {
+            case Inventory_2DMenu.RotationType.Left:
+                m_debugOffset = new Vector2((Input.mousePosition.x - transform.position.x) * (m_referenceScreenSize.x / Screen.width) / 2,
+                            -(Input.mousePosition.y - transform.position.y) * (m_referenceScreenSize.y / Screen.height) / 2);
+
+                break;
+            case Inventory_2DMenu.RotationType.Right:
+                m_debugOffset = new Vector2(-(Input.mousePosition.x - transform.position.x) * (m_referenceScreenSize.x / Screen.width) / 2,
+                                            (Input.mousePosition.y - transform.position.y) * (m_referenceScreenSize.y / Screen.height) / 2);
+                break;
+
+
+
+
+            case Inventory_2DMenu.RotationType.Down:
+                m_debugOffset = new Vector2(-(Input.mousePosition.y - transform.position.y) * (m_referenceScreenSize.x / Screen.width) / 2,
+                                            -(Input.mousePosition.x - transform.position.x) * (m_referenceScreenSize.y / Screen.height) / 2);
+                break;
+
+
+
+            case Inventory_2DMenu.RotationType.Up:
+                m_debugOffset = new Vector2((Input.mousePosition.y - transform.position.y) * (m_referenceScreenSize.x / Screen.width) / 2,
+                                            (Input.mousePosition.x - transform.position.x) * (m_referenceScreenSize.y / Screen.height) / 2);
+                break;
+        }
+        m_clickedOffset = m_debugOffset + (new Vector2(rectSize.x, rectSize.y) / 2);
+        m_clickedIndex = new Vector2Int((int)(m_clickedOffset.x / (rectSize.x / m_itemData.m_resourceData.m_inventoryWeight.x)),
+                                (int)(m_clickedOffset.y / (rectSize.y / m_itemData.m_resourceData.m_inventoryWeight.y)));
+
+        #endregion
         StartCoroutine(WaitForMouseUp());
 
         m_previousRotType = m_rotatedDir;
 
+
+
         Inventory_2DMenu.Instance.IconTappedOn(this);
         if (m_inBackpack)
         {
-            Inventory_2DMenu.Instance.ClearGridPosition(m_previousGridPos, m_itemData.m_resourceData.m_inventoryWeight, m_rotatedDir);
+            Inventory_2DMenu.Instance.ClearGridPosition(m_previousGridPos, m_prevClickedIndex, m_itemData.m_resourceData.m_inventoryWeight, m_rotatedDir);
         }
         else if (m_inCraftingTable)
         {
@@ -222,7 +234,6 @@ public class Inventory_Icon : MonoBehaviour
         {
             Crafting_Table.CookingTable.RemoveIconFromTable(this);
         }
-
     }
     /// <summary>
     /// The corourtine used to move the icon with the mouse.
@@ -232,6 +243,7 @@ public class Inventory_Icon : MonoBehaviour
     /// <returns></returns>
     private IEnumerator WaitForMouseUp()
     {
+        UpdateDraggingOffset();
         bool beingHeld = true;
         m_parentTransform = transform.parent;
         m_canvasGroup.alpha = .5f;
@@ -244,18 +256,41 @@ public class Inventory_Icon : MonoBehaviour
                 m_canvasGroup.alpha = 1;
             }
 
-            ///This is because the screen size can change, so the mouse position would change, which messed up the offset
             transform.position = Input.mousePosition;
+
+
             transform.localPosition += m_dragOffset;
+            //transform.localPosition -= ;
 
 
             yield return null;
         }
         ///Do the raycast check here
-        Inventory_2DMenu.Instance.CheckIconPlacePosition(this);
+        Inventory_2DMenu.Instance.CheckIconPlacePosition(this, m_clickedIndex);
         m_iconHueImage.raycastTarget = true;
     }
-
+    private void UpdateDraggingOffset()
+    {
+        switch (m_rotatedDir)
+        {
+            case Inventory_2DMenu.RotationType.Left:
+                m_dragOffset = new Vector3(-m_iconCellSize * ((float)m_clickedIndex.x - ((float)m_itemData.m_resourceData.m_inventoryWeight.x / 2) + 0.5f),
+                                            m_iconCellSize * ((float)m_clickedIndex.y - ((float)m_itemData.m_resourceData.m_inventoryWeight.y / 2) + 0.5f));
+                break;
+            case Inventory_2DMenu.RotationType.Right:
+                m_dragOffset = new Vector3(m_iconCellSize * ((float)m_clickedIndex.x - ((float)m_itemData.m_resourceData.m_inventoryWeight.x / 2) + 0.5f),
+                                            -m_iconCellSize * ((float)m_clickedIndex.y - ((float)m_itemData.m_resourceData.m_inventoryWeight.y / 2) + 0.5f));
+                break;
+            case Inventory_2DMenu.RotationType.Down:
+                m_dragOffset = new Vector3(m_iconCellSize * ((float)m_clickedIndex.y - ((float)m_itemData.m_resourceData.m_inventoryWeight.y / 2) + 0.5f),
+                                            m_iconCellSize * ((float)m_clickedIndex.x - ((float)m_itemData.m_resourceData.m_inventoryWeight.x / 2) + 0.5f));
+                break;
+            case Inventory_2DMenu.RotationType.Up:
+                m_dragOffset = new Vector3(-m_iconCellSize * ((float)m_clickedIndex.y - ((float)m_itemData.m_resourceData.m_inventoryWeight.y / 2) + 0.5f),
+                                            -m_iconCellSize * ((float)m_clickedIndex.x - ((float)m_itemData.m_resourceData.m_inventoryWeight.x / 2) + 0.5f));
+                break;
+        }
+    }
 
     public void ClosedWhileHolding()
     {
@@ -274,7 +309,6 @@ public class Inventory_Icon : MonoBehaviour
     public void ForceIconDrop()
     {
         m_rotatedDir = m_previousRotType;
-        AdjustedDraggingOffset();
         StopAllCoroutines();
         m_itemIcon.raycastTarget = true;
     }
@@ -300,7 +334,7 @@ public class Inventory_Icon : MonoBehaviour
                 break;
         }
         SetNumberRotation();
-        AdjustedDraggingOffset();
+        UpdateDraggingOffset();
     }
 
     public void RotateToFaceDir(Inventory_2DMenu.RotationType p_newRotation)
@@ -323,7 +357,7 @@ public class Inventory_Icon : MonoBehaviour
         }
 
         SetNumberRotation();
-        AdjustedDraggingOffset();
+        UpdateDraggingOffset();
     }
 
     /// <summary>
@@ -345,5 +379,11 @@ public class Inventory_Icon : MonoBehaviour
         m_inCraftingTable = false;
         m_inCookingTable = false;
 
+    }
+
+
+    public void IconProperlyPlaced()
+    {
+        m_prevClickedIndex = m_clickedIndex;
     }
 }
