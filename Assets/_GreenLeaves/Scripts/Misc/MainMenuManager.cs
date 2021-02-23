@@ -16,7 +16,7 @@ public class MainMenuManager : MonoBehaviour
 
     private int m_enterPressed;
 
-    public GenericWorldEvent m_firstEnterPressed, m_secondEnterPressed;
+    public GenericWorldEvent m_firstEnterPressed, m_secondEnterPressed, m_startTransition;
     private float m_enterBufferTime = 1;
     private float m_enterTimer;
     private void Start()
@@ -96,6 +96,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void StartFade()
     {
+        m_startTransition.Invoke();
         GlobalSceneManager.Instance.LoadNewScene(1, true);
     }
     private IEnumerator RandomSounds()

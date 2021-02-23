@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3590784140763256689
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3590784140763256692}
+  - component: {fileID: 3590784140763256691}
+  - component: {fileID: 3590784140763256690}
+  m_Layer: 0
+  m_Name: Ambient Music Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3590784140763256692
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3590784140763256689}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 10.276465, y: -1.6561184, z: -3.103084}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3590784140763256691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3590784140763256689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b93dc5c9dcadfa41a3f8261cdc170b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_minTimeBetweenTracks: 20
+  m_maxTimeBetweenTracks: 40
+  m_emitter: {fileID: 3590784140763256690}
+  m_initialSongEvent: event:/Music/Music - Daytime Exploring Songs
+  m_playRandomInitialSong: 0
+  m_playSongOnStart: 1
+  m_delayInitialTime: 2
+  m_daytimeBasedSongs:
+  - m_daytimeBasedSongEvent: event:/Music/Music - Dusk Exploring Songs
+    m_minDaytime: 4
+    m_maxDaytime: 8
+  - m_daytimeBasedSongEvent: event:/Music/Music - Daytime Exploring Songs
+    m_minDaytime: 8
+    m_maxDaytime: 15
+  - m_daytimeBasedSongEvent: event:/Music/Music - Dusk Exploring Songs
+    m_minDaytime: 15
+    m_maxDaytime: 19
+  - m_daytimeBasedSongEvent: event:/Music/Music - Nighttime Exploring Songs
+    m_minDaytime: 19
+    m_maxDaytime: 4
+--- !u!114 &3590784140763256690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3590784140763256689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  Event: 
+  PlayEvent: 0
+  StopEvent: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: -1
+  OverrideMaxDistance: -1
