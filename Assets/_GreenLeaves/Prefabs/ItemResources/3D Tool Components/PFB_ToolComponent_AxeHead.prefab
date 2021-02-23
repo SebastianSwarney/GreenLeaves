@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2327583816195518415}
-  m_LocalRotation: {x: -0.00000008146034, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.098, y: 0, z: -0.243}
-  m_LocalScale: {x: 28.489822, y: 28.489822, z: 28.489822}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0.042, y: 0, z: -0.008}
+  m_LocalScale: {x: 1.2941223, y: 1.2941223, z: 1.2941223}
   m_Children: []
   m_Father: {fileID: 2327583816957445952}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!33 &2327583816195518448
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -59,7 +59,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b6b88d28004edce4ea74e287489c9aba, type: 2}
+  - {fileID: 2100000, guid: 2ea587d8a8d3767439c1052394a3ad44, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -146,6 +146,13 @@ MonoBehaviour:
   m_playerTag: Player
   m_canBeOverridden: 0
   m_canBeInteractedWith: 1
+  m_itemSelectedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_itemDeselectedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_toolType: 0
   m_objectPickedUp:
     m_PersistentCalls:
       m_Calls:
@@ -215,7 +222,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_spawnedParticle: {fileID: 794497486324550165, guid: 75394f1baa0be774c87fd4682adeb8db, type: 3}
+  m_spawnedParticleList: []
   m_particleOffset: {x: 0, y: 0, z: 0}
+  m_refScaleTransform: {fileID: 0}
+  m_rotateParticleWithY: 0
   m_isDebugging: 0
   m_gizmosColor1: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   m_gizRadius: 0.5
