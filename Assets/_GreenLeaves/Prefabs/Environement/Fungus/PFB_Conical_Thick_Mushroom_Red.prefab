@@ -1,5 +1,25 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!205 &-1179249303359855076
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5515533400994341549}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.016733974, y: 0.17952427, z: -0.027284727}
+  m_Size: 0.3689229
+  m_FadeMode: 1
+  m_AnimateCrossFading: 1
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.10373645
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 6030529248379480870}
+    - renderer: {fileID: 6944879617487209981}
+  m_Enabled: 1
 --- !u!1001 &4632644592273776636
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -53,7 +73,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c81fed3d2bbd5bd4cbe58d8c47192ab4, type: 3}
       propertyPath: m_Name
-      value: PFB_Conical_Thick_Mushroom
+      value: PFB_Conical_Thick_Mushroom_Red
       objectReference: {fileID: 0}
     - target: {fileID: 1439687126259070170, guid: c81fed3d2bbd5bd4cbe58d8c47192ab4, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -65,3 +85,18 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 9ff3788db71aced4ea616afab8ef1f8d, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c81fed3d2bbd5bd4cbe58d8c47192ab4, type: 3}
+--- !u!1 &5515533400994341549 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c81fed3d2bbd5bd4cbe58d8c47192ab4, type: 3}
+  m_PrefabInstance: {fileID: 4632644592273776636}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6030529248379480870 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1439687126259070170, guid: c81fed3d2bbd5bd4cbe58d8c47192ab4, type: 3}
+  m_PrefabInstance: {fileID: 4632644592273776636}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6944879617487209981 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2318050342651156993, guid: c81fed3d2bbd5bd4cbe58d8c47192ab4, type: 3}
+  m_PrefabInstance: {fileID: 4632644592273776636}
+  m_PrefabAsset: {fileID: 0}

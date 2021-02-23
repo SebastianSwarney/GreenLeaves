@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6758177214803044511}
   - component: {fileID: 8803738026202733653}
   - component: {fileID: 1567636716221231060}
+  - component: {fileID: 812516048948857869}
   m_Layer: 9
   m_Name: PFB_Composite_Rock_1
   m_TagString: Untagged
@@ -96,3 +97,22 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1481799017375315151, guid: c8ca8786d774bd04eafaf204497e440a, type: 3}
+--- !u!205 &812516048948857869
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7002487634086215040}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0, y: 0.5086379, z: 0}
+  m_Size: 4.4799995
+  m_FadeMode: 1
+  m_AnimateCrossFading: 1
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.04846924
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 8803738026202733653}
+  m_Enabled: 1

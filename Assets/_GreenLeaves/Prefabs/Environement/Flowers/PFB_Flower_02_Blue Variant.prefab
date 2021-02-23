@@ -1,5 +1,27 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!205 &-897994905555890535
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7975518938249274571}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0.035140514, y: 0.55099225, z: -0.03857115}
+  m_Size: 1.0245826
+  m_FadeMode: 1
+  m_AnimateCrossFading: 1
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.098268144
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 1306902768097037900}
+    - renderer: {fileID: 2322454910610386680}
+    - renderer: {fileID: 3906298229702903103}
+    - renderer: {fileID: 1327548036496187025}
+  m_Enabled: 1
 --- !u!1001 &7093123122919020954
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77,7 +99,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: e96aadeeefe822548990569fea6c2632, type: 2}
     - target: {fileID: 919132149155446097, guid: 97a5b76e58037de47b8b54ce0deb2fa0, type: 3}
       propertyPath: m_Name
-      value: PFB_Flower_02_Blue
+      value: PFB_Flower_02_Blue Variant
       objectReference: {fileID: 0}
     - target: {fileID: 8071488479414830859, guid: 97a5b76e58037de47b8b54ce0deb2fa0, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -85,3 +107,28 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 7b01f4db58b34a244801536739813b2e, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97a5b76e58037de47b8b54ce0deb2fa0, type: 3}
+--- !u!1 &7975518938249274571 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 97a5b76e58037de47b8b54ce0deb2fa0, type: 3}
+  m_PrefabInstance: {fileID: 7093123122919020954}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &1306902768097037900 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -1131291076329170986, guid: 97a5b76e58037de47b8b54ce0deb2fa0, type: 3}
+  m_PrefabInstance: {fileID: 7093123122919020954}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2322454910610386680 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -4443696543677434014, guid: 97a5b76e58037de47b8b54ce0deb2fa0, type: 3}
+  m_PrefabInstance: {fileID: 7093123122919020954}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &3906298229702903103 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3145165736811471707, guid: 97a5b76e58037de47b8b54ce0deb2fa0, type: 3}
+  m_PrefabInstance: {fileID: 7093123122919020954}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &1327548036496187025 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8071488479414830859, guid: 97a5b76e58037de47b8b54ce0deb2fa0, type: 3}
+  m_PrefabInstance: {fileID: 7093123122919020954}
+  m_PrefabAsset: {fileID: 0}

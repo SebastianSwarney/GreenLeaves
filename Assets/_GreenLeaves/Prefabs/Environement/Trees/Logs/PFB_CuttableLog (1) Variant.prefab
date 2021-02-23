@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5283490449211957745}
   - component: {fileID: 8823644023503626542}
   - component: {fileID: 1930592510561327613}
+  - component: {fileID: 9109391959306949855}
   m_Layer: 10
   m_Name: PFB_Log_1
   m_TagString: Untagged
@@ -31,7 +32,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6895213441263010622}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5283490449211957745
 MeshFilter:
@@ -96,6 +97,25 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 8704161635743415922, guid: b04155fc12d203c46839a85d98eecb4e, type: 3}
+--- !u!205 &9109391959306949855
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6407384061751262864}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.00000047683716, y: 1.4929512, z: 0}
+  m_Size: 9.568823
+  m_FadeMode: 1
+  m_AnimateCrossFading: 1
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.10059459
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 8823644023503626542}
+  m_Enabled: 1
 --- !u!65 &2485276750403829995
 BoxCollider:
   m_ObjectHideFlags: 0

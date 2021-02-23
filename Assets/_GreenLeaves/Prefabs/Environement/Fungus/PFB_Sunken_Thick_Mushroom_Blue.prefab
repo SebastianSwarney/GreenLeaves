@@ -1,5 +1,25 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!205 &5702413948781083089
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9075073964618241976}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0.01016064, y: 0.17105287, z: 0.03281553}
+  m_Size: 0.3484711
+  m_FadeMode: 1
+  m_AnimateCrossFading: 1
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.09727292
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 7118644761495707187}
+    - renderer: {fileID: 5844287897142538472}
+  m_Enabled: 1
 --- !u!1001 &4150188375465898830
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -69,3 +89,18 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: f697b69e2dff91a4ebda481d40123181, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d3407a8bc6677434ba3569350b2cb242, type: 3}
+--- !u!1 &9075073964618241976 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4929556921094956278, guid: d3407a8bc6677434ba3569350b2cb242, type: 3}
+  m_PrefabInstance: {fileID: 4150188375465898830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7118644761495707187 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6580585783067684221, guid: d3407a8bc6677434ba3569350b2cb242, type: 3}
+  m_PrefabInstance: {fileID: 4150188375465898830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &5844287897142538472 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7530997925956158374, guid: d3407a8bc6677434ba3569350b2cb242, type: 3}
+  m_PrefabInstance: {fileID: 4150188375465898830}
+  m_PrefabAsset: {fileID: 0}

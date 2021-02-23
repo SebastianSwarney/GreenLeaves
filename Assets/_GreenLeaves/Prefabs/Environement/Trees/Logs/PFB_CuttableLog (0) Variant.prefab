@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: 1607540859708851703}
   - component: {fileID: 7314585148503694572}
   - component: {fileID: 1117170457708365873}
+  - component: {fileID: 6928146082601756901}
   m_Layer: 10
   m_Name: PFB_Log_0
   m_TagString: Untagged
@@ -109,6 +110,25 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 8704161635743415922, guid: 0d85f784482ad19448ecfed5fb0d4ac1, type: 3}
+--- !u!205 &6928146082601756901
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7809126461703292575}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0.00000023841858, y: 1.4100394, z: 0.00000023841858}
+  m_Size: 5.4312
+  m_FadeMode: 1
+  m_AnimateCrossFading: 1
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.096177965
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 7314585148503694572}
+  m_Enabled: 1
 --- !u!1001 &5073834017696481133
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -187,7 +207,7 @@ PrefabInstance:
     - target: {fileID: 8247288623908696204, guid: b800f977c2da1634090e6567c84b10a8, type: 3}
       propertyPath: m_durabilityUI
       value: 
-      objectReference: {fileID: 8780843127272552636}
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1189136855160709280, guid: b800f977c2da1634090e6567c84b10a8, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: b800f977c2da1634090e6567c84b10a8, type: 3}
@@ -201,14 +221,3 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5613017379140265971, guid: b800f977c2da1634090e6567c84b10a8, type: 3}
   m_PrefabInstance: {fileID: 5073834017696481133}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8780843127272552636 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4589787479255926737, guid: b800f977c2da1634090e6567c84b10a8, type: 3}
-  m_PrefabInstance: {fileID: 5073834017696481133}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa3f3f94ab6014d49b30c0995ad986cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
