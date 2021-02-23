@@ -345,13 +345,13 @@ public class Inventory_Icon : MonoBehaviour
             case Inventory_2DMenu.RotationType.Left:
                 transform.eulerAngles = new Vector3(0, 0, 0);
                 break;
+            case Inventory_2DMenu.RotationType.Down:
+                transform.eulerAngles = new Vector3(0, 0, -90);
+                break;
             case Inventory_2DMenu.RotationType.Right:
                 transform.eulerAngles = new Vector3(0, 0, -90);
                 break;
             case Inventory_2DMenu.RotationType.Up:
-                transform.eulerAngles = new Vector3(0, 0, -180);
-                break;
-            case Inventory_2DMenu.RotationType.Down:
                 transform.eulerAngles = new Vector3(0, 0, -270);
                 break;
         }

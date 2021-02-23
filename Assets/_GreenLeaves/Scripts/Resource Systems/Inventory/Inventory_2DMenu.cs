@@ -72,6 +72,9 @@ public class Inventory_2DMenu : MonoBehaviour
 
     private bool m_canDropEverything;
 
+    [Header("Tutorial Bools")]
+    public bool m_canClose = true;
+    public bool m_canTap = true;
     private void Awake()
     {
         Instance = this;
@@ -86,7 +89,7 @@ public class Inventory_2DMenu : MonoBehaviour
     private void Update()
     {
         if (!m_isOpen) return;
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && m_canTap)
         {
             IconTapped();
             //IconMovementBuffer();
@@ -96,12 +99,15 @@ public class Inventory_2DMenu : MonoBehaviour
             if (m_currentSelectedIcon == null) return;
             m_currentSelectedIcon.transform.Rotate(Vector3.forward, -90);
             m_currentSelectedIcon.RotateDir();
+
+            Inventory_Tutorial.Instance.RotateTut();
         }
     }
 
     #region Inventory Toggle
     public void ToggleInventory(bool p_openCrafting)
     {
+        if (!m_canClose) return;
         if (m_isOpen)
         {
             m_heldItemText.text = "";
@@ -135,6 +141,11 @@ public class Inventory_2DMenu : MonoBehaviour
             PlayerStatsController.Instance.m_pauseStatDrain = true;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+        }
+
+        if (Inventory_Tutorial.Instance.m_showTutorial)
+        {
+            Inventory_Tutorial.Instance.StartInventory();
         }
     }
 
@@ -216,7 +227,6 @@ public class Inventory_2DMenu : MonoBehaviour
 
     public void AddToInventory(ResourceContainer pickedUpResource, int p_amount, bool p_isTool = false, int p_toolDurability = 0)
     {
-        Debug.Log("Add Inven Check");
         ///Determine if there are any existing items like this in the inventory
         ///Used for items that can have more than 1 item in a slot IE. Arrows
         #region Existing Item Check
@@ -274,10 +284,12 @@ public class Inventory_2DMenu : MonoBehaviour
 
         newIcon.m_opensInventorySelectButton = pickedUpResource.m_showInventorySelectionButton;
 
-        if (!CanAddToInventory(newIcon, iconRotationType))
+        if (!CanAddToInventory(newIcon, iconRotationType) || Inventory_Tutorial.Instance.m_showTutorial)
         {
             ToggleInventory(true);
+
         }
+
 
         #endregion
     }
@@ -295,9 +307,40 @@ public class Inventory_2DMenu : MonoBehaviour
             return true;
         }
 
-        ///If it cant fit, open the menu.
+        ///If it cant fit, , check different directions open the menu.
         else
         {
+
+            if(p_iconRotationType == RotationType.Down || p_iconRotationType == RotationType.Up)
+            {
+                if (m_inventoryGrid.CanAddToRow(p_newIcon.m_itemData.m_resourceData, RotationType.Left))
+                {
+                    m_inventoryGrid.AddWeight(p_newIcon.m_itemData.m_resourceData);
+                    p_newIcon.m_inBackpack = true;
+                    p_newIcon.RotateToFaceDir(RotationType.Left);
+                    Vector2Int placedPos;
+                    m_inventoryGrid.AddNewIcon(p_newIcon.m_itemData.m_resourceData, RotationType.Left, p_newIcon, out placedPos);
+                    p_newIcon.m_previousGridPos = placedPos;
+                    p_newIcon.m_startingCoordPos = p_newIcon.transform.localPosition;
+                    Debug.Log("Return Left");
+                    return true;
+                }
+            }
+            else
+            {
+                if (m_inventoryGrid.CanAddToRow(p_newIcon.m_itemData.m_resourceData, RotationType.Down))
+                {
+                    m_inventoryGrid.AddWeight(p_newIcon.m_itemData.m_resourceData);
+                    p_newIcon.m_inBackpack = true;
+                    p_newIcon.RotateToFaceDir(RotationType.Down);
+                    Vector2Int placedPos;
+                    m_inventoryGrid.AddNewIcon(p_newIcon.m_itemData.m_resourceData, RotationType.Down, p_newIcon, out placedPos);
+                    p_newIcon.m_previousGridPos = placedPos;
+                    p_newIcon.m_startingCoordPos = p_newIcon.transform.localPosition;
+                    Debug.Log("Return Down");
+                    return true;
+                }
+            }
 
             p_newIcon.m_inBackpack = false;
             p_newIcon.transform.localPosition = m_cantFitIconPos.localPosition;
@@ -519,7 +562,7 @@ public class Inventory_2DMenu : MonoBehaviour
             if (res.gameObject.GetComponent<Inventory_Icon>() != null)
             {
                 m_currentSelectedIcon = res.gameObject.GetComponent<Inventory_Icon>();
-                
+
                 m_currentSelectedIcon.IconTappedOn();
                 m_heldItemText.text = m_currentSelectedIcon.m_itemData.m_resourceData.m_resourceName;
                 return;
@@ -564,6 +607,9 @@ public class Inventory_2DMenu : MonoBehaviour
         {
             m_inventoryGrid.RemoveWeight(p_tappedOn.m_itemData.m_resourceData);
         }
+
+
+        Inventory_Tutorial.Instance.PickUpTutorial();
     }
 
 
@@ -881,8 +927,8 @@ public class Inventory_2DMenu : MonoBehaviour
                             {
                                 m_currentEquippedTool.m_inBackpack = false;
                             }
-                            Inventory_ItemUsage.Instance.UnEquipCurrent();
                             m_currentEquippedTool.m_isEquipped = false;
+                            Inventory_ItemUsage.Instance.UnEquipCurrent();
 
                         }
                         m_currentEquippedTool = p_holdingIcon;
@@ -958,11 +1004,13 @@ public class Inventory_2DMenu : MonoBehaviour
         p_holdingIcon.m_wasInEatingArea = false;
         p_holdingIcon.m_inEatingArea = false;
         p_holdingIcon.m_inBackpack = true;
-        m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_clickedOffset,p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
+        m_inventoryGrid.PlaceIcon(p_holdingIcon, newPlace, p_clickedOffset, p_holdingIcon.m_itemData.m_resourceData, p_holdingIcon.m_rotatedDir);
         m_inventoryGrid.AddWeight(p_holdingIcon.m_itemData.m_resourceData);
         p_holdingIcon.m_previousGridPos = newPlace;
         p_holdingIcon.m_startingCoordPos = p_holdingIcon.transform.localPosition;
         p_holdingIcon.IconProperlyPlaced();
+
+        Inventory_Tutorial.Instance.LetGoTutorial();
 
         #endregion
     }
@@ -1047,11 +1095,11 @@ public class Inventory_2DMenu : MonoBehaviour
     public int GetAmountOfHungerBerries()
     {
         int amount = 0;
-        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        foreach (BackpackSlot slot in m_backpack.m_itemsInBackpack)
         {
-            if(slot.m_currentData.m_resourceData.m_resourceName == m_hungerBerry.m_resourceData.m_resourceName)
+            if (slot.m_currentData.m_resourceData.m_resourceName == m_hungerBerry.m_resourceData.m_resourceName)
             {
-                amount+= slot.m_associatedIcon.m_currentResourceAmount;
+                amount += slot.m_associatedIcon.m_currentResourceAmount;
             }
         }
         return amount;
@@ -1060,9 +1108,9 @@ public class Inventory_2DMenu : MonoBehaviour
     public int GetAmountOfStaminaBerries()
     {
         int amount = 0;
-        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        foreach (BackpackSlot slot in m_backpack.m_itemsInBackpack)
         {
-            if(slot.m_currentData.m_resourceData.m_resourceName == m_staminaBerry.m_resourceData.m_resourceName)
+            if (slot.m_currentData.m_resourceData.m_resourceName == m_staminaBerry.m_resourceData.m_resourceName)
             {
                 amount += slot.m_associatedIcon.m_currentResourceAmount;
             }
@@ -1073,16 +1121,16 @@ public class Inventory_2DMenu : MonoBehaviour
     public int GetAmountOfEnergyBerries()
     {
         int amount = 0;
-        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        foreach (BackpackSlot slot in m_backpack.m_itemsInBackpack)
         {
-            if(slot.m_currentData.m_resourceData.m_resourceName == m_energyBerry.m_resourceData.m_resourceName)
+            if (slot.m_currentData.m_resourceData.m_resourceName == m_energyBerry.m_resourceData.m_resourceName)
             {
                 amount += slot.m_associatedIcon.m_currentResourceAmount;
             }
         }
         return amount;
     }
-    
+
     #endregion
 }
 

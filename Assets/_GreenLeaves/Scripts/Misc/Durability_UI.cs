@@ -55,7 +55,6 @@ public class Durability_UI : MonoBehaviour
 
     public void ShowUI()
     {
-        Debug.Log("Show UI");
         gameObject.SetActive(true);
         m_cg.alpha = 0;
         m_rotate.ForceUpdate();

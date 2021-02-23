@@ -320,7 +320,6 @@ public class Inventory_Grid : MonoBehaviour
                         }
                     }
                 }
-                Debug.Log("Return true left");
                 return true;
                 break;
             #endregion
@@ -349,7 +348,6 @@ public class Inventory_Grid : MonoBehaviour
                         }
                     }
                 }
-                Debug.Log("Return true Down");
                 return true;
                 break;
 
@@ -379,7 +377,6 @@ public class Inventory_Grid : MonoBehaviour
                         }
                     }
                 }
-                Debug.Log("Return true right");
                 return true;
                 break;
             #endregion
@@ -407,12 +404,10 @@ public class Inventory_Grid : MonoBehaviour
                         }
                     }
                 }
-                Debug.Log("Return true up");
                 return true;
                 break;
                 #endregion
         }
-        Debug.LogError("Null case found while trying to place icon");
         return false;
 
     }
