@@ -9,7 +9,6 @@ public class Interactable_Manager : MonoBehaviour
     public static Interactable_Manager Instance;
 
     public GameObject m_buttonUiParent;
-    public GameObject m_worldInteractableNameUi;
 
     public Interactable m_currentInteractable;
 
@@ -18,8 +17,11 @@ public class Interactable_Manager : MonoBehaviour
     /// </summary>
     [Header("Raycasting")]
     public LayerMask m_interactableMask;
-    public CapsuleCollider m_capCol;
+    public LayerMask m_groundMask;
 
+    public Transform m_camera;
+    public float m_highCamRaycastDis, m_lowCamRaycastDis;
+    public Cinemachine.CinemachineFreeLook m_cinemachineFreeLook;
 
     public ButtonMenu m_topMenu, m_rightMenu, m_bottomMenu, m_leftMenu;
     public bool m_topButtonEnabled, m_rightButtonEnabled, m_bottomMenuEnabled, m_leftMenuEnabled;
@@ -71,13 +73,28 @@ public class Interactable_Manager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        
-    }
-    private void Start()
-    {
-        m_capCol = PlayerInputToggle.Instance.GetComponent<CapsuleCollider>();
+        if (m_camera == null)
+        {
+            m_camera = Camera.main.transform;
+        }
+        if(m_cinemachineFreeLook == null)
+        {
+            m_cinemachineFreeLook = PlayerInputToggle.Instance.transform.GetComponentInChildren<Cinemachine.CinemachineFreeLook>();
+        }
     }
 
+
+    private void LateUpdate()
+    {
+        if (!Inventory_2DMenu.Instance.m_isOpen && !Interactable_Readable_Menu.Instance.m_isOpen)
+        {
+            SearchForInteractable();
+        }
+        if(m_currentInteractable != null)
+        {
+            transform.position = m_currentInteractable.transform.position;
+        }
+    }
 
     /// <summary>
     /// Displays the menu, with the current interactable as a parameter<br/>
@@ -99,8 +116,8 @@ public class Interactable_Manager : MonoBehaviour
         m_canBeOverridden = p_canBeOverridden;
 
         transform.position = p_selectedSystem.transform.position;
-        
-        if(m_currentInteractable != null && m_currentInteractable != p_selectedSystem)
+
+        if (m_currentInteractable != null && m_currentInteractable != p_selectedSystem)
         {
             m_currentInteractable.ItemDeselect();
         }
@@ -112,7 +129,6 @@ public class Interactable_Manager : MonoBehaviour
         m_menuOpen = true;
         if (m_buttonUiParent == null) return;
         m_buttonUiParent.SetActive(true);
-        m_worldInteractableNameUi.SetActive(true);
 
         m_interactableName.transform.parent.gameObject.SetActive(true);
         m_interactableName.text = p_selectedSystem.GetInteractableName();
@@ -143,15 +159,13 @@ public class Interactable_Manager : MonoBehaviour
 
         if (p_selectedSystem == m_currentInteractable || m_currentInteractable == null)
         {
-            if(m_currentInteractable != null)
+            if (m_currentInteractable != null)
             {
                 m_currentInteractable.ItemDeselect();
             }
             m_canBeOverridden = false;
             m_menuOpen = false;
             m_buttonUiParent.SetActive(false);
-            m_worldInteractableNameUi.SetActive(false);
-
 
 
             if (p_searchForNextInteractable && !Inventory_2DMenu.Instance.m_isOpen && !Interactable_Readable_Menu.Instance.m_isOpen)
@@ -179,7 +193,6 @@ public class Interactable_Manager : MonoBehaviour
         m_canBeOverridden = false;
         m_menuOpen = false;
         m_buttonUiParent.SetActive(false);
-        m_worldInteractableNameUi.SetActive(false);
 
         if (m_currentInteractable != null)
         {
@@ -196,7 +209,7 @@ public class Interactable_Manager : MonoBehaviour
     public void CheckReopen()
     {
 
-        m_canOpen = true; 
+        m_canOpen = true;
         if (m_menuWasOpen && m_currentInteractable != null)
         {
             DisplayButtonMenu(m_currentInteractable, m_currentInteractable.m_canBeOverridden);
@@ -245,35 +258,74 @@ public class Interactable_Manager : MonoBehaviour
     {
         if (!enabled) return;
         m_canOpen = true;
-        if (!m_capCol)
+
+        Interactable newInteractable = null;
+        if (FoundObject(out newInteractable))
         {
-            return;
-        }
-        Collider[] cols = Physics.OverlapCapsule(m_capCol.transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius - .05f, m_interactableMask); //Physics.OverlapSphere(transform.position, m_searchRadius, m_interactableMask);
-        if (cols.Length > 0)
-        {
-            for (int i = 0; i < cols.Length; i++)
+            if (m_currentInteractable != null)
             {
-                if (m_currentInteractable != cols[i].GetComponent<Interactable>())
+                if (m_currentInteractable != newInteractable)
                 {
-                    if(cols[i].GetComponent<Interactable>() == null)
-                    {
-                        Debug.LogError(cols[i].gameObject + " does not have interactable", cols[i].gameObject);
-                        continue;
-                    }
-                    if (cols[i].GetComponent<Interactable>().m_canBeInteractedWith)
-                    {
-                        m_currentInteractable = null;
-                        cols[i].GetComponent<Interactable>().DisplayMessage();
-                        return;
-                    }
+                    m_currentInteractable.ItemDeselect();
+                    m_canBeOverridden = false;
+                    m_menuOpen = false;
+                    m_buttonUiParent.SetActive(false);
+                }
+                else
+                {
+                    return;
                 }
             }
+            m_currentInteractable = newInteractable;
+            m_currentInteractable.DisplayMessage();
+        }
+        else
+        {
+            if (m_currentInteractable != null)
+            {
+                m_currentInteractable.ItemDeselect();
+                m_canBeOverridden = false;
+                m_menuOpen = false;
+                m_buttonUiParent.SetActive(false);
+            }
+            m_currentInteractable = null;
 
         }
 
-        m_currentInteractable = null;
+    }
 
+    public bool FoundObject(out Interactable p_closestInteractable)
+    {
+
+        p_closestInteractable = null;
+        Vector3 groundPoint = new Vector3(Screen.width / 2, Screen.height / 2);
+        float dis = Mathf.Lerp(m_lowCamRaycastDis, m_highCamRaycastDis, m_cinemachineFreeLook.m_YAxis.Value);
+        RaycastHit[] allHit = Physics.RaycastAll(m_camera.position, m_camera.forward, dis, m_interactableMask);
+
+        float currentDis = 1000;
+        float measuredDis = 0;
+
+        Interactable fetchedInteractable;
+        foreach (RaycastHit hit in allHit)
+        {
+            Debug.DrawLine(m_camera.position, hit.point, Color.red);
+            measuredDis = Vector3.Distance(groundPoint, Camera.main.WorldToScreenPoint(hit.transform.position));
+            if (measuredDis < currentDis)
+            {
+                fetchedInteractable = hit.transform.GetComponent<Interactable>();
+                if (fetchedInteractable.CanInteract())
+                {
+                    p_closestInteractable = fetchedInteractable;
+                    currentDis = measuredDis;
+                }
+            }
+        }
+
+        if (p_closestInteractable != null)
+        {
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -287,11 +339,15 @@ public class Interactable_Manager : MonoBehaviour
 
     }
 
-    private void OnDrawGizmos()
+
+    /*private void OnDrawGizmos()
     {
         if (!m_isDebugging) return;
         Gizmos.color = m_debugColor;
-        Gizmos.DrawSphere(m_capCol.transform.position + (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
-        Gizmos.DrawSphere(m_capCol.transform.position - (m_capCol.height / 2 * Vector3.up), m_capCol.radius);
-    }
+
+        if (m_cinemachineFreeLook == null || m_camera == null) return;
+        float dis = Mathf.Lerp(m_lowCamRaycastDis, m_highCamRaycastDis, m_cinemachineFreeLook.m_YAxis.Value);
+        Gizmos.DrawLine(m_camera.position, m_camera.position + m_camera.forward * dis);
+
+    }*/
 }

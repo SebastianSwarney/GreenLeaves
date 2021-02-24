@@ -37,7 +37,7 @@ public class Manipulation_HitObject : MonoBehaviour
         }
         else
         {
-            Durability_UI.Instance.ShowUI();
+            Durability_UI.Instance.ShowUI(true);
             Durability_UI.Instance.UpdateText(m_hitAmount - m_currentHit);
             m_objectHit.Invoke();
         }
@@ -57,7 +57,7 @@ public class Manipulation_HitObject : MonoBehaviour
 
     public void ShowUI()
     {
-        Durability_UI.Instance.ShowUI();
+        Durability_UI.Instance.ShowUI(true);
         Durability_UI.Instance.UpdateText(m_hitAmount - m_currentHit);
     }
     public void HideUI()

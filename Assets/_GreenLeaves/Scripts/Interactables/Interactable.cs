@@ -118,21 +118,20 @@ public class Interactable : MonoBehaviour
     /// Basically calls the interactable manager when the trigger is setoff by the player
     /// </summary>
     #region Trigger detection
-    private void OnTriggerEnter(Collider other)
+
+    public bool CanInteract()
     {
-        if (!m_canBeInteractedWith) return;
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
-        {
-            DisplayMessage();
-        }
+        return m_canBeInteractedWith;
     }
 
-    private void OnTriggerExit(Collider other)
+    public void DisplayInteractableMessage()
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
-        {
-            Interactable_Manager.Instance.HideButtonMenu(this, true);
-        }
+        DisplayMessage();
+    }
+
+    public void RemoveInteractableMessage()
+    {
+        Interactable_Manager.Instance.HideButtonMenu(this, true);
     }
 
     #endregion

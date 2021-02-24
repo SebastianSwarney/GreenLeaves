@@ -12,6 +12,8 @@ public class Durability_UI : MonoBehaviour
     public CanvasGroup m_cg;
     public float m_fadeTime;
 
+    public GameObject m_promptWithText, m_promptWithoutText;
+
     public UnityEngine.UI.Text m_durabilityText, m_promptText;
 
     public RotateAndScaleToPlayer m_rotate;
@@ -53,9 +55,19 @@ public class Durability_UI : MonoBehaviour
         }
     }
 
-    public void ShowUI()
+    public void ShowUI(bool p_showText)
     {
         gameObject.SetActive(true);
+        if (p_showText)
+        {
+            m_promptWithText.SetActive(true);
+            m_promptWithoutText.SetActive(false);
+        }
+        else
+        {
+            m_promptWithText.SetActive(false);
+            m_promptWithoutText.SetActive(true);
+        }
         m_cg.alpha = 0;
         m_rotate.ForceUpdate();
         StopAllCoroutines();

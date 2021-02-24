@@ -153,7 +153,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
     }
     public void ShowUI()
     {
-        Durability_UI.Instance.ShowUI();
+        Durability_UI.Instance.ShowUI(true);
         Durability_UI.Instance.UpdateText(m_hitsToSlice - m_currentHits);
     }
 

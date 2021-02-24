@@ -15,7 +15,6 @@ public class Building_PlacementManager : MonoBehaviour
 
     public GenericWorldEvent m_objectPlacedEvent;
 
-    public Durability_UI m_instructionPrompt;
     public Interactable_Campfire m_interactable;
 
     public GameObject m_activeModel, m_burntModel;
@@ -54,7 +53,7 @@ public class Building_PlacementManager : MonoBehaviour
             if (!m_togglePrompt)
             {
                 m_togglePrompt = true;
-                m_instructionPrompt.ShowUI();
+                Durability_UI.Instance.ShowUI(false);
             }
         }
         else
@@ -62,7 +61,7 @@ public class Building_PlacementManager : MonoBehaviour
             if (m_togglePrompt)
             {
                 m_togglePrompt = false;
-                m_instructionPrompt.HideUI();
+                Durability_UI.Instance.HideUI();
             }
         }
     }
@@ -70,7 +69,7 @@ public class Building_PlacementManager : MonoBehaviour
 
     public void PlaceBuilding()
     {
-        m_instructionPrompt.HideUI();
+        Durability_UI.Instance.HideUI();
         m_currentState = PlacementState.Placed;
         m_fireParticle.gameObject.SetActive(true);
         m_objectPlacedEvent.Invoke();
@@ -85,7 +84,7 @@ public class Building_PlacementManager : MonoBehaviour
         m_fireParticle.gameObject.SetActive(false);
         m_activeModel.SetActive(false);
         m_burntModel.SetActive(true);
-        m_instructionPrompt.HideUI();
+        Durability_UI.Instance.HideUI();
         m_currentState = PlacementState.Placed;
         m_interactable.m_canBeInteractedWith = false;
         m_fireParticle.gameObject.SetActive(false);
