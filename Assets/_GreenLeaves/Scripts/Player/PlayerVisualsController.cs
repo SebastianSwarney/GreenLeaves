@@ -70,6 +70,9 @@ public class PlayerVisualsController : MonoBehaviour
         }
 
         m_animator.SetFloat("ForwardMovement", lerpValue);
+        //m_animator.SetFloat("ForwardMovement", 0.5f);
+
+        m_animator.SetBool("IsSliding", m_collisionController.m_playSlideAnimation);
 
         //m_animator.SetFloat("ForwardMovement", 0);
     }
@@ -85,10 +88,10 @@ public class PlayerVisualsController : MonoBehaviour
 
         float angle = 0;
 
-		if (p_slopeFacingDirection > 0)
-		{
-			float rotationProgress = Mathf.InverseLerp(m_minMaxModelRotationAngle.x, m_minMaxModelRotationAngle.y, p_currentSlope);
+        float rotationProgress = Mathf.InverseLerp(m_minMaxModelRotationAngle.x, m_minMaxModelRotationAngle.y, p_currentSlope);
 
+        if (p_slopeFacingDirection > 0)
+		{
 			float currentRotation = Mathf.Lerp(0, m_maxUpwardSlopeModelRotation, rotationProgress) * targetMoveAmount.y;
 
             angle = currentRotation;
@@ -96,6 +99,9 @@ public class PlayerVisualsController : MonoBehaviour
 
         //m_modelTransform.localRotation = Quaternion.AngleAxis(angle, Vector3.right);
         m_modelTransform.localRotation = Quaternion.RotateTowards(m_modelTransform.localRotation, Quaternion.AngleAxis(angle, Vector3.right), m_maxModelRotationSpeed * Time.deltaTime);
+
+
+        //m_animator.SetLayerWeight(1, rotationProgress * targetMoveAmount.y);
 
         /*
         Vector3 horizontalCross = Vector3.Cross(m_slopeTransform.right, transform.right);

@@ -35,7 +35,10 @@ public class CollisionController : MonoBehaviour
 	public float m_slideStartAngle;
 	private float m_currentSlopeAngle;
 	private bool m_onSlope;
-	private bool m_isSliding;
+
+	[HideInInspector]
+	public bool m_isSliding;
+
 	private Vector3 m_slopeVelocity;
 	public float m_slideEndPushTime;
 	private bool m_onSlideSurface;
@@ -65,6 +68,8 @@ public class CollisionController : MonoBehaviour
 	private PlayerVisualsController m_playerVisuals;
 
 	private Vector3 m_horizontalVelocity;
+
+	public bool m_playSlideAnimation;
 
 	private void Start()
 	{
@@ -133,6 +138,13 @@ public class CollisionController : MonoBehaviour
 	{
 		m_currentSlopeAngle = Vector3.Angle(m_averageNormal, Vector3.up);
 
+		RaycastHit hit;
+
+		if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, m_groundMask))
+		{
+			m_currentSlopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+		}
+
 		m_slopeText.text = m_currentSlopeAngle.ToString();
 
 		m_slopeTransform.rotation = Quaternion.LookRotation(m_averageNormal);
@@ -148,6 +160,7 @@ public class CollisionController : MonoBehaviour
 		if (m_slopeFacingDirection < 0)
 		{
 			//Start the pre slide and leave
+			StartSlideLoop(m_slopeFacingDirection);
 			return;
 		}
 
@@ -162,7 +175,7 @@ public class CollisionController : MonoBehaviour
 		if (m_currentSlopeAngle >= m_slideStartAngle)
 		{
 			//Debug.Log("Start the pre slide");
-			StartSlideLoop();
+			StartSlideLoop(m_slopeFacingDirection);
 		}
 	}
 
@@ -176,15 +189,15 @@ public class CollisionController : MonoBehaviour
 		return false;
 	}
 
-	private void StartSlideLoop()
+	private void StartSlideLoop(float p_facingDir)
 	{
 		if (!m_runningPreSlide && !m_isSliding && CheckSlideConditions())
 		{
-			StartCoroutine(RunPreSlide());
+			StartCoroutine(RunPreSlide(p_facingDir));
 		}
 	}
 
-	private IEnumerator RunPreSlide()
+	private IEnumerator RunPreSlide(float p_facingDir)
 	{
 		m_runningPreSlide = true;
 
@@ -205,12 +218,14 @@ public class CollisionController : MonoBehaviour
 
 		m_runningPreSlide = false;
 
-		StartCoroutine(RunSlide());
+		StartCoroutine(RunSlide(p_facingDir));
 	}
 
-	private IEnumerator RunSlide()
+	private IEnumerator RunSlide(float p_facingDir)
 	{
 		m_isSliding = true;
+
+		m_playSlideAnimation = true;
 
 		while (CheckSlideConditions())
 		{
@@ -218,15 +233,18 @@ public class CollisionController : MonoBehaviour
 			float currentSlopeSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, m_minMaxSlideSpeed.y, currentSlopePercent);
 			Vector3 targetSlopeVelocity = -m_slopeTransform.up * currentSlopeSpeed;
 			m_slopeVelocity = targetSlopeVelocity;
+
+			SlideRotation(p_facingDir);
+
 			yield return new WaitForFixedUpdate();
 		}
 
 		m_slopeVelocity = Vector3.zero;
 
-		StartCoroutine(SlideEndPush());
+		StartCoroutine(SlideEndPush(p_facingDir));
 	}
 
-	private IEnumerator SlideEndPush()
+	private IEnumerator SlideEndPush(float p_facingDir)
 	{
 		float t = 0;
 
@@ -241,11 +259,14 @@ public class CollisionController : MonoBehaviour
 			Vector3 targetSlopeVelocity = -m_slopeTransform.up * currentSpeed;
 			m_slopeVelocity = targetSlopeVelocity;
 
+			SlideRotation(p_facingDir);
 
 			yield return new WaitForFixedUpdate();
 		}
 
 		m_slopeVelocity = Vector3.zero;
+
+		m_playSlideAnimation = false;
 
 		t = 0;
 
@@ -257,6 +278,14 @@ public class CollisionController : MonoBehaviour
 		}
 
 		m_isSliding = false;
+	}
+
+	private void SlideRotation(float p_facingDir)
+	{
+		float targetAngle = Mathf.Atan2(m_slopeVelocity.normalized.x, m_slopeVelocity.normalized.z) * Mathf.Rad2Deg;
+		float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_playerTurnSpeed);
+
+		transform.rotation = Quaternion.Euler(0, targetAngle, 0);
 	}
 	#endregion
 
@@ -305,6 +334,7 @@ public class CollisionController : MonoBehaviour
 		{
 			m_groundMovementVelocity = Vector3.zero;
 			m_groundMovementVelocitySmoothing = Vector3.zero;
+
 			return;
 		}
 
