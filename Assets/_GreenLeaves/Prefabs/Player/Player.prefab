@@ -1914,7 +1914,14 @@ MonoBehaviour:
         m_Calls: []
   m_cameraProperties:
     m_viewCameraTransform: {fileID: 8243094455889403908}
-  m_currentBaseMovementSettings: {fileID: 11400000, guid: b3418034755435e478afe92f1d5e1e26, type: 2}
+  m_baseMovementProperties:
+    m_runSpeed: 7
+    m_walkSpeed: 3
+    m_sprintSpeed: 12
+    m_runEnergyDepletionTime: 10
+    m_playerTurnSpeed: 0.2
+    m_accelerationTimeGrounded: 0.3
+    m_accelerationTimeAir: 0.1
   m_currentJumpingSettings: {fileID: 11400000, guid: 1af36d9d73d25d54a93b7fa422dac92f, type: 2}
   m_currentSlidingSettings: {fileID: 11400000, guid: 69a90220c2bb5944f90316f31dc9459c, type: 2}
   m_slopeTransform: {fileID: 404267587}
@@ -1982,6 +1989,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   m_aimMovement: 0
+  testlerpValue: 0
   m_waterMask:
     serializedVersion: 2
     m_Bits: 0
@@ -2083,6 +2091,7 @@ MonoBehaviour:
   m_pauseStatDrain: 0
   m_sweatParticle: {fileID: 7674606971498886773}
   m_sweatRateMaxMin: {x: 30, y: 0}
+  m_passedOutCam: {fileID: 4274531881304011846}
 --- !u!114 &2582617088522548907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2722,7 +2731,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7936159169825185668
 Transform:
   m_ObjectHideFlags: 0
@@ -2730,14 +2739,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4274531881304011846}
-  m_LocalRotation: {x: 0.011658749, y: -0.98591655, z: 0.14749521, w: 0.07795951}
-  m_LocalPosition: {x: 2.3804853, y: 2.180912, z: 6.7288847}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 655170242637812708}
   m_Father: {fileID: 2987350526598319848}
   m_RootOrder: 11
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!114 &872468702650119016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2754,7 +2763,7 @@ MonoBehaviour:
   - m_Script
   m_LockStageInInspector: 
   m_StreamingVersion: 20170927
-  m_Priority: 10
+  m_Priority: 50
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
@@ -3955,7 +3964,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094454564951609}
-  m_LocalRotation: {x: -0.08237278, y: -0.05092728, z: 0.004214871, w: -0.99529064}
+  m_LocalRotation: {x: -0.08237257, y: -0.050968606, z: 0.0042182896, w: -0.99528855}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4155,7 +4164,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455187865214}
-  m_LocalRotation: {x: -0.08092164, y: -0.19284233, z: 0.015960122, w: -0.97775704}
+  m_LocalRotation: {x: -0.080919325, y: -0.19298269, z: 0.015971731, w: -0.9777294}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4229,7 +4238,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455440212644}
-  m_LocalRotation: {x: -0.08237278, y: -0.05092728, z: 0.004214871, w: -0.99529064}
+  m_LocalRotation: {x: -0.082372606, y: -0.0509686, z: 0.004218291, w: -0.9952885}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4597,7 +4606,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455889403909}
-  m_LocalRotation: {x: -0.080921635, y: -0.19284235, z: 0.015960118, w: -0.97775704}
+  m_LocalRotation: {x: -0.08091932, y: -0.1929827, z: 0.01597173, w: -0.9777294}
   m_LocalPosition: {x: 0.0000034868713, y: 0.5, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4846,6 +4855,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7742182155939608998, guid: a2f9a451fbca20c429ad99a91b4660c2, type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7742182156684209660, guid: a2f9a451fbca20c429ad99a91b4660c2, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8018518015083106915, guid: a2f9a451fbca20c429ad99a91b4660c2, type: 3}

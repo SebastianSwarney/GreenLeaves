@@ -1,0 +1,107 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using RootMotion.FinalIK;
+
+public class PlayerVisualsController : MonoBehaviour
+{
+    public float m_maxSlopeEffortSpeed;
+
+    public Transform m_headEffector;
+
+    public float m_headEffectorRotateSpeed;
+
+    public float m_maxModelRotationSpeed;
+
+    public float m_maxUpwardSlopeModelRotation;
+    public float m_maxSidewaysSlopeModelRotation;
+
+    public Vector2 m_minMaxModelRotationAngle;
+
+    public Transform m_modelTransform;
+
+    public Transform m_slopeTransform;
+
+	private Animator m_animator;
+    private CollisionController m_collisionController;
+
+    public OffsetPoseBlend m_effortPose;
+
+	private void Start()
+	{
+        m_collisionController = GetComponent<CollisionController>();
+        m_animator = GetComponentInChildren<Animator>();
+	}
+
+	private void Update()
+	{
+        //SetAnimations();
+	}
+
+    public void CalculateSlopeEffort(float p_currentSlope, float p_minSlope, float p_maxSlope)
+	{
+        float effortProgress = Mathf.InverseLerp(p_minSlope, p_maxSlope, p_currentSlope);
+
+        float slopeEffortSpeed = Mathf.Lerp(1, m_maxSlopeEffortSpeed, effortProgress);
+
+        m_animator.SetFloat("SlopeEffort", slopeEffortSpeed);
+
+        //m_effortPose.SetDirectBlendValue(1);
+    }
+
+	public void SetAnimations(Vector3 p_horizontalVelocity, float p_runSpeed, float p_sprintSpeed, float p_walkSpeed)
+    {
+        m_animator.SetBool("IsGrounded", m_collisionController.IsGrounded());
+
+        float inverseLerpValue;
+        float lerpValue;
+
+        float speedValue = p_horizontalVelocity.magnitude;
+
+        if (speedValue > p_runSpeed)
+        {
+            inverseLerpValue = Mathf.InverseLerp(p_runSpeed, p_sprintSpeed, speedValue);
+            lerpValue = Mathf.Lerp(0.5f, 1, inverseLerpValue);
+        }
+        else
+        {
+            inverseLerpValue = Mathf.InverseLerp(p_walkSpeed, p_runSpeed, speedValue);
+            lerpValue = Mathf.Lerp(0, 0.5f, inverseLerpValue);
+        }
+
+        m_animator.SetFloat("ForwardMovement", lerpValue);
+
+        //m_animator.SetFloat("ForwardMovement", 0);
+    }
+
+    public void SetModelRotation(Vector3 p_horizontalDirection, Vector3 p_groundNormal, float p_slopeFacingDirection, float p_currentSlope, float p_minSlope, float p_maxSlope)
+    {
+        Vector3 localXAxis = Vector3.Cross(transform.forward, Vector3.up);
+        Vector3 forwardRotation = Vector3.ProjectOnPlane(p_groundNormal, localXAxis);
+        Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
+        Vector3 targetMoveAmount = (upwardSlopeOffset * transform.forward);
+
+        m_headEffector.rotation = Quaternion.RotateTowards(m_headEffector.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), m_headEffectorRotateSpeed * Time.deltaTime);
+
+        float angle = 0;
+
+		if (p_slopeFacingDirection > 0)
+		{
+			float rotationProgress = Mathf.InverseLerp(m_minMaxModelRotationAngle.x, m_minMaxModelRotationAngle.y, p_currentSlope);
+
+			float currentRotation = Mathf.Lerp(0, m_maxUpwardSlopeModelRotation, rotationProgress) * targetMoveAmount.y;
+
+            angle = currentRotation;
+		}
+
+        //m_modelTransform.localRotation = Quaternion.AngleAxis(angle, Vector3.right);
+        m_modelTransform.localRotation = Quaternion.RotateTowards(m_modelTransform.localRotation, Quaternion.AngleAxis(angle, Vector3.right), m_maxModelRotationSpeed * Time.deltaTime);
+
+        /*
+        Vector3 horizontalCross = Vector3.Cross(m_slopeTransform.right, transform.right);
+        m_horizontalSlopeBlend.SetBlendValue(Mathf.Abs(horizontalCross.y) * Mathf.Sign(-horizontalCross.y));
+
+        m_modelTransform.localRotation = Quaternion.RotateTowards(m_modelTransform.localRotation, Quaternion.AngleAxis(angle, Vector3.forward), m_maxModelRotationSpeed * Time.deltaTime);
+        */
+    }
+}

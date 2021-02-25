@@ -13,10 +13,16 @@ public class PlayerInput : MonoBehaviour
 
     private bool m_lockLooking;
 
+    public bool m_useAlt = true;
+
+    private CollisionController m_collisionController;
+
     private void Start()
     {
         m_playerController = GetComponent<PlayerController>();
         m_playerInputController = ReInput.players.GetPlayer(m_playerId);
+
+        m_collisionController = GetComponent<CollisionController>();
 
         ChangeCursorState(true);
     }
@@ -38,7 +44,32 @@ public class PlayerInput : MonoBehaviour
 
     private void Update()
     {
-        GetInput();
+		if (!m_useAlt)
+		{
+            GetInput();
+		}
+		else
+		{
+            AltInput();
+        }
+
+
+    }
+
+    public void AltInput()
+	{
+        Vector2 movementInput = new Vector2(m_playerInputController.GetAxisRaw("MoveHorizontal"), m_playerInputController.GetAxisRaw("MoveVertical"));
+        m_collisionController.SetMovementInput(movementInput);
+
+
+        if (m_playerInputController.GetButtonDown("Run"))
+        {
+            m_collisionController.OnSprintButtonDown();
+        }
+        if (m_playerInputController.GetButtonUp("Run"))
+        {
+            m_collisionController.OnSprintButtonUp();
+        }
     }
 
     public void GetInput()
@@ -68,7 +99,7 @@ public class PlayerInput : MonoBehaviour
         }
         if (m_playerInputController.GetButtonUp("Run"))
         {
-            //m_playerController.OnSprintButtonUp();
+            m_playerController.OnSprintButtonUp();
         }
 
         if (m_playerInputController.GetButtonDown("Walk"))
