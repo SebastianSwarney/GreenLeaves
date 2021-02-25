@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6477977700486626463
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6477977700486626457}
+  - component: {fileID: 6477977700486626456}
+  m_Layer: 0
+  m_Name: Ambient Sound Emitter
+  m_TagString: Untagged
+  m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6477977700486626457
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6477977700486626463}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 6477977701252566930}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6477977700486626456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6477977700486626463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  Event: 
+  PlayEvent: 0
+  StopEvent: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: -1
+  OverrideMaxDistance: -1
+--- !u!1 &6477977701252566928
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6477977701252566930}
+  - component: {fileID: 6477977701252566929}
+  m_Layer: 0
+  m_Name: Ambient Sound Effects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6477977701252566930
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6477977701252566928}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 542.389, y: 30.875, z: 575.058}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 6477977700486626457}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6477977701252566929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6477977701252566928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d341a6ed4235cf4282969d8dfded048, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_eventEmitter: {fileID: 6477977700486626456}
+  m_minTimeBetweenTracks: 20
+  m_maxTimeBetweenTracks: 60
+  m_ambientSounds:
+  - m_eventName: event:/Animals/Ambient - Sparrows One-Shot
+    m_minDaytime: 4
+    m_maxDaytime: 18
+    m_offsetFromPlayer:
+    - {x: 0, y: 8, z: 10}
+    - {x: 5, y: 8, z: 10}
+    - {x: -5, y: 8, z: 10}
+    - {x: 10, y: 8, z: 10}
+    - {x: -10, y: 8, z: 10}
+    - {x: 15, y: 8, z: 10}
+    - {x: -15, y: 8, z: 10}
+    m_debugColor: {r: 1, g: 0, b: 0, a: 1}
+  - m_eventName: event:/Animals/Crickets One Shots
+    m_minDaytime: 0
+    m_maxDaytime: 0
+    m_offsetFromPlayer:
+    - {x: 0, y: -1, z: 10}
+    - {x: 5, y: -1, z: 10}
+    - {x: -5, y: -1, z: 10}
+    - {x: 10, y: -1, z: 10}
+    - {x: -10, y: -1, z: 10}
+    - {x: 15, y: -1, z: 10}
+    - {x: -15, y: -1, z: 10}
+    m_debugColor: {r: 0, g: 0.69134045, b: 1, a: 1}
+  m_debug: 1
+  m_soundToDebug: 0
