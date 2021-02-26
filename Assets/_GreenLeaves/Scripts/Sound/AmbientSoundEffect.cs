@@ -60,6 +60,7 @@ public class AmbientSoundEffect : MonoBehaviour
                 {
                     Debug.Log("No sound data available for time: " + DaytimeCycle_Update.Instance.m_timeOfDay.ToString(), this.gameObject);
                 }
+                m_currentTimer = 0;
                 m_currentRandomTime = Random.Range(m_minTimeBetweenTracks, m_maxTimeBetweenTracks);
             }
         }

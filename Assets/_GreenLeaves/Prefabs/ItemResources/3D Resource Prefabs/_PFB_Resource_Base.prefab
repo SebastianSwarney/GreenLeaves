@@ -84,6 +84,11 @@ MonoBehaviour:
   m_objectSpawned:
     m_PersistentCalls:
       m_Calls: []
+  m_minDistanceFromPlayer: 10
+  m_maxDistanceFromPlayer: 50
+  m_currentDis: 0
+  m_particlePrefab: {fileID: 1873173167208386355, guid: de56b748f5b1a1042b380e920426aff4, type: 3}
+  m_currentParticle: {fileID: 0}
 --- !u!54 &2686065726063999899
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -186,6 +191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_spawnedParticle: {fileID: 794497486324550165, guid: 75394f1baa0be774c87fd4682adeb8db, type: 3}
+  m_spawnedParticleList: []
   m_particleOffset: {x: 0, y: 0, z: 0}
   m_refScaleTransform: {fileID: 0}
   m_rotateParticleWithY: 0
@@ -307,7 +313,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.2, y: 0.2, z: 0.2}
+  m_Size: {x: 0.85, y: 0.4, z: 0.85}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7297381408201035412
 MonoBehaviour:
@@ -322,6 +328,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_spawnedParticle: {fileID: 863171199339987580, guid: 503c076b6e2b1d147b1ce252fdfb8e03, type: 3}
+  m_spawnedParticleList: []
   m_particleOffset: {x: 0, y: 0, z: 0}
   m_refScaleTransform: {fileID: 0}
   m_rotateParticleWithY: 0

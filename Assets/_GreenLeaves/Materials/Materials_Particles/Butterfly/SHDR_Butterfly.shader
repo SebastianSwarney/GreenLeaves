@@ -49,9 +49,8 @@
 					v2f o;
 					o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 					float mask = 1 - sin(UNITY_PI * o.uv.x);
-					v.vertex.y += sin(_Time.y * _DisplacementSpeed) * _DisplacementAmount   * mask;
+					v.vertex.y += sin((_Time.y + v.color.r) * _DisplacementSpeed) * _DisplacementAmount   * mask;
 					o.vertex = UnityObjectToClipPos(v.vertex);
-
 					UNITY_TRANSFER_FOG(o,o.vertex);
 					return o;
 				}
