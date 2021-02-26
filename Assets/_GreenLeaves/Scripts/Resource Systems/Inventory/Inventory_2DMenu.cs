@@ -322,7 +322,6 @@ public class Inventory_2DMenu : MonoBehaviour
                     m_inventoryGrid.AddNewIcon(p_newIcon.m_itemData.m_resourceData, RotationType.Left, p_newIcon, out placedPos);
                     p_newIcon.m_previousGridPos = placedPos;
                     p_newIcon.m_startingCoordPos = p_newIcon.transform.localPosition;
-                    Debug.Log("Return Left");
                     return true;
                 }
             }
@@ -337,7 +336,6 @@ public class Inventory_2DMenu : MonoBehaviour
                     m_inventoryGrid.AddNewIcon(p_newIcon.m_itemData.m_resourceData, RotationType.Down, p_newIcon, out placedPos);
                     p_newIcon.m_previousGridPos = placedPos;
                     p_newIcon.m_startingCoordPos = p_newIcon.transform.localPosition;
-                    Debug.Log("Return Down");
                     return true;
                 }
             }
@@ -1131,6 +1129,29 @@ public class Inventory_2DMenu : MonoBehaviour
         return amount;
     }
 
+    #endregion
+
+
+    #region Inventory Clear Code
+    public void ClearInventory()
+    {
+        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        {
+            Player_Inventory.Instance.DropObject(slot.m_associatedIcon, false);
+            ObjectPooler.Instance.ReturnToPool(slot.m_associatedIcon.gameObject);
+            slot.m_associatedIcon.m_itemData.DropObject(slot.m_associatedIcon, Vector3.zero, Quaternion.identity, false);
+        }
+        m_backpack.m_itemsInBackpack.Clear();
+
+        for (int y = 0; y < m_inventoryGrid.m_itemGrids.Count; y++)
+        {
+            for (int x = 0; x < m_inventoryGrid.m_itemGrids[y].m_itemGrids.Count; x++)
+            {
+                m_inventoryGrid.m_itemGrids[y].m_itemGrids[x] = null;
+            }
+        }
+        m_inventoryGrid.m_currentAmount = 0;
+    }
     #endregion
 }
 

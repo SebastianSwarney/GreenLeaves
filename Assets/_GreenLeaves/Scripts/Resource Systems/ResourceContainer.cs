@@ -17,13 +17,21 @@ public class ResourceContainer : ScriptableObject
     {
     }
 
-    public virtual GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot)
+    public virtual GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot, bool p_returnObject = true)
     {
-        GameObject dropped = ObjectPooler.Instance.NewObject(m_resourceData.m_resourcePrefab, p_pos, p_rot);
+        if (p_returnObject)
+        {
+            GameObject dropped = ObjectPooler.Instance.NewObject(m_resourceData.m_resourcePrefab, p_pos, p_rot);
 
-        dropped.GetComponent<Resource_Pickup>().m_canPickup = true;
-        return dropped;
+            dropped.GetComponent<Resource_Pickup>().m_canPickup = true;
+            return dropped;
+        }
+        else
+        {
+            return null;
+        }
     }
+
 
     public virtual ResourceContainer_Cosume AddToEdibleTable()
     {
@@ -44,7 +52,7 @@ public class ResourceData
     public GameObject m_resourcePrefab;
     public Vector2Int m_inventoryWeight;
 
-    public enum ResourceType { Resource, Edible, Tool}
+    public enum ResourceType { Resource, Edible, Tool }
     public ResourceType m_resourceType;
 
     //Used to determine which way the icon should be rotated when initially being placed.

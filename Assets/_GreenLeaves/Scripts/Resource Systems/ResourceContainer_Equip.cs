@@ -13,7 +13,7 @@ public class ResourceContainer_Equip : ResourceContainer
         Inventory_ItemUsage.Instance.EquipNewItem(p_currentIcon, m_currentToolType);
     }
 
-    public override GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot)
+    public override GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot, bool p_returnObject = true)
     {
         Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(m_currentToolType);
         return null;
