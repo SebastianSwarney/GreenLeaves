@@ -71,10 +71,16 @@ public class Manipulation_SelfSlice : MonoBehaviour
         GameObject upperHull = hull.CreateUpperHull(m_mesh, m_crossSectionMaterials);
         GameObject lowerHull = hull.CreateLowerHull(m_mesh, m_crossSectionMaterials);
 
-        upperHull.transform.localScale = transform.localScale;
-        lowerHull.transform.localScale = transform.localScale;
-        lowerHull.transform.position = upperHull.transform.position = transform.position;
-        upperHull.transform.parent = lowerHull.transform.parent = transform.parent;
+        SetUpHulls(upperHull, lowerHull, p_forwardDir, p_worldPos);
+
+    }
+
+    public virtual void SetUpHulls(GameObject p_upperHull, GameObject p_lowerHull, Vector3 p_fallDir, Vector3 p_worldPos)
+    {
+        p_upperHull.transform.localScale = transform.localScale;
+        p_lowerHull.transform.localScale = transform.localScale;
+        p_lowerHull.transform.position = p_upperHull.transform.position = transform.position;
+        p_upperHull.transform.parent = p_lowerHull.transform.parent = transform.parent;
         #endregion
 
         #region prepare the different slices
@@ -95,35 +101,35 @@ public class Manipulation_SelfSlice : MonoBehaviour
             if (chi == null) continue;
             if (Vector3.Angle(chi.transform.position - p_worldPos, Vector3.up) < 90)
             {
-                chi.transform.parent = upperHull.transform;
+                chi.transform.parent = p_upperHull.transform;
             }
             else
             {
-                chi.transform.parent = lowerHull.transform;
+                chi.transform.parent = p_lowerHull.transform;
             }
         }
 
         #endregion
 
 
-        
 
-        lowerHull.AddComponent<MeshCollider>().convex = true;
+
+        p_lowerHull.AddComponent<MeshCollider>().convex = true;
 
         if (m_addRB)
         {
             if (m_fallForward)
             {
-                Rigidbody newRb = upperHull.AddComponent<Rigidbody>();
+                Rigidbody newRb = p_upperHull.AddComponent<Rigidbody>();
                 newRb.mass = m_startingTreeMass * transform.localScale.y;
-                newRb.AddForceAtPosition(p_forwardDir.normalized * m_fallInitialForce, m_mesh.transform.position + (Vector3.up * m_applyForcePosition * transform.localScale.y), ForceMode.Impulse);
-                Debug.DrawLine(transform.position, m_mesh.transform.position + (Vector3.up * m_applyForcePosition * transform.localScale.y),Color.magenta, 2f);
+                newRb.AddForceAtPosition(p_fallDir.normalized * m_fallInitialForce, m_mesh.transform.position + (Vector3.up * m_applyForcePosition * transform.localScale.y), ForceMode.Impulse);
+                Debug.DrawLine(transform.position, m_mesh.transform.position + (Vector3.up * m_applyForcePosition * transform.localScale.y), Color.magenta, 2f);
                 newRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             }
             else
             {
-                Rigidbody newRb = upperHull.AddComponent<Rigidbody>();
-                newRb.AddExplosionForce(1, upperHull.transform.position, 3, .5f, ForceMode.Impulse);
+                Rigidbody newRb = p_upperHull.AddComponent<Rigidbody>();
+                newRb.AddExplosionForce(1, p_upperHull.transform.position, 3, .5f, ForceMode.Impulse);
                 newRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             }
         }
@@ -131,20 +137,20 @@ public class Manipulation_SelfSlice : MonoBehaviour
         #endregion
 
 
-        m_slicedEvent.Invoke(upperHull.transform);
+        m_slicedEvent.Invoke(p_upperHull.transform);
         /*MeshCollider col = upperHull.transform.GetChild(1).gameObject.AddComponent<MeshCollider>();
         col.sharedMesh = upperHull.GetComponent<MeshFilter>().mesh;
         col.convex = true;*/
-        BoxCollider col = upperHull.transform.GetChild(1).gameObject.AddComponent<BoxCollider>();
-        Mesh mesh = upperHull.GetComponent<MeshFilter>().mesh;
+        BoxCollider col = p_upperHull.transform.GetChild(1).gameObject.AddComponent<BoxCollider>();
+        Mesh mesh = p_upperHull.GetComponent<MeshFilter>().mesh;
         col.size = mesh.bounds.size;
         col.center = mesh.bounds.center;
 
         gameObject.SetActive(false);
-        upperHull.transform.GetChild(1).transform.localPosition = Vector3.zero;
-        upperHull.transform.GetChild(1).transform.localRotation = Quaternion.identity;
-        upperHull.transform.GetComponentInChildren<Tree_VelocityCheck>().AssignTree();
-        
+        p_upperHull.transform.GetChild(1).transform.localPosition = Vector3.zero;
+        p_upperHull.transform.GetChild(1).transform.localRotation = Quaternion.identity;
+        p_upperHull.transform.GetComponentInChildren<Tree_VelocityCheck>().AssignTree();
+
     }
 
     public void HideUI()
@@ -163,7 +169,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
     public Color m_debugColor, m_debugColor2;
     public float m_boxSize;
 
-    private void OnDrawGizmos()
+    public virtual void OnDrawGizmos()
     {
         if (!m_debug) return;
         Gizmos.color = m_debugColor;
