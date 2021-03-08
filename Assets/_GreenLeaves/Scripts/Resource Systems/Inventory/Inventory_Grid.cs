@@ -105,13 +105,17 @@ public class Inventory_Grid : MonoBehaviour
                 }
                 if (canFit)
                 {
-                    if (p_currentRotationType == Inventory_2DMenu.RotationType.Left)
+                    if (p_currentRotationType == Inventory_2DMenu.RotationType.Left || p_currentRotationType == Inventory_2DMenu.RotationType.Right)
                     {
                         m_newPlacement = new Vector2Int(curX, curY);
                     }
-                    else
+                    else if (p_currentRotationType == Inventory_2DMenu.RotationType.Down)
                     {
                         m_newPlacement = new Vector2Int(curX + (p_data.m_inventoryWeight.y - 1), curY);
+                        Debug.Log("New Placement: " + m_newPlacement);
+                    }else if (p_currentRotationType == Inventory_2DMenu.RotationType.Up)
+                    {
+                        m_newPlacement = new Vector2Int(curX + (p_data.m_inventoryWeight.y - 1), curY + (p_data.m_inventoryWeight.x -1));
                     }
                     return true;
                 }
@@ -142,7 +146,18 @@ public class Inventory_Grid : MonoBehaviour
 
 
         p_placement = m_newPlacement;
-        PlaceIcon(p_iconObject, p_placement, Vector2Int.zero, p_data, p_rotationType);
+        Vector2Int cellOffset = Vector2Int.zero;
+        if (p_rotationType == Inventory_2DMenu.RotationType.Right)
+        {
+
+            cellOffset = new Vector2Int(p_data.m_inventoryWeight.x - 1, p_data.m_inventoryWeight.y - 1);
+        }
+        else if (p_rotationType == Inventory_2DMenu.RotationType.Up)
+        {
+            cellOffset = new Vector2Int(0, p_data.m_inventoryWeight.y - 1);
+        }
+
+        PlaceIcon(p_iconObject, p_placement, cellOffset, p_data, p_rotationType);
 
 
 
@@ -156,7 +171,10 @@ public class Inventory_Grid : MonoBehaviour
     /// </summary>
     public void PlaceIcon(Inventory_Icon p_icon, Vector2Int p_placement, Vector2Int p_cellOffset, ResourceData p_data, Inventory_2DMenu.RotationType p_rotateType)
     {
+        Debug.Log("Offset: " + p_cellOffset);
+        Debug.Log("Placement: " + p_placement);
         Vector2 pos = Vector3.zero;
+        p_icon.GetComponent<Inventory_Icon>().m_prevClickedIndex = p_cellOffset;
         switch (p_rotateType)
         {
 
@@ -184,7 +202,7 @@ public class Inventory_Grid : MonoBehaviour
             case Inventory_2DMenu.RotationType.Down:
 
                 pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (p_data.m_inventoryWeight.y - 1 - p_cellOffset.y) - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)),
-                                    -m_gridIconSize.y * ((p_placement.y - ( p_cellOffset.x) - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)));
+                                    -m_gridIconSize.y * ((p_placement.y - (p_cellOffset.x) - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)));
                 p_icon.transform.localPosition = pos;
 
                 int downStartingX = p_placement.x - (p_data.m_inventoryWeight.y - 1 - p_cellOffset.y);
@@ -211,8 +229,8 @@ public class Inventory_Grid : MonoBehaviour
 
 
 
-                pos = new Vector2(m_gridIconSize.x * ((p_placement.x  - (p_data.m_inventoryWeight.x-1 - p_cellOffset.x) - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)),
-                    -m_gridIconSize.y * ((p_placement.y  - (p_data.m_inventoryWeight.y-1 - p_cellOffset.y) - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)));
+                pos = new Vector2(m_gridIconSize.x * ((p_placement.x - (p_data.m_inventoryWeight.x - 1 - p_cellOffset.x) - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)),
+                    -m_gridIconSize.y * ((p_placement.y - (p_data.m_inventoryWeight.y - 1 - p_cellOffset.y) - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)));
                 p_icon.transform.localPosition = pos;
 
                 int startingX = p_placement.x - (p_data.m_inventoryWeight.x - 1 - p_cellOffset.x);
@@ -237,7 +255,7 @@ public class Inventory_Grid : MonoBehaviour
             #region Up Placement
             case Inventory_2DMenu.RotationType.Up:
 
-                pos = new Vector2(m_gridIconSize.x * ((p_placement.x -  p_cellOffset.y- (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)),
+                pos = new Vector2(m_gridIconSize.x * ((p_placement.x - p_cellOffset.y - (m_rowSlots[0].m_gridCells.Count / 2)) + ((p_data.m_inventoryWeight.y - 1) * .5f)),
                                      -m_gridIconSize.y * ((p_placement.y - (p_data.m_inventoryWeight.x - 1 - p_cellOffset.x) - (m_rowSlots.Count / 2)) + ((p_data.m_inventoryWeight.x - 1) * .5f)));
                 p_icon.transform.localPosition = pos;
 
@@ -470,7 +488,7 @@ public class Inventory_Grid : MonoBehaviour
             case Inventory_2DMenu.RotationType.Down:
 
                 newXPos = p_gridPos.x - (p_gridWeight.y - 1 - p_prevLiftPos.y);
-                newYPos = p_gridPos.y- p_prevLiftPos.x;
+                newYPos = p_gridPos.y - p_prevLiftPos.x;
 
                 for (int y = newYPos; y <= (p_gridWeight.x - 1) + newYPos; y++)
                 {
@@ -486,11 +504,11 @@ public class Inventory_Grid : MonoBehaviour
 
             case Inventory_2DMenu.RotationType.Right:
 
-                newYPos = p_gridPos.y - (p_gridWeight.y-1 - p_prevLiftPos.y);
-                newXPos = p_gridPos.x - (p_gridWeight.x-1 - p_prevLiftPos.x);
-                for (int y = newYPos; y <=p_gridWeight.y-1 + newYPos; y++)
+                newYPos = p_gridPos.y - (p_gridWeight.y - 1 - p_prevLiftPos.y);
+                newXPos = p_gridPos.x - (p_gridWeight.x - 1 - p_prevLiftPos.x);
+                for (int y = newYPos; y <= p_gridWeight.y - 1 + newYPos; y++)
                 {
-                    for (int x = newXPos; x <= p_gridWeight.x-1 +newXPos; x++)
+                    for (int x = newXPos; x <= p_gridWeight.x - 1 + newXPos; x++)
                     {
                         m_itemGrids[y].m_itemGrids[x] = null;
                     }

@@ -108,12 +108,13 @@ public class Inventory_2DMenu : MonoBehaviour
     public void ToggleInventory(bool p_openCrafting)
     {
         if (!m_canClose) return;
+        
         if (m_isOpen)
         {
             m_heldItemText.text = "";
             m_craftingMenu.SetActive(false);
             m_cookingMenu.SetActive(false);
-
+            Inventory_Tutorial.Instance.EndTutorial();
             if (m_isDraggingObject)
             {
                 m_currentSelectedIcon.ForceIconDrop();
