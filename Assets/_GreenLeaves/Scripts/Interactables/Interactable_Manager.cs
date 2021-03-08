@@ -300,6 +300,7 @@ public class Interactable_Manager : MonoBehaviour
         p_closestInteractable = null;
         Vector3 groundPoint = new Vector3(Screen.width / 2, Screen.height / 2);
         float dis = Mathf.Lerp(m_lowCamRaycastDis, m_highCamRaycastDis, m_cinemachineFreeLook.m_YAxis.Value);
+        if (m_camera == null) return false;
         RaycastHit[] allHit = Physics.RaycastAll(m_camera.position, m_camera.forward, dis, m_interactableMask);
 
         float currentDis = 1000;
