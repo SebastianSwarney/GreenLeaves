@@ -94,7 +94,7 @@ public class Manipulation_SelfSlice_ScriptedDirection : Manipulation_SelfSlice
 
     }
 
-
+#if UNITY_EDITOR
     public override void OnDrawGizmos()
     {
         if (m_debugScriptedEvent)
@@ -107,4 +107,5 @@ public class Manipulation_SelfSlice_ScriptedDirection : Manipulation_SelfSlice
         base.OnDrawGizmos();
 
     }
+#endif
 }

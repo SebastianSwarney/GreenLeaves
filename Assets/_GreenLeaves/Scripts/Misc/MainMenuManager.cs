@@ -19,13 +19,21 @@ public class MainMenuManager : MonoBehaviour
     public GenericWorldEvent m_firstEnterPressed, m_secondEnterPressed, m_startTransition;
     private float m_enterBufferTime = 1;
     private float m_enterTimer;
+
+
     private void Start()
     {
         if (m_playRandomSounds)
         {
             StartCoroutine(RandomSounds());
         }
+
+
+
     }
+
+
+
 
     private void Update()
     {

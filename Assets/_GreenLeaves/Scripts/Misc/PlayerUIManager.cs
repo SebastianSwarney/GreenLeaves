@@ -104,9 +104,6 @@ public class PlayerUIManager : MonoBehaviour
             timer += Time.deltaTime;
             m_screenFadeGroup.alpha = (p_newFadeState ? (timer / m_fadeTime) : 1 - (timer / m_fadeTime));
 
-            m_ambience.setVolume((p_newFadeState) ? 1 - (timer / m_fadeTime) : (timer / m_fadeTime));
-            m_soundEffects.setVolume((p_newFadeState) ? 1 - (timer / m_fadeTime) : (timer / m_fadeTime));
-
         }
 
         m_ambience.setVolume((p_newFadeState) ? 0 : 1);

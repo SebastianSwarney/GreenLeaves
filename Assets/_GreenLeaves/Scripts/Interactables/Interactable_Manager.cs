@@ -77,7 +77,11 @@ public class Interactable_Manager : MonoBehaviour
         {
             m_camera = Camera.main.transform;
         }
-        if(m_cinemachineFreeLook == null)
+
+    }
+    private void Start()
+    {
+        if (m_cinemachineFreeLook == null)
         {
             m_cinemachineFreeLook = PlayerInputToggle.Instance.transform.GetComponentInChildren<Cinemachine.CinemachineFreeLook>();
         }
