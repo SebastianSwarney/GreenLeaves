@@ -171,8 +171,6 @@ public class Inventory_Grid : MonoBehaviour
     /// </summary>
     public void PlaceIcon(Inventory_Icon p_icon, Vector2Int p_placement, Vector2Int p_cellOffset, ResourceData p_data, Inventory_2DMenu.RotationType p_rotateType)
     {
-        Debug.Log("Offset: " + p_cellOffset);
-        Debug.Log("Placement: " + p_placement);
         Vector2 pos = Vector3.zero;
         p_icon.GetComponent<Inventory_Icon>().m_prevClickedIndex = p_cellOffset;
         switch (p_rotateType)

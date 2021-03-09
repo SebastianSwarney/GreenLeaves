@@ -65,7 +65,7 @@ public class PlayerUIManager : MonoBehaviour
         if (m_isPaused)
         {
             Interactable_Manager.Instance.ForceCloseMenu();
-            PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
         }
         else if (!Inventory_2DMenu.Instance.m_isOpen)
         {
