@@ -8,15 +8,20 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "CraftingRecipe_Canteen_", menuName = "ScriptableObjects/CraftingRecipe/Canteen", order = 0)]
 public class Crafting_Recipe_CanteenRecipes : Crafting_Recipe
 {
+
+    [Header("Canteen Specific")]
+    public Crafting_Table.Crafting_ItemsContainer m_canteenRecipe;
     public float m_requiredCanteenAmount;
     public override bool CanCraft(List<Crafting_Table.Crafting_ItemsContainer> p_givenItems, out int p_matchAmount)
     {
         bool p_hasCanteen = false;
-        foreach(Crafting_Table.Crafting_ItemsContainer given in p_givenItems)
+        Inventory_Icon_Durability canteenIcon = null;
+        foreach (Crafting_Table.Crafting_ItemsContainer given in p_givenItems)
         {
-            if(given.m_itemData.name == "Canteen")
+            if (given.m_itemData.m_resourceData.m_resourceName == "Canteen")
             {
                 p_hasCanteen = true;
+                canteenIcon = given.m_relatedDurabilityIcon;
                 break;
             }
         }
@@ -26,22 +31,20 @@ public class Crafting_Recipe_CanteenRecipes : Crafting_Recipe
             return false;
         }
 
-        if(Player_EquipmentUse_Canteen.Instance == null)
-        {
-            Debug.Log("Tyler: Null Check for canteen here, fix this later");
-            if (Player_Inventory.Instance.m_canteenTool == null)
-            {
-                p_matchAmount = 0;
-                return false;
-            }
-            Player_EquipmentUse_Canteen.Instance = Player_Inventory.Instance.m_canteenTool.GetComponent<Player_EquipmentUse_Canteen>();
-        }
-        
-        if(Player_EquipmentUse_Canteen.Instance.m_durability < m_requiredCanteenAmount)
+
+        if (canteenIcon.m_durabilityAmount < m_requiredCanteenAmount)
         {
             p_matchAmount = 0;
             return false;
         }
         return base.CanCraft(p_givenItems, out p_matchAmount);
+    }
+    public override List<Crafting_Table.Crafting_ItemsContainer> GetRecipe()
+    {
+        List<Crafting_Table.Crafting_ItemsContainer> returnRecipe = new List<Crafting_Table.Crafting_ItemsContainer>(base.GetRecipe());
+
+        returnRecipe.Add(m_canteenRecipe);
+        return returnRecipe;
+
     }
 }

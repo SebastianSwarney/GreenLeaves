@@ -33,7 +33,7 @@ public class ResourceContainer_Cosume : ResourceContainer
     [System.Serializable]
     public class TypeOfCosumption
     {
-        public enum ConsumeType {Stamina, Hunger, Energy}
+        public enum ConsumeType {Stamina, Hunger, Energy, All}
         public TypeOfCosumption.ConsumeType m_typeOfConsume;
 
         public float m_replenishAmount;

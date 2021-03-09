@@ -1307,7 +1307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea1c49cc3e2bada4c95593ba5dad1143, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_testToolType: 0
+  m_testToolType: 1
 --- !u!1 &496540812927344846
 GameObject:
   m_ObjectHideFlags: 0
@@ -1686,7 +1686,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_toolComponents: {fileID: 496540812864191071}
   m_isCraftingTable: 0
-  m_allRecipes: []
+  m_allRecipes:
+  - {fileID: 11400000, guid: ba0f1a61137f89643b4098a3e2448ffa, type: 2}
+  - {fileID: 11400000, guid: 0f816b35e6fe2284d9805b3915d4a159, type: 2}
+  - {fileID: 11400000, guid: 51dc7dcd3e3a9cc41a062d0b3e999f31, type: 2}
+  - {fileID: 11400000, guid: 3a8018e86a288db4eb5a4921ded712f8, type: 2}
   m_craftButton: {fileID: 4434670547443245911}
   m_craftedItemText: {fileID: 7757780935798232031}
   m_iconsOnTable: []

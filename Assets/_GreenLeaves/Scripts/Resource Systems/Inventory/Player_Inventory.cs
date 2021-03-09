@@ -25,6 +25,7 @@ public class Player_Inventory : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        Player_EquipmentUse_Canteen.Instance = m_canteenTool.GetComponent<Player_EquipmentUse_Canteen>();
     }
     private void Update()
     {

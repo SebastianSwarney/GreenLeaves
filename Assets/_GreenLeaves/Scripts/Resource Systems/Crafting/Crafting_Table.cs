@@ -18,6 +18,8 @@ public class Crafting_Table : MonoBehaviour
     [System.Serializable]
     public class Crafting_ItemsContainer
     {
+        public Inventory_Icon m_relatedIcon;
+        public Inventory_Icon_Durability m_relatedDurabilityIcon;
         public ResourceContainer m_itemData;
         public int m_itemAmount;
     }
@@ -141,6 +143,12 @@ public class Crafting_Table : MonoBehaviour
             Crafting_ItemsContainer newContainer = new Crafting_ItemsContainer();
             newContainer.m_itemAmount = icon.m_currentResourceAmount;
             newContainer.m_itemData = icon.m_itemData;
+            newContainer.m_relatedIcon = icon;
+            if(icon.GetComponent<Inventory_Icon_Durability>() != null)
+            {
+                newContainer.m_relatedDurabilityIcon = icon.GetComponent<Inventory_Icon_Durability>();
+            }
+
             currentItems.Add(newContainer);
         }
 
@@ -173,7 +181,7 @@ public class Crafting_Table : MonoBehaviour
     {
         Crafting_Recipe currentRecipe = new Crafting_Recipe();
         currentRecipe.m_recipe = new List<Crafting_ItemsContainer>();
-        foreach (Crafting_ItemsContainer cont in m_currentRecipe.m_recipe)
+        foreach (Crafting_ItemsContainer cont in m_currentRecipe.GetRecipe())
         {
             Crafting_ItemsContainer newItem = new Crafting_ItemsContainer();
             newItem.m_itemData = cont.m_itemData;
@@ -188,7 +196,7 @@ public class Crafting_Table : MonoBehaviour
             if (currentIcon.m_currentResourceAmount <= 0) continue;
             if (currentIcon.GetComponent<Inventory_Icon_ToolResource>() != null)
             {
-                foreach (Crafting_ItemsContainer cont in currentRecipe.m_recipe)
+                foreach (Crafting_ItemsContainer cont in currentRecipe.GetRecipe())
                 {
                     if (cont.m_itemData.m_resourceData.m_resourceName == currentIcon.m_itemData.m_resourceData.m_resourceName)
                     {
@@ -197,7 +205,7 @@ public class Crafting_Table : MonoBehaviour
                 }
                 continue;
             }
-            foreach (Crafting_ItemsContainer cont in currentRecipe.m_recipe)
+            foreach (Crafting_ItemsContainer cont in currentRecipe.GetRecipe())
             {
                 if (cont.m_itemAmount <= 0) continue;
                 if (cont.m_itemData.m_resourceData.m_resourceName == currentIcon.m_itemData.m_resourceData.m_resourceName)
