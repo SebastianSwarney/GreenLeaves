@@ -27,9 +27,6 @@ public class MainMenuManager : MonoBehaviour
         {
             StartCoroutine(RandomSounds());
         }
-
-
-
     }
 
 

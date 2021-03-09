@@ -111,6 +111,7 @@ public class Inventory_2DMenu : MonoBehaviour
         
         if (m_isOpen)
         {
+            
             m_heldItemText.text = "";
             m_craftingMenu.SetActive(false);
             m_cookingMenu.SetActive(false);
@@ -128,6 +129,7 @@ public class Inventory_2DMenu : MonoBehaviour
         }
         else
         {
+            PlayerUIManager.Instance.ToggleCameraMode(false);
             m_heldItemText.text = "";
             PlayerInputToggle.Instance.ToggleInput(false);
             m_isOpen = true;
