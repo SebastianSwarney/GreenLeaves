@@ -34,6 +34,7 @@ public class Player_Inventory : MonoBehaviour
         {
             if (m_canOpenMenu)
             {
+                PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
                 Inventory_2DMenu.Instance.ToggleInventory(true);
             }
         }

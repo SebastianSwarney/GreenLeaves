@@ -191,6 +191,7 @@ public class Interactable_Campfire : Interactable
 
                 DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
 
+                PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
                 PlayerInputToggle.Instance.ToggleInput(false);
                 Interactable_Manager.Instance.DisplayButtonMenu(this, false);
                 break;

@@ -66,7 +66,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         {
             if (WaterNearby())
             {
-                PlayerInputToggle.Instance.ToggleInput(false);
+                PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
                 m_linkedIcon.m_itemData = m_defaultCanteenData;
                 m_energyRefilType = new List<RefillType>(m_defaultCanteenData.m_energyRefilType);
                 m_hasSpecialDrink = false;
@@ -78,14 +78,14 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         }
         else if (Input.GetMouseButton(0) && !m_gettingWater && m_durability > 0)
         {
-            PlayerInputToggle.Instance.ToggleInput(false);
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
             UseEquipment();
             Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
             UpdateIconDurability();
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            PlayerInputToggle.Instance.ToggleInput(true);
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
             m_gettingWater = false;
         }
         m_drinkTimer += Time.deltaTime;
