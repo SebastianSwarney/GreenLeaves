@@ -38,6 +38,12 @@ public class PlayerVisualsController : MonoBehaviour
         //SetAnimations();
 	}
 
+    public void ClimbAnimations(float p_horizontalValue, float p_verticalValue)
+	{
+        m_animator.SetFloat("ClimbHorizontal", p_horizontalValue);
+        m_animator.SetFloat("ClimbVertical", p_verticalValue);
+	}
+
     public void CalculateSlopeEffort(float p_currentSlope, float p_minSlope, float p_maxSlope)
 	{
         float effortProgress = Mathf.InverseLerp(p_minSlope, p_maxSlope, p_currentSlope);
