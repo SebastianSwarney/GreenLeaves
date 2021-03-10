@@ -39,6 +39,17 @@ public class PlayerVisualsController : MonoBehaviour
 
     private float m_currentArmIKWeight;
 
+    private GrounderFBBIK m_grounder;
+
+    private bool m_useGrounder = true;
+    public float m_grounderSmoothingTime;
+    private float m_grounderSmoothingVelocity;
+    private float m_currentGrounderWeight;
+
+    public float m_climbMaxHeadRotation;
+
+    public float m_maxClimbSpeedMultiplier;
+
     private void Start()
 	{
         m_collisionController = GetComponent<CollisionController>();
@@ -51,13 +62,24 @@ public class PlayerVisualsController : MonoBehaviour
 
         m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
         m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
+
+        m_grounder = GetComponentInChildren<GrounderFBBIK>();
+
+        m_useGrounder = true;
     }
 
 	private void Update()
 	{
         //SetAnimations();
         ArmIK();
-	}
+        GrounderWeight();
+    }
+
+	#region Arm IK
+	public void ToggleArmIK(bool p_ikState)
+    {
+        m_armIK = p_ikState;
+    }
 
     private void ArmIK()
 	{
@@ -77,16 +99,48 @@ public class PlayerVisualsController : MonoBehaviour
         m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = m_currentArmIKWeight;
     }
 
-    public void ToggleArmIK(bool p_ikState)
-	{
-        m_armIK = p_ikState;
-	}
-
     public void SetArmTargetPosition(Vector3 p_leftArm, Vector3 p_rightArm)
-	{
+    {
         m_leftArmIKTarget.position = p_leftArm;
         m_rightArmIKTarget.position = p_rightArm;
+    }
+    #endregion
+
+    #region Grounder
+    private void GrounderWeight()
+	{
+        float weightTarget = 0;
+
+        if (m_useGrounder)
+        {
+            weightTarget = 1f;
+        }
+
+        m_currentGrounderWeight = Mathf.SmoothDamp(m_currentGrounderWeight, weightTarget, ref m_grounderSmoothingVelocity, m_grounderSmoothingTime);
+        m_grounder.weight = m_currentGrounderWeight;
+    }
+
+    public void ToggleGrounder(bool p_grounderState)
+	{
+        m_useGrounder = p_grounderState;
 	}
+	#endregion
+
+    public void CenterHead()
+	{
+        Quaternion headRotation = Quaternion.Euler(0, 0, 0);
+        m_headEffector.localRotation = headRotation;
+    }
+
+    public void ClimbHeadAnimations(Vector2 p_animationVector)
+	{
+        float horizontalRotation = Mathf.Lerp(-m_climbMaxHeadRotation, m_climbMaxHeadRotation, p_animationVector.x);
+        float verticalRotation = Mathf.Lerp(m_climbMaxHeadRotation, -m_climbMaxHeadRotation, p_animationVector.y);
+
+        Quaternion headRotation = Quaternion.Euler(verticalRotation, horizontalRotation, 0);
+
+        m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
+    }
 
     public void ClimbAnimations(float p_horizontalValue, float p_verticalValue)
 	{

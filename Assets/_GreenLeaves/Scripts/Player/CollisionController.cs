@@ -10,6 +10,7 @@ public class CollisionController : MonoBehaviour
 	public LayerMask m_slideMask;
 
 	public float m_gravity = -9.8f;
+	private bool m_forceGravity;
 
 	public Transform m_viewCameraTransform;
 
@@ -77,60 +78,41 @@ public class CollisionController : MonoBehaviour
 
 	[Header("Climb properties")]
 	public LayerMask m_climbMask;
-
 	public Transform m_climbTransform;
 
-	private bool m_climbing;
-
 	public float m_climbSpeed;
-
-	private Vector3 m_climbVelocity;
-
-	public float m_climbStartDistance;
-
-	private bool m_onClimbSurface;
-
-	public float m_climbStartTime;
-
-	private bool m_useGravity;
-
-	private Vector3 m_wallStickVelocity;
-
-	private Vector3 m_horizontalWallDirection;
-
-	public float m_wallAlignmentStart = 0.9f;
-
 	public float m_climbAcceleration;
 
-	private Vector3 m_climbMovementSmoothingVelocity;
+	public float m_climbStartDistance;
+	public float m_wallAlignmentStart = 0.9f;
 
-	private bool m_clamber;
+	private Vector3 m_climbVelocity;
+	private Vector3 m_climbMovementSmoothingVelocity;
+	private Vector3 m_wallStickVelocity;
+	private Vector3 m_horizontalWallDirection;
+
+	[Header("Other climbing stuff")]
 
 	public float m_clamberSpeed;
-
-	public float m_clamberEndTime;
-
-	public float m_clamberEndSpeed;
-
 	public AnimationCurve m_clamberCurve;
 
-	//public Transform m_leftHand;
-	//public Transform m_rightHand;
-
-	//private FullBodyBipedIK m_fullBodyBipedIK;
+	public float m_clamberEndTime;
+	public float m_clamberEndSpeed;
+	public AnimationCurve m_clamberEndCurve;
 
 	public float m_armWidth;
 	public float m_handHeight;
 
-	public float m_forwardSlidePercent;
-	public float m_forwardSlideSpeed;
+	public float m_groundCancelTime;
 
-	public float m_animationTransPercent;
-
+	private bool m_clamber;
 	private bool m_groundCancel;
+	private bool m_climbing;
+	private bool m_onClimbSurface;
+	private bool m_useGravity;
 
-	public float m_handBackAmount;
 
+	private Vector3 m_playerTop, m_playerBottom;
 
 	private void Start()
 	{
@@ -139,6 +121,11 @@ public class CollisionController : MonoBehaviour
 		m_playerVisuals = GetComponent<PlayerVisualsController>();
 	}
 
+	private void UpdatePlayerCastPoints()
+	{
+		m_playerBottom = transform.position + (Vector3.down * (m_characterController.height / 2));
+		m_playerTop = transform.position + (Vector3.up * (m_characterController.height / 2));
+	}
 
 	public void SetMovementInput(Vector2 p_input)
 	{
@@ -148,6 +135,8 @@ public class CollisionController : MonoBehaviour
 	private void FixedUpdate()
 	{
 		m_isGrounded = m_characterController.isGrounded;
+
+		UpdatePlayerCastPoints();
 
 		CalculateSlopeVariables();
 
@@ -227,62 +216,54 @@ public class CollisionController : MonoBehaviour
 		return false;
 	}
 
+	private void ClimbMovement()
+	{
+		Vector3 verticalClimbMovment = m_climbTransform.up * m_movementInput.y;
+		Vector3 horizontalClimbMovment = m_climbTransform.right * -m_movementInput.x;
+		Vector3 targetClimbMovement = Vector3.ClampMagnitude(verticalClimbMovment + horizontalClimbMovment, 1) * m_climbSpeed;
+		Vector3 climbMovement = Vector3.SmoothDamp(m_climbVelocity, targetClimbMovement, ref m_climbMovementSmoothingVelocity, m_climbAcceleration);
+		m_climbVelocity = climbMovement;
+
+		m_wallStickVelocity = -m_climbTransform.forward * m_climbSpeed;
+
+		transform.rotation = Quaternion.LookRotation(m_horizontalWallDirection);
+	}
+
+	private void ClimbAnimations()
+	{
+		Vector3 localClimbVelocity = transform.InverseTransformDirection(m_climbVelocity);
+		Vector2 normalClimbVel = new Vector2(Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.x), Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.y));
+		Vector2 animValue = new Vector2(Mathf.Lerp(-1, 1, normalClimbVel.x), Mathf.Lerp(-1, 1, normalClimbVel.y));
+		m_playerVisuals.ClimbAnimations(animValue.x, animValue.y);
+	}
+
 	private IEnumerator RunClimb()
 	{
+		GetComponentInChildren<Animator>().SetBool("Climb", true);
+
+		m_playerVisuals.ToggleGrounder(false);
+
 		m_climbing = true;
 		float targetClamberHeight = 0;
 		Vector3 ledgeTopPos = Vector3.zero;
 
-		GetComponentInChildren<Animator>().SetBool("Climb", true);
-
 		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel)
 		{
-			#region Climb movement
-			Vector3 verticalClimbMovment = m_climbTransform.up * m_movementInput.y;
-			Vector3 horizontalClimbMovment = m_climbTransform.right * -m_movementInput.x;
-			Vector3 targetClimbMovement = Vector3.ClampMagnitude(verticalClimbMovment + horizontalClimbMovment, 1) * m_climbSpeed;
-			Vector3 climbMovement = Vector3.SmoothDamp(m_climbVelocity, targetClimbMovement, ref m_climbMovementSmoothingVelocity, m_climbAcceleration);
-			m_climbVelocity = climbMovement;
+			ClimbAnimations();
+			ClimbMovement();
 
-			m_wallStickVelocity = -m_climbTransform.forward * m_climbSpeed;
-
-			transform.rotation = Quaternion.LookRotation(m_horizontalWallDirection);
-			#endregion
-
-			#region Climb Animation
 			Vector3 localClimbVelocity = transform.InverseTransformDirection(m_climbVelocity);
 			Vector2 normalClimbVel = new Vector2(Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.x), Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.y));
-			Vector2 animValue = new Vector2(Mathf.Lerp(-1, 1, normalClimbVel.x), Mathf.Lerp(-1, 1, normalClimbVel.y));
-			m_playerVisuals.ClimbAnimations(animValue.x, animValue.y);
-			#endregion
+			m_playerVisuals.ClimbHeadAnimations(normalClimbVel);
 
-			if (GroundClimbCancel())
+			if (CheckGroundClimbCancel())
 			{
 				m_groundCancel = true;
 			}
 
-			Vector3 top = transform.position + (Vector3.up * (m_characterController.height / 2));
-
-			RaycastHit clamberHit;
-
-			if (Physics.Raycast(top, transform.forward, out clamberHit, m_climbStartDistance, m_climbMask))
-			{
-				if (Vector3.Angle(clamberHit.normal, Vector3.up) < 90)
-				{
-					m_clamber = true;
-
-					targetClamberHeight = top.y;
-
-					ledgeTopPos = clamberHit.point;
-				}
-
-				ledgeTopPos = clamberHit.point;
-			}
-			else
+			if (CheckForClamber(ref ledgeTopPos, ref targetClamberHeight))
 			{
 				m_clamber = true;
-
-				targetClamberHeight = top.y;
 			}
 
 			yield return new WaitForFixedUpdate();
@@ -290,104 +271,118 @@ public class CollisionController : MonoBehaviour
 
 		m_climbMovementSmoothingVelocity = Vector3.zero;
 		m_climbVelocity = Vector3.zero;
+		m_wallStickVelocity = Vector3.zero;
 
-		Debug.Log("got here 1");
+		if (m_clamber)
+		{
+			StartCoroutine(ClamberLoop(ledgeTopPos, targetClamberHeight));
+		}
+		else if (m_groundCancel)
+		{
+			StartCoroutine(GroundClimbCancel());
+		}
+		else
+		{
+			ResetClimb();
+		} 
+	}
 
-		float startHeight =  (transform.position + (Vector3.down * (m_characterController.height / 2))).y;
+	private IEnumerator ClamberLoop(Vector3 p_ledgePosition, float p_targetClamberHeight)
+	{
+		float startHeight = m_playerBottom.y;
+		float lastSpeed = 0;
+		ResetClimbVelocitys();
 
+		GetComponentInChildren<Animator>().SetBool("Clamber", true);
 		m_playerVisuals.ToggleArmIK(true);
+		m_playerVisuals.ToggleGrounder(true);
+		m_playerVisuals.CenterHead();
 
 		while (m_clamber)
 		{
-			Vector3 handMidPos = ledgeTopPos + (Vector3.up * m_handHeight) - (transform.forward * m_handBackAmount);
-
+			Vector3 handMidPos = p_ledgePosition + (Vector3.up * m_handHeight);
 			m_playerVisuals.SetArmTargetPosition(handMidPos + (m_climbTransform.right * m_armWidth), handMidPos - (m_climbTransform.right * m_armWidth));
 
-			Vector3 bottom = transform.position + (Vector3.down * (m_characterController.height / 2));
-
-			float heightProgress = Mathf.InverseLerp(startHeight, targetClamberHeight, bottom.y);
+			float heightProgress = Mathf.InverseLerp(startHeight, p_targetClamberHeight, m_playerBottom.y);
 
 			float currentClamberSpeed = Mathf.Lerp(m_climbSpeed, m_clamberSpeed, m_clamberCurve.Evaluate(heightProgress));
+			m_climbVelocity = Vector3.up * currentClamberSpeed;
+			m_wallStickVelocity = -m_climbTransform.forward * m_climbSpeed;
 
-			m_climbVelocity.y = currentClamberSpeed;
+			lastSpeed = currentClamberSpeed;
 
-			RaycastHit clamberHit;
-
-			if (Physics.Raycast(bottom, transform.forward, out clamberHit, m_climbStartDistance, m_climbMask))
-			{
-				if (Vector3.Angle(clamberHit.normal, Vector3.up) < 90)
-				{
-					m_clamber = false;
-				}
-			}
-			else
+			if (CheckForClamberEnd())
 			{
 				m_clamber = false;
 			}
 
-			Debug.Log(heightProgress);
-
-			if (heightProgress >= m_forwardSlidePercent)
+			if (heightProgress >= 0.4f)
 			{
-				ledgeTopPos += transform.forward * m_forwardSlideSpeed * Time.fixedDeltaTime;
+				m_playerVisuals.ToggleArmIK(false);
 			}
 
-			if (heightProgress >= m_animationTransPercent)
-			{
-				GetComponentInChildren<Animator>().SetBool("Clamber", true);
-			}
+			GetComponentInChildren<Animator>().SetFloat("ClamberProgress", heightProgress);
 
 			yield return new WaitForFixedUpdate();
 		}
 
+		ResetClimbVelocitys();
+
+		GetComponentInChildren<Animator>().SetBool("Clamber", false);
+		m_playerVisuals.ToggleGrounder(true);
 		m_playerVisuals.ToggleArmIK(false);
 
-		m_wallStickVelocity = Vector3.zero;
-
-		Debug.Log("got here 2");
-
-		m_climbing = true;
-
+		m_forceGravity = true;
 		float clamberForwardTimer = 0;
 
 		while (clamberForwardTimer < m_clamberEndTime)
 		{
 			clamberForwardTimer += Time.fixedDeltaTime;
+			float progress = m_clamberEndCurve.Evaluate(clamberForwardTimer / m_clamberEndTime);
 
-			//m_climbVelocity = transform.forward * m_clamberEndSpeed;
-
-			float progress = clamberForwardTimer / m_clamberEndTime;
-
-			float weightProgress = Mathf.Lerp(1, 0, progress);
+			float currentClamberEndSpeed = Mathf.Lerp(lastSpeed, m_clamberEndSpeed, progress);
+			m_climbVelocity = transform.forward * currentClamberEndSpeed;
 
 			yield return new WaitForFixedUpdate();
 		}
 
-		Debug.Log("got here 3");
-
-		m_climbMovementSmoothingVelocity = Vector3.zero;
-		m_climbVelocity = Vector3.zero;
-		m_wallStickVelocity = Vector3.zero;
-
-		m_climbing = false;
+		m_forceGravity = false;
 
 		GetComponentInChildren<Animator>().SetBool("Climb", false);
-		GetComponentInChildren<Animator>().SetBool("Clamber", false);
 
+		ResetClimb();
+	}
+
+	private bool CheckForClamberEnd()
+	{
+		RaycastHit clamberHit;
+
+		if (Physics.Raycast(m_playerBottom, transform.forward, out clamberHit, m_climbStartDistance, m_climbMask))
+		{
+			if (Vector3.Angle(clamberHit.normal, Vector3.up) < 90)
+			{
+				Debug.DrawRay(m_playerBottom, transform.forward);
+				return true;
+			}
+		}
+		else
+		{
+			Debug.DrawRay(m_playerBottom, transform.forward);
+			return true;
+		}
+
+		return false;
 	}
 
 	private bool CheckForClamber(ref Vector3 p_ledgePosition, ref float p_targetClamberHeight)
 	{
-		Vector3 playerTop = transform.position + (Vector3.up * (m_characterController.height / 2));
-
 		RaycastHit clamberHit;
 
-		if (Physics.Raycast(playerTop, transform.forward, out clamberHit, m_climbStartDistance, m_climbMask))
+		if (Physics.Raycast(m_playerTop, transform.forward, out clamberHit, m_climbStartDistance, m_climbMask))
 		{
 			if (Vector3.Angle(clamberHit.normal, Vector3.up) < 90)
 			{
-				//m_clamber = true;
-				p_targetClamberHeight = playerTop.y;
+				p_targetClamberHeight = m_playerTop.y;
 				p_ledgePosition = clamberHit.point;
 				return true;
 			}
@@ -396,8 +391,7 @@ public class CollisionController : MonoBehaviour
 		}
 		else
 		{
-			//m_clamber = true;
-			p_targetClamberHeight = playerTop.y;
+			p_targetClamberHeight = m_playerTop.y;
 
 			return true;
 		}
@@ -405,7 +399,7 @@ public class CollisionController : MonoBehaviour
 		return false;
 	}
 
-	private bool GroundClimbCancel()
+	private bool CheckGroundClimbCancel()
 	{
 		if (m_movementInput.y < 0 && m_characterController.isGrounded)
 		{
@@ -413,6 +407,47 @@ public class CollisionController : MonoBehaviour
 		}
 
 		return false;
+	}
+
+
+	private IEnumerator GroundClimbCancel()
+	{
+		GetComponentInChildren<Animator>().SetBool("Climb", false);
+
+		m_playerVisuals.ToggleGrounder(true);
+
+		float t = 0;
+
+		while (t < m_groundCancelTime)
+		{
+			t += Time.fixedDeltaTime;
+
+			ClimbAnimations();
+
+			float progress = t / m_groundCancelTime;
+
+			yield return new WaitForFixedUpdate();
+		}
+
+		ResetClimb();
+	}
+
+	private void ResetClimb()
+	{
+		m_climbing = false;
+		m_groundCancel = false;
+		m_clamber = false;
+
+		m_playerVisuals.ToggleGrounder(true);
+
+		ResetClimbVelocitys();
+	}
+
+	private void ResetClimbVelocitys()
+	{
+		m_climbMovementSmoothingVelocity = Vector3.zero;
+		m_climbVelocity = Vector3.zero;
+		m_wallStickVelocity = Vector3.zero;
 	}
 
 	private void ClimbCollision()
@@ -609,6 +644,11 @@ public class CollisionController : MonoBehaviour
 
 	private bool CheckGravityConditions()
 	{
+		if (m_forceGravity)
+		{
+			return false;
+		}
+
 		if (m_climbing)
 		{
 			return true;
