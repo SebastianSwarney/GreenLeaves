@@ -27,15 +27,65 @@ public class PlayerVisualsController : MonoBehaviour
 
     public OffsetPoseBlend m_effortPose;
 
-	private void Start()
+    public Transform m_leftArmIKTarget, m_rightArmIKTarget;
+
+    private FullBodyBipedIK m_fullBodyBipedIK;
+
+    private bool m_armIK;
+
+    private float m_armIKSmoothingVelocity;
+
+    public float m_armIKSmoothingTime;
+
+    private float m_currentArmIKWeight;
+
+    private void Start()
 	{
         m_collisionController = GetComponent<CollisionController>();
         m_animator = GetComponentInChildren<Animator>();
-	}
+
+        m_fullBodyBipedIK = GetComponentInChildren<FullBodyBipedIK>();
+
+        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
+        m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
+
+        m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
+        m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
+    }
 
 	private void Update()
 	{
         //SetAnimations();
+        ArmIK();
+	}
+
+    private void ArmIK()
+	{
+        float weightTarget = 0;
+
+		if (m_armIK)
+		{
+            weightTarget = 1f;
+        }
+
+        m_currentArmIKWeight = Mathf.SmoothDamp(m_currentArmIKWeight, weightTarget, ref m_armIKSmoothingVelocity, m_armIKSmoothingTime);
+
+        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = m_currentArmIKWeight;
+        m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = m_currentArmIKWeight;
+
+        m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = m_currentArmIKWeight;
+        m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = m_currentArmIKWeight;
+    }
+
+    public void ToggleArmIK(bool p_ikState)
+	{
+        m_armIK = p_ikState;
+	}
+
+    public void SetArmTargetPosition(Vector3 p_leftArm, Vector3 p_rightArm)
+	{
+        m_leftArmIKTarget.position = p_leftArm;
+        m_rightArmIKTarget.position = p_rightArm;
 	}
 
     public void ClimbAnimations(float p_horizontalValue, float p_verticalValue)

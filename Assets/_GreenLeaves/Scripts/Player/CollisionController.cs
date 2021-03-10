@@ -114,24 +114,29 @@ public class CollisionController : MonoBehaviour
 
 	public AnimationCurve m_clamberCurve;
 
-	public Transform m_leftHand;
-	public Transform m_rightHand;
+	//public Transform m_leftHand;
+	//public Transform m_rightHand;
 
-	private FullBodyBipedIK m_fullBodyBipedIK;
+	//private FullBodyBipedIK m_fullBodyBipedIK;
+
+	public float m_armWidth;
+	public float m_handHeight;
+
+	public float m_forwardSlidePercent;
+	public float m_forwardSlideSpeed;
+
+	public float m_animationTransPercent;
+
+	private bool m_groundCancel;
+
+	public float m_handBackAmount;
+
 
 	private void Start()
 	{
 		m_characterController = GetComponent<CharacterController>();
 		//m_characterController.slopeLimit = m_maxSlopeAngle;
 		m_playerVisuals = GetComponent<PlayerVisualsController>();
-
-		m_fullBodyBipedIK = GetComponentInChildren<FullBodyBipedIK>();
-
-		m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
-		m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
-
-		m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
-		m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
 	}
 
 
@@ -222,27 +227,15 @@ public class CollisionController : MonoBehaviour
 		return false;
 	}
 
-	private bool GroundClimbCancel()
-	{
-		if (m_movementInput.y < 0 && m_characterController.isGrounded)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
 	private IEnumerator RunClimb()
 	{
-		GetComponentInChildren<Animator>().SetBool("Climb", true);
-
 		m_climbing = true;
-
 		float targetClamberHeight = 0;
-
 		Vector3 ledgeTopPos = Vector3.zero;
 
-		while (m_onClimbSurface && m_climbing && !m_clamber)
+		GetComponentInChildren<Animator>().SetBool("Climb", true);
+
+		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel)
 		{
 			#region Climb movement
 			Vector3 verticalClimbMovment = m_climbTransform.up * m_movementInput.y;
@@ -265,7 +258,7 @@ public class CollisionController : MonoBehaviour
 
 			if (GroundClimbCancel())
 			{
-				m_climbing = false;
+				m_groundCancel = true;
 			}
 
 			Vector3 top = transform.position + (Vector3.up * (m_characterController.height / 2));
@@ -298,29 +291,25 @@ public class CollisionController : MonoBehaviour
 		m_climbMovementSmoothingVelocity = Vector3.zero;
 		m_climbVelocity = Vector3.zero;
 
+		Debug.Log("got here 1");
+
 		float startHeight =  (transform.position + (Vector3.down * (m_characterController.height / 2))).y;
 
-		m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
-		m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 1f;
-
-		m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 1f;
-		m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 1f;
+		m_playerVisuals.ToggleArmIK(true);
 
 		while (m_clamber)
 		{
-			Debug.DrawLine(transform.position, ledgeTopPos, Color.red);
+			Vector3 handMidPos = ledgeTopPos + (Vector3.up * m_handHeight) - (transform.forward * m_handBackAmount);
 
-			m_leftHand.position = ledgeTopPos + (m_climbTransform.right * 0.5f) + (Vector3.up * 0.1f);
-			m_rightHand.position = ledgeTopPos - (m_climbTransform.right * 0.5f) + (Vector3.up * 0.1f);
+			m_playerVisuals.SetArmTargetPosition(handMidPos + (m_climbTransform.right * m_armWidth), handMidPos - (m_climbTransform.right * m_armWidth));
 
 			Vector3 bottom = transform.position + (Vector3.down * (m_characterController.height / 2));
 
 			float heightProgress = Mathf.InverseLerp(startHeight, targetClamberHeight, bottom.y);
 
-			float currentClamberSpeed = Mathf.Lerp(m_clamberSpeed, m_climbSpeed, m_clamberCurve.Evaluate(heightProgress));
+			float currentClamberSpeed = Mathf.Lerp(m_climbSpeed, m_clamberSpeed, m_clamberCurve.Evaluate(heightProgress));
 
 			m_climbVelocity.y = currentClamberSpeed;
-
 
 			RaycastHit clamberHit;
 
@@ -341,14 +330,23 @@ public class CollisionController : MonoBehaviour
 			if (heightProgress >= m_forwardSlidePercent)
 			{
 				ledgeTopPos += transform.forward * m_forwardSlideSpeed * Time.fixedDeltaTime;
+			}
 
-				GetComponentInChildren<Animator>().SetBool("Climb", false);
+			if (heightProgress >= m_animationTransPercent)
+			{
+				GetComponentInChildren<Animator>().SetBool("Clamber", true);
 			}
 
 			yield return new WaitForFixedUpdate();
 		}
 
+		m_playerVisuals.ToggleArmIK(false);
+
 		m_wallStickVelocity = Vector3.zero;
+
+		Debug.Log("got here 2");
+
+		m_climbing = true;
 
 		float clamberForwardTimer = 0;
 
@@ -356,30 +354,66 @@ public class CollisionController : MonoBehaviour
 		{
 			clamberForwardTimer += Time.fixedDeltaTime;
 
-			m_climbVelocity = transform.forward * m_clamberEndSpeed;
+			//m_climbVelocity = transform.forward * m_clamberEndSpeed;
 
 			float progress = clamberForwardTimer / m_clamberEndTime;
 
 			float weightProgress = Mathf.Lerp(1, 0, progress);
 
-			m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = weightProgress;
-			m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = weightProgress;
-
-			m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = weightProgress;
-			m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = weightProgress;
-
 			yield return new WaitForFixedUpdate();
 		}
+
+		Debug.Log("got here 3");
 
 		m_climbMovementSmoothingVelocity = Vector3.zero;
 		m_climbVelocity = Vector3.zero;
 		m_wallStickVelocity = Vector3.zero;
 
 		m_climbing = false;
+
+		GetComponentInChildren<Animator>().SetBool("Climb", false);
+		GetComponentInChildren<Animator>().SetBool("Clamber", false);
+
 	}
 
-	public float m_forwardSlidePercent;
-	public float m_forwardSlideSpeed;
+	private bool CheckForClamber(ref Vector3 p_ledgePosition, ref float p_targetClamberHeight)
+	{
+		Vector3 playerTop = transform.position + (Vector3.up * (m_characterController.height / 2));
+
+		RaycastHit clamberHit;
+
+		if (Physics.Raycast(playerTop, transform.forward, out clamberHit, m_climbStartDistance, m_climbMask))
+		{
+			if (Vector3.Angle(clamberHit.normal, Vector3.up) < 90)
+			{
+				//m_clamber = true;
+				p_targetClamberHeight = playerTop.y;
+				p_ledgePosition = clamberHit.point;
+				return true;
+			}
+
+			p_ledgePosition = clamberHit.point;
+		}
+		else
+		{
+			//m_clamber = true;
+			p_targetClamberHeight = playerTop.y;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private bool GroundClimbCancel()
+	{
+		if (m_movementInput.y < 0 && m_characterController.isGrounded)
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 	private void ClimbCollision()
 	{
