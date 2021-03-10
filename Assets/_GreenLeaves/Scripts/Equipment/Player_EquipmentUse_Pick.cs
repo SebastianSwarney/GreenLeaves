@@ -24,5 +24,6 @@ public class Player_EquipmentUse_Pick : Player_EquipmentUse
     {
         base.ObjectBroke();
         m_canClimb = false;
+        PlayerEquipmentBreak.Instance.ShowUI();
     }
 }
