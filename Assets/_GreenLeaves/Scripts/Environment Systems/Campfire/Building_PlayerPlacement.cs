@@ -58,7 +58,8 @@ public class Building_PlayerPlacement : MonoBehaviour
                 p_buildingObject.TogglePrompt(true);
                 if (Input.GetMouseButtonDown(0) && !PlayerUIManager.Instance.m_isPaused)
                 {
-                    Debug.Log("Building Placement Input Here", this);
+                    
+                    m_isPlacing = false;
                     p_buildingObject.PlaceBuilding();
                     placed = true;
                 }
@@ -83,7 +84,7 @@ public class Building_PlayerPlacement : MonoBehaviour
 
             yield return null;
         }
-        m_isPlacing = false;
+        
         m_placementCoroutine = null;
     }
 

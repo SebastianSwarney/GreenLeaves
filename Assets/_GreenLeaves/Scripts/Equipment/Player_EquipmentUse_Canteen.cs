@@ -251,7 +251,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     /// </summary>
     public override void ObjectBroke()
     {
-        Debug.Log("Canteen Empty");
+        //Debug.Log("Canteen Empty");
     }
     public override void ReEnableToolComponent()
     {

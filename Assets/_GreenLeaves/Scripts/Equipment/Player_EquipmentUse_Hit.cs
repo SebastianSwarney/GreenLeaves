@@ -97,4 +97,9 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
             m_currentHit.HideUI();
         }
     }
+
+    public override void ReEnableToolComponent()
+    {
+        
+    }
 }
