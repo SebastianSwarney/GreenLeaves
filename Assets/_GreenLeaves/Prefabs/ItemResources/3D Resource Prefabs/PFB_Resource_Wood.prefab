@@ -586,6 +586,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1727143154578956222
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2756998065156982919}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.46, y: 0.38, z: 1.08}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3816364659691027806
 GameObject:
   m_ObjectHideFlags: 0
@@ -748,19 +761,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &1727143154578956222
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2756998065156982919}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.46, y: 0.38, z: 1.08}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6254754018860732484
 GameObject:
   m_ObjectHideFlags: 0
@@ -1185,6 +1185,10 @@ PrefabInstance:
       propertyPath: m_Icon
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1806350379463084203, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_spawnedParticle
+      value: 
+      objectReference: {fileID: 262030696820048015, guid: 76d572a4dca312644abff80657d21b16, type: 3}
     - target: {fileID: 2316559166084059685, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_RootOrder
       value: 2

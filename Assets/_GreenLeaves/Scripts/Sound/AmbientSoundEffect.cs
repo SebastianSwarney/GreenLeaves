@@ -70,6 +70,8 @@ public class AmbientSoundEffect : MonoBehaviour
         float currentTime = DaytimeCycle_Update.Instance.m_timeOfDay;
 
         p_soundPos = Vector3.zero;
+
+
         foreach (TypeOfSound data in m_ambientSounds)
         {
             if (data.m_minDaytime < data.m_maxDaytime)

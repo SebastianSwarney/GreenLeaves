@@ -25,6 +25,7 @@ public class Player_Inventory : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        Player_EquipmentUse_Canteen.Instance = m_canteenTool.GetComponent<Player_EquipmentUse_Canteen>();
     }
     private void Update()
     {
@@ -33,6 +34,7 @@ public class Player_Inventory : MonoBehaviour
         {
             if (m_canOpenMenu)
             {
+                PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
                 Inventory_2DMenu.Instance.ToggleInventory(true);
             }
         }

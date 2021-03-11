@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a68a948f976a6f4e858d07415233083, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_startingDurability: 24
+  m_startingDurability: 30
   m_durability: 0
   m_linkedIcon: {fileID: 0}
   m_itemBrokeEffect:
@@ -52,8 +52,9 @@ MonoBehaviour:
       m_Calls: []
   m_energyLossPerEquipmentUse: 0
   m_staminaLossPerEquipmentUse: 0
-  m_energyRefilType: 0
-  m_waterToStaminaRatio: 0
+  m_defaultCanteenData: {fileID: 11400000, guid: e47ae9e5a69542547b5f9d73c103ca7d, type: 2}
+  m_energyRefilType: []
+  m_unitsDrankPerSecond: 10
   m_waterSourceMask:
     serializedVersion: 2
     m_Bits: 16

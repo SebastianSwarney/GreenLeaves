@@ -31,6 +31,8 @@ public class RecipeBook : MonoBehaviour
         if (p_recipeIndex < m_recipes.Length && p_recipeIndex >= 0)
         {
             m_recipes[p_recipeIndex].m_unlocked = true;
+            m_recipePlaces[p_recipeIndex].sprite = m_recipes[p_recipeIndex].m_recipeSprite;
+            m_recipePlaces[p_recipeIndex].color = new Vector4(1, 1, 1, 1);
         }
         else
         {
@@ -38,39 +40,5 @@ public class RecipeBook : MonoBehaviour
         }
     }
 
-    public void FlipPage(int p_dir)
-    {
-        m_currentStartingIndex += (m_recipePlaces.Length) * p_dir;
-        if (m_currentStartingIndex > m_recipes.Length)
-        {
-            m_currentStartingIndex = 0;
-        }else if (m_currentStartingIndex < 0)
-        {
-            m_currentStartingIndex = m_recipes.Length-1 - (m_recipes.Length % m_recipePlaces.Length);
-        }
-        UpdateRecipeImages();
-    }
-    public void OpenRecipeBook()
-    {
-        m_currentStartingIndex = 0;
-        UpdateRecipeImages();
-    }
-    public void UpdateRecipeImages()
-    {
-        for (int x = 0; x < m_recipePlaces.Length; x++)
-        {
-            if (x + m_currentStartingIndex < m_recipes.Length)
-            {
-                if (m_recipes[x + m_currentStartingIndex].m_unlocked)
-                {
-                    m_recipePlaces[x].sprite = m_recipes[x + m_currentStartingIndex].m_recipeSprite;
-                    m_recipePlaces[x].color = Color.white;
-                    continue;
-                }
-            }
-            m_recipePlaces[x].sprite = null;
-            m_recipePlaces[x].color = Color.clear;
-        }
-    }
 
 }

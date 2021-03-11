@@ -80,7 +80,7 @@ public class Resource_Pickup_Renewable : Resource_Pickup
         {
             if (m_currentAmount < m_resourceVisuals.Count)
             {
-                m_spawnParticle.SpawnParticlePrefab(transform.position);
+                m_spawnParticle.SpawnParticlePrefab(m_resourceVisuals[m_currentAmount].transform.position);
                 m_resourceVisuals[m_currentAmount].SetActive(false);
             }
         }

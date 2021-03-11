@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerUIManager : MonoBehaviour
 {
-    public GameObject m_pauseMenu, m_mainPause, m_craftingRecipeMenu, m_audioMenu, m_controlsMenu, m_cameraMenu;
+    public GameObject m_pauseMenu, m_mainPause,  m_audioMenu, m_controlsMenu, m_cameraMenu;
 
     public static PlayerUIManager Instance;
     public bool m_isPaused;
@@ -55,7 +55,6 @@ public class PlayerUIManager : MonoBehaviour
 
         m_pauseMenu.SetActive(m_isPaused);
         m_mainPause.SetActive(true);
-        m_craftingRecipeMenu.SetActive(false);
         m_audioMenu.SetActive(false);
         m_controlsMenu.SetActive(false);
 
@@ -65,6 +64,7 @@ public class PlayerUIManager : MonoBehaviour
         if (m_isPaused)
         {
             Interactable_Manager.Instance.ForceCloseMenu();
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
         }
         else if (!Inventory_2DMenu.Instance.m_isOpen)
         {
@@ -73,6 +73,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         if (!Inventory_2DMenu.Instance.m_isOpen)
         {
+            
             PlayerInputToggle.Instance.ToggleInput(!m_isPaused);
         }
 

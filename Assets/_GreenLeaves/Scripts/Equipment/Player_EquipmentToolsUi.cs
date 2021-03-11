@@ -16,10 +16,12 @@ public class Player_EquipmentToolsUi : MonoBehaviour
 
     public void AdjustCanteenUI(float p_newPercent)
     {
+        if (m_canteenFill == null) return;
         m_canteenFill.fillAmount = p_newPercent;
     }
     public void ToggleCanteenUi(bool p_newState)
     {
+        if (m_canteenFill == null) return;
         m_canteenUI.SetActive(p_newState);
     }
 }

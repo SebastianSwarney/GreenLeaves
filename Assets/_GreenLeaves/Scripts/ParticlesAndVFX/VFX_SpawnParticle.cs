@@ -34,7 +34,14 @@ public class VFX_SpawnParticle : MonoBehaviour
 
         if (m_particleOffset != Vector3.zero)
         {
-            newParticle.transform.position += transform.rotation * m_particleOffset * transform.parent.localScale.y;
+            if (transform.parent != null)
+            {
+                newParticle.transform.position += transform.rotation * m_particleOffset * transform.parent.localScale.y;
+            }
+            else
+            {
+                newParticle.transform.position += transform.rotation * m_particleOffset * transform.localScale.y;
+            }
         }
 
         newParticle.transform.localScale = Vector3.one;

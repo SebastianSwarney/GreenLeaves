@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// The manager for the interactable button menu. <br/>
@@ -131,8 +132,7 @@ public class Interactable_Manager : MonoBehaviour
         m_currentInteractable.ItemSelected();
 
         m_menuOpen = true;
-        if (m_buttonUiParent == null) return;
-        m_buttonUiParent.SetActive(true);
+
 
         m_interactableName.transform.parent.gameObject.SetActive(true);
         m_interactableName.text = p_selectedSystem.GetInteractableName();
@@ -148,8 +148,15 @@ public class Interactable_Manager : MonoBehaviour
 
         m_leftMenuEnabled = p_selectedSystem.LeftButtonEnabled();
         m_leftMenu.SetupButton(m_leftMenuEnabled, p_selectedSystem.LeftButtonString(), true);
+        StartCoroutine(DelayAppearance());
     }
-
+    private IEnumerator DelayAppearance()
+    {
+        yield return null;
+        if (m_buttonUiParent == null) yield break;
+        m_buttonUiParent.SetActive(true);
+    }
+    
 
     /// <summary>
     /// Disables the menu, and hides the buttons.<br/>

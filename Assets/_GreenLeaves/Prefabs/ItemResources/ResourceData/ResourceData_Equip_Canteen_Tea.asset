@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: ResourceData_Equip_Canteen_Tea
   m_EditorClassIdentifier: 
   m_resourceData:
-    m_resourceName: Canteen_Tea
+    m_resourceName: Energy Drink
     m_singleResourceAmount: 1
     m_resourceSprite: {fileID: 21300000, guid: bf5cf2544f8b48b4da0693f4a3b75694, type: 3}
     m_resourcePrefab: {fileID: 0}
-    m_inventoryWeight: {x: 0, y: 0}
+    m_inventoryWeight: {x: 1, y: 1}
     m_resourceType: 2
     m_iconStartingRotation: 0
   m_itemUseButtonText: Equip
@@ -27,4 +27,7 @@ MonoBehaviour:
   m_isEdible: 0
   m_toggleEquipmentOnPlayer: 0
   m_currentToolType: 1
-  m_fillType: 0
+  m_energyRefilType:
+  - m_energyRefilType: 2
+    m_waterToStatRatio: 1
+  m_specialDrink: 1
