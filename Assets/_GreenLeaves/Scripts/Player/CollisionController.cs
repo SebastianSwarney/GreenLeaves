@@ -75,6 +75,8 @@ public class CollisionController : MonoBehaviour
 
 	private float m_currentSlownessFactor;
 
+	public AnimationCurve m_endSlideCruve;
+
 
 	[Header("Climb properties")]
 	public LayerMask m_climbMask;
@@ -146,7 +148,7 @@ public class CollisionController : MonoBehaviour
 
 		ClimbLoop();
 
-		//CheckSlide();
+		CheckSlide();
 
 		CaculateTotalVelocity();
 		DecendSlopeBelow(m_characterController.velocity * Time.fixedDeltaTime);
@@ -158,7 +160,7 @@ public class CollisionController : MonoBehaviour
 	{
 		m_playerVisuals.SetAnimations(m_groundMovementVelocity, m_runSpeed, m_sprintSpeed, m_runSpeed * 0.5f);
 		//m_playerVisuals.CalculateSlopeEffort(m_currentSlopeAngle, m_slopeSpeedSlowStartAngle, m_slideStartAngle);
-		//m_playerVisuals.SetModelRotation(m_horizontalDirection, m_averageNormal, m_slopeFacingDirection, m_currentSlopeAngle, m_slopeSpeedSlowStartAngle, m_slideStartAngle);
+		m_playerVisuals.SetModelRotation(m_horizontalDirection, m_averageNormal, m_slopeFacingDirection, m_currentSlopeAngle, m_slopeSpeedSlowStartAngle, m_slideStartAngle);
 	}
 
 	private void CaculateTotalVelocity()
@@ -297,6 +299,11 @@ public class CollisionController : MonoBehaviour
 		m_playerVisuals.ToggleArmIK(true);
 		m_playerVisuals.ToggleGrounder(true);
 		m_playerVisuals.CenterHead();
+
+		if (p_ledgePosition == Vector3.zero)
+		{
+			p_ledgePosition = transform.forward * 0.5f;
+		}
 
 		while (m_clamber)
 		{
@@ -603,7 +610,7 @@ public class CollisionController : MonoBehaviour
 		{
 			t += Time.fixedDeltaTime;
 
-			float progress = t / m_slideEndPushTime;
+			float progress = m_endSlideCruve.Evaluate(t / m_slideEndPushTime);
 
 			float currentSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, 0, progress);
 
@@ -633,10 +640,12 @@ public class CollisionController : MonoBehaviour
 
 	private void SlideRotation(float p_facingDir)
 	{
-		float targetAngle = Mathf.Atan2(m_slopeVelocity.normalized.x, m_slopeVelocity.normalized.z) * Mathf.Rad2Deg;
-		float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_playerTurnSpeed);
+		//float targetAngle = Mathf.Atan2(m_slopeVelocity.normalized.x, m_slopeVelocity.normalized.z) * Mathf.Rad2Deg;
+		//float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_playerTurnSpeed);
+		//transform.rotation = Quaternion.Euler(0, targetAngle, 0);
 
-		transform.rotation = Quaternion.Euler(0, targetAngle, 0);
+		Vector3 horizontalSlopeDirection = new Vector3(m_slopeTransform.forward.x, 0, m_slopeTransform.forward.z);
+		transform.rotation = Quaternion.LookRotation(horizontalSlopeDirection);
 	}
 	#endregion
 

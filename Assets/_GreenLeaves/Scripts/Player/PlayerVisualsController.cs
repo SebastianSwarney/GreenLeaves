@@ -202,10 +202,12 @@ public class PlayerVisualsController : MonoBehaviour
 
         if (p_slopeFacingDirection > 0)
 		{
-			float currentRotation = Mathf.Lerp(0, m_maxUpwardSlopeModelRotation, rotationProgress) * targetMoveAmount.y;
-
-            angle = currentRotation;
+			//float currentRotation = Mathf.Lerp(0, m_maxUpwardSlopeModelRotation, rotationProgress) * targetMoveAmount.y;
+            //angle = currentRotation;
 		}
+
+        float currentRotation = Mathf.Lerp(0, m_maxUpwardSlopeModelRotation, rotationProgress) * targetMoveAmount.y;
+        angle = currentRotation;
 
         //m_modelTransform.localRotation = Quaternion.AngleAxis(angle, Vector3.right);
         m_modelTransform.localRotation = Quaternion.RotateTowards(m_modelTransform.localRotation, Quaternion.AngleAxis(angle, Vector3.right), m_maxModelRotationSpeed * Time.deltaTime);
