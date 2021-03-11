@@ -35,48 +35,33 @@ public class CollisionController : MonoBehaviour
 	public Transform m_slopeTransform;
 	public Vector2 m_minMaxSlideSpeed;
 	public float m_slideStartAngle;
-	private float m_currentSlopeAngle;
-	private bool m_onSlope;
-
-	[HideInInspector]
-	public bool m_isSliding;
-
-	private Vector3 m_slopeVelocity;
-	public float m_slideEndPushTime;
-	private bool m_onSlideSurface;
-	public float m_preSlideTime;
-	private bool m_runningPreSlide;
-	public AnimationCurve m_preSlideCurve;
-
-	private float m_slopeFacingDirection;
-
-	public float m_slopeSpeedSlowStartAngle;
-	#endregion
-
-	private Vector3 m_horizontalDirection;
-
 	public float m_slideEndAngle;
-
-	public Text m_slopeText;
-
+	public float m_slideEndPushTime;
+	public float m_preSlideTime;
+	public AnimationCurve m_preSlideCurve;
+	public float m_slopeSpeedSlowStartAngle;
 	public float m_slideRecoveryTime;
-
-
 	public AnimationCurve m_slopeSlowCurve;
 	public float m_minimumSlopeSpeedPercent;
-
-	private bool m_sprinting;
-
-	private PlayerVisualsController m_playerVisuals;
-
-	private Vector3 m_horizontalVelocity;
-
 	public bool m_playSlideAnimation;
-
-	private float m_currentSlownessFactor;
-
 	public AnimationCurve m_endSlideCruve;
 
+	[HideInInspector]
+	public bool m_sliding;
+	private float m_slopeFacingDirection;
+	private bool m_runningPreSlide;
+	private bool m_onSlideSurface;
+	private Vector3 m_slopeVelocity;
+	private float m_currentSlopeAngle;
+	private bool m_onSlope;
+	private Vector3 m_horizontalDirection;
+	private bool m_sprinting;
+	private PlayerVisualsController m_playerVisuals;
+	private Vector3 m_horizontalVelocity;
+	private float m_currentSlownessFactor;
+	#endregion
+
+	public Text m_slopeText;
 
 	[Header("Climb properties")]
 	public LayerMask m_climbMask;
@@ -168,9 +153,9 @@ public class CollisionController : MonoBehaviour
 		Vector3 velocity = Vector3.zero;
 
 		velocity += m_groundMovementVelocity;
-		velocity += m_slopeVelocity;
+		velocity *= m_currentSlownessFactor;
 
-		//velocity *= m_currentSlownessFactor;
+		velocity += m_slopeVelocity;
 
 		velocity += m_climbVelocity;
 		velocity += m_wallStickVelocity;
@@ -486,13 +471,16 @@ public class CollisionController : MonoBehaviour
 	#region Slope
 	private void CalculateSlopeVariables()
 	{
-		m_currentSlopeAngle = Vector3.Angle(m_averageNormal, Vector3.up);
+		//m_currentSlopeAngle = Vector3.Angle(m_averageNormal, Vector3.up);
+
+		float f = (m_currentSlopeAngle + Vector3.Angle(m_averageNormal, Vector3.up)) / 2;
+		m_currentSlopeAngle = f;
 
 		RaycastHit hit;
 
 		if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, m_groundMask))
 		{
-			m_currentSlopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+			//m_currentSlopeAngle = Vector3.Angle(hit.normal, Vector3.up);
 		}
 
 		m_slopeText.text = m_currentSlopeAngle.ToString();
@@ -516,14 +504,12 @@ public class CollisionController : MonoBehaviour
 
 		m_currentSlownessFactor = 1;
 
-		if (m_slopeFacingDirection > 0 && m_currentSlopeAngle >= m_slopeSpeedSlowStartAngle)
+		if (m_slopeFacingDirection > 0 && m_currentSlopeAngle >= m_slideEndAngle && !m_sliding)
 		{
-			float slopeInverse = m_slopeSlowCurve.Evaluate(Mathf.InverseLerp(m_slopeSpeedSlowStartAngle, m_slideStartAngle, m_currentSlopeAngle));
+			float slopeInverse = m_slopeSlowCurve.Evaluate(Mathf.InverseLerp(m_slideEndAngle, m_slideStartAngle, m_currentSlopeAngle));
 			float currentSlownessFactor = Mathf.Lerp(1, m_minimumSlopeSpeedPercent, slopeInverse);
 
 			m_currentSlownessFactor = currentSlownessFactor;
-
-			//m_groundMovementVelocity *= currentSlownessFactor;
 		}
 		else
 		{
@@ -532,7 +518,6 @@ public class CollisionController : MonoBehaviour
 
 		if (m_currentSlopeAngle >= m_slideStartAngle)
 		{
-			//Debug.Log("Start the pre slide");
 			StartSlideLoop(m_slopeFacingDirection);
 		}
 	}
@@ -549,9 +534,14 @@ public class CollisionController : MonoBehaviour
 
 	private void StartSlideLoop(float p_facingDir)
 	{
-		if (!m_runningPreSlide && !m_isSliding && CheckSlideConditions())
+		if (!m_runningPreSlide && !m_sliding && CheckSlideConditions())
 		{
-			StartCoroutine(RunPreSlide(p_facingDir));
+			//StartCoroutine(RunPreSlide(p_facingDir));
+		}
+
+		if (!m_sliding && CheckSlideConditions())
+		{
+			StartCoroutine(RunSlide(p_facingDir));
 		}
 	}
 
@@ -581,25 +571,29 @@ public class CollisionController : MonoBehaviour
 
 	private IEnumerator RunSlide(float p_facingDir)
 	{
-		m_isSliding = true;
+		m_sliding = true;
 
 		m_playSlideAnimation = true;
 
 		while (CheckSlideConditions())
 		{
-			float currentSlopePercent = Mathf.InverseLerp(m_slideEndAngle, 90, m_currentSlopeAngle);
+			float currentSlopePercent = Mathf.InverseLerp(m_slideEndAngle, 90f, m_currentSlopeAngle);
 			float currentSlopeSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, m_minMaxSlideSpeed.y, currentSlopePercent);
 			Vector3 targetSlopeVelocity = -m_slopeTransform.up * currentSlopeSpeed;
 			m_slopeVelocity = targetSlopeVelocity;
 
 			SlideRotation(p_facingDir);
 
+			m_playerVisuals.SetSlideOffsetPose(currentSlopePercent);
+
 			yield return new WaitForFixedUpdate();
 		}
 
 		m_slopeVelocity = Vector3.zero;
+		m_playSlideAnimation = false;
+		m_sliding = false;
 
-		StartCoroutine(SlideEndPush(p_facingDir));
+		//StartCoroutine(SlideEndPush(p_facingDir));
 	}
 
 	private IEnumerator SlideEndPush(float p_facingDir)
@@ -635,7 +629,7 @@ public class CollisionController : MonoBehaviour
 			yield return new WaitForFixedUpdate();
 		}
 
-		m_isSliding = false;
+		m_sliding = false;
 	}
 
 	private void SlideRotation(float p_facingDir)
@@ -644,7 +638,7 @@ public class CollisionController : MonoBehaviour
 		//float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_playerTurnSpeed);
 		//transform.rotation = Quaternion.Euler(0, targetAngle, 0);
 
-		Vector3 horizontalSlopeDirection = new Vector3(m_slopeTransform.forward.x, 0, m_slopeTransform.forward.z);
+		Vector3 horizontalSlopeDirection = Mathf.Sign(-p_facingDir) * new Vector3(m_slopeTransform.forward.x, 0, m_slopeTransform.forward.z);
 		transform.rotation = Quaternion.LookRotation(horizontalSlopeDirection);
 	}
 	#endregion
@@ -703,7 +697,7 @@ public class CollisionController : MonoBehaviour
 
 	public bool CheckGroundMovement()
 	{
-		if (m_isSliding)
+		if (m_sliding)
 		{
 			return true;
 		}

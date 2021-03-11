@@ -50,6 +50,8 @@ public class PlayerVisualsController : MonoBehaviour
 
     public float m_maxClimbSpeedMultiplier;
 
+    public OffsetPoseBlend m_slidePose;
+
     private void Start()
 	{
         m_collisionController = GetComponent<CollisionController>();
@@ -157,6 +159,11 @@ public class PlayerVisualsController : MonoBehaviour
         m_animator.SetFloat("SlopeEffort", slopeEffortSpeed);
 
         //m_effortPose.SetDirectBlendValue(1);
+    }
+
+    public void SetSlideOffsetPose(float p_value)
+	{
+        m_slidePose.SetBlendValue(p_value);
     }
 
 	public void SetAnimations(Vector3 p_horizontalVelocity, float p_runSpeed, float p_sprintSpeed, float p_walkSpeed)
