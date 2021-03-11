@@ -9,9 +9,10 @@ public class PlayerVisualsController : MonoBehaviour
     public Transform m_modelTransform;
 
     #region Head effector properties
+    [FoldoutGroup("Head Effector")]
     public Transform m_headEffector;
+    [FoldoutGroup("Head Effector")]
     public float m_headEffectorRotateSpeed;
-
     #endregion
 
     #region Arm IK Properites
@@ -35,21 +36,17 @@ public class PlayerVisualsController : MonoBehaviour
     private GrounderFBBIK m_grounder;
     #endregion
 
-    public float m_maxModelRotationSpeed;
-    public float m_maxUpwardSlopeModelRotation;
-    public float m_maxSidewaysSlopeModelRotation;
-
-    public Vector2 m_minMaxModelRotationAngle;
-
-
-    public OffsetPoseBlend m_effortPose;
-
-    public float m_climbMaxHeadRotation;
-    public float m_maxClimbSpeedMultiplier;
+    #region Slide Properties
+    [FoldoutGroup("Slide")]
     public OffsetPoseBlend m_slidePose;
+	#endregion
 
+	#region Climb Properties
+	[FoldoutGroup("Climb")]
+    public float m_climbMaxHeadRotation;
+	#endregion
 
-    private CollisionController m_collisionController;
+	private CollisionController m_collisionController;
     private FullBodyBipedIK m_fullBodyBipedIK;
     private Animator m_animator;
 
@@ -77,7 +74,8 @@ public class PlayerVisualsController : MonoBehaviour
         GrounderWeight();
     }
 
-    public void SetGroundMovementAnimations(Vector3 p_horizontalVelocity, float p_runSpeed, float p_sprintSpeed, float p_walkSpeed)
+	#region General Animations
+	public void SetGroundMovementAnimations(Vector3 p_horizontalVelocity, float p_runSpeed, float p_sprintSpeed, float p_walkSpeed)
 	{
         float inverseLerpValue;
         float lerpValue;
@@ -101,13 +99,42 @@ public class PlayerVisualsController : MonoBehaviour
     public void SetJumpAnimations(float p_airMovement, bool p_hasJumped)
 	{
         m_animator.SetFloat("JumpMovement", p_airMovement);
-        ToggleGrounder(p_hasJumped);
+        ToggleGrounder(!p_hasJumped);
     }
 
     public void SetGrounded(bool p_groundedState)
 	{
         m_animator.SetBool("IsGrounded", p_groundedState);
     }
+	#endregion
+
+	#region Climb Animations
+	public void ClimbHeadAnimations(Vector2 p_animationVector)
+    {
+        float horizontalRotation = Mathf.Lerp(-m_climbMaxHeadRotation, m_climbMaxHeadRotation, p_animationVector.x);
+        float verticalRotation = Mathf.Lerp(m_climbMaxHeadRotation, -m_climbMaxHeadRotation, p_animationVector.y);
+        Quaternion headRotation = Quaternion.Euler(verticalRotation, horizontalRotation, 0);
+        m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
+    }
+
+    public void ClimbAnimations(float p_horizontalValue, float p_verticalValue)
+    {
+        m_animator.SetFloat("ClimbHorizontal", p_horizontalValue);
+        m_animator.SetFloat("ClimbVertical", p_verticalValue);
+    }
+    #endregion
+
+    #region Slide Animations
+    public void SetSlideAnimations(bool m_sliding)
+    {
+        m_animator.SetBool("IsSliding", m_sliding);
+    }
+
+    public void SetSlideOffsetPose(float p_value)
+    {
+        m_slidePose.SetBlendValue(p_value);
+    }
+    #endregion
 
     #region Arm IK
     public void ToggleArmIK(bool p_ikState)
@@ -158,43 +185,16 @@ public class PlayerVisualsController : MonoBehaviour
 	{
         m_useGrounder = p_grounderState;
 	}
-    #endregion
+	#endregion
 
-    public void CenterHead()
+	#region Head
+	public void CenterHead()
     {
         Quaternion headRotation = Quaternion.Euler(0, 0, 0);
         m_headEffector.localRotation = headRotation;
     }
 
-    #region Climb Animations
-    public void ClimbHeadAnimations(Vector2 p_animationVector)
-	{
-        float horizontalRotation = Mathf.Lerp(-m_climbMaxHeadRotation, m_climbMaxHeadRotation, p_animationVector.x);
-        float verticalRotation = Mathf.Lerp(m_climbMaxHeadRotation, -m_climbMaxHeadRotation, p_animationVector.y);
-        Quaternion headRotation = Quaternion.Euler(verticalRotation, horizontalRotation, 0);
-        m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
-    }
-
-    public void ClimbAnimations(float p_horizontalValue, float p_verticalValue)
-    {
-        m_animator.SetFloat("ClimbHorizontal", p_horizontalValue);
-        m_animator.SetFloat("ClimbVertical", p_verticalValue);
-    }
-	#endregion
-
-	#region Slide Animations
-	public void SetSlideAnimations(bool m_sliding)
-	{
-        m_animator.SetBool("IsSliding", m_sliding);
-    }
-
-    public void SetSlideOffsetPose(float p_value)
-	{
-        m_slidePose.SetBlendValue(p_value);
-    }
-	#endregion
-
-	public void SetModelRotation(Vector3 p_horizontalDirection, Vector3 p_groundNormal, float p_slopeFacingDirection, float p_currentSlope, float p_minSlope, float p_maxSlope)
+    public void SetGroundHeadRotation(Vector3 p_groundNormal)
     {
         Vector3 localXAxis = Vector3.Cross(transform.forward, Vector3.up);
         Vector3 forwardRotation = Vector3.ProjectOnPlane(p_groundNormal, localXAxis);
@@ -202,22 +202,6 @@ public class PlayerVisualsController : MonoBehaviour
         Vector3 targetMoveAmount = (upwardSlopeOffset * transform.forward);
 
         m_headEffector.rotation = Quaternion.RotateTowards(m_headEffector.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), m_headEffectorRotateSpeed * Time.deltaTime);
-
-        float angle = 0;
-
-        float rotationProgress = Mathf.InverseLerp(m_minMaxModelRotationAngle.x, m_minMaxModelRotationAngle.y, p_currentSlope);
-
-        if (p_slopeFacingDirection > 0)
-		{
-			//float currentRotation = Mathf.Lerp(0, m_maxUpwardSlopeModelRotation, rotationProgress) * targetMoveAmount.y;
-            //angle = currentRotation;
-		}
-
-        float currentRotation = Mathf.Lerp(0, m_maxUpwardSlopeModelRotation, rotationProgress) * targetMoveAmount.y;
-        angle = currentRotation;
-
-        m_modelTransform.localRotation = Quaternion.RotateTowards(m_modelTransform.localRotation, Quaternion.AngleAxis(angle, Vector3.right), m_maxModelRotationSpeed * Time.deltaTime);
-
-        m_animator.SetFloat("SlopeProgress", rotationProgress);
     }
+	#endregion
 }

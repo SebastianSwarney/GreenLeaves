@@ -139,6 +139,13 @@ public class CollisionController : MonoBehaviour
 		CalculateJump();
 	}
 
+	private void Update()
+	{
+		m_playerVisuals.SetGroundMovementAnimations(m_horizontalVelocity, m_runSpeed, m_sprintSpeed, m_runSpeed * 0.5f);
+		m_playerVisuals.SetJumpAnimations(Mathf.InverseLerp(-m_maxJumpVelocity, m_maxJumpVelocity, m_gravityVelocity.y), m_hasJumped);
+		m_playerVisuals.SetGrounded(m_characterController.isGrounded);
+	}
+
 	private void FixedUpdate()
 	{
 		m_isGrounded = m_characterController.isGrounded;
