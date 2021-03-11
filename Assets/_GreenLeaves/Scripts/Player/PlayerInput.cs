@@ -70,6 +70,15 @@ public class PlayerInput : MonoBehaviour
         {
             m_collisionController.OnSprintButtonUp();
         }
+
+        if (m_playerInputController.GetButtonDown("Jump"))
+        {
+            m_collisionController.OnJumpInputDown();
+        }
+        if (m_playerInputController.GetButtonUp("Jump"))
+        {
+            m_collisionController.OnJumpInputUp();
+        }
     }
 
     public void GetInput()

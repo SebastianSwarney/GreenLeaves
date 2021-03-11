@@ -194,6 +194,11 @@ public class PlayerVisualsController : MonoBehaviour
         //m_animator.SetFloat("ForwardMovement", 0);
     }
 
+    public void SetAirAnimations(float p_value)
+    {
+        m_animator.SetFloat("JumpMovement", p_value);
+    }
+
     public void SetModelRotation(Vector3 p_horizontalDirection, Vector3 p_groundNormal, float p_slopeFacingDirection, float p_currentSlope, float p_minSlope, float p_maxSlope)
     {
         Vector3 localXAxis = Vector3.Cross(transform.forward, Vector3.up);
@@ -216,17 +221,8 @@ public class PlayerVisualsController : MonoBehaviour
         float currentRotation = Mathf.Lerp(0, m_maxUpwardSlopeModelRotation, rotationProgress) * targetMoveAmount.y;
         angle = currentRotation;
 
-        //m_modelTransform.localRotation = Quaternion.AngleAxis(angle, Vector3.right);
         m_modelTransform.localRotation = Quaternion.RotateTowards(m_modelTransform.localRotation, Quaternion.AngleAxis(angle, Vector3.right), m_maxModelRotationSpeed * Time.deltaTime);
 
-
-        //m_animator.SetLayerWeight(1, rotationProgress * targetMoveAmount.y);
-
-        /*
-        Vector3 horizontalCross = Vector3.Cross(m_slopeTransform.right, transform.right);
-        m_horizontalSlopeBlend.SetBlendValue(Mathf.Abs(horizontalCross.y) * Mathf.Sign(-horizontalCross.y));
-
-        m_modelTransform.localRotation = Quaternion.RotateTowards(m_modelTransform.localRotation, Quaternion.AngleAxis(angle, Vector3.forward), m_maxModelRotationSpeed * Time.deltaTime);
-        */
+        m_animator.SetFloat("SlopeProgress", rotationProgress);
     }
 }

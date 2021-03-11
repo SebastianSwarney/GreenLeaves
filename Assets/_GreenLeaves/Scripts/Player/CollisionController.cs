@@ -9,8 +9,16 @@ public class CollisionController : MonoBehaviour
 	public LayerMask m_groundMask;
 	public LayerMask m_slideMask;
 
-	public float m_gravity = -9.8f;
+	public float m_maxJumpHeight;
+	public float m_minJumpHeight;
+
+	public float m_timeToJumpApex;
+
+	private float m_gravity = -9.8f;
 	private bool m_forceGravity;
+
+	private float m_maxJumpVelocity;
+	private float m_minJumpVelocity;
 
 	public Transform m_viewCameraTransform;
 
@@ -98,14 +106,22 @@ public class CollisionController : MonoBehaviour
 	private bool m_onClimbSurface;
 	private bool m_useGravity;
 
-
 	private Vector3 m_playerTop, m_playerBottom;
+
+
+	private bool m_blockGroundSnapping;
+
+	private bool m_hasJumped;
 
 	private void Start()
 	{
 		m_characterController = GetComponent<CharacterController>();
-		//m_characterController.slopeLimit = m_maxSlopeAngle;
 		m_playerVisuals = GetComponent<PlayerVisualsController>();
+	}
+
+	private void OnValidate()
+	{
+		CalculateJump();
 	}
 
 	private void UpdatePlayerCastPoints()
@@ -138,6 +154,12 @@ public class CollisionController : MonoBehaviour
 		CaculateTotalVelocity();
 		DecendSlopeBelow(m_characterController.velocity * Time.fixedDeltaTime);
 
+		if (!CheckGravityConditions())
+		{
+			m_gravityVelocity.y = 0;
+			return;
+		}
+
 		m_isGrounded = false;
 	}
 
@@ -146,6 +168,10 @@ public class CollisionController : MonoBehaviour
 		m_playerVisuals.SetAnimations(m_groundMovementVelocity, m_runSpeed, m_sprintSpeed, m_runSpeed * 0.5f);
 		//m_playerVisuals.CalculateSlopeEffort(m_currentSlopeAngle, m_slopeSpeedSlowStartAngle, m_slideStartAngle);
 		m_playerVisuals.SetModelRotation(m_horizontalDirection, m_averageNormal, m_slopeFacingDirection, m_currentSlopeAngle, m_slopeSpeedSlowStartAngle, m_slideStartAngle);
+
+		Debug.Log(m_maxJumpVelocity);
+
+		m_playerVisuals.SetAirAnimations(m_gravityVelocity.y);
 	}
 
 	private void CaculateTotalVelocity()
@@ -195,7 +221,7 @@ public class CollisionController : MonoBehaviour
 	{
 		float wallFacingDot = Vector3.Dot(m_horizontalDirection, m_horizontalWallDirection);
 
-		if (m_onClimbSurface && wallFacingDot >= m_wallAlignmentStart && m_movementInput.y > 0 && !m_climbing)
+		if (m_onClimbSurface && wallFacingDot >= m_wallAlignmentStart && m_movementInput.y > 0 && !m_climbing && m_characterController.isGrounded)
 		{
 			return true;
 		}
@@ -647,38 +673,41 @@ public class CollisionController : MonoBehaviour
 
 	private bool CheckGravityConditions()
 	{
+		if (m_gravityVelocity.y > 0)
+		{
+			return true;
+		}
+
+		if (m_hasJumped)
+		{
+			return true;
+		}
+
 		if (m_forceGravity)
 		{
-			return false;
+			return true;
 		}
 
 		if (m_climbing)
 		{
-			return true;
+			return false;
 		}
 
 		if (m_isGrounded)
 		{
-			return true;
+			return false;
 		}
 
 		if (m_useGravity)
 		{
-			return true;
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	private void CalculateGravity()
 	{
-		if (CheckGravityConditions())
-		{
-			m_gravityVelocity.y = 0;
-
-			return;
-		}
-
 		m_gravityVelocity.y += m_gravity * Time.fixedDeltaTime;
 	}
 	#endregion
@@ -758,13 +787,46 @@ public class CollisionController : MonoBehaviour
 	}
 	#endregion
 
+	#region Jump
+	public void OnJumpInputDown()
+	{
+		if (m_characterController.isGrounded)
+		{
+			JumpMaxVelocity();
+		}
+	}
+
+	public void OnJumpInputUp()
+	{
+		if (m_gravityVelocity.y > m_minJumpVelocity)
+		{
+			JumpMinVelocity();
+		}
+	}
+
+	private void CalculateJump()
+	{
+		m_gravity = -(2 * m_maxJumpHeight) / Mathf.Pow(m_timeToJumpApex, 2);
+		m_maxJumpVelocity = Mathf.Abs(m_gravity) * m_timeToJumpApex;
+		m_minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(m_gravity) * m_minJumpHeight);
+	}
+
+	private void JumpMaxVelocity()
+	{
+		m_hasJumped = true;
+		m_gravityVelocity.y = m_maxJumpVelocity;
+	}
+
+	private void JumpMinVelocity()
+	{
+		m_gravityVelocity.y = m_minJumpVelocity;
+	}
+	#endregion
+
 	#region Collision
-
-	private bool m_blockGroundSnapping;
-
 	private bool ResetGroundSnap()
 	{
-		if (m_isGrounded && !m_climbing)
+		if (m_characterController.isGrounded && !m_climbing)
 		{
 			return true;
 		}
@@ -774,12 +836,22 @@ public class CollisionController : MonoBehaviour
 
 	private bool CanGroundSnap()
 	{
+		if (m_blockGroundSnapping)
+		{
+			return false;
+		}
+
 		if (m_climbing)
 		{
 			return false;
 		}
 
-		if (m_blockGroundSnapping)
+		if (m_hasJumped)
+		{
+			return false;
+		}
+
+		if (m_gravityVelocity.y > 0)
 		{
 			return false;
 		}
@@ -792,55 +864,13 @@ public class CollisionController : MonoBehaviour
 		if (ResetGroundSnap())
 		{
 			m_blockGroundSnapping = false;
+			m_hasJumped = false;
 		}
 
 		if (!CanGroundSnap())
 		{
 			return;
 		}
-
-		#region no use
-		/*
-		Vector3 rayDir = Vector3.down;
-		float castRadius = m_characterController.radius - m_castSkinWidth;
-		float rayLength = Mathf.Abs(p_moveAmount.magnitude) + (m_castSkinWidth * 2);
-
-		Vector3 bottom = m_characterController.transform.position - new Vector3(0, m_characterController.height / 2, 0);
-		Vector3 top = bottom + (Vector3.up * m_characterController.height);
-
-		Vector3 bottomOrigin = bottom - (rayDir * m_castSkinWidth);
-		Vector3 topOrigin = top - (rayDir * m_castSkinWidth);
-
-		RaycastHit[] hits = Physics.CapsuleCastAll(bottomOrigin, topOrigin, castRadius, rayDir, rayLength, m_groundMask);
-
-		float distance = 0;
-
-		for (int i = 0; i < hits.Length; i++)
-		{
-			if (hits[i].point == Vector3.zero)
-			{
-				RaycastHit fallbackHit;
-
-				if (Physics.Raycast(bottomOrigin, rayDir, out fallbackHit, rayLength, m_groundMask))
-				{
-					//m_hitAnythingLastMovement = true;
-					//m_averageNormal = hits[i].normal;
-
-					distance = fallbackHit.distance;
-				}
-			}
-			else
-			{
-				distance = hits[i].distance;
-
-				//m_averageNormal = hits[i].normal;
-				//m_hitAnythingLastMovement = true;
-			}
-		}
-
-		m_characterController.Move(new Vector3(0, -(distance), 0));
-		*/
-		#endregion
 
 		RaycastHit hit;
 
@@ -856,32 +886,6 @@ public class CollisionController : MonoBehaviour
 		else
 		{
 			m_blockGroundSnapping = true;
-		}
-	}
-
-	private void DecendSlopeBelow(ref Vector3 p_moveAmount, Vector3 p_horizontalVelocity)
-	{
-		Vector3 localXAxis = Vector3.Cross(p_horizontalVelocity, Vector3.up);
-		Vector3 forwardRotation = Vector3.ProjectOnPlane(m_averageNormal, localXAxis);
-		Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
-		Vector3 targetMoveAmount = (upwardSlopeOffset * p_horizontalVelocity);
-
-		Vector3 normalCross = Vector3.Cross(Vector3.up, m_averageNormal);
-		Vector3 movementSlopeCross = Vector3.Cross(normalCross, p_horizontalVelocity).normalized;
-
-		if (Mathf.Sign(movementSlopeCross.y) < 0)
-		{
-
-			if (p_moveAmount.y < 0)
-			{
-
-			}
-
-			DebugExtension.DebugArrow(transform.position, targetMoveAmount, Color.green, 0f, false);
-			//p_moveAmount = targetMoveAmount;
-			//p_moveAmount = new Vector3(targetMoveAmount.x, p_moveAmount.y, targetMoveAmount.z);
-
-			p_moveAmount.y += targetMoveAmount.y;
 		}
 	}
 
