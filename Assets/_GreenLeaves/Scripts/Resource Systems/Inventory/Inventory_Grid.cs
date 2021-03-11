@@ -112,7 +112,6 @@ public class Inventory_Grid : MonoBehaviour
                     else if (p_currentRotationType == Inventory_2DMenu.RotationType.Down)
                     {
                         m_newPlacement = new Vector2Int(curX + (p_data.m_inventoryWeight.y - 1), curY);
-                        Debug.Log("New Placement: " + m_newPlacement);
                     }else if (p_currentRotationType == Inventory_2DMenu.RotationType.Up)
                     {
                         m_newPlacement = new Vector2Int(curX + (p_data.m_inventoryWeight.y - 1), curY + (p_data.m_inventoryWeight.x -1));
