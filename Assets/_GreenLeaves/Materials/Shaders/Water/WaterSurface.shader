@@ -81,6 +81,7 @@ Shader "Custom/WaterIntersection"
 				  float3 normal: NORMAL;
 
 				  float3 lightDir:TEXCOORD6;
+
 				  LIGHTING_COORDS(7,8)
 			  };
 
