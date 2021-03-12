@@ -27,7 +27,7 @@ public class Tree_VelocityCheck : MonoBehaviour
     {
         while (true)
         {
-            if(Mathf.Abs(m_rb.velocity.magnitude - m_previousVelocity) > m_maxVelocityDifference)
+            if(Mathf.Abs(m_rb.velocity.magnitude - m_previousVelocity) > m_maxVelocityDifference && m_previousVelocity != 0)
             {
                 transform.parent.GetChild(0).gameObject.SetActive(false);
                 m_objectHit.Invoke();

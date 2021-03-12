@@ -158,33 +158,6 @@ public class PlayerStatsController : MonoBehaviour
     }
     #endregion
 
-    #region Public Booleans
-    public bool HasEnergy()
-    {
-        if (m_currentSecondaryEnergy > 0 || m_currentMainEnergy > 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public bool IsFullMainEnergy(out int p_depletedEnergyAmount)
-    {
-        p_depletedEnergyAmount = 0;
-
-        if (m_currentMainEnergy >= m_mainEnergyMax)
-        {
-            return true;
-        }
-
-        p_depletedEnergyAmount = (int)(m_mainEnergyMax - m_currentMainEnergy);
-
-        return false;
-    }
-    #endregion
 
     #region Hunger Code
 
@@ -300,6 +273,7 @@ public class PlayerStatsController : MonoBehaviour
 
     public void AddAmount(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType p_typeOfCosumption, float p_amount, bool p_increasePastMax = false)
     {
+
         switch (p_typeOfCosumption)
         {
             #region Energy
@@ -314,7 +288,7 @@ public class PlayerStatsController : MonoBehaviour
                         m_currentMainEnergy = m_mainEnergyMax;
                     }
                 }
-
+                
                 break;
             #endregion
 
@@ -330,7 +304,6 @@ public class PlayerStatsController : MonoBehaviour
                         m_currentHunger = m_hungerMax;
                     }
                 }
-
                 break;
 
             #endregion
@@ -347,11 +320,17 @@ public class PlayerStatsController : MonoBehaviour
                         m_currentSecondaryEnergy = m_secondaryEnergyMax;
                     }
                 }
-
                 break;
 
                 #endregion
         }
+
+        SetEnergyImage(m_secondaryEnergyImage, m_currentSecondaryEnergy, m_secondaryEnergyMax);
+        m_hungerImage.fillAmount = m_currentHunger / m_hungerMax;
+        m_secondaryEnergyImage.fillAmount = m_currentSecondaryEnergy / m_secondaryEnergyMax;
+        m_mainEnergyImage.fillAmount = m_currentMainEnergy / m_mainEnergyMax;
+        SetHungerSegment(m_hungerImage, ((m_currentHunger / m_hungerMax)));
+        UpdateUIShake();
     }
 
     public float GetCurrentStat(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType p_typeOfStat)

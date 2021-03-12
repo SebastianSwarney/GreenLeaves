@@ -36,7 +36,10 @@ public class Resource_Pickup : MonoBehaviour
             }
             else
             {
-                m_particleSystemsParent.ToggleParticles(true);
+                if (m_particleSystemsParent != null)
+                {
+                    m_particleSystemsParent.ToggleParticles(true);
+                }
                 m_toggleOff = false;
             }
         }
@@ -49,7 +52,10 @@ public class Resource_Pickup : MonoBehaviour
                     if (!m_toggleOff)
                     {
                         m_toggleOff = true;
-                        m_particleSystemsParent.ToggleParticles(false);
+                        if (m_particleSystemsParent != null)
+                        {
+                            m_particleSystemsParent.ToggleParticles(false);
+                        }
                     }
                 }
                 else
@@ -57,7 +63,10 @@ public class Resource_Pickup : MonoBehaviour
 
                     ObjectPooler.Instance.ReturnToPool(m_currentParticle);
                     m_currentParticle = null;
-                    m_particleSystemsParent.ToggleParticles(true);
+                    if (m_particleSystemsParent != null)
+                    {
+                        m_particleSystemsParent.ToggleParticles(true);
+                    }
                     m_particleSystemsParent = null;
                 }
             }

@@ -34,6 +34,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public Transform m_cantFitIconPos;
     public Transform m_itemTransferParent;
     public UnityEngine.UI.Text m_heldItemText;
+    public GameObject m_craftingRecipeMenu, m_cookingRecipeMenu;
 
     [Header("Icon Selection Variables")]
     public float m_selectedBufferTime;
@@ -108,12 +109,14 @@ public class Inventory_2DMenu : MonoBehaviour
     public void ToggleInventory(bool p_openCrafting)
     {
         if (!m_canClose) return;
+        
         if (m_isOpen)
         {
+            
             m_heldItemText.text = "";
             m_craftingMenu.SetActive(false);
             m_cookingMenu.SetActive(false);
-
+            Inventory_Tutorial.Instance.EndTutorial();
             if (m_isDraggingObject)
             {
                 m_currentSelectedIcon.ForceIconDrop();
@@ -127,6 +130,7 @@ public class Inventory_2DMenu : MonoBehaviour
         }
         else
         {
+            PlayerUIManager.Instance.ToggleCameraMode(false);
             m_heldItemText.text = "";
             PlayerInputToggle.Instance.ToggleInput(false);
             m_isOpen = true;
@@ -176,6 +180,9 @@ public class Inventory_2DMenu : MonoBehaviour
         m_isOpen = false;
         m_canvasObject.SetActive(false);
         m_currentSelectedIcon = null;
+
+        m_craftingRecipeMenu.SetActive(false);
+        m_cookingRecipeMenu.SetActive(false);
         DropAnyOutsideIcons(p_skipWarning);
         if (m_craftingMenuOpened)
         {
@@ -376,7 +383,7 @@ public class Inventory_2DMenu : MonoBehaviour
             newIcon = ObjectPooler.Instance.NewObject(m_mainIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
         }
 
-        newIcon.transform.parent = m_gameIconsParent;
+        newIcon.GetComponent<RectTransform>().SetParent(m_gameIconsParent,false);
         newIcon.transform.localScale = Vector3.one;
         newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * p_pickedUpResource.m_resourceData.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * p_pickedUpResource.m_resourceData.m_inventoryWeight.y);
         newIcon.UpdateIcon(p_pickedUpResource, p_rotationType);
@@ -576,7 +583,7 @@ public class Inventory_2DMenu : MonoBehaviour
     /// </summary>
     public void IconTappedOn(Inventory_Icon p_tappedOn)
     {
-        p_tappedOn.transform.parent = m_itemTransferParent;
+        p_tappedOn.GetComponent<RectTransform>().SetParent(m_itemTransferParent,false);
         m_currentSelectedIcon = p_tappedOn;
         m_isDraggingObject = true;
         if (p_tappedOn.m_isEquipped)
@@ -821,7 +828,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
         #region Determine what to do with the icon given the findings
 
-        p_holdingIcon.transform.parent = m_gameIconsParent;
+        p_holdingIcon.GetComponent<RectTransform>().SetParent(m_gameIconsParent,false);
         if (!placedIcon)
         {
 

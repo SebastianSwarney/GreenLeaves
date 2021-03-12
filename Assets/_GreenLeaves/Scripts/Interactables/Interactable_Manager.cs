@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// The manager for the interactable button menu. <br/>
@@ -77,7 +78,11 @@ public class Interactable_Manager : MonoBehaviour
         {
             m_camera = Camera.main.transform;
         }
-        if(m_cinemachineFreeLook == null)
+
+    }
+    private void Start()
+    {
+        if (m_cinemachineFreeLook == null)
         {
             m_cinemachineFreeLook = PlayerInputToggle.Instance.transform.GetComponentInChildren<Cinemachine.CinemachineFreeLook>();
         }
@@ -127,8 +132,7 @@ public class Interactable_Manager : MonoBehaviour
         m_currentInteractable.ItemSelected();
 
         m_menuOpen = true;
-        if (m_buttonUiParent == null) return;
-        m_buttonUiParent.SetActive(true);
+
 
         m_interactableName.transform.parent.gameObject.SetActive(true);
         m_interactableName.text = p_selectedSystem.GetInteractableName();
@@ -144,8 +148,15 @@ public class Interactable_Manager : MonoBehaviour
 
         m_leftMenuEnabled = p_selectedSystem.LeftButtonEnabled();
         m_leftMenu.SetupButton(m_leftMenuEnabled, p_selectedSystem.LeftButtonString(), true);
+        StartCoroutine(DelayAppearance());
     }
-
+    private IEnumerator DelayAppearance()
+    {
+        yield return null;
+        if (m_buttonUiParent == null) yield break;
+        m_buttonUiParent.SetActive(true);
+    }
+    
 
     /// <summary>
     /// Disables the menu, and hides the buttons.<br/>
@@ -300,6 +311,7 @@ public class Interactable_Manager : MonoBehaviour
         p_closestInteractable = null;
         Vector3 groundPoint = new Vector3(Screen.width / 2, Screen.height / 2);
         float dis = Mathf.Lerp(m_lowCamRaycastDis, m_highCamRaycastDis, m_cinemachineFreeLook.m_YAxis.Value);
+        if (m_camera == null) return false;
         RaycastHit[] allHit = Physics.RaycastAll(m_camera.position, m_camera.forward, dis, m_interactableMask);
 
         float currentDis = 1000;

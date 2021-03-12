@@ -72,9 +72,9 @@ public class Building_PlacementManager : MonoBehaviour
         Durability_UI.Instance.HideUI();
         m_currentState = PlacementState.Placed;
         m_fireParticle.gameObject.SetActive(true);
-        m_objectPlacedEvent.Invoke();
         m_interactable.m_canBeInteractedWith = true;
-        Interactable_Manager.Instance.SearchForInteractable();
+        m_objectPlacedEvent.Invoke();
+        //Interactable_Manager.Instance.SearchForInteractable();
 
         Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allCampfires.Add(gameObject);
     }

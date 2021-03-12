@@ -192,5 +192,6 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
         {
             m_currentTarget.HideUI();
         }
+        PlayerEquipmentBreak.Instance.ShowUI();
     }
 }

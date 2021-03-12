@@ -45,4 +45,9 @@ public class Crafting_Recipe : ScriptableObject
         }
         return true;
     }
+
+    public virtual List<Crafting_Table.Crafting_ItemsContainer> GetRecipe()
+    {
+        return m_recipe;
+    }
 }

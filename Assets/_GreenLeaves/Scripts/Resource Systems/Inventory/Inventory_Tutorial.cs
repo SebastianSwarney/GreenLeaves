@@ -22,7 +22,7 @@ public class Inventory_Tutorial : MonoBehaviour
     public int m_letGoTutIndex;
 
     public GameObject m_dropArea, m_equipArea, m_craftArea, m_eatArea;
-    public int m_dropIndex, m_equipIndex, m_craftIndex, m_eatIndex;
+    public int m_areaIndex;
     private void Awake()
     {
         Instance = this;
@@ -77,10 +77,10 @@ public class Inventory_Tutorial : MonoBehaviour
         m_pickupAlt.SetActive(false);
         m_rotateAlt.SetActive(false);
 
-        if (m_currentTutorialIndex == m_tutorialObjects.Count)
+        if (m_currentTutorialIndex == m_tutorialObjects.Count - 1)
         {
-            EndTutorial();
-            return;
+
+            Inventory_2DMenu.Instance.m_canClose = true;
         }
 
         if (m_currentTutorialIndex - 1 >= 0)
@@ -94,22 +94,14 @@ public class Inventory_Tutorial : MonoBehaviour
             Inventory_2DMenu.Instance.m_canTap = true;
         }
 
-        if (m_currentTutorialIndex == m_dropIndex)
+        if (m_currentTutorialIndex == m_areaIndex)
         {
             m_dropArea.SetActive(true);
-        }
-        else if (m_currentTutorialIndex == m_equipIndex)
-        {
             m_equipArea.SetActive(true);
-        }
-        else if (m_currentTutorialIndex == m_craftIndex)
-        {
             m_craftArea.SetActive(true);
-        }
-        else if (m_currentTutorialIndex == m_eatIndex)
-        {
             m_eatArea.SetActive(true);
         }
+
 
         if (Inventory_2DMenu.Instance.m_backpack.m_itemsInBackpack.Count == 0)
         {
@@ -150,6 +142,7 @@ public class Inventory_Tutorial : MonoBehaviour
 
     public void EndTutorial()
     {
+        if (!m_showTutorial) return;
         foreach (GameObject tut in m_tutorialObjects)
         {
             tut.SetActive(false);

@@ -126,6 +126,11 @@ MonoBehaviour:
   m_objectSpawned:
     m_PersistentCalls:
       m_Calls: []
+  m_minDistanceFromPlayer: 0
+  m_maxDistanceFromPlayer: 0
+  m_currentDis: 0
+  m_particlePrefab: {fileID: 0}
+  m_currentParticle: {fileID: 0}
   m_startingDurability: 6
 --- !u!1001 &5873456249674403105
 PrefabInstance:
@@ -150,6 +155,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: _PFB_Resource_Tool_Knife Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 1806350379463084203, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
+      propertyPath: m_spawnedParticle
+      value: 
+      objectReference: {fileID: 262030696820048015, guid: 76d572a4dca312644abff80657d21b16, type: 3}
     - target: {fileID: 2316559166084059685, guid: f6753574dfcf2b642adb2b3a80e70da2, type: 3}
       propertyPath: m_RootOrder
       value: 1

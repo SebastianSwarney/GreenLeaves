@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerUIManager : MonoBehaviour
 {
-    public GameObject m_pauseMenu, m_mainPause, m_craftingRecipeMenu, m_audioMenu, m_controlsMenu;
+    public GameObject m_pauseMenu, m_mainPause,  m_audioMenu, m_controlsMenu, m_cameraMenu;
 
     public static PlayerUIManager Instance;
     public bool m_isPaused;
@@ -50,10 +50,11 @@ public class PlayerUIManager : MonoBehaviour
     {
         m_isPaused = p_newState;
 
+        PlayerUIManager.Instance.ToggleCameraMode(false);
+
 
         m_pauseMenu.SetActive(m_isPaused);
         m_mainPause.SetActive(true);
-        m_craftingRecipeMenu.SetActive(false);
         m_audioMenu.SetActive(false);
         m_controlsMenu.SetActive(false);
 
@@ -63,14 +64,16 @@ public class PlayerUIManager : MonoBehaviour
         if (m_isPaused)
         {
             Interactable_Manager.Instance.ForceCloseMenu();
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
         }
         else if (!Inventory_2DMenu.Instance.m_isOpen)
         {
             Interactable_Manager.Instance.SearchForInteractable();
-            
+
         }
         if (!Inventory_2DMenu.Instance.m_isOpen)
         {
+            
             PlayerInputToggle.Instance.ToggleInput(!m_isPaused);
         }
 
@@ -104,14 +107,27 @@ public class PlayerUIManager : MonoBehaviour
             timer += Time.deltaTime;
             m_screenFadeGroup.alpha = (p_newFadeState ? (timer / m_fadeTime) : 1 - (timer / m_fadeTime));
 
-            m_ambience.setVolume((p_newFadeState) ? 1 - (timer / m_fadeTime) : (timer / m_fadeTime));
-            m_soundEffects.setVolume((p_newFadeState) ? 1 - (timer / m_fadeTime) : (timer / m_fadeTime));
-
         }
 
         m_ambience.setVolume((p_newFadeState) ? 0 : 1);
         m_soundEffects.setVolume((p_newFadeState) ? 0 : 1);
         m_screenFadeGroup.alpha = (p_newFadeState ? 1 : 0);
 
+    }
+
+
+    public void ToggleCameraMode(bool p_toggle)
+    {
+        m_cameraMenu.SetActive(p_toggle);
+
+        if (p_toggle)
+        {
+            Inventory_2DMenu.Instance.CloseInventoryMenu(true);
+            ScreenshotManager.Instance.EnableCamera();
+        }
+        else
+        {
+            ScreenshotManager.Instance.DisableCamera();
+        }
     }
 }

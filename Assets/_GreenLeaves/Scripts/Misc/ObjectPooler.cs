@@ -125,6 +125,7 @@ public class ObjectPooler : MonoBehaviour
     ///<summary>
     public void ReturnToPool(GameObject p_pooledObject)
     {
+        if (p_pooledObject == null) return;
         if (!m_objectPool.ContainsKey(p_pooledObject.name))
         {
             CreateNewPool(p_pooledObject);

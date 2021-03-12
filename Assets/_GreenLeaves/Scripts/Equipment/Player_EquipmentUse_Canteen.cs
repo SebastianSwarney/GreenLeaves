@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Inherits from the equipment script; this is the water canteen equipment script.<br/>
@@ -7,17 +8,31 @@
 public class Player_EquipmentUse_Canteen : Player_EquipmentUse
 {
     public static Player_EquipmentUse_Canteen Instance;
+
     [Header("Canteen Specific")]
+    public ResourceContainer_Equip_Canteen m_defaultCanteenData;
+
     [Tooltip("Determines which stat the canteen will refill")]
-    public ResourceContainer_Cosume.TypeOfCosumption.ConsumeType m_energyRefilType;
-    public int m_waterToStaminaRatio;
+    public List<RefillType> m_energyRefilType;
+
+    public int m_unitsDrankPerSecond;
+    private float m_drinkTimer;
+
+    [System.Serializable]
+    public struct RefillType
+    {
+        public ResourceContainer_Cosume.TypeOfCosumption.ConsumeType m_energyRefilType;
+        public float m_waterToStatRatio;
+    }
     //Note: May want to just substitue the normal canteen for a special canteen when using the boiling system. When that crafted canteen is fully empty, 
     //replace with a normal empty canteen to revert back to the original canteen.
 
+    private bool m_hasSpecialDrink = false;
 
     [Header("Detection Variables")]
     public LayerMask m_waterSourceMask;
     public float m_detectRadius;
+    private bool m_gettingWater;
 
     [Header("Prompt Text")]
     public string m_controlText;
@@ -47,17 +62,75 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
 
         if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen) return;
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && m_durability <= 0)
         {
+            if (WaterNearby())
+            {
+                PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
+                m_linkedIcon.m_itemData = m_defaultCanteenData;
+                m_energyRefilType = new List<RefillType>(m_defaultCanteenData.m_energyRefilType);
+                m_hasSpecialDrink = false;
+                m_durability = m_startingDurability;
+                UpdateIconDurability();
+                Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
+                m_gettingWater = true;
+            }
+        }
+        else if (Input.GetMouseButton(0) && !m_gettingWater && m_durability > 0)
+        {
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
             UseEquipment();
+            Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
+            UpdateIconDurability();
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
+            m_gettingWater = false;
+        }
+        m_drinkTimer += Time.deltaTime;
+
+    }
+
+    public override void UseEquipment()
+    {
+        if (m_drinkTimer < .5f) return;
+        m_drinkTimer = 0;
+        if (m_durability > 0)
+        {
+            if (m_durability - m_unitsDrankPerSecond >= 0)
+            {
+                foreach (RefillType reff in m_energyRefilType)
+                {
+                    PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, m_unitsDrankPerSecond * reff.m_waterToStatRatio);
+                }
+                m_durability -= m_unitsDrankPerSecond/2;
+            }
+            else
+            {
+                m_durability -= m_unitsDrankPerSecond/2;
+                foreach (RefillType reff in m_energyRefilType)
+                {
+                    PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, (m_unitsDrankPerSecond - Mathf.Abs(m_durability)) * reff.m_waterToStatRatio);
+                }
+                m_durability = 0;
+            }
         }
 
     }
+
+
+
+    /*
+     
+    /// <summary>
+    /// Old use Equipment
+    /// </summary>
     public override void UseEquipment()
     {
 
-        int requiredEnergy = (int)(PlayerStatsController.Instance.GetMaxStat(m_energyRefilType) - PlayerStatsController.Instance.GetCurrentStat(m_energyRefilType));
-
+        int requiredEnergy = (int)(PlayerStatsController.Instance.GetMaxStat(m_energyRefilType[0].m_energyRefilType) - PlayerStatsController.Instance.GetCurrentStat(m_energyRefilType[0].m_energyRefilType));
+        requiredEnergy = requiredEnergy / (int)m_energyRefilType[0].m_waterToStatRatio;
         ///Player at full energy?
         if (requiredEnergy == 0)
         {
@@ -68,6 +141,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
             }
             else
             {
+                if (m_hasSpecialDrink) return;
                 ///Look for water source
                 if (WaterNearby())
                 {
@@ -91,13 +165,19 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 if (m_durability - requiredEnergy <= 0)
                 {
                     PlayAnimation("Drink water: Canteen empty");
-                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, m_durability * m_waterToStaminaRatio);
+                    foreach (RefillType reff in m_energyRefilType)
+                    {
+                        PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, m_durability * reff.m_waterToStatRatio);
+                    }
                     AdjustCanteenCapacity(0);
                 }
                 else
                 {
                     PlayAnimation("Drink water: Canteen still has some");
-                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, (float)requiredEnergy);
+                    foreach (RefillType reff in m_energyRefilType)
+                    {
+                        PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, (float)requiredEnergy * reff.m_waterToStatRatio);
+                    }
                     AdjustCanteenCapacity(m_durability - requiredEnergy);
                 }
             }
@@ -107,7 +187,10 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 if (WaterNearby())
                 {
                     PlayAnimation("Drink directly from water source");
-                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, 1000);
+                    foreach (RefillType reff in m_energyRefilType)
+                    {
+                        PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, 1000);
+                    }
                     AdjustCanteenCapacity(m_startingDurability);
                 }
                 else
@@ -116,74 +199,19 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 }
             }
         }
-    }
+    }*/
 
-    private void OldUseEquipment()
-    {
-        int requiredEnergy = 0;
-
-        ///Player at full energy?
-        if (PlayerStatsController.Instance.IsFullMainEnergy(out requiredEnergy))
-        {
-            ///Canteen has water
-            if (m_durability == m_startingDurability)
-            {
-                PlayAnimation("Shake Canteen cause full");
-            }
-            else
-            {
-                ///Look for water source
-                if (WaterNearby())
-                {
-                    PlayAnimation("Fill canteen with water");
-                    AdjustCanteenCapacity(m_startingDurability);
-
-                }
-                else
-                {
-                    PlayAnimation("Look for water");
-                }
-            }
-        }
-        else
-        {
-            ///Canteen has water
-            if (m_durability > 0)
-            {
-
-                ///Determine how much energy to refil
-                if (m_durability - requiredEnergy <= 0)
-                {
-                    PlayAnimation("Drink water: Canteen empty");
-                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, m_durability);
-                    AdjustCanteenCapacity(0);
-                }
-                else
-                {
-                    PlayAnimation("Drink water: Canteen still has some");
-                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, (float)requiredEnergy);
-                    AdjustCanteenCapacity(m_durability - requiredEnergy);
-                }
-            }
-            else
-            {
-                ///Look for water source
-                if (WaterNearby())
-                {
-                    PlayAnimation("Drink directly from water source");
-                    PlayerStatsController.Instance.AddAmount(m_energyRefilType, 1000);
-                }
-                else
-                {
-                    PlayAnimation("Look for water");
-                }
-            }
-        }
-    }
 
     public override void UnEquipObject()
     {
         base.UnEquipObject();
+    }
+
+
+    public void ChangeEdibleType(List<Player_EquipmentUse_Canteen.RefillType> p_newType, bool p_specialDrink)
+    {
+        m_hasSpecialDrink = p_specialDrink;
+        m_energyRefilType = new List<RefillType>(p_newType);
     }
 
     /// <summary>
@@ -206,10 +234,14 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         {
             m_durability = m_startingDurability;
         }
-        else if (m_durability < 0)
+        else if (m_durability <= 0)
         {
             m_durability = 0;
+            m_linkedIcon.m_itemData = m_defaultCanteenData;
+            m_energyRefilType = new List<RefillType>(m_defaultCanteenData.m_energyRefilType);
+            m_hasSpecialDrink = false;
         }
+
         Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
         UpdateIconDurability();
     }
@@ -219,7 +251,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     /// </summary>
     public override void ObjectBroke()
     {
-        Debug.Log("Canteen Empty");
+        //Debug.Log("Canteen Empty");
     }
     public override void ReEnableToolComponent()
     {

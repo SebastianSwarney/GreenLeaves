@@ -31,18 +31,21 @@ Shader "Custom/WaterIntersection"
 		   [Space]
 	   [Header(Sine Bounce)]
 	   _WaterBounceFrequency("Water Bounce Frequency", float) = 1
-		   _WaterBounceHeight ("Water Bounce Height", float) = 1
+		   _WaterBounceHeight("Water Bounce Height", float) = 1
 
-		   _debug("DEbug", float) =1 
+		   _debug("DEbug", float) = 1
 		[Toggle(VERTEX)] _VERTEX("Use Vertex Colors", Float) = 0
+
+		   _lightingBrightness("LightingBrightness", float) = 1
 
 	}
 		SubShader
 	   {
-		   Tags { "Queue" = "Transparent" "RenderType" = "Transparent"  }
+		   Tags {"Queue" = "Transparent" "RenderType" = "Transparent"  }
 
 		   Pass
 		   {
+			   Tags{"LightMode" = "ForwardBase"}
 			  Blend SrcAlpha OneMinusSrcAlpha
 			  ZWrite Off
 
@@ -52,6 +55,7 @@ Shader "Custom/WaterIntersection"
 			  #pragma multi_compile_fog
 #pragma target 3.5
 			  #include "UnityCG.cginc"
+				#include "AutoLight.cginc"
 
 
 			  struct appdata
@@ -75,6 +79,10 @@ Shader "Custom/WaterIntersection"
 				  fixed4 color : COLOR;
 				  float3 wNormal: TEXCOORD5;
 				  float3 normal: NORMAL;
+
+				  float3 lightDir:TEXCOORD6;
+
+				  LIGHTING_COORDS(7,8)
 			  };
 
 			  sampler2D _CameraDepthTexture;
@@ -110,6 +118,7 @@ Shader "Custom/WaterIntersection"
 				  float _WaterBounceHeight;
 				  float _debug;
 
+				  float _lightingBrightness;
 
 			  v2f vert(appdata v)
 			  {
@@ -121,13 +130,16 @@ Shader "Custom/WaterIntersection"
 				  o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 				  UNITY_TRANSFER_FOG(o,o.vertex);
 				  o.wNormal = UnityObjectToWorldNormal(v.normal);
-				  o.normal = v.normal;
+				  o.normal = normalize(v.normal);
 
 				  o.color = v.color;
+
+				  o.lightDir = normalize(ObjSpaceLightDir(v.vertex));
 
 				  float offset = (o.worldPos.x + (o.worldPos.z * 0.2)) * 0.5;
 				  o.vertex.y += sin(_Time.y * _WaterBounceFrequency * offset * .2) * _WaterBounceHeight;
 
+				  TRANSFER_VERTEX_TO_FRAGMENT(o);
 				  return o;
 			  }
 
@@ -150,7 +162,7 @@ Shader "Custom/WaterIntersection"
 
 					   ///Waterfall
 					   float normAngle = dot(i.wNormal, fixed3(0, 1, 0)); //dot(i.normal, i.wNormal);
-					   
+
 					   if (normAngle > _waterfallAngle) {
 						   flowDir *= _leveledWaterSpeed;
 					   }
@@ -167,10 +179,10 @@ Shader "Custom/WaterIntersection"
 					   float diff = (saturate(_IntersectionThresholdMax * (depth - i.scrPos.w) + displ));
 
 
-					   
-					   
 
-					   
+
+
+
 
 
 
@@ -195,14 +207,14 @@ Shader "Custom/WaterIntersection"
 					   }
 
 					   /*if (normAngle < _waterfallAngle) {
-					    float waterfallFoam = tex2D(_waterFallTex, i.worldPos.xz * _waterfallTexScale + _Time.y * -_waterfallSpeed).x;
+						float waterfallFoam = tex2D(_waterFallTex, i.worldPos.xz * _waterfallTexScale + _Time.y * -_waterfallSpeed).x;
 						if (waterfallFoam > _waterfallFoamCutoff) {
 							waterfallFoam = 1;
 						}
 						else {
 							waterfallFoam = 0;
 						}
-						
+
 							if (waterfallFoam > .5f) {
 								col = _IntersectionColor;
 							}
@@ -216,14 +228,22 @@ Shader "Custom/WaterIntersection"
 						   }
 
 
+					float3 lightDir = normalize(i.lightDir);
+					float3 lightNorm = normalize(i.normal);
+					float attenuation = LIGHT_ATTENUATION(i) / _lightingBrightness;
+					float4 ambient = UNITY_LIGHTMODEL_AMBIENT;
+					float NormDotDir = saturate(dot(lightNorm, lightDir));
 
+					float4 diffuseTerm = NormDotDir * (attenuation);
+					float4 finalColor = (ambient + diffuseTerm) * col;
 
 						UNITY_APPLY_FOG(i.fogCoord, col);
-						return col;
+						//(ambient + diffuseTerm)
+						return finalColor;
 			   }
 
 			   ENDCG
 		   }
 	   }
-		   FallBack "VertexLit"
+		   FallBack "Diffuse"
 }

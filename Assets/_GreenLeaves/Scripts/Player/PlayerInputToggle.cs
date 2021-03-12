@@ -11,6 +11,9 @@ public class PlayerInputToggle : MonoBehaviour
     public PlayerInput m_playerInput;
     public PlayerController m_playerController;
 
+    private bool m_frozenFromGameplay = false;
+    private bool m_frozenFromPause = false;
+
     private void Awake()
     {
         Instance = this;
@@ -24,10 +27,27 @@ public class PlayerInputToggle : MonoBehaviour
 
     public void ToggleInput(bool p_newState)
     {
-        m_playerInput.enabled = p_newState;
-        m_cameraRotation.enabled = p_newState;
+        m_frozenFromPause = !p_newState;
         Cursor.visible = !p_newState;
         Cursor.lockState = (p_newState) ? CursorLockMode.Confined : CursorLockMode.None;
+        if (m_frozenFromGameplay) return;
+
+        m_playerInput.enabled = p_newState;
+        m_cameraRotation.enabled = p_newState;
+
+        if (!p_newState)
+        {
+            m_playerController.SetFlyInput(0);
+            m_playerController.SetMovementInput(Vector2.zero);
+        }
+    }
+
+    public void ToggleInputFromGameplay(bool p_newState)
+    {
+        m_frozenFromGameplay = !p_newState;
+        if (m_frozenFromPause) return;
+        m_playerInput.enabled = p_newState;
+        m_cameraRotation.enabled = p_newState;
 
         if (!p_newState)
         {

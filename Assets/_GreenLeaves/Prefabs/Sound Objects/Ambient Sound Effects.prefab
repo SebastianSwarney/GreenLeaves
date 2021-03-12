@@ -98,11 +98,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d341a6ed4235cf4282969d8dfded048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_canPlaySound: 0
   m_eventEmitter: {fileID: 6477977700486626456}
   m_minTimeBetweenTracks: 20
   m_maxTimeBetweenTracks: 60
   m_ambientSounds:
-  - m_eventName: event:/Animals/Ambient - Sparrows One-Shot
+  - m_eventName: event:/Ambient/Ambient - Daytime Random
     m_minDaytime: 4
     m_maxDaytime: 18
     m_offsetFromPlayer:
@@ -114,9 +115,9 @@ MonoBehaviour:
     - {x: 15, y: 8, z: 10}
     - {x: -15, y: 8, z: 10}
     m_debugColor: {r: 1, g: 0, b: 0, a: 1}
-  - m_eventName: event:/Animals/Crickets One Shots
-    m_minDaytime: 0
-    m_maxDaytime: 0
+  - m_eventName: event:/Ambient/Ambient - Nighttime Random
+    m_minDaytime: 18
+    m_maxDaytime: 4
     m_offsetFromPlayer:
     - {x: 0, y: -1, z: 10}
     - {x: 5, y: -1, z: 10}
