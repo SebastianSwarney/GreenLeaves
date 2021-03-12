@@ -304,7 +304,6 @@ public class PlayerStatsController : MonoBehaviour
                         m_currentHunger = m_hungerMax;
                     }
                 }
-
                 break;
 
             #endregion
@@ -321,13 +320,15 @@ public class PlayerStatsController : MonoBehaviour
                         m_currentSecondaryEnergy = m_secondaryEnergyMax;
                     }
                 }
-
                 break;
 
                 #endregion
         }
 
         SetEnergyImage(m_secondaryEnergyImage, m_currentSecondaryEnergy, m_secondaryEnergyMax);
+        m_hungerImage.fillAmount = m_currentHunger / m_hungerMax;
+        m_secondaryEnergyImage.fillAmount = m_currentSecondaryEnergy / m_secondaryEnergyMax;
+        m_mainEnergyImage.fillAmount = m_currentMainEnergy / m_mainEnergyMax;
         SetHungerSegment(m_hungerImage, ((m_currentHunger / m_hungerMax)));
         UpdateUIShake();
     }

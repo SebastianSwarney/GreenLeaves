@@ -27,7 +27,7 @@ public class Inventory_EatingStagingArea : MonoBehaviour
                 m_subtractButton.SetActive(true);
             }
         }
-        else if (m_currentEatAmount == 1)
+        else if (m_currentEatAmount <= 1)
         {
             m_subtractButton.SetActive(false);
             if(m_currentEdible.m_currentResourceAmount > 1)
@@ -146,6 +146,10 @@ public class Inventory_EatingStagingArea : MonoBehaviour
         if (m_currentEdible.m_currentResourceAmount > 1)
         {
             m_addButton.SetActive(true);
+        }
+        else
+        {
+            m_addButton.SetActive(false);
         }
 
         m_eatMenu.SetActive(true);
