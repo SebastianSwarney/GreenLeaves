@@ -18,7 +18,6 @@ public class CollisionController : MonoBehaviour
 	[FoldoutGroup("General Collision")]
 	public LayerMask m_groundMask;
 
-	private bool m_isGrounded;
 	private CharacterController m_characterController;
 	private Vector3 m_averageNormal;
 	private Vector3 m_playerTop, m_playerBottom;
@@ -144,12 +143,19 @@ public class CollisionController : MonoBehaviour
 		m_playerVisuals.SetGroundMovementAnimations(m_horizontalVelocity, m_runSpeed, m_sprintSpeed, m_runSpeed * 0.5f);
 		m_playerVisuals.SetJumpAnimations(Mathf.InverseLerp(-m_maxJumpVelocity, m_maxJumpVelocity, m_gravityVelocity.y), m_hasJumped);
 		m_playerVisuals.SetGrounded(m_characterController.isGrounded);
+		
+		m_playerVisuals.SetSlideAnimations(m_sliding);
+
+		m_playerVisuals.ToggleClimbAnimation(m_climbing, m_clamber);
+
+		if (!m_climbing && m_characterController.isGrounded)
+		{
+			m_playerVisuals.SetGroundHeadRotation(m_averageNormal);
+		}
 	}
 
 	private void FixedUpdate()
 	{
-		m_isGrounded = m_characterController.isGrounded;
-
 		UpdatePlayerCastPoints();
 
 		CalculateSlopeVariables();
@@ -170,8 +176,6 @@ public class CollisionController : MonoBehaviour
 			m_gravityVelocity.y = 0;
 			return;
 		}
-
-		m_isGrounded = false;
 	}
 
 	private void UpdatePlayerCastPoints()
@@ -300,14 +304,6 @@ public class CollisionController : MonoBehaviour
 
 	private bool CheckGravityConditions()
 	{
-		if (m_gravityVelocity.y > 0)
-		{
-			return true;
-		}
-		if (m_hasJumped)
-		{
-			return true;
-		}
 		if (m_forceGravity)
 		{
 			return true;
@@ -317,17 +313,30 @@ public class CollisionController : MonoBehaviour
 		{
 			return false;
 		}
-		if (m_isGrounded)
+
+		if (m_gravityVelocity.y > 0)
+		{
+			return true;
+		}
+
+		if (m_hasJumped)
+		{
+			return true;
+		}
+
+		if (m_characterController.isGrounded)
 		{
 			return false;
 		}
-
 		return true;
 	}
 
 	private void RunGravity()
 	{
-		m_gravityVelocity.y += m_gravity * Time.fixedDeltaTime;
+		if (CheckGravityConditions())
+		{
+			m_gravityVelocity.y += m_gravity * Time.fixedDeltaTime;
+		}
 	}
 
 	public void OnJumpInputDown()
@@ -383,12 +392,11 @@ public class CollisionController : MonoBehaviour
 
 	private IEnumerator RunClimb()
 	{
-		GetComponentInChildren<Animator>().SetBool("Climb", true);
-		m_playerVisuals.ToggleGrounder(false);
-
 		m_climbing = true;
 		float targetClamberHeight = 0;
 		Vector3 ledgeTopPos = Vector3.zero;
+
+		m_playerVisuals.ToggleGrounder(false);
 
 		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel)
 		{
@@ -432,8 +440,6 @@ public class CollisionController : MonoBehaviour
 
 	private IEnumerator GroundClimbCancel()
 	{
-		GetComponentInChildren<Animator>().SetBool("Climb", false);
-
 		m_playerVisuals.ToggleGrounder(true);
 
 		float t = 0;
@@ -468,7 +474,6 @@ public class CollisionController : MonoBehaviour
 		float lastSpeed = 0;
 		ResetClimbVelocitys();
 
-		GetComponentInChildren<Animator>().SetBool("Clamber", true);
 		m_playerVisuals.ToggleArmIK(true);
 		m_playerVisuals.ToggleGrounder(true);
 		m_playerVisuals.CenterHead();
@@ -496,19 +501,19 @@ public class CollisionController : MonoBehaviour
 				m_clamber = false;
 			}
 
+			//Might want to make this a public variable but its working fine for now and might just be clutter if public
 			if (heightProgress >= 0.4f)
 			{
 				m_playerVisuals.ToggleArmIK(false);
 			}
 
-			GetComponentInChildren<Animator>().SetFloat("ClamberProgress", heightProgress);
+			m_playerVisuals.SetClamberProgress(heightProgress);
 
 			yield return new WaitForFixedUpdate();
 		}
 
 		ResetClimbVelocitys();
 
-		GetComponentInChildren<Animator>().SetBool("Clamber", false);
 		m_playerVisuals.ToggleGrounder(true);
 		m_playerVisuals.ToggleArmIK(false);
 
@@ -527,9 +532,6 @@ public class CollisionController : MonoBehaviour
 		}
 
 		m_forceGravity = false;
-
-		GetComponentInChildren<Animator>().SetBool("Climb", false);
-
 		ResetClimb();
 	}
 
@@ -611,6 +613,7 @@ public class CollisionController : MonoBehaviour
 		m_clamber = false;
 
 		m_playerVisuals.ToggleGrounder(true);
+		m_playerVisuals.CenterHead();
 
 		ResetClimbVelocitys();
 	}
@@ -905,7 +908,7 @@ public class CollisionController : MonoBehaviour
 	#region Public Bools
 	public bool IsGrounded()
 	{
-		return m_isGrounded;
+		return m_characterController.isGrounded;
 	}
 	#endregion
 }

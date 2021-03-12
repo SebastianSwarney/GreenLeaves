@@ -109,7 +109,18 @@ public class PlayerVisualsController : MonoBehaviour
 	#endregion
 
 	#region Climb Animations
-	public void ClimbHeadAnimations(Vector2 p_animationVector)
+    public void ToggleClimbAnimation(bool p_climbState, bool p_clamberState)
+	{
+        m_animator.SetBool("Climb", p_climbState);
+        m_animator.SetBool("Clamber", p_clamberState);
+    }
+
+    public void SetClamberProgress(float p_clamberProgress)
+	{
+        m_animator.SetFloat("ClamberProgress", p_clamberProgress);
+    }
+
+    public void ClimbHeadAnimations(Vector2 p_animationVector)
     {
         float horizontalRotation = Mathf.Lerp(-m_climbMaxHeadRotation, m_climbMaxHeadRotation, p_animationVector.x);
         float verticalRotation = Mathf.Lerp(m_climbMaxHeadRotation, -m_climbMaxHeadRotation, p_animationVector.y);
