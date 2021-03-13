@@ -94,7 +94,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
 
     public override void UseEquipment()
     {
-        if (m_drinkTimer < 1) return;
+        if (m_drinkTimer < .5f) return;
         m_drinkTimer = 0;
         if (m_durability > 0)
         {
@@ -104,11 +104,11 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 {
                     PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, m_unitsDrankPerSecond * reff.m_waterToStatRatio);
                 }
-                m_durability -= m_unitsDrankPerSecond;
+                m_durability -= m_unitsDrankPerSecond/2;
             }
             else
             {
-                m_durability -= m_unitsDrankPerSecond;
+                m_durability -= m_unitsDrankPerSecond/2;
                 foreach (RefillType reff in m_energyRefilType)
                 {
                     PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, (m_unitsDrankPerSecond - Mathf.Abs(m_durability)) * reff.m_waterToStatRatio);
