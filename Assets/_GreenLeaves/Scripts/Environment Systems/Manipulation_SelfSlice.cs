@@ -38,7 +38,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
     /// Up Vecotor is the up vector of the slice. Determines the angle of the slice<br/>
     /// Forward Dir is used to push the mesh in a direction after it's been sliced<br/>
     /// </summary>
-    public void SliceMe(Vector3 p_worldPos,Vector3 p_forwardDir)
+    public virtual void SliceMe(Vector3 p_worldPos,Vector3 p_forwardDir)
     {
         Vector3 hitPos = p_worldPos;
         #region Determine the hit amount
@@ -63,6 +63,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
         Vector3 hitPoint = new Vector3(hitPos.x * transform.localScale.x, hitPos.y * transform.localScale.y, hitPos.z * transform.localScale.z);
         SlicedHull hull = m_mesh.Slice(hitPos, Vector3.up, m_crossSectionMaterials);
 
+        Debug.DrawLine(transform.position, hitPos,Color.magenta,5);
         if (hull == null)
         {
             Debug.Log("Couldnt cut object: " + m_mesh + " as object doesnt exist in slice region", gameObject);
