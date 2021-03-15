@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4060428130461594555}
   - component: {fileID: 547681469077146372}
+  - component: {fileID: 6871038713312758861}
+  - component: {fileID: 781460363795879993}
   m_Layer: 4
   m_Name: Equipment_Canteen
   m_TagString: Untagged
@@ -59,12 +61,98 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 16
   m_detectRadius: 0
+  m_timeToFullCanteen: 3
   m_controlText: Left Click to Drink
   m_controlFillText: Left Click to Fill
   m_promptAnchor: {fileID: 0}
   m_floatingDist: 1
+  m_drinkEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 781460363795879993}
+        m_TargetAssemblyTypeName: SoundEmitter_MultipleSounds, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_emptyEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 781460363795879993}
+        m_TargetAssemblyTypeName: SoundEmitter_MultipleSounds, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_fillEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 781460363795879993}
+        m_TargetAssemblyTypeName: SoundEmitter_MultipleSounds, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_isDebugging: 0
   m_gizmosColor: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &6871038713312758861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8449982349640189247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  Event: 
+  PlayEvent: 0
+  StopEvent: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: -1
+  OverrideMaxDistance: -1
+--- !u!114 &781460363795879993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8449982349640189247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a5a4e1894fa21a47bf9efd4c5589ad3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_emitter: {fileID: 6871038713312758861}
+  m_events:
+  - event:/Canteen - Swallow
+  - event:/Canteen - Fill
+  - event:/Canteen - Empty
 --- !u!1001 &7480312451944487199
 PrefabInstance:
   m_ObjectHideFlags: 0
