@@ -19,12 +19,20 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _DisplGuide:
+        m_Texture: {fileID: 2800000, guid: 6e91cbfa94d2e43479ab4904955cd016, type: 3}
+        m_Scale: {x: 2, y: -2.96}
+        m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: 6e91cbfa94d2e43479ab4904955cd016, type: 3}
+        m_Scale: {x: 1.43, y: 0.49}
+        m_Offset: {x: 0, y: 0}
     - _ReflectionTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SideNoiseTex:
-        m_Texture: {fileID: 2800000, guid: f4ca8727a50c5424aaeefba715ef0f6d, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6e91cbfa94d2e43479ab4904955cd016, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TopNoiseTex:
@@ -33,8 +41,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Amount: 0
+    - _BottomFoamThreshold: 0.06
     - _Brightness: 0.98
-    - _DepthOffset: -0.34
+    - _DepthOffset: 6.3
+    - _DisplAmount: 0.12
     - _Distort: 0.16
     - _EdgeWidth: 2
     - _Foam: 1
@@ -44,22 +54,26 @@ Material:
     - _Height: 0
     - _HorSpeed: 1.59
     - _Metallic: 0
-    - _NoiseScale: 0.1
+    - _NoiseScale: 0.076
     - _Reflectivity: 0.06
     - _RimPower: 1
     - _Smoothness: 0
-    - _Softness: 0.5
+    - _Softness: 0
     - _SpeedV: 0
-    - _Stretch: 0.74
-    - _TopScale: 0.12
-    - _TopSpread: -0.6
+    - _Stretch: 0
+    - _TopScale: 0
+    - _TopSpread: 0.12
     - _VERTEX: 1
-    - _VertSpeed: 35.78
-    - _WaterBounceFrequency: 0.12
-    - _WaterBounceHeight: 0.04
+    - _VertSpeed: 40.9
+    - _WaterBounceFrequency: 0
+    - _WaterBounceHeight: 0
     m_Colors:
-    - _FoamColor: {r: 0.034042373, g: 0.06244009, b: 0.16037738, a: 0.92941177}
+    - _ColorBottomDark: {r: 0, g: 0.523159, b: 1, a: 1}
+    - _ColorBottomLight: {r: 0, g: 0.010702133, b: 1, a: 1}
+    - _ColorTopDark: {r: 0, g: 0.14847445, b: 1, a: 1}
+    - _ColorTopLight: {r: 0.19339621, g: 0.8441619, b: 1, a: 1}
+    - _FoamColor: {r: 0.023629412, g: 0.04774743, b: 0.084905684, a: 0.92941177}
     - _RimColor: {r: 0, g: 0, b: 0, a: 1}
-    - _TColor: {r: 0, g: 0.83137256, b: 1, a: 1}
-    - _WaterColor: {r: 0, g: 0.83137256, b: 1, a: 1}
+    - _TColor: {r: 0, g: 0.620383, b: 1, a: 1}
+    - _WaterColor: {r: 0.13932894, g: 0.5475377, b: 0.9528302, a: 1}
   m_BuildTextureStacks: []
