@@ -88,6 +88,7 @@ public class PlayerStatsController : MonoBehaviour
         DrawHungerSegments();
         UpdateUIShake();
 
+        /*
 		if (m_hasRunThisFrame)
 		{
             if (!m_sweatParticle.isPlaying)
@@ -102,6 +103,7 @@ public class PlayerStatsController : MonoBehaviour
                 m_sweatParticle.Stop();
             }
         }
+        */
 
         if (m_currentMainEnergy <= 0)
         {
@@ -135,9 +137,9 @@ public class PlayerStatsController : MonoBehaviour
 
             DepleteEnergy(m_sprintEnergyDepletionTime);
 
-            float sweatAmount = Mathf.Lerp(m_sweatRateMaxMin.x, m_sweatRateMaxMin.y, m_currentMainEnergy / m_secondaryEnergyMax);
-            ParticleSystem.EmissionModule emmision = m_sweatParticle.emission;
-            emmision.rateOverTime = sweatAmount;
+            //float sweatAmount = Mathf.Lerp(m_sweatRateMaxMin.x, m_sweatRateMaxMin.y, m_currentMainEnergy / m_secondaryEnergyMax);
+            //ParticleSystem.EmissionModule emmision = m_sweatParticle.emission;
+            //emmision.rateOverTime = sweatAmount;
         }
         else
         {

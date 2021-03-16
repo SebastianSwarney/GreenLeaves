@@ -29,9 +29,6 @@ public class PlayerInput : MonoBehaviour
         Vector2 movementInput = new Vector2(m_playerInputController.GetAxisRaw("MoveHorizontal"), m_playerInputController.GetAxisRaw("MoveVertical"));
         m_playerController.SetMovementInput(movementInput);
 
-        m_playerController.SetFlyInput(m_playerInputController.GetAxisRaw("MoveFly"));
-
-
         if (m_playerInputController.GetButtonDown("Jump"))
         {
             m_playerController.OnJumpInputDown();
@@ -47,12 +44,7 @@ public class PlayerInput : MonoBehaviour
         }
         if (m_playerInputController.GetButtonUp("Run"))
         {
-            //m_playerController.OnSprintButtonUp();
-        }
-
-        if (m_playerInputController.GetButtonDown("Walk"))
-        {
-           m_playerController.OnWalkButtonDown();
+            m_playerController.OnSprintButtonUp();
         }
     }
 }

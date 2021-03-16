@@ -56,14 +56,14 @@ public class PlayerVisualsController : MonoBehaviour
     public float m_maximumTurnAngle;
     public OffsetPoseBlend m_turnBlend;
 
-	private CollisionController m_collisionController;
+	private PlayerController m_playerController;
     private FullBodyBipedIK m_fullBodyBipedIK;
     private Animator m_animator;
 
 
     private void Start()
 	{
-        m_collisionController = GetComponent<CollisionController>();
+        m_playerController = GetComponent<PlayerController>();
         m_animator = GetComponentInChildren<Animator>();
 
         m_fullBodyBipedIK = GetComponentInChildren<FullBodyBipedIK>();
