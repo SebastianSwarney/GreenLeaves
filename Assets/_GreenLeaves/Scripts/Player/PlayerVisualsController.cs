@@ -44,11 +44,22 @@ public class PlayerVisualsController : MonoBehaviour
 	#region Climb Properties
 	[FoldoutGroup("Climb")]
     public float m_climbMaxHeadRotation;
-	#endregion
+    #endregion
+
+    #region Sprint Animation Properites
+    [FoldoutGroup("Sprint Animation")]
+    public float m_sprintTimeForSkidAnimation;
+
+    private float m_sprintSkidTimer;
+    #endregion
+
+    public float m_maximumTurnAngle;
+    public OffsetPoseBlend m_turnBlend;
 
 	private CollisionController m_collisionController;
     private FullBodyBipedIK m_fullBodyBipedIK;
     private Animator m_animator;
+
 
     private void Start()
 	{
@@ -75,7 +86,7 @@ public class PlayerVisualsController : MonoBehaviour
     }
 
 	#region General Animations
-	public void SetGroundMovementAnimations(Vector3 p_horizontalVelocity, float p_runSpeed, float p_sprintSpeed, float p_walkSpeed)
+	public void SetGroundMovementAnimations(Vector3 p_horizontalVelocity, float p_sprintSpeed, float p_runSpeed, float p_walkSpeed)
 	{
         float inverseLerpValue;
         float lerpValue;
@@ -212,7 +223,41 @@ public class PlayerVisualsController : MonoBehaviour
         Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
         Vector3 targetMoveAmount = (upwardSlopeOffset * transform.forward);
 
-        m_headEffector.rotation = Quaternion.RotateTowards(m_headEffector.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), m_headEffectorRotateSpeed * Time.deltaTime);
+        //m_headEffector.rotation = Quaternion.RotateTowards(m_headEffector.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), m_headEffectorRotateSpeed * Time.deltaTime);
     }
 	#endregion
+
+    public void EvaluateSkidCondition(bool p_sprinting, Vector3 p_newHorizontalInput, Vector3 p_oldHorizontalInput)
+	{
+		if (p_sprinting && p_oldHorizontalInput.magnitude == 1)
+		{
+            m_sprintSkidTimer += Time.deltaTime;
+        }
+
+        if (p_sprinting && p_newHorizontalInput.magnitude < 1 && p_oldHorizontalInput.magnitude == 1 && m_sprintSkidTimer >= m_sprintTimeForSkidAnimation)
+        {
+            m_animator.SetTrigger("Skid");
+
+            m_sprintSkidTimer = 0;
+        }
+
+		if (!p_sprinting || p_newHorizontalInput.magnitude < 1)
+		{
+            m_sprintSkidTimer = 0;
+        }
+    }
+
+    public void SetTurnBlendValue(float p_targetAngle)
+	{
+        Vector3 targetMovementRotation = Quaternion.Euler(0, p_targetAngle, 0f) * Vector3.forward;
+        float betweenMovementAngle = Vector3.Angle(transform.forward, targetMovementRotation);
+        float progress = betweenMovementAngle / m_maximumTurnAngle;
+        float moveDir = -Mathf.Sign(Vector3.Cross(targetMovementRotation, transform.forward).y);
+        m_turnBlend.SetBlendValue(progress * moveDir);
+
+        float t = Mathf.InverseLerp(-1, 1, progress * moveDir);
+        float horizontalRotation = Mathf.Lerp(-90, 90, t);
+        Quaternion headRotation = Quaternion.Euler(0, horizontalRotation, 0);
+        m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
+    }
 }

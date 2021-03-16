@@ -11,6 +11,7 @@ public class CollisionController : MonoBehaviour
 	private Vector3 m_horizontalDirection;
 	private Vector3 m_horizontalVelocity;
 	private Vector2 m_movementInput;
+	private Vector3 m_horizontalInput;
 
 	private PlayerVisualsController m_playerVisuals;
 
@@ -140,7 +141,7 @@ public class CollisionController : MonoBehaviour
 
 	private void Update()
 	{
-		m_playerVisuals.SetGroundMovementAnimations(m_horizontalVelocity, m_runSpeed, m_sprintSpeed, m_runSpeed * 0.5f);
+		m_playerVisuals.SetGroundMovementAnimations(m_groundMovementVelocity, m_sprintSpeed, m_runSpeed, m_runSpeed * 0.5f);
 		m_playerVisuals.SetJumpAnimations(Mathf.InverseLerp(-m_maxJumpVelocity, m_maxJumpVelocity, m_gravityVelocity.y), m_hasJumped);
 		m_playerVisuals.SetGrounded(m_characterController.isGrounded);
 		
@@ -261,13 +262,18 @@ public class CollisionController : MonoBehaviour
 			return;
 		}
 
-		Vector3 horizontalInput = Vector3.ClampMagnitude(new Vector3(m_movementInput.x, 0, m_movementInput.y), 1f);
+		Vector3 newHorizontalInput = Vector3.ClampMagnitude(new Vector3(m_movementInput.x, 0, m_movementInput.y), 1f);
+
+		m_playerVisuals.EvaluateSkidCondition(m_sprinting, newHorizontalInput, m_horizontalInput);
+
+		m_horizontalInput = newHorizontalInput;
+
 
 		float targetAngle = transform.eulerAngles.y;
 
-		if (horizontalInput.magnitude > 0)
+		if (m_horizontalInput.magnitude > 0)
 		{
-			targetAngle = Mathf.Atan2(horizontalInput.x, horizontalInput.z) * Mathf.Rad2Deg + m_viewCameraTransform.eulerAngles.y;
+			targetAngle = Mathf.Atan2(m_horizontalInput.x, m_horizontalInput.z) * Mathf.Rad2Deg + m_viewCameraTransform.eulerAngles.y;
 			float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_playerTurnSpeed);
 			transform.rotation = Quaternion.Euler(0, angle, 0);
 		}
@@ -284,13 +290,13 @@ public class CollisionController : MonoBehaviour
 			horizontalSpeed = m_runSpeed;
 		}
 
-		Vector3 targetMovementRotation = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
 		Vector3 actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
-
-		Vector3 targetHorizontalMovement = (actualMovementDir * horizontalSpeed) * horizontalInput.magnitude;
+		Vector3 targetHorizontalMovement = (actualMovementDir * horizontalSpeed) * m_horizontalInput.magnitude;
 		Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
 
 		m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
+
+		//m_playerVisuals.SetTurnBlendValue(targetAngle);
 	}
 	#endregion
 
