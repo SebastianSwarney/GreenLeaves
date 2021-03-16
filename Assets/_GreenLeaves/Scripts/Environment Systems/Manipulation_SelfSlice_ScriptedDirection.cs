@@ -5,21 +5,30 @@ using UnityEngine;
 public class Manipulation_SelfSlice_ScriptedDirection : Manipulation_SelfSlice
 {
 
-    public Vector3 m_fallDirection;
-    
+    public Transform m_fallParent;
+    public List<GameObject> m_myMeshes;
 
+    public GenericWorldEvent m_treeHitEvent;
+
+    public Vector3 m_hitPos;
 
     [Header("Debug Event")]
     public bool m_debugScriptedEvent;
     public Color m_debugScriptedColor;
 
 
+    public override void SliceMe(Vector3 p_worldPos, Vector3 p_forwardDir)
+    {
+        base.SliceMe(transform.position + m_hitPos, p_forwardDir);
+    }
     public override void SetUpHulls(GameObject p_upperHull, GameObject p_lowerHull, Vector3 p_fallDir, Vector3 p_worldPos)
     {
-        p_upperHull.transform.localScale = transform.localScale;
-        p_lowerHull.transform.localScale = transform.localScale;
-        p_lowerHull.transform.position = p_upperHull.transform.position = transform.position;
-        p_upperHull.transform.parent = p_lowerHull.transform.parent = transform.parent;
+
+        p_upperHull.transform.localScale = new Vector3(m_mesh.transform.localScale.x * transform.localScale.x, m_mesh.transform.localScale.y * transform.localScale.y, m_mesh.transform.localScale.z * transform.localScale.z) ;
+        p_lowerHull.transform.localScale = new Vector3(m_mesh.transform.localScale.x * transform.localScale.x, m_mesh.transform.localScale.y * transform.localScale.y, m_mesh.transform.localScale.z * transform.localScale.z); ;
+        p_lowerHull.transform.position = p_upperHull.transform.position = m_mesh.transform.position;
+        p_upperHull.transform.rotation = p_lowerHull.transform.rotation = m_mesh.transform.rotation;
+        p_upperHull.transform.parent = p_lowerHull.transform.parent = transform;
 
 
         #region prepare the different slices
@@ -29,16 +38,17 @@ public class Manipulation_SelfSlice_ScriptedDirection : Manipulation_SelfSlice
         #region Children assignment
         Transform[] childs = new Transform[m_mesh.transform.childCount + 1];
         childs[childs.Length - 1] = m_durabilityObject;
-        m_durabilityObject.gameObject.SetActive(true);
+
         for (int i = 0; i < m_mesh.transform.childCount; i++)
         {
             childs[i] = m_mesh.transform.GetChild(i);
         }
 
+        
         foreach (Transform chi in childs)
         {
             if (chi == null) continue;
-            if (Vector3.Angle(chi.transform.position - p_worldPos, Vector3.up) < 90)
+            if (Vector3.Angle(chi.transform.position + p_worldPos, Vector3.up) < 90)
             {
                 chi.transform.parent = p_upperHull.transform;
             }
@@ -53,59 +63,28 @@ public class Manipulation_SelfSlice_ScriptedDirection : Manipulation_SelfSlice
 
 
 
-        p_lowerHull.AddComponent<MeshCollider>().convex = true;
-
-        if (m_addRB)
-        {
-            if (m_fallForward)
-            {
-                Rigidbody newRb = p_upperHull.AddComponent<Rigidbody>();
-                newRb.mass = m_startingTreeMass * transform.localScale.y;
-                newRb.constraints = RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionX;
-
-                newRb.AddForceAtPosition(m_fallDirection.normalized * m_fallInitialForce, m_mesh.transform.position + (Vector3.up * m_applyForcePosition * transform.localScale.y), ForceMode.Impulse);
-                Debug.DrawLine(transform.position, m_mesh.transform.position + (Vector3.up * m_applyForcePosition * transform.localScale.y), Color.magenta, 2f);
-                newRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-            }
-            else
-            {
-                Rigidbody newRb = p_upperHull.AddComponent<Rigidbody>();
-                newRb.AddExplosionForce(1, p_upperHull.transform.position, 3, .5f, ForceMode.Impulse);
-                newRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-            }
-        }
-
+        //p_lowerHull.AddComponent<MeshCollider>().convex = true;
         #endregion
 
 
-        m_slicedEvent.Invoke(p_upperHull.transform);
-        /*MeshCollider col = upperHull.transform.GetChild(1).gameObject.AddComponent<MeshCollider>();
-        col.sharedMesh = upperHull.GetComponent<MeshFilter>().mesh;
-        col.convex = true;*/
-        BoxCollider col = p_upperHull.transform.GetChild(1).gameObject.AddComponent<BoxCollider>();
-        Mesh mesh = p_upperHull.GetComponent<MeshFilter>().mesh;
-        col.size = mesh.bounds.size;
-        col.center = mesh.bounds.center;
+        p_upperHull.transform.parent = m_fallParent;
 
-        gameObject.SetActive(false);
-        p_upperHull.transform.GetChild(1).transform.localPosition = Vector3.zero;
-        p_upperHull.transform.GetChild(1).transform.localRotation = Quaternion.identity;
-        p_upperHull.transform.GetComponentInChildren<Tree_VelocityCheck>().AssignTree();
-
-    }
-
-#if UNITY_EDITOR
-    public override void OnDrawGizmos()
-    {
-        if (m_debugScriptedEvent)
+        foreach (GameObject newMesh in m_myMeshes)
         {
-            Gizmos.color = m_debugScriptedColor;
-            Gizmos.DrawLine(transform.position, transform.position + m_fallDirection);
-            Gizmos.DrawWireSphere(transform.position + m_fallDirection, .5f);
+            newMesh.SetActive(false);
         }
 
-        base.OnDrawGizmos();
+        m_slicedEvent.Invoke(p_upperHull.transform);
 
     }
-#endif
+
+    public void TreeHitGround()
+    {
+        m_treeHitEvent.Invoke();
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + m_hitPos, .5f);
+    }
 }

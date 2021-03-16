@@ -33,12 +33,17 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public LayerMask m_waterSourceMask;
     public float m_detectRadius;
     private bool m_gettingWater;
+    public float m_timeToFullCanteen;
 
     [Header("Prompt Text")]
     public string m_controlText;
     public string m_controlFillText;
     public Transform m_promptAnchor;
     public float m_floatingDist;
+
+    [Header("Drink Events")]
+    public GenericWorldEvent m_drinkEvent;
+    public GenericWorldEvent m_emptyEvent, m_fillEvent;
 
     [Header("Debugging")]
     public bool m_isDebugging;
@@ -70,18 +75,38 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 m_linkedIcon.m_itemData = m_defaultCanteenData;
                 m_energyRefilType = new List<RefillType>(m_defaultCanteenData.m_energyRefilType);
                 m_hasSpecialDrink = false;
-                m_durability = m_startingDurability;
-                UpdateIconDurability();
-                Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
+
                 m_gettingWater = true;
+                m_fillEvent.Invoke();
             }
+            else
+            {
+                m_emptyEvent.Invoke();
+            }
+
         }
         else if (Input.GetMouseButton(0) && !m_gettingWater && m_durability > 0)
         {
             PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
             UseEquipment();
+
             Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
             UpdateIconDurability();
+        }
+        else if (Input.GetMouseButton(0) && m_gettingWater)
+        {
+            if (m_durability < m_startingDurability)
+            {
+                if (m_drinkTimer > 1)
+                {
+                    int amountToIncrease = (int)((m_startingDurability / m_timeToFullCanteen));
+                    m_durability += amountToIncrease;
+                    UpdateIconDurability();
+                    Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
+                    m_drinkTimer = 0;
+                }
+                m_drinkTimer += Time.deltaTime;
+            }
         }
         else if (Input.GetMouseButtonUp(0))
         {
@@ -104,15 +129,17 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 {
                     PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, m_unitsDrankPerSecond * reff.m_waterToStatRatio);
                 }
-                m_durability -= m_unitsDrankPerSecond/2;
+                m_drinkEvent.Invoke();
+                m_durability -= m_unitsDrankPerSecond / 2;
             }
             else
             {
-                m_durability -= m_unitsDrankPerSecond/2;
+                m_durability -= m_unitsDrankPerSecond / 2;
                 foreach (RefillType reff in m_energyRefilType)
                 {
                     PlayerStatsController.Instance.AddAmount(reff.m_energyRefilType, (m_unitsDrankPerSecond - Mathf.Abs(m_durability)) * reff.m_waterToStatRatio);
                 }
+                m_drinkEvent.Invoke();
                 m_durability = 0;
             }
         }

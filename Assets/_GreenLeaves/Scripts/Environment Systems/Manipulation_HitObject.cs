@@ -13,8 +13,9 @@ public class Manipulation_HitObject : MonoBehaviour
     private int m_currentHit;
     public bool m_canHit= true;
 
-    public GenericWorldEvent m_objectHit, m_objectDied;
+    public GenericWorldEvent m_objectHit, m_objectDied, m_objectHitGround;
 
+    public bool m_disableObjectOnDeath = true;
 
     private void OnDisable()
     {
@@ -33,7 +34,10 @@ public class Manipulation_HitObject : MonoBehaviour
         if(m_currentHit >= m_hitAmount)
         {
             m_objectDied.Invoke();
-            gameObject.SetActive(false);
+            if (m_disableObjectOnDeath)
+            {
+                gameObject.SetActive(false);
+            }
         }
         else
         {
@@ -68,5 +72,11 @@ public class Manipulation_HitObject : MonoBehaviour
     public void DisableTree()
     {
         transform.parent.gameObject.SetActive(false);
+    }
+
+
+    public void ObjectHitGround()
+    {
+        m_objectHitGround.Invoke();
     }
 }
