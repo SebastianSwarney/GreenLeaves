@@ -58,6 +58,14 @@ public class PlayerStatsController : MonoBehaviour
 
     public bool m_pauseStatDrain;
 
+    public ParticleSystem m_sweatParticle;
+
+    public Vector2 m_sweatRateMaxMin;
+
+    private bool m_hasRunThisFrame;
+
+    public GameObject m_passedOutCam;
+
     private void Awake()
     {
         Instance = this;
@@ -79,10 +87,37 @@ public class PlayerStatsController : MonoBehaviour
 
         DrawHungerSegments();
         UpdateUIShake();
+
+        /*
+		if (m_hasRunThisFrame)
+		{
+            if (!m_sweatParticle.isPlaying)
+            {
+                m_sweatParticle.Play();
+            }
+		}
+		else
+		{
+            if (m_sweatParticle.isPlaying)
+            {
+                m_sweatParticle.Stop();
+            }
+        }
+        */
+
+        if (m_currentMainEnergy <= 0)
+        {
+            m_passedOutCam.SetActive(true);
+        }
     }
 
-    #region Drain Functions
-    public void EquipmentStatDrain(float p_mainEnergyAmount, float p_staminaAmount)
+	private void LateUpdate()
+	{
+        m_hasRunThisFrame = false;
+	}
+
+	#region Drain Functions
+	public void EquipmentStatDrain(float p_mainEnergyAmount, float p_staminaAmount)
     {
         if (m_usingMainEnergy)
         {
@@ -98,7 +133,13 @@ public class PlayerStatsController : MonoBehaviour
     {
         if (m_usingMainEnergy)
         {
+            m_hasRunThisFrame = true;
+
             DepleteEnergy(m_sprintEnergyDepletionTime);
+
+            //float sweatAmount = Mathf.Lerp(m_sweatRateMaxMin.x, m_sweatRateMaxMin.y, m_currentMainEnergy / m_secondaryEnergyMax);
+            //ParticleSystem.EmissionModule emmision = m_sweatParticle.emission;
+            //emmision.rateOverTime = sweatAmount;
         }
         else
         {
@@ -209,6 +250,12 @@ public class PlayerStatsController : MonoBehaviour
 
     private void ReplenishSecondaryEnergy()
     {
+		if (m_currentMainEnergy <= 0)
+		{
+            m_currentSecondaryEnergy = 0;
+            return;
+		}
+
         m_secondaryEnergyReplenishWaitTimer += Time.deltaTime;
 
         if (m_secondaryEnergyReplenishWaitTimer >= m_secondaryEnergyReplenishWaitTime)

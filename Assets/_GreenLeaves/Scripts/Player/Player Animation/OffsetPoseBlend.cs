@@ -21,6 +21,11 @@ public class OffsetPoseBlend : OffsetModifier
 		base.Start();
 	}
 
+	public void SetDirectBlendValue(float p_value)
+	{
+		positivePose.Apply(ik.solver, p_value);
+	}
+
 	public void SetBlendValue(float p_blendInput)
 	{
 		m_targetBlendValue = p_blendInput;
