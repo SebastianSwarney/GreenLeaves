@@ -304,14 +304,6 @@ public class PlayerController : MonoBehaviour
 
 	public void PerformController()
     {
-		if (!PlayerStatsController.Instance.HasEnergy())
-		{
-            m_states.m_movementControllState = MovementControllState.MovementDisabled;
-		}
-		else
-		{
-            m_states.m_movementControllState = MovementControllState.MovementEnabled;
-        }
 
 		CalculateVelocity();
 
@@ -738,10 +730,7 @@ public class PlayerController : MonoBehaviour
 
         float targetAngle = transform.eulerAngles.y;
 
-		if (!PlayerStatsController.Instance.HasEnergy())
-		{
-            m_isSprinting = false;
-		}
+        m_isSprinting = false;
 
         if (horizontalInput.magnitude > 0)
         {
