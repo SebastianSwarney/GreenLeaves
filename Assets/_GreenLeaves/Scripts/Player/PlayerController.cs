@@ -244,14 +244,40 @@ public class PlayerController : MonoBehaviour
 	private IEnumerator RunPassOut()
 	{
 		m_passedOut = true;
+
+		m_playerVisuals.m_animator.SetTrigger("PassOut");
+
+		while (m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1)
+		{
+			yield return null;
+		}
+
+		while (m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1)
+		{
+			yield return null;
+		}
+
 		yield return GlobalSceneManager.Instance.FadeAnimation(true);
 
 		DaytimeCycle_Update.Instance.PassOut();
 
+		m_playerVisuals.m_animator.SetTrigger("StandUp");
+
 		yield return GlobalSceneManager.Instance.FadeAnimation(false);
 
-		Inventory_2DMenu.Instance.ClearInventory();
+		/*
+		while (m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1)
+		{
+			yield return null;
+		}
+		*/
 
+		while (m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1)
+		{
+			yield return null;
+		}
+
+		Inventory_2DMenu.Instance.ClearInventory();
 		m_passedOut = false;
 	}
 

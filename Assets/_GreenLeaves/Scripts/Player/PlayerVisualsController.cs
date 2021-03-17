@@ -71,7 +71,8 @@ public class PlayerVisualsController : MonoBehaviour
 
 	private PlayerController m_playerController;
     private FullBodyBipedIK m_fullBodyBipedIK;
-    private Animator m_animator;
+    [HideInInspector]
+    public Animator m_animator;
 
 
     private void Start()
