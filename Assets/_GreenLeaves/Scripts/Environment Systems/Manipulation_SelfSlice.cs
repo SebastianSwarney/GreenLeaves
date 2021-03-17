@@ -33,15 +33,22 @@ public class Manipulation_SelfSlice : MonoBehaviour
     public bool m_meshCollider = true;
     public float m_startingTreeMass = 100;
 
+    public bool m_cutAtSetPosition;
+    public Vector3 m_cutPosition;
+
     /// <summary>
     /// <para>Called to slice the mesh. The parameters passed will affect the direction of the slice. </para>
     /// World point is the origin point of the slice<br/>
     /// Up Vecotor is the up vector of the slice. Determines the angle of the slice<br/>
     /// Forward Dir is used to push the mesh in a direction after it's been sliced<br/>
     /// </summary>
-    public virtual void SliceMe(Vector3 p_worldPos,Vector3 p_forwardDir)
+    public virtual void SliceMe(Vector3 p_worldPos, Vector3 p_forwardDir)
     {
         Vector3 hitPos = p_worldPos;
+        if (m_cutAtSetPosition)
+        {
+            hitPos = transform.position + (transform.rotation * m_cutPosition);
+        }
         #region Determine the hit amount
         m_choppingParticle.SpawnParticlePrefab(new Vector3(transform.position.x, hitPos.y, transform.position.z));
         m_currentHits++;
@@ -62,9 +69,18 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
         #region Create the sliced hulls
         Vector3 hitPoint = new Vector3(hitPos.x * transform.localScale.x, hitPos.y * transform.localScale.y, hitPos.z * transform.localScale.z);
-        SlicedHull hull = m_mesh.Slice(hitPos, Vector3.up, m_crossSectionMaterials);
+        SlicedHull hull = null;
+        if (m_cutAtSetPosition)
+        {
+            hull = m_mesh.Slice(hitPos, transform.rotation * Vector3.up, m_crossSectionMaterials);
+        }
+        else
+        {
 
-        Debug.DrawLine(transform.position, hitPos,Color.magenta,5);
+            hull = m_mesh.Slice(hitPos, Vector3.up, m_crossSectionMaterials);
+        }
+
+        Debug.DrawLine(transform.position, hitPos, Color.magenta, 5);
         if (hull == null)
         {
             Debug.Log("Couldnt cut object: " + m_mesh + " as object doesnt exist in slice region", gameObject);
@@ -79,7 +95,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
     public virtual void SetUpHulls(GameObject p_upperHull, GameObject p_lowerHull, Vector3 p_fallDir, Vector3 p_worldPos)
     {
-        
+
         p_upperHull.transform.localScale = transform.localScale;
         p_lowerHull.transform.localScale = transform.localScale;
         p_upperHull.transform.parent = p_lowerHull.transform.parent = transform.parent;
@@ -103,14 +119,15 @@ public class Manipulation_SelfSlice : MonoBehaviour
         foreach (Transform chi in childs)
         {
             if (chi == null) continue;
-            if (Vector3.Angle(chi.transform.position - p_worldPos, Vector3.up) < 90)
+            chi.transform.parent = p_upperHull.transform;
+            /*if (Vector3.Angle(chi.transform.position - p_worldPos, Vector3.up) < 90)
             {
                 chi.transform.parent = p_upperHull.transform;
             }
             else
             {
-                chi.transform.parent = p_lowerHull.transform;
-            }
+                chi.transform.parent = p_upperHull.transform;
+            }/*/
         }
 
         #endregion
@@ -145,32 +162,32 @@ public class Manipulation_SelfSlice : MonoBehaviour
         /*MeshCollider col = upperHull.transform.GetChild(1).gameObject.AddComponent<MeshCollider>();
         col.sharedMesh = upperHull.GetComponent<MeshFilter>().mesh;
         col.convex = true;*/
-        BoxCollider col = p_upperHull.transform.GetChild(1).gameObject.AddComponent<BoxCollider>();
-        Mesh mesh = p_upperHull.GetComponent<MeshFilter>().mesh;
-        col.material = m_choppedTreePhysicsMaterial;
-        col.size = mesh.bounds.size;
-        col.center = mesh.bounds.center;
+            BoxCollider col = p_upperHull.transform.GetChild(1).gameObject.AddComponent<BoxCollider>();
+            Mesh mesh = p_upperHull.GetComponent<MeshFilter>().mesh;
+            col.material = m_choppedTreePhysicsMaterial;
+            col.size = mesh.bounds.size;
+            col.center = mesh.bounds.center;
 
-        gameObject.SetActive(false);
-        p_upperHull.transform.GetChild(1).transform.localPosition = Vector3.zero;
-        p_upperHull.transform.GetChild(1).transform.localRotation = Quaternion.identity;
-        p_upperHull.transform.GetComponentInChildren<Tree_VelocityCheck>().AssignTree();
+            gameObject.SetActive(false);
+            p_upperHull.transform.GetChild(1).transform.localPosition = Vector3.zero;
+            p_upperHull.transform.GetChild(1).transform.localRotation = Quaternion.identity;
+            p_upperHull.transform.GetComponentInChildren<Tree_VelocityCheck>().AssignTree();
 
-    }
+        }
 
-    public void HideUI()
-    {
-        Durability_UI.Instance.HideUI();
-    }
-    public void ShowUI()
-    {
-        Durability_UI.Instance.ShowUI(true);
-        Durability_UI.Instance.UpdateText(m_hitsToSlice - m_currentHits);
-    }
+        public void HideUI()
+        {
+            Durability_UI.Instance.HideUI();
+        }
+        public void ShowUI()
+        {
+            Durability_UI.Instance.ShowUI(true);
+            Durability_UI.Instance.UpdateText(m_hitsToSlice - m_currentHits);
+        }
 
 #if UNITY_EDITOR
-    [Header("DEbug")]
-    public bool m_debug;
+        [Header("DEbug")]
+        public bool m_debug;
     public Color m_debugColor, m_debugColor2;
     public float m_boxSize;
 
