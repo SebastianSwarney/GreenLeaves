@@ -58,13 +58,7 @@ public class PlayerStatsController : MonoBehaviour
 
     public bool m_pauseStatDrain;
 
-    public ParticleSystem m_sweatParticle;
-
-    public Vector2 m_sweatRateMaxMin;
-
-    private bool m_hasRunThisFrame;
-
-    public GameObject m_passedOutCam;
+    private PlayerVisualsController m_playerVisuals;
 
     private void Awake()
     {
@@ -74,6 +68,8 @@ public class PlayerStatsController : MonoBehaviour
     private void Start()
     {
         SetEnergyToMax();
+
+        m_playerVisuals = GetComponent<PlayerVisualsController>();
 
         m_pauseStatDrain = false;
     }
@@ -87,34 +83,7 @@ public class PlayerStatsController : MonoBehaviour
 
         DrawHungerSegments();
         UpdateUIShake();
-
-        /*
-		if (m_hasRunThisFrame)
-		{
-            if (!m_sweatParticle.isPlaying)
-            {
-                m_sweatParticle.Play();
-            }
-		}
-		else
-		{
-            if (m_sweatParticle.isPlaying)
-            {
-                m_sweatParticle.Stop();
-            }
-        }
-        */
-
-        if (m_currentMainEnergy <= 0)
-        {
-            m_passedOutCam.SetActive(true);
-        }
     }
-
-	private void LateUpdate()
-	{
-        m_hasRunThisFrame = false;
-	}
 
 	#region Drain Functions
 	public void EquipmentStatDrain(float p_mainEnergyAmount, float p_staminaAmount)
@@ -133,13 +102,9 @@ public class PlayerStatsController : MonoBehaviour
     {
         if (m_usingMainEnergy)
         {
-            m_hasRunThisFrame = true;
+            //m_playerVisuals.RunTiredness(m_currentMainEnergy / m_secondaryEnergyMax);
 
             DepleteEnergy(m_sprintEnergyDepletionTime);
-
-            //float sweatAmount = Mathf.Lerp(m_sweatRateMaxMin.x, m_sweatRateMaxMin.y, m_currentMainEnergy / m_secondaryEnergyMax);
-            //ParticleSystem.EmissionModule emmision = m_sweatParticle.emission;
-            //emmision.rateOverTime = sweatAmount;
         }
         else
         {
@@ -222,9 +187,6 @@ public class PlayerStatsController : MonoBehaviour
             }
         }*/
 
-
-
-
         SetHungerSegment(m_hungerImage, ((m_currentHunger / m_hungerMax)));
     }
 
@@ -232,8 +194,6 @@ public class PlayerStatsController : MonoBehaviour
     {
         p_targetImage.color = m_hungerColorGradient.Evaluate(p_progress);
         m_currentDrainMultiplier = (int)Mathf.Lerp(m_maxDrainMultiplier, 1f, p_progress);
-
-
     }
 
     private void ResetHungerSegment(Image p_targetImage)
@@ -422,4 +382,14 @@ public class PlayerStatsController : MonoBehaviour
         m_secondaryEnergyShake.UpdateShakeAmount(Mathf.Lerp(1, 0, (m_currentSecondaryEnergy / m_secondaryEnergyStartShakingAmount)));
         m_hungerShake.UpdateShakeAmount(Mathf.Lerp(1, 0, (m_currentHunger / m_hungerStartShakingAmount)));
     }
+
+    public bool HasEnergy()
+	{
+		if (m_currentMainEnergy >= 0)
+		{
+            return true;
+		}
+
+        return false;
+	}
 }

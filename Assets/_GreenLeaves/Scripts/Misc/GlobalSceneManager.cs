@@ -44,7 +44,7 @@ public class GlobalSceneManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene(p_newScene);
     }
 
-    private IEnumerator FadeAnimation(bool p_fadeToBlack)
+    public IEnumerator FadeAnimation(bool p_fadeToBlack)
     {
         float timer = 0;
         while (timer < m_fadeTime)

@@ -51,10 +51,23 @@ public class PlayerVisualsController : MonoBehaviour
     public float m_sprintTimeForSkidAnimation;
 
     private float m_sprintSkidTimer;
+	#endregion
+
+	#region Ground Turn Blend Properties
+    [FoldoutGroup("Ground Turn Blend")]
+	public float m_maximumTurnAngle;
+    [FoldoutGroup("Ground Turn Blend")]
+    public OffsetPoseBlend m_turnBlend;
     #endregion
 
-    public float m_maximumTurnAngle;
-    public OffsetPoseBlend m_turnBlend;
+    #region Tiredness Properties
+    [FoldoutGroup("Tiredness")]
+    public ParticleSystem m_sweatParticle;
+    [FoldoutGroup("Tiredness")]
+    public Vector2 m_minMaxSweatAmount;
+    #endregion
+
+    public GameObject m_passedOutCam;
 
 	private PlayerController m_playerController;
     private FullBodyBipedIK m_fullBodyBipedIK;
@@ -259,5 +272,17 @@ public class PlayerVisualsController : MonoBehaviour
         float horizontalRotation = Mathf.Lerp(-90, 90, t);
         Quaternion headRotation = Quaternion.Euler(0, horizontalRotation, 0);
         m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
+    }
+
+    public void RunTiredness(float p_currentTiredness)
+	{
+		if (!m_sweatParticle.isPlaying)
+		{
+            m_sweatParticle.Play();
+        }
+
+        float sweatAmount = Mathf.Lerp(m_minMaxSweatAmount.x, m_minMaxSweatAmount.y, p_currentTiredness);
+        ParticleSystem.EmissionModule emmision = m_sweatParticle.emission;
+        emmision.rateOverTime = sweatAmount;
     }
 }
