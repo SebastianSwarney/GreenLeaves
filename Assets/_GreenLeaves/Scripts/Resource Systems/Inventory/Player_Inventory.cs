@@ -26,6 +26,7 @@ public class Player_Inventory : MonoBehaviour
     {
         Instance = this;
         Player_EquipmentUse_Canteen.Instance = m_canteenTool.GetComponent<Player_EquipmentUse_Canteen>();
+        Player_EquipmentUse_Pick.Instance = m_climbingAxeTool.GetComponent<Player_EquipmentUse_Pick>();
     }
     private void Update()
     {
