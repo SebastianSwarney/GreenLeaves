@@ -103,6 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_crossSectionMaterials: {fileID: 2100000, guid: 0b6410a3ed3318641987b9892f005f6b, type: 2}
+  m_choppedTreePhysicsMaterial: {fileID: 13400000, guid: cd50f770ebbddd849b3cfd31ff38a0c1, type: 2}
   m_hitsToSlice: 3
   m_choppingParticle: {fileID: 6743183030149687122}
   m_addRB: 1
@@ -484,6 +485,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  m_objectHitGround:
+    m_PersistentCalls:
+      m_Calls: []
+  m_disableObjectOnDeath: 1
 --- !u!114 &5997535284305883942
 MonoBehaviour:
   m_ObjectHideFlags: 0

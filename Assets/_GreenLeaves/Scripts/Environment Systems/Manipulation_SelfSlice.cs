@@ -10,6 +10,7 @@ using EzySlice;
 public class Manipulation_SelfSlice : MonoBehaviour
 {
     public Material m_crossSectionMaterials;
+    public PhysicMaterial m_choppedTreePhysicsMaterial;
 
     [Header("Slicing Properties")]
     public int m_hitsToSlice = 1;
@@ -78,10 +79,12 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
     public virtual void SetUpHulls(GameObject p_upperHull, GameObject p_lowerHull, Vector3 p_fallDir, Vector3 p_worldPos)
     {
+        
         p_upperHull.transform.localScale = transform.localScale;
         p_lowerHull.transform.localScale = transform.localScale;
-        p_lowerHull.transform.position = p_upperHull.transform.position = transform.position;
         p_upperHull.transform.parent = p_lowerHull.transform.parent = transform.parent;
+        p_lowerHull.transform.rotation = p_upperHull.transform.rotation = transform.rotation;
+        p_lowerHull.transform.position = p_upperHull.transform.position = transform.position;
         #endregion
 
         #region prepare the different slices
@@ -144,6 +147,7 @@ public class Manipulation_SelfSlice : MonoBehaviour
         col.convex = true;*/
         BoxCollider col = p_upperHull.transform.GetChild(1).gameObject.AddComponent<BoxCollider>();
         Mesh mesh = p_upperHull.GetComponent<MeshFilter>().mesh;
+        col.material = m_choppedTreePhysicsMaterial;
         col.size = mesh.bounds.size;
         col.center = mesh.bounds.center;
 

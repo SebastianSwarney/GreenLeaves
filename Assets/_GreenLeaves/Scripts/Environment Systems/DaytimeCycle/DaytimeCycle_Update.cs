@@ -9,6 +9,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     [Range(0, 24)]
     public float m_timeOfDay;
     public float m_fullDayDuration = 10;
+    public float m_passOutAmount = 3;
 
     public Transform m_directionalLightObject;
     public Light m_directionalLight;
@@ -117,6 +118,11 @@ public class DaytimeCycle_Update : MonoBehaviour
             StopCoroutine(m_caveLightingCoroutine);
         }
         StartCoroutine(AdjustCaveLighting(p_darken));
+    }
+
+    public void PassOut()
+    {
+        m_timeOfDay += m_passOutAmount;
     }
 
     #region Waiting Functionality
