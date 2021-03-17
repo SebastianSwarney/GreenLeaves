@@ -170,6 +170,8 @@ public class PlayerController : MonoBehaviour
 		{
 			PassOut();
 		}
+
+		//Debug.Log(m_playerVisuals.m_animator.GetAnimatorTransitionInfo(0).normalizedTime);
 	}
 
 	private void FixedUpdate()
@@ -260,19 +262,11 @@ public class PlayerController : MonoBehaviour
 		yield return GlobalSceneManager.Instance.FadeAnimation(true);
 
 		DaytimeCycle_Update.Instance.PassOut();
-
 		m_playerVisuals.m_animator.SetTrigger("StandUp");
 
 		yield return GlobalSceneManager.Instance.FadeAnimation(false);
 
-		/*
-		while (m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1)
-		{
-			yield return null;
-		}
-		*/
-
-		while (m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1)
+		while (!m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).IsName("Ground Movement"))
 		{
 			yield return null;
 		}
@@ -741,7 +735,12 @@ public class PlayerController : MonoBehaviour
 	private void CalculateSlopeVariables()
 	{
 		m_currentSlopeAngle = Vector3.Angle(m_averageNormal, Vector3.up);
-		m_slopeTransform.rotation = Quaternion.LookRotation(m_averageNormal);
+
+		if (m_averageNormal != Vector3.zero)
+		{
+			m_slopeTransform.rotation = Quaternion.LookRotation(m_averageNormal);
+		}
+
 		Vector3 normalCross = Vector3.Cross(Vector3.up, m_averageNormal);
 		Vector3 movementSlopeCross = Vector3.Cross(normalCross, m_horizontalDirection).normalized;
 		m_slopeFacingDirection = Mathf.Sign(movementSlopeCross.y);
