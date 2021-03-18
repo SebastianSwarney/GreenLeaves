@@ -72,7 +72,6 @@ public class PlayerVisualsController : MonoBehaviour
     [HideInInspector]
     public Animator m_animator;
 
-
     private void Start()
 	{
         m_playerController = GetComponent<PlayerController>();
@@ -161,7 +160,7 @@ public class PlayerVisualsController : MonoBehaviour
     #region Slide Animations
     public void SetSlideAnimations(bool m_sliding)
     {
-        m_animator.SetBool("IsSliding", m_sliding);
+        //m_animator.SetBool("IsSliding", m_sliding);
     }
 
     public void SetSlideOffsetPose(float p_value)

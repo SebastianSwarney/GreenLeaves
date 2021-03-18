@@ -92,6 +92,7 @@ public class PlayerController : MonoBehaviour
 	private float m_currentSlopeAngle;
 	private float m_currentSlownessFactor;
 	private bool m_sliding;
+	private bool m_onSlopedSurface;
 	#endregion
 
 	#region Misc Slide
@@ -99,7 +100,8 @@ public class PlayerController : MonoBehaviour
 	private AnimationCurve m_preSlideCurve;
 	private float m_slopeSpeedSlowStartAngle;
 	private float m_slideRecoveryTime;
-	private AnimationCurve m_endSlideCruve;
+	public float m_endSlideTime;
+	public AnimationCurve m_endSlideCruve;
 	private bool m_runningPreSlide;
 	#endregion
 
@@ -164,6 +166,8 @@ public class PlayerController : MonoBehaviour
 		m_lastFallPosition = new Vector3(0, transform.position.y, 0);
 
 		m_passedOut = false;
+
+		m_characterController.slopeLimit = m_slideStartAngle;
 	}
 
 	private void OnValidate()
@@ -286,6 +290,7 @@ public class PlayerController : MonoBehaviour
 		yield return GlobalSceneManager.Instance.FadeAnimation(true);
 
 		DaytimeCycle_Update.Instance.PassOut();
+		PlayerStatsController.Instance.SetEnergyToMax();
 		m_playerVisuals.m_animator.SetTrigger("StandUp");
 
 		yield return GlobalSceneManager.Instance.FadeAnimation(false);
@@ -296,7 +301,6 @@ public class PlayerController : MonoBehaviour
 		}
 
 		Inventory_2DMenu.Instance.ClearInventory();
-		PlayerStatsController.Instance.SetEnergyToMax();
 		m_passedOut = false;
 	}
 	#endregion
@@ -504,7 +508,7 @@ public class PlayerController : MonoBehaviour
 
 	private bool CheckJump()
 	{
-		if (m_characterController.isGrounded && !m_passedOut)
+		if (m_characterController.isGrounded && !m_passedOut && !m_onSlopedSurface)
 		{
 			return true;
 		}
@@ -858,18 +862,28 @@ public class PlayerController : MonoBehaviour
 		Vector3 normalCross = Vector3.Cross(Vector3.up, m_averageNormal);
 		Vector3 movementSlopeCross = Vector3.Cross(normalCross, m_horizontalDirection).normalized;
 		m_slopeFacingDirection = Mathf.Sign(movementSlopeCross.y);
+
+		if (m_currentSlopeAngle >= m_slideStartAngle)
+		{
+			m_onSlopedSurface = true;
+		}
+		else
+		{
+			m_onSlopedSurface = false;
+		}
 	}
 
 	private void CheckSlide()
 	{
 		if (m_slopeFacingDirection < 0)
 		{
-			StartSlideLoop(m_slopeFacingDirection);
+			//StartSlideLoop(m_slopeFacingDirection);
 			return;
 		}
 
 		m_currentSlownessFactor = 1;
 
+		/*
 		if (m_slopeFacingDirection > 0 && m_currentSlopeAngle >= m_slideEndAngle && !m_sliding)
 		{
 			float slopeInverse = m_slopeSlowCurve.Evaluate(Mathf.InverseLerp(m_slideEndAngle, m_slideStartAngle, m_currentSlopeAngle));
@@ -881,16 +895,17 @@ public class PlayerController : MonoBehaviour
 		{
 			m_currentSlownessFactor = 1;
 		}
+		*/
 
 		if (m_currentSlopeAngle >= m_slideStartAngle)
 		{
-			StartSlideLoop(m_slopeFacingDirection);
+			//StartSlideLoop(m_slopeFacingDirection);
 		}
 	}
 
 	private bool CheckSlideConditions()
 	{
-		if (m_currentSlopeAngle >= m_slideEndAngle && m_onSlideSurface)
+		if (m_currentSlopeAngle >= m_slideEndAngle && m_onSlideSurface && m_characterController.isGrounded)
 		{
 			return true;
 		}
@@ -919,7 +934,33 @@ public class PlayerController : MonoBehaviour
 
 			SlideRotation(p_facingDir);
 
-			m_playerVisuals.SetSlideOffsetPose(currentSlopePercent);
+			//m_playerVisuals.SetSlideOffsetPose(currentSlopePercent);
+
+			yield return new WaitForFixedUpdate();
+		}
+
+		//m_slopeVelocity = Vector3.zero;
+		//m_sliding = false;
+
+		StartCoroutine(SlideEndPush(p_facingDir));
+	}
+
+	private IEnumerator SlideEndPush(float p_facingDir)
+	{
+		float t = 0;
+
+		while (t < m_endSlideTime)
+		{
+			t += Time.fixedDeltaTime;
+
+			float progress = m_endSlideCruve.Evaluate(t / m_endSlideTime);
+
+			float currentSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, 0, progress);
+
+			Vector3 targetSlopeVelocity = -m_slopeTransform.up * currentSpeed;
+			m_slopeVelocity = targetSlopeVelocity;
+
+			SlideRotation(p_facingDir);
 
 			yield return new WaitForFixedUpdate();
 		}
@@ -927,6 +968,7 @@ public class PlayerController : MonoBehaviour
 		m_slopeVelocity = Vector3.zero;
 		m_sliding = false;
 	}
+
 
 	private void SlideRotation(float p_facingDir)
 	{
@@ -957,40 +999,6 @@ public class PlayerController : MonoBehaviour
 		m_runningPreSlide = false;
 
 		StartCoroutine(RunSlide(p_facingDir));
-	}
-
-	private IEnumerator SlideEndPush(float p_facingDir)
-	{
-		float t = 0;
-
-		while (t < 0.1f)
-		{
-			t += Time.fixedDeltaTime;
-
-			float progress = m_endSlideCruve.Evaluate(t / 0.1f);
-
-			float currentSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, 0, progress);
-
-			Vector3 targetSlopeVelocity = -m_slopeTransform.up * currentSpeed;
-			m_slopeVelocity = targetSlopeVelocity;
-
-			SlideRotation(p_facingDir);
-
-			yield return new WaitForFixedUpdate();
-		}
-
-		m_slopeVelocity = Vector3.zero;
-
-		t = 0;
-
-		while (t < m_slideRecoveryTime)
-		{
-			t += Time.fixedDeltaTime;
-
-			yield return new WaitForFixedUpdate();
-		}
-
-		m_sliding = false;
 	}
 	#endregion
 
