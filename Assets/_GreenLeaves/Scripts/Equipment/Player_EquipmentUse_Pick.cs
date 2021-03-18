@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Player_EquipmentUse_Pick : Player_EquipmentUse
 {
+    public static Player_EquipmentUse_Pick Instance;
     public bool m_canClimb;
     public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
@@ -18,7 +19,8 @@ public class Player_EquipmentUse_Pick : Player_EquipmentUse
     }
     public override void UseEquipment()
     {
-        base.UseEquipment();
+        //base.UseEquipment();
+        ReduceDurability();
     }
     public override void ObjectBroke()
     {
