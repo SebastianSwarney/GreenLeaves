@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour
 
 	private PlayerVisualsController m_playerVisuals;
 
+	[PropertyTooltip("Use this to bypass needing the pick for climbing")]
+	public bool m_debugMode;
+
 	#region General Collision
 	[FoldoutGroup("General Collision")]
 	public LayerMask m_groundMask;
@@ -124,6 +127,8 @@ public class PlayerController : MonoBehaviour
 	public float m_armWidth;
 	[FoldoutGroup("Climbing")]
 	public float m_handHeight;
+	[FoldoutGroup("Climbing")]
+	public GameObject m_climbCamera;
 
 	private bool m_clamber;
 	private bool m_groundCancel;
@@ -137,7 +142,6 @@ public class PlayerController : MonoBehaviour
 
 	#region Passed Out Properties
 	private bool m_passedOut;
-	public GameObject m_passedOutCam;
 	#endregion
 
 	private void Start()
@@ -246,6 +250,11 @@ public class PlayerController : MonoBehaviour
 	private IEnumerator RunPassOut()
 	{
 		m_passedOut = true;
+
+		while (!m_characterController.isGrounded)
+		{
+			yield return null;
+		}
 
 		m_playerVisuals.m_animator.SetTrigger("PassOut");
 
@@ -462,6 +471,16 @@ public class PlayerController : MonoBehaviour
 
 	private bool CanStartClimb()
 	{
+		if (m_passedOut)
+		{
+			return false;
+		}
+
+		if (!Player_EquipmentUse_Pick.Instance.m_canClimb && !m_debugMode)
+		{
+			return false;
+		}
+
 		float wallFacingDot = Vector3.Dot(m_horizontalDirection, m_horizontalWallDirection);
 
 		if (m_onClimbSurface && wallFacingDot >= m_wallAlignmentToStartClimb && m_movementInput.y > 0 && !m_climbing && m_characterController.isGrounded)
@@ -478,12 +497,19 @@ public class PlayerController : MonoBehaviour
 		float targetClamberHeight = 0;
 		Vector3 ledgeTopPos = Vector3.zero;
 
+		m_climbCamera.SetActive(true);
 		m_playerVisuals.ToggleGrounder(false);
 
-		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel)
+		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel && !m_passedOut)
 		{
 			ClimbAnimations();
 			ClimbMovement();
+
+
+			if (m_climbVelocity.magnitude > 0 && !m_debugMode)
+			{
+				Player_EquipmentUse_Pick.Instance.UseEquipment(); //Reduces the equipment durability by 1
+			}
 
 			Vector3 localClimbVelocity = transform.InverseTransformDirection(m_climbVelocity);
 			Vector2 normalClimbVel = new Vector2(Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.x), Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.y));
@@ -513,6 +539,10 @@ public class PlayerController : MonoBehaviour
 		else if (m_groundCancel)
 		{
 			StartCoroutine(GroundClimbCancel());
+		}
+		else if (m_passedOut)
+		{
+			ResetClimb();
 		}
 		else
 		{
@@ -669,8 +699,6 @@ public class PlayerController : MonoBehaviour
 
 		if (Physics.Raycast(transform.position, transform.forward, out climbHit, m_climbStartDistance, m_climbMask))
 		{
-			Debug.Log(Vector3.Angle(climbHit.normal, Vector3.up));
-
 			if (Vector3.Angle(climbHit.normal, Vector3.up) >= m_climbAngle)
 			{
 				m_climbTransform.rotation = Quaternion.LookRotation(climbHit.normal);
@@ -698,6 +726,8 @@ public class PlayerController : MonoBehaviour
 
 		m_playerVisuals.ToggleGrounder(true);
 		m_playerVisuals.CenterHead();
+
+		m_climbCamera.SetActive(false);
 
 		ResetClimbVelocitys();
 	}
