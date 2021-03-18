@@ -1470,11 +1470,11 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 1.9
+  m_Height: 1.8
   m_Radius: 0.3
   m_SlopeLimit: 180
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.01
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2987350526598319850
@@ -1609,6 +1609,7 @@ MonoBehaviour:
   m_armWidth: 0.35
   m_handHeight: 0
   m_climbCamera: {fileID: 3015370234898095962}
+  m_logFallDistance: 0
 --- !u!114 &98468501379874062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1635,7 +1636,6 @@ MonoBehaviour:
   m_turnBlend: {fileID: 3037135770487150235}
   m_sweatParticle: {fileID: 0}
   m_minMaxSweatAmount: {x: 0, y: 0}
-  m_passedOutCam: {fileID: 0}
   m_animator: {fileID: 0}
 --- !u!114 &415107541
 MonoBehaviour:

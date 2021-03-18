@@ -78,20 +78,52 @@ public class PlayerStatsController : MonoBehaviour
     {
         ReplenishSecondaryEnergy();
 
-        PassiveDrainStat(m_mainEnergyMax, m_mainEnergyDepletionRate, ref m_currentMainEnergy, m_mainEnergyImage, m_currentDrainMultiplier);
-        PassiveDrainStat(m_hungerMax, m_hungerDepletionRate, ref m_currentHunger, m_hungerImage);
+        //PassiveDrainStat(m_mainEnergyMax, m_mainEnergyDepletionRate, ref m_currentMainEnergy, m_mainEnergyImage, m_currentDrainMultiplier);
+        //PassiveDrainStat(m_hungerMax, m_hungerDepletionRate, ref m_currentHunger, m_hungerImage);
 
         DrawHungerSegments();
         UpdateUIShake();
+
+        m_mainEnergyImage.fillAmount = m_currentMainEnergy / m_mainEnergyMax;
+        m_secondaryEnergyImage.fillAmount = m_currentSecondaryEnergy / m_secondaryEnergyMax;
     }
 
     public void CalculateFallDamage(float p_distanceFallen)
 	{
         float fallPercent = Mathf.InverseLerp(1, 30, p_distanceFallen);
 
-        float damageAmount = Mathf.Lerp(10, 1000, fallPercent);
+        float damageAmount = Mathf.Lerp(10, 101, fallPercent);
 
-        EquipmentStatDrain(damageAmount, damageAmount);
+        DrainPercentage(damageAmount);
+    }
+
+    public void DrainPercentage(float p_drainPercent)
+	{
+        p_drainPercent *= 0.01f;
+
+        float energyToDeplete = m_secondaryEnergyMax * p_drainPercent;
+
+        DrainEnergySingleNew(energyToDeplete);
+    }
+
+    private void DrainEnergySingleNew(float p_inputAmountToDrain)
+	{
+        float totalAmountToDrain = p_inputAmountToDrain * m_currentDrainMultiplier;
+
+		if (m_currentSecondaryEnergy > 0)
+		{
+            m_currentSecondaryEnergy -= totalAmountToDrain;
+
+            if (m_currentSecondaryEnergy <= 0)
+            {
+                float spillOverAmount = Mathf.Abs(m_currentSecondaryEnergy);
+                m_currentMainEnergy -= spillOverAmount;
+            }
+        }
+        else if (m_currentMainEnergy > 0)
+        {
+            m_currentMainEnergy -= totalAmountToDrain;
+        }
     }
 
 	#region Drain Functions
@@ -154,6 +186,7 @@ public class PlayerStatsController : MonoBehaviour
             return;
         }
     }
+
 
     public void DepleteEnergySingle(float p_depletionAmount)
     {
@@ -242,7 +275,7 @@ public class PlayerStatsController : MonoBehaviour
 
         p_currentEnergy -= (depletionSpeed * Time.deltaTime) * m_currentDrainMultiplier;
 
-        p_image.fillAmount = p_currentEnergy / p_maxEnergy;
+        //p_image.fillAmount = p_currentEnergy / p_maxEnergy;
 
         if (p_currentEnergy > 0)
         {
@@ -258,7 +291,7 @@ public class PlayerStatsController : MonoBehaviour
     {
         p_currentEnergy -= (p_depletionAmount) * m_currentDrainMultiplier;
 
-        p_image.fillAmount = p_currentEnergy / p_maxEnergy;
+        //p_image.fillAmount = p_currentEnergy / p_maxEnergy;
 
         if (p_currentEnergy > 0)
         {

@@ -151,6 +151,10 @@ public class PlayerController : MonoBehaviour
 	private bool m_passedOut;
 	#endregion
 
+	#region Log Properties
+	[FoldoutGroup("Logging")]
+	public bool m_logFallDistance;
+	#endregion
 	private void Start()
 	{
 		m_characterController = GetComponent<CharacterController>();
@@ -435,7 +439,11 @@ public class PlayerController : MonoBehaviour
 		float dst = Vector3.Distance(m_lastFallPosition, verticalPosition);
 		m_distanceFallen = dst;
 		m_setFallPosition = false;
-		Debug.Log(m_distanceFallen);
+
+		if (m_logFallDistance)
+		{
+			Debug.Log("The player fell " + m_distanceFallen);
+		}
 
 		PlayerStatsController.Instance.CalculateFallDamage(m_distanceFallen);
 		m_playerVisuals.ToggleGrounder(true);

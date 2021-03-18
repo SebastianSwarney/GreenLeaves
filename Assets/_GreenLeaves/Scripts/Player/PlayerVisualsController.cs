@@ -67,8 +67,6 @@ public class PlayerVisualsController : MonoBehaviour
     public Vector2 m_minMaxSweatAmount;
     #endregion
 
-    public GameObject m_passedOutCam;
-
 	private PlayerController m_playerController;
     private FullBodyBipedIK m_fullBodyBipedIK;
     [HideInInspector]
