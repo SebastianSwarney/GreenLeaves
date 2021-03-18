@@ -10,6 +10,9 @@ using Sirenix.OdinInspector;
 [Serializable]
 public class PlayerControllerEvent : UnityEvent { }
 
+[Serializable]
+public class PlayerControllerLandedEvent : UnityEvent<float> { }
+
 public class PlayerController : MonoBehaviour
 {
 	public Transform m_viewCameraTransform;
@@ -61,6 +64,10 @@ public class PlayerController : MonoBehaviour
 	private bool m_forceGravity;
 	private Vector3 m_gravityVelocity;
 	private bool m_hasJumped;
+	private bool m_hasLanded;
+	private float m_distanceFallen;
+	private Vector3 m_lastFallPosition;
+	private bool m_setFallPosition;
 	#endregion
 
 	#region Slide Properties
@@ -148,6 +155,8 @@ public class PlayerController : MonoBehaviour
 	{
 		m_characterController = GetComponent<CharacterController>();
 		m_playerVisuals = GetComponent<PlayerVisualsController>();
+
+		m_lastFallPosition = new Vector3(0, transform.position.y, 0);
 	}
 
 	private void OnValidate()
@@ -174,8 +183,6 @@ public class PlayerController : MonoBehaviour
 		{
 			PassOut();
 		}
-
-		//Debug.Log(m_playerVisuals.m_animator.GetAnimatorTransitionInfo(0).normalizedTime);
 	}
 
 	private void FixedUpdate()
@@ -193,8 +200,10 @@ public class PlayerController : MonoBehaviour
 		CheckSlide();
 
 		CaculateTotalVelocity();
-		DecendSlopeBelow(m_characterController.velocity * Time.fixedDeltaTime);
 
+		LandedLoop();
+
+		DecendSlopeBelow();
 		if (!CheckGravityConditions())
 		{
 			m_gravityVelocity.y = 0;
@@ -242,6 +251,7 @@ public class PlayerController : MonoBehaviour
 	}
 	#endregion
 
+	#region Pass Out Code
 	public void PassOut()
 	{
 		StartCoroutine(RunPassOut());
@@ -283,6 +293,7 @@ public class PlayerController : MonoBehaviour
 		Inventory_2DMenu.Instance.ClearInventory();
 		m_passedOut = false;
 	}
+	#endregion
 
 	#region Ground Movement
 	public void OnSprintButtonDown()
@@ -376,6 +387,63 @@ public class PlayerController : MonoBehaviour
 	#endregion
 
 	#region Jump and Gravity
+
+	private bool CheckLanded()
+	{
+		if (m_characterController.isGrounded && !m_climbing && !m_hasLanded)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private bool ResetLanded()
+	{
+		if (!m_characterController.isGrounded && m_gravityVelocity.y < 0)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private void LandedLoop()
+	{
+		if (ResetLanded())
+		{
+			m_hasLanded = false;
+			m_playerVisuals.ToggleGrounder(false);
+		}
+
+		if (CheckLanded())
+		{
+			OnLanded();
+			m_hasLanded = true;
+		}
+
+		if (!m_characterController.isGrounded && m_gravityVelocity.y < 0 && !m_setFallPosition)
+		{
+			m_lastFallPosition = new Vector3(0, transform.position.y, 0);
+			m_setFallPosition = true;
+		}
+	}
+
+	private void OnLanded()
+	{
+		Vector3 verticalPosition = new Vector3(0, transform.position.y, 0);
+		float dst = Vector3.Distance(m_lastFallPosition, verticalPosition);
+		m_distanceFallen = dst;
+		m_setFallPosition = false;
+		Debug.Log(m_distanceFallen);
+
+		PlayerStatsController.Instance.CalculateFallDamage(m_distanceFallen);
+		m_playerVisuals.ToggleGrounder(true);
+
+		//This should always be last
+		m_distanceFallen = 0;
+	}
+
 	private void CalculateJump()
 	{
 		m_gravity = -(2 * m_minMaxJumpHeight.y) / Mathf.Pow(m_timeToJumpApex, 2);
@@ -948,7 +1016,7 @@ public class PlayerController : MonoBehaviour
 		return true;
 	}
 
-	private void DecendSlopeBelow(Vector3 p_moveAmount)
+	private void DecendSlopeBelow()
 	{
 		if (ResetGroundSnap())
 		{

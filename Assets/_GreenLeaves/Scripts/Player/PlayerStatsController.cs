@@ -85,6 +85,15 @@ public class PlayerStatsController : MonoBehaviour
         UpdateUIShake();
     }
 
+    public void CalculateFallDamage(float p_distanceFallen)
+	{
+        float fallPercent = Mathf.InverseLerp(1, 30, p_distanceFallen);
+
+        float damageAmount = Mathf.Lerp(10, 1000, fallPercent);
+
+        EquipmentStatDrain(damageAmount, damageAmount);
+    }
+
 	#region Drain Functions
 	public void EquipmentStatDrain(float p_mainEnergyAmount, float p_staminaAmount)
     {
@@ -164,9 +173,7 @@ public class PlayerStatsController : MonoBehaviour
     }
     #endregion
 
-
     #region Hunger Code
-
 
     private void DrawHungerSegments()
     {
