@@ -1649,26 +1649,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b4e5cb7be59d1a44937f6de096c5bb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_mainEnergyMax: 100
-  m_mainEnergyImage: {fileID: 7683637372589242793}
-  m_mainEnergyDepletionRate: 1200
+  m_energyDepletionRate: 1200
   m_energyGainPerHour: 12.5
-  m_currentMainEnergy: 0
+  m_energyImage: {fileID: 7683637372589242793}
   m_mainEnergyShake: {fileID: 5540979667226578422}
-  m_mainEnergyStartShakingAmount: 33
-  m_secondaryEnergyMax: 100
-  m_secondaryEnergyImage: {fileID: 323447212384004299}
-  m_secondaryEnergyReplenishTime: 60
-  m_secondaryEnergyReplenishWaitTime: 0.1
-  m_currentSecondaryEnergy: 0
+  m_energyStartShakingAmount: 33
+  m_currentEnergy: 0
+  m_staminaReplenishTime: 60
+  m_staminaImage: {fileID: 323447212384004299}
   m_secondaryEnergyShake: {fileID: 6900250734568735684}
-  m_secondaryEnergyStartShakingAmount: 25
-  m_hungerMax: 100
+  m_staminaStartShakingAmount: 25
+  m_currentStamina: 0
   m_maxDrainMultiplier: 5
   m_hungerDepletionRate: 640
   m_hungerImage: {fileID: 109501146878974680}
-  m_hungerSegments: 5
-  m_currentHunger: 100
   m_hungerShake: {fileID: 7136265639025803621}
   m_hungerStartShakingAmount: 25
   m_hungerColorGradient:
@@ -1700,8 +1694,12 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  m_sprintSecondaryEnergyDepletionTime: 10
+  m_currentHunger: 100
+  m_sprintStaminaDepletionTime: 10
   m_sprintEnergyDepletionTime: 25
+  m_minMaxFallDistance: {x: 2, y: 30}
+  m_minMaxFallEnergyLossPercent: {x: 5, y: 50}
+  m_minMaxFallStaminaLossPercent: {x: 5, y: 30}
   m_pauseStatDrain: 0
 --- !u!114 &2582617088522548907
 MonoBehaviour:
@@ -4224,7 +4222,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094454564951609}
-  m_LocalRotation: {x: 0.33171883, y: -0.19523314, z: -0.07037349, w: -0.9202686}
+  m_LocalRotation: {x: 0.31156668, y: 0.3713346, z: 0.1338508, w: -0.86436146}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4442,7 +4440,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455187865214}
-  m_LocalRotation: {x: -0.08068484, y: -0.20682216, z: 0.017117128, w: -0.9748957}
+  m_LocalRotation: {x: -0.07578317, y: 0.39337695, z: -0.032556877, w: -0.91567}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4516,7 +4514,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455440212644}
-  m_LocalRotation: {x: -0.081988364, y: -0.10870877, z: 0.008997015, w: -0.99064595}
+  m_LocalRotation: {x: -0.072644, y: 0.4719846, z: -0.039062656, w: -0.87773997}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4736,7 +4734,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455659847259}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0000034868713, y: 0.5, z: -3}
+  m_LocalPosition: {x: 2.7672524, y: 0.5, z: -1.1585836}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8243094455440212651}
@@ -4902,8 +4900,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455889403909}
-  m_LocalRotation: {x: -0.08068485, y: -0.20682216, z: 0.01711713, w: -0.9748957}
-  m_LocalPosition: {x: 0.0000034868713, y: 0.5, z: -3}
+  m_LocalRotation: {x: -0.0757832, y: 0.39337695, z: -0.032556888, w: -0.91567}
+  m_LocalPosition: {x: 2.7672524, y: 0.5, z: -1.1585836}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2830426279305327767}

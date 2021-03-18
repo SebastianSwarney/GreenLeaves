@@ -155,12 +155,15 @@ public class PlayerController : MonoBehaviour
 	[FoldoutGroup("Logging")]
 	public bool m_logFallDistance;
 	#endregion
+
 	private void Start()
 	{
 		m_characterController = GetComponent<CharacterController>();
 		m_playerVisuals = GetComponent<PlayerVisualsController>();
 
 		m_lastFallPosition = new Vector3(0, transform.position.y, 0);
+
+		m_passedOut = false;
 	}
 
 	private void OnValidate()
@@ -181,11 +184,6 @@ public class PlayerController : MonoBehaviour
 		if (!m_climbing && m_characterController.isGrounded)
 		{
 			m_playerVisuals.SetGroundHeadRotation(m_averageNormal);
-		}
-
-		if (Input.GetKeyDown(KeyCode.J))
-		{
-			PassOut();
 		}
 	}
 
@@ -258,7 +256,10 @@ public class PlayerController : MonoBehaviour
 	#region Pass Out Code
 	public void PassOut()
 	{
-		StartCoroutine(RunPassOut());
+		if (!m_passedOut)
+		{
+			StartCoroutine(RunPassOut());
+		}
 	}
 
 	private IEnumerator RunPassOut()
@@ -295,6 +296,7 @@ public class PlayerController : MonoBehaviour
 		}
 
 		Inventory_2DMenu.Instance.ClearInventory();
+		PlayerStatsController.Instance.SetEnergyToMax();
 		m_passedOut = false;
 	}
 	#endregion
@@ -336,7 +338,7 @@ public class PlayerController : MonoBehaviour
 
 	public bool CheckSprintConditions()
 	{
-		if (m_characterController.isGrounded && m_sprinting)
+		if (m_characterController.isGrounded && m_sprinting && m_horizontalInput.magnitude > 0)
 		{
 			return true;
 		}
@@ -445,7 +447,11 @@ public class PlayerController : MonoBehaviour
 			Debug.Log("The player fell " + m_distanceFallen);
 		}
 
-		PlayerStatsController.Instance.CalculateFallDamage(m_distanceFallen);
+		if (m_distanceFallen > m_minMaxJumpHeight.y)
+		{
+			PlayerStatsController.Instance.CalculateFallDamage(m_distanceFallen);
+		}
+
 		m_playerVisuals.ToggleGrounder(true);
 
 		//This should always be last
