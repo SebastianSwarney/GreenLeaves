@@ -6,7 +6,7 @@ public class ResourceContainer_Equip : ResourceContainer
 {
     public bool m_toggleEquipmentOnPlayer;
 
-    public enum ToolType { Axe, Canteen, Torch, Bow, ClimbingAxe, Knife }
+    public enum ToolType { Axe, Canteen, Torch, Bow, ClimbingAxe, Knife, Camera, Key }
     public ToolType m_currentToolType;
     public override void UseItem(Inventory_Icon p_currentIcon)
     {
