@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class SoundEmitter_PlayerTrigger : MonoBehaviour
 {
-    public FMODUnity.StudioEventEmitter m_soundEmitter;
+    public List<FMODUnity.StudioEventEmitter> m_soundEmitters;
+    
 
     [Range(0,1)]
     public float m_soundPlayChance;
@@ -37,11 +38,18 @@ public class SoundEmitter_PlayerTrigger : MonoBehaviour
         {
             if (p_newState)
             {
-                m_soundEmitter.Play();
+                foreach(FMODUnity.StudioEventEmitter emit in m_soundEmitters)
+                {
+                    emit.Play();
+                }
+
             }
             else
             {
-                m_soundEmitter.Stop();
+                foreach (FMODUnity.StudioEventEmitter emit in m_soundEmitters)
+                {
+                    emit.Stop();
+                }
             }
             return;
         }
@@ -49,12 +57,18 @@ public class SoundEmitter_PlayerTrigger : MonoBehaviour
         {
             if(Random.Range(0,1f) < m_soundPlayChance)
             {
-                m_soundEmitter.Play();
+                foreach (FMODUnity.StudioEventEmitter emit in m_soundEmitters)
+                {
+                    emit.Play();
+                }
             }
         }
         else
         {
-            m_soundEmitter.Stop();
+            foreach (FMODUnity.StudioEventEmitter emit in m_soundEmitters)
+            {
+                emit.Stop();
+            }
         }
     }
 }
