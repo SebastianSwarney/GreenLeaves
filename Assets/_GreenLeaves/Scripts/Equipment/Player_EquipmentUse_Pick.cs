@@ -19,7 +19,7 @@ public class Player_EquipmentUse_Pick : Player_EquipmentUse
     }
     public override void UseEquipment()
     {
-        //base.UseEquipment();
+        base.UseEquipment();
         ReduceDurability();
     }
     public override void ObjectBroke()

@@ -582,15 +582,17 @@ public class PlayerController : MonoBehaviour
 		m_climbCamera.SetActive(true);
 		m_playerVisuals.ToggleGrounder(false);
 
-		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel && !m_passedOut)
+		Vector3 lastClimbPos = transform.position;
+
+		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel && !m_passedOut && Player_EquipmentUse_Pick.Instance.m_canClimb)
 		{
 			ClimbAnimations();
 			ClimbMovement();
 
-
-			if (m_climbVelocity.magnitude > 0 && !m_debugMode)
+			if (Vector3.Distance(lastClimbPos, transform.position) > 1 && !m_debugMode)
 			{
 				Player_EquipmentUse_Pick.Instance.UseEquipment(); //Reduces the equipment durability by 1
+				lastClimbPos = transform.position;
 			}
 
 			Vector3 localClimbVelocity = transform.InverseTransformDirection(m_climbVelocity);

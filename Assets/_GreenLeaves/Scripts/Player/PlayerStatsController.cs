@@ -97,11 +97,8 @@ public class PlayerStatsController : MonoBehaviour
 
         m_currentDrainMultiplier = (int)Mathf.Lerp(m_maxDrainMultiplier, 1f, m_currentHunger / 100);
 
-        Debug.Log(m_currentEnergy);
-
 		if (!HasEnergy())
 		{
-            Debug.Log("ran");
             m_playerController.PassOut();
 		}
 
