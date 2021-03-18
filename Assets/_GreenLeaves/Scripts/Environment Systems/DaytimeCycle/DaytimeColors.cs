@@ -6,6 +6,7 @@ public class DaytimeColors : ScriptableObject
 {
     public List<DayColors> m_dayColors;
 
+    
     public DayColors m_caveColor;
 
     [System.Serializable]
@@ -14,9 +15,10 @@ public class DaytimeColors : ScriptableObject
         public float m_timeOfDay;
         [ColorUsage(true, true)]
         public Color m_skyColor, m_equatorColor, m_groundColor;
+        public float m_morningLightIntensity, m_nightLightIntensity;
     }
 
-    public void ChangeColors(float p_currentTime, float p_cavePercent)
+    public void ChangeColors(float p_currentTime, float p_cavePercent, Light p_morningLight, Light p_nightLight, bool p_inCave)
     {
         DayColors pastColor = m_dayColors[0], currentColor = m_dayColors[0];
 
@@ -56,5 +58,10 @@ public class DaytimeColors : ScriptableObject
         RenderSettings.ambientEquatorColor = Color.Lerp(Color.Lerp(pastColor.m_equatorColor, currentColor.m_equatorColor, percent), m_caveColor.m_equatorColor, p_cavePercent);
         RenderSettings.ambientGroundColor = Color.Lerp(Color.Lerp(pastColor.m_groundColor, currentColor.m_groundColor, percent), m_caveColor.m_groundColor, p_cavePercent);
         RenderSettings.ambientSkyColor = Color.Lerp(Color.Lerp(pastColor.m_skyColor, currentColor.m_skyColor, percent), m_caveColor.m_skyColor, p_cavePercent);
+        if (!p_inCave)
+        {
+            p_morningLight.intensity = Mathf.Lerp(pastColor.m_morningLightIntensity, currentColor.m_morningLightIntensity, percent);
+            p_nightLight.intensity = Mathf.Lerp(pastColor.m_nightLightIntensity, currentColor.m_nightLightIntensity, percent);
+        }
     }
 }
