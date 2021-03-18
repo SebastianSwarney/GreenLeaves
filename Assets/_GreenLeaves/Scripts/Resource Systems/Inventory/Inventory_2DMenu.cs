@@ -76,6 +76,9 @@ public class Inventory_2DMenu : MonoBehaviour
     [Header("Tutorial Bools")]
     public bool m_canClose = true;
     public bool m_canTap = true;
+
+    [Header("Special Key")]
+    public bool m_containsKey;
     private void Awake()
     {
         Instance = this;
@@ -1160,6 +1163,7 @@ public class Inventory_2DMenu : MonoBehaviour
         m_inventoryGrid.m_currentAmount = 0;
     }
     #endregion
+
 }
 
 

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8278977471638574212}
   - component: {fileID: 8278977471638574213}
   - component: {fileID: 8278977471638574210}
+  - component: {fileID: 7519438454308170991}
   m_Layer: 12
   m_Name: PFB_Interactable_Readable_Base
   m_TagString: Untagged
@@ -99,6 +100,23 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_data: {fileID: 0}
+--- !u!114 &7519438454308170991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8278977471638574208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00c70299754ac7f49a243bd569c660d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_minDistanceFromPlayer: 10
+  m_maxDistanceFromPlayer: 50
+  m_currentDis: 0
+  m_particlePrefab: {fileID: 1873173167208386355, guid: de56b748f5b1a1042b380e920426aff4, type: 3}
+  m_currentParticle: {fileID: 0}
 --- !u!1 &8931207563286875249
 GameObject:
   m_ObjectHideFlags: 0

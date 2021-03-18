@@ -95,6 +95,7 @@ GameObject:
   - component: {fileID: 2327583816957445954}
   - component: {fileID: 2327583816957445955}
   - component: {fileID: 2354979939958263710}
+  - component: {fileID: 7310184311460746125}
   m_Layer: 12
   m_Name: PFB_ToolComponent_AxeHead
   m_TagString: Untagged
@@ -243,3 +244,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.38, y: 0.07, z: 0.24}
   m_Center: {x: -0.01, y: 0.04, z: 0}
+--- !u!114 &7310184311460746125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2327583816957445983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00c70299754ac7f49a243bd569c660d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_minDistanceFromPlayer: 10
+  m_maxDistanceFromPlayer: 50
+  m_currentDis: 0
+  m_particlePrefab: {fileID: 1873173167208386355, guid: de56b748f5b1a1042b380e920426aff4, type: 3}
+  m_currentParticle: {fileID: 0}
