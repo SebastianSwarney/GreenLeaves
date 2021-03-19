@@ -13,6 +13,9 @@ public class DaytimeCycle_Update : MonoBehaviour
 
     public Transform m_directionalLightObject;
     public Light m_directionalLight;
+    public Light m_nightLight;
+    private bool m_inCave;
+
     public float m_realtime;
 
     public bool m_isPaused;
@@ -35,7 +38,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     {
         if (!m_updateInEditor) return;
         UpdateLightRotation();
-        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent);
+        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent, m_directionalLight, m_nightLight, m_inCave);
     }
 
 #endif
@@ -51,7 +54,7 @@ public class DaytimeCycle_Update : MonoBehaviour
         }
 
         UpdateLightRotation();
-        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent);
+        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent, m_directionalLight, m_nightLight, m_inCave);
     }
 
     public void UpdateTimeOfDayThroughPass(float p_increaseAmount)
@@ -94,6 +97,7 @@ public class DaytimeCycle_Update : MonoBehaviour
 
     private IEnumerator AdjustCaveLighting(bool p_darken)
     {
+        m_inCave = p_darken;
         float timer = m_cavePercent * m_lightingAdjustmentTime;
         while (p_darken ? (timer < m_lightingAdjustmentTime) : (timer > 0))
         {
@@ -106,7 +110,7 @@ public class DaytimeCycle_Update : MonoBehaviour
                 timer -= Time.deltaTime;
             }
             m_cavePercent = timer / m_lightingAdjustmentTime;
-            m_directionalLight.intensity = (1 - m_cavePercent) / 2;
+            m_directionalLight.intensity = m_nightLight.intensity = (1 - m_cavePercent) / 2;
             yield return null;
         }
     }

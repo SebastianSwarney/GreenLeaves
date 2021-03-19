@@ -51,6 +51,10 @@
 		[Header(Water Bounce)]
 		_WaterBounceHeight("Water Bounce Height", Float) = 1
 		_WaterBounceFrequency("Water Bounce Frequency", Float) = 0
+		[Space]
+		[Header(Debug)]
+		_brightness("Brightness", Float) = 1
+		_waterAlpha("Alpha", Range(0,1)) = 1
 
 	}
 		SubShader{
@@ -103,7 +107,8 @@
 
 			float _WaterBounceHeight;
 			float _WaterBounceFrequency;
-
+			float _brightness;
+			float _waterAlpha;
 			 void vert(inout appdata_full v, out Input o)
 			{
 				UNITY_INITIALIZE_OUTPUT(Input, o);
@@ -167,7 +172,7 @@
 				  // noise sides
 				  float3 TopFoamNoise = lerp(topTex1, topTex2, timingLerp) + ripples;
 
-				  float3 SideFoamNoiseZ = tex2D(_SideNoiseTex, float2(IN.worldPos.z * 10, IN.worldPos.y + vertFlow) * _NoiseScale);
+				  float3 SideFoamNoiseZ = tex2D(_SideNoiseTex, float2(IN.worldPos.y * 10, IN.worldPos.y + vertFlow) * _NoiseScale);
 				  float3 SideFoamNoiseX = tex2D(_SideNoiseTex, float2(IN.worldPos.x * 10, IN.worldPos.y + vertFlow) * _NoiseScale);
 
 				  float3 SideFoamNoiseZE = tex2D(_TopNoiseTex, float2(IN.worldPos.z * 10, IN.worldPos.y + vertFlow) * _NoiseScale * 0.4);
@@ -219,22 +224,21 @@
 				   float3 combinedFoam = (foamS + foamLine + ripples) * _FoamColor;
 
 				   //grabpass for refraction
-				   half4 bgcolor = tex2Dproj(_GrabTex, float4(IN.screenPos.x ,IN.screenPos.y + noiseDist, IN.screenPos.z, IN.screenPos.w));
-
+				   /*half4 bgcolor = tex2Dproj(_GrabTex, float4(IN.screenPos.x ,IN.screenPos.y + noiseDist, IN.screenPos.z, IN.screenPos.w));
+				   */
 				   // colors lerped over depth
 				   float4 color = lerp(_WaterColor  , _TColor , saturate((depth - IN.screenPos.w + _DepthOffset) * _Stretch)) * _Brightness;
-				   o.Albedo = (color * color.a) + bgcolor;
+				   color.a = _brightness;
+				   o.Albedo = (color * color.a);// +bgcolor;
 
 				   // standard settings for smoothness and metallic
 				   o.Smoothness = _Smoothness;
 				   o.Metallic = _Metallic;
 
 				   // planar reflections
-				   half4 rtReflections = tex2Dproj(_ReflectionTex, UNITY_PROJ_COORD(IN.screenPos + noiseDist));
-				   rtReflections *= dot(o.Normal, worldNormal.y);
-				   o.Albedo += combinedFoam + colorRim + (rtReflections * _Reflectivity) + sparkle;
+				   o.Albedo += combinedFoam + colorRim ;
 
-				   o.Alpha = 1;
+				   o.Alpha = _waterAlpha;
 
 				  }
 				  ENDCG

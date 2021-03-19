@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6388834257411071431}
   - component: {fileID: 279694099201793301}
   - component: {fileID: 6482272421070763448}
+  - component: {fileID: 7047505634364841896}
   m_Layer: 12
   m_Name: _PFB_Resource_Base
   m_TagString: Untagged
@@ -84,11 +85,6 @@ MonoBehaviour:
   m_objectSpawned:
     m_PersistentCalls:
       m_Calls: []
-  m_minDistanceFromPlayer: 10
-  m_maxDistanceFromPlayer: 50
-  m_currentDis: 0
-  m_particlePrefab: {fileID: 1873173167208386355, guid: de56b748f5b1a1042b380e920426aff4, type: 3}
-  m_currentParticle: {fileID: 0}
 --- !u!54 &2686065726063999899
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -270,6 +266,23 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!114 &7047505634364841896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806350379463084202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00c70299754ac7f49a243bd569c660d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_minDistanceFromPlayer: 10
+  m_maxDistanceFromPlayer: 50
+  m_currentDis: 0
+  m_particlePrefab: {fileID: 1873173167208386355, guid: de56b748f5b1a1042b380e920426aff4, type: 3}
+  m_currentParticle: {fileID: 0}
 --- !u!1 &7109535030383296671
 GameObject:
   m_ObjectHideFlags: 0

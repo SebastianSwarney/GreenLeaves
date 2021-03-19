@@ -3660,6 +3660,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PFB_Credits
       objectReference: {fileID: 0}
+    - target: {fileID: 9106129730647902743, guid: 531f5c6a4f038cc47adc9219f8a2fc86, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 531f5c6a4f038cc47adc9219f8a2fc86, type: 3}
 --- !u!224 &559761637 stripped
@@ -6509,8 +6513,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -8.9}
-  m_SizeDelta: {x: 517.4, y: 296.8}
+  m_AnchoredPosition: {x: 0, y: -39.6}
+  m_SizeDelta: {x: 517.4, y: 362}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1109981252
 MonoBehaviour:
@@ -8783,6 +8787,7 @@ RectTransform:
   - {fileID: 1081533435}
   - {fileID: 1229939715}
   - {fileID: 1641162173}
+  - {fileID: 1685370602}
   m_Father: {fileID: 773633939}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10023,11 +10028,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 778332090597659433, guid: 531f5c6a4f038cc47adc9219f8a2fc86, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 204.1
       objectReference: {fileID: 0}
     - target: {fileID: 778332090597659433, guid: 531f5c6a4f038cc47adc9219f8a2fc86, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -181.2
+      value: -190
       objectReference: {fileID: 0}
     - target: {fileID: 778332090597659433, guid: 531f5c6a4f038cc47adc9219f8a2fc86, type: 3}
       propertyPath: m_SizeDelta.x
@@ -10383,6 +10388,89 @@ Transform:
   m_Father: {fileID: 1160916261}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1685370601
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1685370602}
+  - component: {fileID: 1685370604}
+  - component: {fileID: 1685370603}
+  m_Layer: 0
+  m_Name: TXT_PSound Team (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1685370602
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685370601}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_Children: []
+  m_Father: {fileID: 1327240166}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -177.1}
+  m_SizeDelta: {x: 400, y: 110}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1685370603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685370601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 12800000, guid: 476a6fd2ed4d78a44b16e018304d15ac, type: 3}
+    m_FontSize: 28
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 0
+    m_MaxSize: 300
+    m_Alignment: 1
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: '<color=#80DB00>---Additional Sources---</color>
+
+    freesound.org
+
+    freesfx.co.uk'
+--- !u!222 &1685370604
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685370601}
+  m_CullTransparentMesh: 0
 --- !u!1 &1692950301
 GameObject:
   m_ObjectHideFlags: 0

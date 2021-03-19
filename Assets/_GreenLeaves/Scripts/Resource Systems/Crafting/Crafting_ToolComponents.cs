@@ -5,6 +5,8 @@ public class Crafting_ToolComponents : MonoBehaviour
     public Inventory_Icon_ToolResource m_axeResource, m_torchResource, m_canteenResource, m_bowResource, m_climbingAxeResource;
 
     public bool m_axeUnlocked, m_torchUnlocked, m_canteenUnlocked, m_climbingAxeUnlocked;
+
+    public GameObject m_cameraIcon, m_keyIcon;
     private void Start()
     {
         //m_climbingAxePos = m_climbingAxeResource.transform.localPosition;
@@ -91,6 +93,13 @@ public class Crafting_ToolComponents : MonoBehaviour
                     m_climbingAxeResource.ResetPlacement();
                 }
                 m_climbingAxeUnlocked = true;
+                break;
+            case ResourceContainer_Equip.ToolType.Camera:
+                m_cameraIcon.SetActive(true);
+                break;
+            case ResourceContainer_Equip.ToolType.Key:
+                m_keyIcon.SetActive(true);
+                Inventory_2DMenu.Instance.m_containsKey = true;
                 break;
         }
     }
