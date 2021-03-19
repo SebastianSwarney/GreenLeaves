@@ -35,6 +35,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public Transform m_itemTransferParent;
     public UnityEngine.UI.Text m_heldItemText;
     public GameObject m_craftingRecipeMenu, m_cookingRecipeMenu;
+    public GameObject m_craftingRecipeButton, m_cookingRecipeButton;
 
     [Header("Icon Selection Variables")]
     public float m_selectedBufferTime;
@@ -185,7 +186,9 @@ public class Inventory_2DMenu : MonoBehaviour
         m_currentSelectedIcon = null;
 
         m_craftingRecipeMenu.SetActive(false);
+        m_craftingRecipeButton.SetActive(true);
         m_cookingRecipeMenu.SetActive(false);
+        m_cookingRecipeButton.SetActive(true);
         DropAnyOutsideIcons(p_skipWarning);
         if (m_craftingMenuOpened)
         {
