@@ -258,13 +258,21 @@ public class PlayerVisualsController : MonoBehaviour
         }
     }
 
-    public void SetTurnBlendValue(float p_targetAngle)
+    public void SetTurnBlendValue(float p_targetAngle, bool p_zeroValue = false)
 	{
         Vector3 targetMovementRotation = Quaternion.Euler(0, p_targetAngle, 0f) * Vector3.forward;
         float betweenMovementAngle = Vector3.Angle(transform.forward, targetMovementRotation);
         float progress = betweenMovementAngle / m_maximumTurnAngle;
         float moveDir = -Mathf.Sign(Vector3.Cross(targetMovementRotation, transform.forward).y);
-        m_turnBlend.SetBlendValue(progress * moveDir);
+		
+		if (p_zeroValue)
+		{
+            m_turnBlend.SetBlendValue(0);
+		}
+		else
+		{
+            m_turnBlend.SetBlendValue(progress * moveDir);
+        }
 
         float t = Mathf.InverseLerp(-1, 1, progress * moveDir);
         float horizontalRotation = Mathf.Lerp(-90, 90, t);

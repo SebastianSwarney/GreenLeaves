@@ -1518,7 +1518,7 @@ MonoBehaviour:
     m_Bits: 512
   m_slopeTransform: {fileID: 1689642049869640427}
   m_minMaxSlideSpeed: {x: 3, y: 12}
-  m_slideStartAngle: 50
+  m_slideStartAngle: 45
   m_slideEndAngle: 45
   m_slopeSlowCurve:
     serializedVersion: 2
@@ -1545,10 +1545,28 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   m_minimumSlopeSpeedPercent: 0.5
-  m_endSlideTime: 0
+  m_endSlideTime: 0.5
   m_endSlideCruve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -5340,6 +5358,10 @@ PrefabInstance:
     - target: {fileID: 7742182156684209660, guid: a2f9a451fbca20c429ad99a91b4660c2, type: 3}
       propertyPath: EmissionModule.rateOverDistance.scalar
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7742182156684209660, guid: a2f9a451fbca20c429ad99a91b4660c2, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8018518015083106915, guid: a2f9a451fbca20c429ad99a91b4660c2, type: 3}
       propertyPath: m_playerObject

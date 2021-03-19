@@ -100,8 +100,8 @@ public class PlayerController : MonoBehaviour
 	private AnimationCurve m_preSlideCurve;
 	private float m_slopeSpeedSlowStartAngle;
 	private float m_slideRecoveryTime;
-	public float m_endSlideTime;
-	public AnimationCurve m_endSlideCruve;
+	private float m_endSlideTime;
+	private AnimationCurve m_endSlideCruve;
 	private bool m_runningPreSlide;
 	#endregion
 
@@ -147,6 +147,7 @@ public class PlayerController : MonoBehaviour
 	private Vector3 m_climbMovementSmoothingVelocity;
 	private Vector3 m_wallStickVelocity;
 	private Vector3 m_horizontalWallDirection;
+	private Vector3 m_climbNormal;
 	#endregion
 
 	#region Passed Out Properties
@@ -423,7 +424,7 @@ public class PlayerController : MonoBehaviour
 		if (ResetLanded())
 		{
 			m_hasLanded = false;
-			m_playerVisuals.ToggleGrounder(false);
+			//m_playerVisuals.ToggleGrounder(false);
 		}
 
 		if (CheckLanded())
@@ -588,7 +589,7 @@ public class PlayerController : MonoBehaviour
 
 		Vector3 lastClimbPos = transform.position;
 
-		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel && !m_passedOut && Player_EquipmentUse_Pick.Instance.m_canClimb)
+		while (!m_clamber && !m_groundCancel && !m_passedOut && Player_EquipmentUse_Pick.Instance.m_canClimb)
 		{
 			ClimbAnimations();
 			ClimbMovement();
@@ -692,7 +693,7 @@ public class PlayerController : MonoBehaviour
 
 			float currentClamberSpeed = Mathf.Lerp(m_climbSpeed, m_clamberSpeed, m_clamberCurve.Evaluate(heightProgress));
 			m_climbVelocity = Vector3.up * currentClamberSpeed;
-			m_wallStickVelocity = -m_climbTransform.forward * m_climbSpeed;
+			m_wallStickVelocity = transform.forward * m_climbSpeed;
 
 			lastSpeed = currentClamberSpeed;
 
@@ -787,7 +788,9 @@ public class PlayerController : MonoBehaviour
 
 		if (Physics.Raycast(transform.position, transform.forward, out climbHit, m_climbStartDistance, m_climbMask))
 		{
-			if (Vector3.Angle(climbHit.normal, Vector3.up) >= m_climbAngle)
+			float angle = Vector3.Angle(climbHit.normal, Vector3.up);
+
+			if (angle >= m_climbAngle)
 			{
 				m_climbTransform.rotation = Quaternion.LookRotation(climbHit.normal);
 
@@ -835,8 +838,7 @@ public class PlayerController : MonoBehaviour
 		Vector3 climbMovement = Vector3.SmoothDamp(m_climbVelocity, targetClimbMovement, ref m_climbMovementSmoothingVelocity, m_climbAcceleration);
 		m_climbVelocity = climbMovement;
 
-		m_wallStickVelocity = -m_climbTransform.forward * m_climbSpeed;
-
+		m_wallStickVelocity = transform.forward * m_climbSpeed;
 		transform.rotation = Quaternion.LookRotation(m_horizontalWallDirection);
 	}
 
@@ -846,6 +848,7 @@ public class PlayerController : MonoBehaviour
 		Vector2 normalClimbVel = new Vector2(Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.x), Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.y));
 		Vector2 animValue = new Vector2(Mathf.Lerp(-1, 1, normalClimbVel.x), Mathf.Lerp(-1, 1, normalClimbVel.y));
 		m_playerVisuals.ClimbAnimations(animValue.x, animValue.y);
+		m_playerVisuals.SetTurnBlendValue(0, true);
 	}
 	#endregion
 
@@ -1069,6 +1072,11 @@ public class PlayerController : MonoBehaviour
 
 	private void ClimbSlopeBelow(ref Vector3 p_moveAmount, Vector3 p_horizontalVelocity)
 	{
+		if (m_climbing)
+		{
+			return;
+		}
+
 		Vector3 localXAxis = Vector3.Cross(p_horizontalVelocity, Vector3.up);
 		Vector3 forwardRotation = Vector3.ProjectOnPlane(m_averageNormal, localXAxis);
 		Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
@@ -1100,6 +1108,11 @@ public class PlayerController : MonoBehaviour
 			}
 
 			m_averageNormal = hit.normal;
+		}
+
+		if (CheckCollisionLayer(m_climbMask, hit.collider.gameObject))
+		{
+			m_climbNormal = hit.normal;
 		}
 	}
 
