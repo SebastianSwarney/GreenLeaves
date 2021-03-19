@@ -67,6 +67,60 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 704.3, y: 100, z: 894.06}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &2617522800430800775
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7141246025252299496}
+  - component: {fileID: 3657177793453409259}
+  m_Layer: 0
+  m_Name: SFX_Heavy Waterfall (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7141246025252299496
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2617522800430800775}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.913745, y: -36.2, z: 235.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2278479626503022062}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3657177793453409259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2617522800430800775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  Event: event:/Ambient/Ambient - Heavy Waterfall
+  PlayEvent: 11
+  StopEvent: 12
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 90
 --- !u!1 &2767681697329244209
 GameObject:
   m_ObjectHideFlags: 0
@@ -2033,12 +2087,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3272657537938357659, guid: b512255822e41a549ba0ba8fc33a47d3, type: 3}
       propertyPath: m_soundEmitters.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3272657537938357659, guid: b512255822e41a549ba0ba8fc33a47d3, type: 3}
       propertyPath: m_soundEmitters.Array.data[1]
       value: 
       objectReference: {fileID: 1562314585948313888}
+    - target: {fileID: 3272657537938357659, guid: b512255822e41a549ba0ba8fc33a47d3, type: 3}
+      propertyPath: m_soundEmitters.Array.data[2]
+      value: 
+      objectReference: {fileID: 3657177793453409259}
     - target: {fileID: 3272657537938357660, guid: b512255822e41a549ba0ba8fc33a47d3, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -2049,7 +2107,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3272657537938357660, guid: b512255822e41a549ba0ba8fc33a47d3, type: 3}
       propertyPath: m_Size.y
-      value: 100
+      value: 257.08
       objectReference: {fileID: 0}
     - target: {fileID: 3272657537938357660, guid: b512255822e41a549ba0ba8fc33a47d3, type: 3}
       propertyPath: m_Size.z

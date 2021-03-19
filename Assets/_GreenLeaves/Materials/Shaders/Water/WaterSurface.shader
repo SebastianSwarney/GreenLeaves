@@ -19,14 +19,6 @@ Shader "Custom/WaterIntersection"
 	   _leveledWaterSpeed("Leveled Water Speed", float) = 1
 		   _leveledWaterTexScale("Leveled Water Texture Scale", float) = 1
 
-		   [Space]
-	   _waterFallTex("Waterfall Texture",2D) = "white"
-		   _waterfallSpeed("Waterfall Speed", float) = 2
-		   _waterfallTexScale("Waterfall tex scale", float) = 1
-			_waterfallAngle("Waterfall Angle", float) = 1
-		   _waterfallFoamCutoff("Waterfall Foam Cutoff", float) = 0.5
-		   _waterfallFoamFadeMin("Waterfall Foam Fade Min", float) = .25
-
 
 		   [Space]
 	   [Header(Sine Bounce)]
@@ -105,13 +97,7 @@ Shader "Custom/WaterIntersection"
 			  float _waterDetailBrightness;
 			  float _borderColorCutoff;
 
-			  //Waterfall details
-			  sampler2D _waterFallTex;
-			  float _waterfallSpeed;
-			  float _waterfallTexScale;
-			  float _waterfallAngle;
-			  float _waterfallFoamCutoff;
-			  float _waterfallFoamFadeMin;
+
 
 			  //Water bounce variables
 			  float _WaterBounceFrequency;
@@ -157,19 +143,7 @@ Shader "Custom/WaterIntersection"
 
 					   float3 flowDir = (i.color * 2.0f) - 1.0f;
 
-
-
-
-					   ///Waterfall
-					   float normAngle = dot(i.wNormal, fixed3(0, 1, 0)); //dot(i.normal, i.wNormal);
-
-					   if (normAngle > _waterfallAngle) {
-						   flowDir *= _leveledWaterSpeed;
-					   }
-					   else {
-						   flowDir *= _waterfallSpeed;
-					   }
-
+					   flowDir *= _leveledWaterSpeed;
 
 					   float depth = LinearEyeDepth(tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(i.scrPos)));
 
