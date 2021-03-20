@@ -192,7 +192,6 @@ public class PlayerController : MonoBehaviour
 		}
 
 		m_playerVisuals.m_animator.SetBool("IsGrounded", m_characterController.isGrounded);
-
 		m_playerVisuals.m_animator.SetFloat("YVelocity", m_gravityVelocity.y);
 	}
 
@@ -347,7 +346,7 @@ public class PlayerController : MonoBehaviour
 
 	public bool CheckSprintConditions()
 	{
-		if (m_characterController.isGrounded && m_sprinting && m_horizontalInput.magnitude > 0)
+		if (m_sprinting && m_horizontalInput.magnitude > 0)
 		{
 			return true;
 		}
@@ -884,6 +883,8 @@ public class PlayerController : MonoBehaviour
 
 	private void CheckSlide()
 	{
+		StartSlideLoop(m_slopeFacingDirection);
+
 		if (m_slopeFacingDirection < 0)
 		{
 			//StartSlideLoop(m_slopeFacingDirection);
@@ -914,7 +915,7 @@ public class PlayerController : MonoBehaviour
 
 	private bool CheckSlideConditions()
 	{
-		if (m_currentSlopeAngle >= m_slideEndAngle && m_onSlideSurface && m_characterController.isGrounded)
+		if (m_currentSlopeAngle >= m_slideStartAngle && m_onSlideSurface && m_characterController.isGrounded)
 		{
 			return true;
 		}
