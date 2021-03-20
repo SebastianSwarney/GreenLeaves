@@ -51,15 +51,30 @@ public class PlayerVisualsController : MonoBehaviour
     public float m_sprintTimeForSkidAnimation;
 
     private float m_sprintSkidTimer;
+	#endregion
+
+	#region Ground Turn Blend Properties
+    [FoldoutGroup("Ground Turn Blend")]
+	public float m_maximumTurnAngle;
+    [FoldoutGroup("Ground Turn Blend")]
+    public OffsetPoseBlend m_turnBlend;
     #endregion
 
-    public float m_maximumTurnAngle;
-    public OffsetPoseBlend m_turnBlend;
+    #region Tiredness Properties
+    [FoldoutGroup("Tiredness")]
+    public ParticleSystem m_sweatParticle;
+    [FoldoutGroup("Tiredness")]
+    public Vector2 m_minMaxSweatAmount;
+    #endregion
 
 	private PlayerController m_playerController;
     private FullBodyBipedIK m_fullBodyBipedIK;
-    private Animator m_animator;
+    [HideInInspector]
+    public Animator m_animator;
 
+    public Transform m_leftFoot;
+
+    public GameObject m_testParticle;
 
     private void Start()
 	{
@@ -84,6 +99,15 @@ public class PlayerVisualsController : MonoBehaviour
         ArmIK();
         GrounderWeight();
     }
+
+    public void OnFootUpdate(int p_footSide)
+	{
+		if (p_footSide < 0)
+		{
+            //ParticleSystem ps = Instantiate(m_testParticle, m_leftFoot.position, Quaternion.identity).GetComponent<ParticleSystem>();
+            //ps.Play();
+        }
+	}
 
 	#region General Animations
 	public void SetGroundMovementAnimations(Vector3 p_horizontalVelocity, float p_sprintSpeed, float p_runSpeed, float p_walkSpeed)
@@ -149,7 +173,7 @@ public class PlayerVisualsController : MonoBehaviour
     #region Slide Animations
     public void SetSlideAnimations(bool m_sliding)
     {
-        m_animator.SetBool("IsSliding", m_sliding);
+        //m_animator.SetBool("IsSliding", m_sliding);
     }
 
     public void SetSlideOffsetPose(float p_value)
@@ -247,17 +271,37 @@ public class PlayerVisualsController : MonoBehaviour
         }
     }
 
-    public void SetTurnBlendValue(float p_targetAngle)
+    public void SetTurnBlendValue(float p_targetAngle, bool p_zeroValue = false)
 	{
         Vector3 targetMovementRotation = Quaternion.Euler(0, p_targetAngle, 0f) * Vector3.forward;
         float betweenMovementAngle = Vector3.Angle(transform.forward, targetMovementRotation);
         float progress = betweenMovementAngle / m_maximumTurnAngle;
         float moveDir = -Mathf.Sign(Vector3.Cross(targetMovementRotation, transform.forward).y);
-        m_turnBlend.SetBlendValue(progress * moveDir);
+		
+		if (p_zeroValue)
+		{
+            m_turnBlend.SetBlendValue(0);
+		}
+		else
+		{
+            m_turnBlend.SetBlendValue(progress * moveDir);
+        }
 
         float t = Mathf.InverseLerp(-1, 1, progress * moveDir);
         float horizontalRotation = Mathf.Lerp(-90, 90, t);
         Quaternion headRotation = Quaternion.Euler(0, horizontalRotation, 0);
         m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
+    }
+
+    public void RunTiredness(float p_currentTiredness)
+	{
+		if (!m_sweatParticle.isPlaying)
+		{
+            m_sweatParticle.Play();
+        }
+
+        float sweatAmount = Mathf.Lerp(m_minMaxSweatAmount.x, m_minMaxSweatAmount.y, p_currentTiredness);
+        ParticleSystem.EmissionModule emmision = m_sweatParticle.emission;
+        emmision.rateOverTime = sweatAmount;
     }
 }

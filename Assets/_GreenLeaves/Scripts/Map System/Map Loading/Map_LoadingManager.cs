@@ -428,20 +428,18 @@ public class Map_LoadingManager : MonoBehaviour
 
     public float GetHungerBerryChance( int p_currentBerryCount)
     {
-        float chance = m_hungerPercentCurve.Evaluate(PlayerStatsController.Instance.m_currentHunger / PlayerStatsController.Instance.m_hungerMax)/2;
+        float chance = m_hungerPercentCurve.Evaluate(PlayerStatsController.Instance.m_currentHunger / 100)/2;
         chance += 0.5f - Mathf.Lerp(0, 0.5f, Inventory_2DMenu.Instance.GetAmountOfHungerBerries() / m_maxBerryCount);
 
         chance -= p_currentBerryCount * m_percentDecreasePerBerry;
         chance = Mathf.Clamp(chance, 0, 1);
-
-        
 
         return chance;
     }
 
     public float GetStaminaBerryChance(int p_currentBerryCount)
     {
-        float chance = m_staminaCurve.Evaluate(PlayerStatsController.Instance.m_currentSecondaryEnergy / PlayerStatsController.Instance.m_secondaryEnergyMax) / 2;
+        float chance = m_staminaCurve.Evaluate(PlayerStatsController.Instance.m_currentStamina / 100) / 2;
         chance += 0.5f - Mathf.Lerp(0, 0.5f, Inventory_2DMenu.Instance.GetAmountOfStaminaBerries() / m_maxBerryCount);
 
         chance -= p_currentBerryCount * m_percentDecreasePerBerry;
@@ -453,7 +451,7 @@ public class Map_LoadingManager : MonoBehaviour
 
     public float GetEnergyBerryChance(int p_currentBerryCount)
     {
-        float chance = m_energyPercentCurve.Evaluate(PlayerStatsController.Instance.m_currentMainEnergy / PlayerStatsController.Instance.m_mainEnergyMax) / 2;
+        float chance = m_energyPercentCurve.Evaluate(PlayerStatsController.Instance.m_currentEnergy / 100) / 2;
         chance += 0.5f - Mathf.Lerp(0, 0.5f, Inventory_2DMenu.Instance.GetAmountOfStaminaBerries() / m_maxBerryCount);
 
         chance -= p_currentBerryCount * m_percentDecreasePerBerry;

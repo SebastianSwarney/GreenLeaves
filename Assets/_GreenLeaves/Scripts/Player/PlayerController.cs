@@ -10,6 +10,9 @@ using Sirenix.OdinInspector;
 [Serializable]
 public class PlayerControllerEvent : UnityEvent { }
 
+[Serializable]
+public class PlayerControllerLandedEvent : UnityEvent<float> { }
+
 public class PlayerController : MonoBehaviour
 {
 	public Transform m_viewCameraTransform;
@@ -19,6 +22,9 @@ public class PlayerController : MonoBehaviour
 	private Vector3 m_horizontalInput;
 
 	private PlayerVisualsController m_playerVisuals;
+
+	[PropertyTooltip("Use this to bypass needing the pick for climbing")]
+	public bool m_debugMode;
 
 	#region General Collision
 	[FoldoutGroup("General Collision")]
@@ -58,6 +64,10 @@ public class PlayerController : MonoBehaviour
 	private bool m_forceGravity;
 	private Vector3 m_gravityVelocity;
 	private bool m_hasJumped;
+	private bool m_hasLanded;
+	private float m_distanceFallen;
+	private Vector3 m_lastFallPosition;
+	private bool m_setFallPosition;
 	#endregion
 
 	#region Slide Properties
@@ -82,6 +92,7 @@ public class PlayerController : MonoBehaviour
 	private float m_currentSlopeAngle;
 	private float m_currentSlownessFactor;
 	private bool m_sliding;
+	private bool m_onSlopedSurface;
 	#endregion
 
 	#region Misc Slide
@@ -89,6 +100,7 @@ public class PlayerController : MonoBehaviour
 	private AnimationCurve m_preSlideCurve;
 	private float m_slopeSpeedSlowStartAngle;
 	private float m_slideRecoveryTime;
+	private float m_endSlideTime;
 	private AnimationCurve m_endSlideCruve;
 	private bool m_runningPreSlide;
 	#endregion
@@ -104,6 +116,8 @@ public class PlayerController : MonoBehaviour
 	public float m_climbAcceleration;
 	[FoldoutGroup("Climbing")]
 	public float m_climbStartDistance;
+	[FoldoutGroup("Climbing")]
+	public float m_climbAngle;
 	[FoldoutGroup("Climbing")]
 	public float m_wallAlignmentToStartClimb;
 	[FoldoutGroup("Climbing")]
@@ -122,6 +136,8 @@ public class PlayerController : MonoBehaviour
 	public float m_armWidth;
 	[FoldoutGroup("Climbing")]
 	public float m_handHeight;
+	[FoldoutGroup("Climbing")]
+	public GameObject m_climbCamera;
 
 	private bool m_clamber;
 	private bool m_groundCancel;
@@ -131,12 +147,28 @@ public class PlayerController : MonoBehaviour
 	private Vector3 m_climbMovementSmoothingVelocity;
 	private Vector3 m_wallStickVelocity;
 	private Vector3 m_horizontalWallDirection;
+	private Vector3 m_climbNormal;
+	#endregion
+
+	#region Passed Out Properties
+	private bool m_passedOut;
+	#endregion
+
+	#region Log Properties
+	[FoldoutGroup("Logging")]
+	public bool m_logFallDistance;
 	#endregion
 
 	private void Start()
 	{
 		m_characterController = GetComponent<CharacterController>();
 		m_playerVisuals = GetComponent<PlayerVisualsController>();
+
+		m_lastFallPosition = new Vector3(0, transform.position.y, 0);
+
+		m_passedOut = false;
+
+		m_characterController.slopeLimit = m_slideStartAngle;
 	}
 
 	private void OnValidate()
@@ -175,8 +207,10 @@ public class PlayerController : MonoBehaviour
 		CheckSlide();
 
 		CaculateTotalVelocity();
-		DecendSlopeBelow(m_characterController.velocity * Time.fixedDeltaTime);
 
+		LandedLoop();
+
+		DecendSlopeBelow();
 		if (!CheckGravityConditions())
 		{
 			m_gravityVelocity.y = 0;
@@ -184,6 +218,7 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
+	#region State and Velocity Updates
 	private void UpdatePlayerCastPoints()
 	{
 		m_playerBottom = transform.position + (Vector3.down * (m_characterController.height / 2));
@@ -194,7 +229,6 @@ public class PlayerController : MonoBehaviour
 	{
 		m_movementInput = p_input;
 	}
-
 
 	private void CaculateTotalVelocity()
 	{
@@ -222,6 +256,55 @@ public class PlayerController : MonoBehaviour
 
 		m_horizontalVelocity = new Vector3(m_characterController.velocity.x, 0, m_characterController.velocity.z);
 	}
+	#endregion
+
+	#region Pass Out Code
+	public void PassOut()
+	{
+		if (!m_passedOut)
+		{
+			StartCoroutine(RunPassOut());
+		}
+	}
+
+	private IEnumerator RunPassOut()
+	{
+		m_passedOut = true;
+
+		while (!m_characterController.isGrounded)
+		{
+			yield return null;
+		}
+
+		m_playerVisuals.m_animator.SetTrigger("PassOut");
+
+		while (m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1)
+		{
+			yield return null;
+		}
+
+		while (m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1)
+		{
+			yield return null;
+		}
+
+		yield return GlobalSceneManager.Instance.FadeAnimation(true);
+
+		DaytimeCycle_Update.Instance.PassOut();
+		PlayerStatsController.Instance.SetEnergyToMax();
+		m_playerVisuals.m_animator.SetTrigger("StandUp");
+
+		yield return GlobalSceneManager.Instance.FadeAnimation(false);
+
+		while (!m_playerVisuals.m_animator.GetCurrentAnimatorStateInfo(0).IsName("Ground Movement"))
+		{
+			yield return null;
+		}
+
+		Inventory_2DMenu.Instance.ClearInventory();
+		m_passedOut = false;
+	}
+	#endregion
 
 	#region Ground Movement
 	public void OnSprintButtonDown()
@@ -235,6 +318,16 @@ public class PlayerController : MonoBehaviour
 
 	public bool CheckGroundMovement()
 	{
+		if (!PlayerStatsController.Instance.HasEnergy())
+		{
+			return false;
+		}
+
+		if (m_passedOut)
+		{
+			return false;
+		}
+
 		if (m_sliding)
 		{
 			return false;
@@ -250,7 +343,7 @@ public class PlayerController : MonoBehaviour
 
 	public bool CheckSprintConditions()
 	{
-		if (m_characterController.isGrounded && m_sprinting)
+		if (m_characterController.isGrounded && m_sprinting && m_horizontalInput.magnitude > 0)
 		{
 			return true;
 		}
@@ -273,7 +366,6 @@ public class PlayerController : MonoBehaviour
 
 		m_horizontalInput = newHorizontalInput;
 
-
 		float targetAngle = transform.eulerAngles.y;
 
 		if (m_horizontalInput.magnitude > 0)
@@ -289,6 +381,7 @@ public class PlayerController : MonoBehaviour
 		if (CheckSprintConditions())
 		{
 			horizontalSpeed = m_sprintSpeed;
+			PlayerStatsController.Instance.SprintEnergyDrain();
 		}
 		else
 		{
@@ -300,12 +393,76 @@ public class PlayerController : MonoBehaviour
 		Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
 
 		m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
-
-		//m_playerVisuals.SetTurnBlendValue(targetAngle);
+		m_playerVisuals.SetTurnBlendValue(targetAngle);
 	}
 	#endregion
 
 	#region Jump and Gravity
+
+	private bool CheckLanded()
+	{
+		if (m_characterController.isGrounded && !m_climbing && !m_hasLanded)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private bool ResetLanded()
+	{
+		if (!m_characterController.isGrounded && m_gravityVelocity.y < 0)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private void LandedLoop()
+	{
+		if (ResetLanded())
+		{
+			m_hasLanded = false;
+			//m_playerVisuals.ToggleGrounder(false);
+		}
+
+		if (CheckLanded())
+		{
+			OnLanded();
+			m_hasLanded = true;
+		}
+
+		if (!m_characterController.isGrounded && m_gravityVelocity.y < 0 && !m_setFallPosition)
+		{
+			m_lastFallPosition = new Vector3(0, transform.position.y, 0);
+			m_setFallPosition = true;
+		}
+	}
+
+	private void OnLanded()
+	{
+		Vector3 verticalPosition = new Vector3(0, transform.position.y, 0);
+		float dst = Vector3.Distance(m_lastFallPosition, verticalPosition);
+		m_distanceFallen = dst;
+		m_setFallPosition = false;
+
+		if (m_logFallDistance)
+		{
+			Debug.Log("The player fell " + m_distanceFallen);
+		}
+
+		if (m_distanceFallen > m_minMaxJumpHeight.y)
+		{
+			PlayerStatsController.Instance.CalculateFallDamage(m_distanceFallen);
+		}
+
+		m_playerVisuals.ToggleGrounder(true);
+
+		//This should always be last
+		m_distanceFallen = 0;
+	}
+
 	private void CalculateJump()
 	{
 		m_gravity = -(2 * m_minMaxJumpHeight.y) / Mathf.Pow(m_timeToJumpApex, 2);
@@ -350,9 +507,19 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
+	private bool CheckJump()
+	{
+		if (m_characterController.isGrounded && !m_passedOut && !m_onSlopedSurface)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	public void OnJumpInputDown()
 	{
-		if (m_characterController.isGrounded)
+		if (CheckJump())
 		{
 			JumpMaxVelocity();
 		}
@@ -391,6 +558,16 @@ public class PlayerController : MonoBehaviour
 
 	private bool CanStartClimb()
 	{
+		if (m_passedOut)
+		{
+			return false;
+		}
+
+		if (!Player_EquipmentUse_Pick.Instance.m_canClimb && !m_debugMode)
+		{
+			return false;
+		}
+
 		float wallFacingDot = Vector3.Dot(m_horizontalDirection, m_horizontalWallDirection);
 
 		if (m_onClimbSurface && wallFacingDot >= m_wallAlignmentToStartClimb && m_movementInput.y > 0 && !m_climbing && m_characterController.isGrounded)
@@ -407,12 +584,21 @@ public class PlayerController : MonoBehaviour
 		float targetClamberHeight = 0;
 		Vector3 ledgeTopPos = Vector3.zero;
 
+		m_climbCamera.SetActive(true);
 		m_playerVisuals.ToggleGrounder(false);
 
-		while (m_onClimbSurface && m_climbing && !m_clamber && !m_groundCancel)
+		Vector3 lastClimbPos = transform.position;
+
+		while (!m_clamber && !m_groundCancel && !m_passedOut && Player_EquipmentUse_Pick.Instance.m_canClimb)
 		{
 			ClimbAnimations();
 			ClimbMovement();
+
+			if (Vector3.Distance(lastClimbPos, transform.position) > 1 && !m_debugMode)
+			{
+				Player_EquipmentUse_Pick.Instance.UseEquipment(); //Reduces the equipment durability by 1
+				lastClimbPos = transform.position;
+			}
 
 			Vector3 localClimbVelocity = transform.InverseTransformDirection(m_climbVelocity);
 			Vector2 normalClimbVel = new Vector2(Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.x), Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.y));
@@ -442,6 +628,10 @@ public class PlayerController : MonoBehaviour
 		else if (m_groundCancel)
 		{
 			StartCoroutine(GroundClimbCancel());
+		}
+		else if (m_passedOut)
+		{
+			ResetClimb();
 		}
 		else
 		{
@@ -503,7 +693,7 @@ public class PlayerController : MonoBehaviour
 
 			float currentClamberSpeed = Mathf.Lerp(m_climbSpeed, m_clamberSpeed, m_clamberCurve.Evaluate(heightProgress));
 			m_climbVelocity = Vector3.up * currentClamberSpeed;
-			m_wallStickVelocity = -m_climbTransform.forward * m_climbSpeed;
+			m_wallStickVelocity = transform.forward * m_climbSpeed;
 
 			lastSpeed = currentClamberSpeed;
 
@@ -552,7 +742,7 @@ public class PlayerController : MonoBehaviour
 
 		if (Physics.Raycast(m_playerTop, transform.forward, out clamberHit, m_climbStartDistance, m_climbMask))
 		{
-			if (Vector3.Angle(clamberHit.normal, Vector3.up) < 90)
+			if (Vector3.Angle(clamberHit.normal, Vector3.up) < m_climbAngle)
 			{
 				p_targetClamberHeight = m_playerTop.y;
 				p_ledgePosition = clamberHit.point;
@@ -577,7 +767,7 @@ public class PlayerController : MonoBehaviour
 
 		if (Physics.Raycast(m_playerBottom, transform.forward, out clamberHit, m_climbStartDistance, m_climbMask))
 		{
-			if (Vector3.Angle(clamberHit.normal, Vector3.up) < 90)
+			if (Vector3.Angle(clamberHit.normal, Vector3.up) < m_climbAngle)
 			{
 				Debug.DrawRay(m_playerBottom, transform.forward);
 				return true;
@@ -598,7 +788,9 @@ public class PlayerController : MonoBehaviour
 
 		if (Physics.Raycast(transform.position, transform.forward, out climbHit, m_climbStartDistance, m_climbMask))
 		{
-			if (Vector3.Angle(climbHit.normal, Vector3.up) >= 90)
+			float angle = Vector3.Angle(climbHit.normal, Vector3.up);
+
+			if (angle >= m_climbAngle)
 			{
 				m_climbTransform.rotation = Quaternion.LookRotation(climbHit.normal);
 
@@ -626,6 +818,8 @@ public class PlayerController : MonoBehaviour
 		m_playerVisuals.ToggleGrounder(true);
 		m_playerVisuals.CenterHead();
 
+		m_climbCamera.SetActive(false);
+
 		ResetClimbVelocitys();
 	}
 
@@ -644,8 +838,7 @@ public class PlayerController : MonoBehaviour
 		Vector3 climbMovement = Vector3.SmoothDamp(m_climbVelocity, targetClimbMovement, ref m_climbMovementSmoothingVelocity, m_climbAcceleration);
 		m_climbVelocity = climbMovement;
 
-		m_wallStickVelocity = -m_climbTransform.forward * m_climbSpeed;
-
+		m_wallStickVelocity = transform.forward * m_climbSpeed;
 		transform.rotation = Quaternion.LookRotation(m_horizontalWallDirection);
 	}
 
@@ -655,6 +848,7 @@ public class PlayerController : MonoBehaviour
 		Vector2 normalClimbVel = new Vector2(Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.x), Mathf.InverseLerp(-m_climbSpeed, m_climbSpeed, localClimbVelocity.y));
 		Vector2 animValue = new Vector2(Mathf.Lerp(-1, 1, normalClimbVel.x), Mathf.Lerp(-1, 1, normalClimbVel.y));
 		m_playerVisuals.ClimbAnimations(animValue.x, animValue.y);
+		m_playerVisuals.SetTurnBlendValue(0, true);
 	}
 	#endregion
 
@@ -662,22 +856,37 @@ public class PlayerController : MonoBehaviour
 	private void CalculateSlopeVariables()
 	{
 		m_currentSlopeAngle = Vector3.Angle(m_averageNormal, Vector3.up);
-		m_slopeTransform.rotation = Quaternion.LookRotation(m_averageNormal);
+
+		if (m_averageNormal != Vector3.zero)
+		{
+			m_slopeTransform.rotation = Quaternion.LookRotation(m_averageNormal);
+		}
+
 		Vector3 normalCross = Vector3.Cross(Vector3.up, m_averageNormal);
 		Vector3 movementSlopeCross = Vector3.Cross(normalCross, m_horizontalDirection).normalized;
 		m_slopeFacingDirection = Mathf.Sign(movementSlopeCross.y);
+
+		if (m_currentSlopeAngle >= m_slideStartAngle)
+		{
+			m_onSlopedSurface = true;
+		}
+		else
+		{
+			m_onSlopedSurface = false;
+		}
 	}
 
 	private void CheckSlide()
 	{
 		if (m_slopeFacingDirection < 0)
 		{
-			StartSlideLoop(m_slopeFacingDirection);
+			//StartSlideLoop(m_slopeFacingDirection);
 			return;
 		}
 
 		m_currentSlownessFactor = 1;
 
+		/*
 		if (m_slopeFacingDirection > 0 && m_currentSlopeAngle >= m_slideEndAngle && !m_sliding)
 		{
 			float slopeInverse = m_slopeSlowCurve.Evaluate(Mathf.InverseLerp(m_slideEndAngle, m_slideStartAngle, m_currentSlopeAngle));
@@ -689,16 +898,17 @@ public class PlayerController : MonoBehaviour
 		{
 			m_currentSlownessFactor = 1;
 		}
+		*/
 
 		if (m_currentSlopeAngle >= m_slideStartAngle)
 		{
-			StartSlideLoop(m_slopeFacingDirection);
+			//StartSlideLoop(m_slopeFacingDirection);
 		}
 	}
 
 	private bool CheckSlideConditions()
 	{
-		if (m_currentSlopeAngle >= m_slideEndAngle && m_onSlideSurface)
+		if (m_currentSlopeAngle >= m_slideEndAngle && m_onSlideSurface && m_characterController.isGrounded)
 		{
 			return true;
 		}
@@ -727,7 +937,33 @@ public class PlayerController : MonoBehaviour
 
 			SlideRotation(p_facingDir);
 
-			m_playerVisuals.SetSlideOffsetPose(currentSlopePercent);
+			//m_playerVisuals.SetSlideOffsetPose(currentSlopePercent);
+
+			yield return new WaitForFixedUpdate();
+		}
+
+		//m_slopeVelocity = Vector3.zero;
+		//m_sliding = false;
+
+		StartCoroutine(SlideEndPush(p_facingDir));
+	}
+
+	private IEnumerator SlideEndPush(float p_facingDir)
+	{
+		float t = 0;
+
+		while (t < m_endSlideTime)
+		{
+			t += Time.fixedDeltaTime;
+
+			float progress = m_endSlideCruve.Evaluate(t / m_endSlideTime);
+
+			float currentSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, 0, progress);
+
+			Vector3 targetSlopeVelocity = -m_slopeTransform.up * currentSpeed;
+			m_slopeVelocity = targetSlopeVelocity;
+
+			SlideRotation(p_facingDir);
 
 			yield return new WaitForFixedUpdate();
 		}
@@ -735,6 +971,7 @@ public class PlayerController : MonoBehaviour
 		m_slopeVelocity = Vector3.zero;
 		m_sliding = false;
 	}
+
 
 	private void SlideRotation(float p_facingDir)
 	{
@@ -765,40 +1002,6 @@ public class PlayerController : MonoBehaviour
 		m_runningPreSlide = false;
 
 		StartCoroutine(RunSlide(p_facingDir));
-	}
-
-	private IEnumerator SlideEndPush(float p_facingDir)
-	{
-		float t = 0;
-
-		while (t < 0.1f)
-		{
-			t += Time.fixedDeltaTime;
-
-			float progress = m_endSlideCruve.Evaluate(t / 0.1f);
-
-			float currentSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, 0, progress);
-
-			Vector3 targetSlopeVelocity = -m_slopeTransform.up * currentSpeed;
-			m_slopeVelocity = targetSlopeVelocity;
-
-			SlideRotation(p_facingDir);
-
-			yield return new WaitForFixedUpdate();
-		}
-
-		m_slopeVelocity = Vector3.zero;
-
-		t = 0;
-
-		while (t < m_slideRecoveryTime)
-		{
-			t += Time.fixedDeltaTime;
-
-			yield return new WaitForFixedUpdate();
-		}
-
-		m_sliding = false;
 	}
 	#endregion
 
@@ -840,7 +1043,7 @@ public class PlayerController : MonoBehaviour
 		return true;
 	}
 
-	private void DecendSlopeBelow(Vector3 p_moveAmount)
+	private void DecendSlopeBelow()
 	{
 		if (ResetGroundSnap())
 		{
@@ -869,6 +1072,11 @@ public class PlayerController : MonoBehaviour
 
 	private void ClimbSlopeBelow(ref Vector3 p_moveAmount, Vector3 p_horizontalVelocity)
 	{
+		if (m_climbing)
+		{
+			return;
+		}
+
 		Vector3 localXAxis = Vector3.Cross(p_horizontalVelocity, Vector3.up);
 		Vector3 forwardRotation = Vector3.ProjectOnPlane(m_averageNormal, localXAxis);
 		Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
@@ -901,6 +1109,11 @@ public class PlayerController : MonoBehaviour
 
 			m_averageNormal = hit.normal;
 		}
+
+		if (CheckCollisionLayer(m_climbMask, hit.collider.gameObject))
+		{
+			m_climbNormal = hit.normal;
+		}
 	}
 
 	public bool CheckCollisionLayer(LayerMask p_layerMask, GameObject p_object)
@@ -913,13 +1126,6 @@ public class PlayerController : MonoBehaviour
 		{
 			return false;
 		}
-	}
-	#endregion
-
-	#region Public Bools
-	public bool IsGrounded()
-	{
-		return m_characterController.isGrounded;
 	}
 	#endregion
 }

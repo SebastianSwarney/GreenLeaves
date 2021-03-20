@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SoundEmitter_FootSteps : MonoBehaviour
 {
+    public static SoundEmitter_FootSteps Instance;
+
     public Transform m_playerHeadObject;
     public LayerMask m_nonTerrainMask;
 
@@ -17,13 +19,24 @@ public class SoundEmitter_FootSteps : MonoBehaviour
     public string m_currentSound;
     private string m_currentSoundTrack;
 
+	private void Awake()
+	{
+		if (Instance == null)
+		{
+            Instance = this;
+		}
+		else
+		{
+            Destroy(gameObject);
+		}
+	}
 
-    /// <summary>
-    /// Used to keep track of the different terrains the player has walked on
-    /// Is kept as a dictionary, to easily cache the terrain should the player walk on it
-    /// rather than get all the values at runtime, it only gets it once at runtime.
-    /// </summary>
-    public Dictionary<string, CachedTerrain> m_cachedTerrain;
+	/// <summary>
+	/// Used to keep track of the different terrains the player has walked on
+	/// Is kept as a dictionary, to easily cache the terrain should the player walk on it
+	/// rather than get all the values at runtime, it only gets it once at runtime.
+	/// </summary>
+	public Dictionary<string, CachedTerrain> m_cachedTerrain;
     [System.Serializable]
     public class CachedTerrain
     {
