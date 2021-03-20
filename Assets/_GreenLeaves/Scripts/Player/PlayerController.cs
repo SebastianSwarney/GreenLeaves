@@ -85,6 +85,10 @@ public class PlayerController : MonoBehaviour
 	public AnimationCurve m_slopeSlowCurve;
 	[FoldoutGroup("Sliding")]
 	public float m_minimumSlopeSpeedPercent;
+	[FoldoutGroup("Sliding")]
+	public float m_endSlideTime;
+	[FoldoutGroup("Sliding")]
+	public AnimationCurve m_endSlideCruve;
 
 	private Vector3 m_slopeVelocity;
 	private float m_slopeFacingDirection;
@@ -100,8 +104,8 @@ public class PlayerController : MonoBehaviour
 	private AnimationCurve m_preSlideCurve;
 	private float m_slopeSpeedSlowStartAngle;
 	private float m_slideRecoveryTime;
-	private float m_endSlideTime;
-	private AnimationCurve m_endSlideCruve;
+
+
 	private bool m_runningPreSlide;
 	#endregion
 
@@ -860,11 +864,20 @@ public class PlayerController : MonoBehaviour
 	#region Slide
 	private void CalculateSlopeVariables()
 	{
-		m_currentSlopeAngle = Vector3.Angle(m_averageNormal, Vector3.up);
+		RaycastHit hit;
+
+		if (Physics.Raycast(m_playerTop, Vector3.down, out hit, Mathf.Infinity, m_slopeMask))
+		{
+			m_currentSlopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+
+			m_slopeTransform.rotation = Quaternion.LookRotation(hit.normal);
+		}
+
+		//m_currentSlopeAngle = Vector3.Angle(m_averageNormal, Vector3.up);
 
 		if (m_averageNormal != Vector3.zero)
 		{
-			m_slopeTransform.rotation = Quaternion.LookRotation(m_averageNormal);
+			//m_slopeTransform.rotation = Quaternion.LookRotation(m_averageNormal);
 		}
 
 		Vector3 normalCross = Vector3.Cross(Vector3.up, m_averageNormal);
@@ -883,8 +896,12 @@ public class PlayerController : MonoBehaviour
 
 	private void CheckSlide()
 	{
-		StartSlideLoop(m_slopeFacingDirection);
+		if (m_onSlopedSurface && m_characterController.isGrounded)
+		{
+			StartSlideLoop(m_slopeFacingDirection);
+		}
 
+		#region Not In Use
 		if (m_slopeFacingDirection < 0)
 		{
 			//StartSlideLoop(m_slopeFacingDirection);
@@ -911,13 +928,19 @@ public class PlayerController : MonoBehaviour
 		{
 			//StartSlideLoop(m_slopeFacingDirection);
 		}
+		#endregion
 	}
 
 	private bool CheckSlideConditions()
 	{
-		if (m_currentSlopeAngle >= m_slideStartAngle && m_onSlideSurface && m_characterController.isGrounded)
+		if (m_currentSlopeAngle >= m_slideEndAngle && m_onSlopedSurface && m_characterController.isGrounded)
 		{
 			return true;
+		}
+
+		if (m_currentSlopeAngle >= m_slideStartAngle && m_onSlideSurface && m_characterController.isGrounded)
+		{
+			//return true;
 		}
 
 		return false;
@@ -925,7 +948,7 @@ public class PlayerController : MonoBehaviour
 
 	private void StartSlideLoop(float p_facingDir)
 	{
-		if (!m_sliding && CheckSlideConditions())
+		if (!m_sliding)
 		{
 			StartCoroutine(RunSlide(p_facingDir));
 		}
@@ -939,20 +962,20 @@ public class PlayerController : MonoBehaviour
 		{
 			float currentSlopePercent = Mathf.InverseLerp(m_slideEndAngle, 90f, m_currentSlopeAngle);
 			float currentSlopeSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, m_minMaxSlideSpeed.y, currentSlopePercent);
-			Vector3 targetSlopeVelocity = -m_slopeTransform.up * currentSlopeSpeed;
+			
+			Vector3 targetSlopeVelocity = -m_slopeTransform.up * m_minMaxSlideSpeed.y;
 			m_slopeVelocity = targetSlopeVelocity;
 
-			SlideRotation(p_facingDir);
-
+			//SlideRotation(p_facingDir);
 			//m_playerVisuals.SetSlideOffsetPose(currentSlopePercent);
 
 			yield return new WaitForFixedUpdate();
 		}
 
-		//m_slopeVelocity = Vector3.zero;
-		//m_sliding = false;
+		m_slopeVelocity = Vector3.zero;
+		m_sliding = false;
 
-		StartCoroutine(SlideEndPush(p_facingDir));
+		//StartCoroutine(SlideEndPush(p_facingDir));
 	}
 
 	private IEnumerator SlideEndPush(float p_facingDir)
@@ -1067,7 +1090,7 @@ public class PlayerController : MonoBehaviour
 
 		float rayLength = 2f; //may want to make this not hard set but its working for now
 
-		if (Physics.Raycast(m_playerBottom, Vector3.down, out hit, rayLength))
+		if (Physics.Raycast(m_playerBottom + Vector3.up * 0.1f, Vector3.down, out hit, rayLength))
 		{
 			m_characterController.Move(new Vector3(0, -(hit.distance), 0));
 		}
