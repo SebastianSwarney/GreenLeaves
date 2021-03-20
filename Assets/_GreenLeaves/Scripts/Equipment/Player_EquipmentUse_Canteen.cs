@@ -17,6 +17,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
 
     public int m_unitsDrankPerSecond;
     private float m_drinkTimer;
+    public Sprite m_defaultCanteenSprite;
 
     [System.Serializable]
     public struct RefillType
@@ -74,6 +75,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
                 PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
                 m_linkedIcon.m_itemData = m_defaultCanteenData;
                 m_energyRefilType = new List<RefillType>(m_defaultCanteenData.m_energyRefilType);
+                m_linkedIcon.m_itemIcon.sprite = m_defaultCanteenSprite;
                 m_hasSpecialDrink = false;
 
                 m_gettingWater = true;

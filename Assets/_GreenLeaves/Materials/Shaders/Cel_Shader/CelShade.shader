@@ -21,6 +21,10 @@
 
 		[Header(Emission)]
 		[HDR]_Emission("Emission", Color) = (0,0,0,1)
+
+			[Header(Cutout)]
+		_CutoutMap("CutoutMap", 2D) = "white"{}
+			_CutoutAlpha("CutoutAmount", Range(0,1)) = 1
 	}
 	SubShader
 		{
@@ -28,7 +32,7 @@
 			LOD 200
 
 			CGPROGRAM
-			#pragma surface surf CelShaded fullforwardshadows
+			#pragma surface surf CelShaded fullforwardshadows addshadow
 			#pragma shader_feature SHADOWED_RIM
 			#pragma target 3.0
 
@@ -47,6 +51,10 @@
 
 			fixed4 _Emission;
 
+
+			///Cutout
+			sampler2D _CutoutMap;
+			float _CutoutAlpha;
 			struct Input {
 				float2 uv_MainTex;
 				float2 uv_Normal;
@@ -109,6 +117,8 @@
 
 			void surf (Input IN, inout SurfaceOutputCelShaded o) //the struct type should match the one used in the lighting model - i.e. SurfaceOutputCelShaded instead of SurfaceOutputStandard in this case
 			{
+				clip(tex2D(_CutoutMap, IN.uv_MainTex).r - _CutoutAlpha);
+
 				fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color; // get texture colors and multiply by main color
 				o.Albedo = c.rgb; // assign color from above to albedo/diffuse
 				o.Normal = UnpackNormal(tex2D(_Normal, IN.uv_Normal)); // sample normal map and unpack its values to assign them to the normal field

@@ -10,10 +10,14 @@ public class ScreenshotManager : MonoBehaviour
     public bool m_canTakeImage = true;
 
     public float m_delayTime;
+    public bool m_disableOnAwake = true;
     private void Awake()
     {
         Instance = this;
-        gameObject.SetActive(false);
+        if (m_disableOnAwake)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     private void Update()
