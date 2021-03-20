@@ -126,7 +126,7 @@ public class PlayerVisualsController : MonoBehaviour
     public void SetJumpAnimations(float p_airMovement, bool p_hasJumped)
 	{
         m_animator.SetFloat("JumpMovement", p_airMovement);
-        ToggleGrounder(!p_hasJumped);
+        //ToggleGrounder(!p_hasJumped);
     }
 
     public void SetGrounded(bool p_groundedState)
@@ -216,7 +216,7 @@ public class PlayerVisualsController : MonoBehaviour
         }
 
         m_currentGrounderWeight = Mathf.SmoothDamp(m_currentGrounderWeight, weightTarget, ref m_grounderSmoothingVelocity, m_grounderSmoothingTime);
-        m_grounder.weight = m_currentGrounderWeight;
+        //m_grounder.weight = m_currentGrounderWeight;
     }
 
     public void ToggleGrounder(bool p_grounderState)

@@ -190,6 +190,10 @@ public class PlayerController : MonoBehaviour
 		{
 			m_playerVisuals.SetGroundHeadRotation(m_averageNormal);
 		}
+
+		m_playerVisuals.m_animator.SetBool("IsGrounded", m_characterController.isGrounded);
+
+		m_playerVisuals.m_animator.SetFloat("YVelocity", m_gravityVelocity.y);
 	}
 
 	private void FixedUpdate()
@@ -537,6 +541,8 @@ public class PlayerController : MonoBehaviour
 	{
 		m_hasJumped = true;
 		m_gravityVelocity.y = m_maxJumpVelocity;
+
+		m_playerVisuals.m_animator.SetTrigger("Jumped");
 	}
 
 	private void JumpMinVelocity()
