@@ -72,10 +72,6 @@ public class PlayerVisualsController : MonoBehaviour
     [HideInInspector]
     public Animator m_animator;
 
-    public Transform m_leftFoot;
-
-    public GameObject m_testParticle;
-
     private void Start()
 	{
         m_playerController = GetComponent<PlayerController>();
@@ -102,11 +98,7 @@ public class PlayerVisualsController : MonoBehaviour
 
     public void OnFootUpdate(int p_footSide)
 	{
-		if (p_footSide < 0)
-		{
-            //ParticleSystem ps = Instantiate(m_testParticle, m_leftFoot.position, Quaternion.identity).GetComponent<ParticleSystem>();
-            //ps.Play();
-        }
+
 	}
 
 	#region General Animations
