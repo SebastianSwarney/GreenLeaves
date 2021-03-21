@@ -8,8 +8,8 @@ public class PlayerStatsController : MonoBehaviour
 {
     public static PlayerStatsController Instance;
 
-	#region Energy Properties
-	[FoldoutGroup("Energy")]
+    #region Energy Properties
+    [FoldoutGroup("Energy")]
     public float m_energyDepletionRate;
     [FoldoutGroup("Energy")]
     public float m_energyGainPerHour;
@@ -22,9 +22,9 @@ public class PlayerStatsController : MonoBehaviour
 
     [HideInInspector]
     public float m_currentEnergy;
-	#endregion
+    #endregion
 
-	#region Stamina Properties
+    #region Stamina Properties
     [FoldoutGroup("Stamina")]
     public float m_staminaReplenishTime;
     [FoldoutGroup("Stamina")]
@@ -36,10 +36,10 @@ public class PlayerStatsController : MonoBehaviour
 
     [HideInInspector]
     public float m_currentStamina;
-	#endregion
+    #endregion
 
-	#region Hunger Properties
-	[FoldoutGroup("Hunger")]
+    #region Hunger Properties
+    [FoldoutGroup("Hunger")]
     public float m_maxDrainMultiplier;
     [FoldoutGroup("Hunger")]
     public float m_hungerDepletionRate;
@@ -97,17 +97,17 @@ public class PlayerStatsController : MonoBehaviour
 
         m_currentDrainMultiplier = (int)Mathf.Lerp(m_maxDrainMultiplier, 1f, m_currentHunger / 100);
 
-		if (!HasEnergy())
-		{
+        if (!HasEnergy())
+        {
             m_playerController.PassOut();
-		}
+        }
 
         UpdateUI();
     }
 
-	#region General Drain Functions
-	public void DrainEnergyPercentage(float p_inputAmountToDrain)
-	{
+    #region General Drain Functions
+    public void DrainEnergyPercentage(float p_inputAmountToDrain)
+    {
         p_inputAmountToDrain *= 0.01f;
 
         float energyToDeplete = 100 * p_inputAmountToDrain;
@@ -116,11 +116,11 @@ public class PlayerStatsController : MonoBehaviour
     }
 
     private void DrainEnergySingleInstance(float p_inputAmountToDrain)
-	{
+    {
         float totalAmountToDrain = p_inputAmountToDrain * m_currentDrainMultiplier;
 
-		if (m_currentStamina > 0)
-		{
+        if (m_currentStamina > 0)
+        {
             m_currentStamina -= totalAmountToDrain;
 
             if (m_currentStamina <= 0)
@@ -136,7 +136,7 @@ public class PlayerStatsController : MonoBehaviour
     }
 
     private void DrainEnergyOverTime(float p_inputAmoutnToDrain)
-	{
+    {
         float depletionSpeed = 100 / p_inputAmoutnToDrain;
         float totalAmountToDrain = (depletionSpeed * Time.deltaTime) * m_currentDrainMultiplier;
 
@@ -149,11 +149,11 @@ public class PlayerStatsController : MonoBehaviour
             m_currentEnergy -= totalAmountToDrain;
         }
     }
-	#endregion
+    #endregion
 
-	#region Drain Actions
-	private void RunPassiveEnergyDrain()
-	{
+    #region Drain Actions
+    private void RunPassiveEnergyDrain()
+    {
         if (!m_pauseStatDrain)
         {
             float depletionSpeed = 100 / m_energyDepletionRate;
@@ -168,7 +168,7 @@ public class PlayerStatsController : MonoBehaviour
     }
 
     private void RunPassiveHungerDrain()
-	{
+    {
         if (!m_pauseStatDrain)
         {
             float depletionSpeed = 100 / m_hungerDepletionRate;
@@ -195,7 +195,7 @@ public class PlayerStatsController : MonoBehaviour
     }
 
     public void SprintEnergyDrain()
-	{
+    {
         if (UsingMainEnergy())
         {
             DrainEnergyOverTime(m_sprintEnergyDepletionTime);
@@ -208,21 +208,23 @@ public class PlayerStatsController : MonoBehaviour
 
     public void CalculateFallDamage(float p_distanceFallen)
     {
+        if (p_distanceFallen < m_minMaxFallDistance.x) return;
+
         float fallPercent = Mathf.InverseLerp(m_minMaxFallDistance.x, m_minMaxFallDistance.y, p_distanceFallen);
 
         float damageAmount = Mathf.Lerp(m_minMaxFallStaminaLossPercent.x, m_minMaxFallStaminaLossPercent.y, fallPercent);
 
         if (UsingMainEnergy())
-		{
+        {
             damageAmount = Mathf.Lerp(m_minMaxFallEnergyLossPercent.x, m_minMaxFallEnergyLossPercent.y, fallPercent);
         }
 
         DrainEnergyPercentage(damageAmount);
     }
-	#endregion
+    #endregion
 
-	#region Stat Adding
-	public void SetEnergyToMax()
+    #region Stat Adding
+    public void SetEnergyToMax()
     {
         m_currentEnergy = 100;
         m_currentStamina = 100;
@@ -236,8 +238,8 @@ public class PlayerStatsController : MonoBehaviour
             return;
         }
 
-		if (!m_pauseStatDrain)
-		{
+        if (!m_pauseStatDrain)
+        {
             if (m_currentStamina < 100)
             {
                 float replenishSpeed = 100 / m_staminaReplenishTime;
@@ -269,7 +271,7 @@ public class PlayerStatsController : MonoBehaviour
                         m_currentEnergy = 100;
                     }
                 }
-                
+
                 break;
             #endregion
 
@@ -308,9 +310,9 @@ public class PlayerStatsController : MonoBehaviour
 
         UpdateUI();
     }
-	#endregion
+    #endregion
 
-	public bool HasEnergy()
+    public bool HasEnergy()
     {
         if (m_currentEnergy > 0)
         {
@@ -321,18 +323,18 @@ public class PlayerStatsController : MonoBehaviour
     }
 
     public bool UsingMainEnergy()
-	{
-		if (m_currentStamina <= 0)
-		{
+    {
+        if (m_currentStamina <= 0)
+        {
             return true;
-		}
+        }
 
         return false;
-	}
+    }
 
     #region UI
     private void UpdateUI()
-	{
+    {
         m_hungerImage.fillAmount = m_currentHunger / 100;
         m_hungerImage.color = m_hungerColorGradient.Evaluate(m_currentHunger / 100);
 
@@ -348,10 +350,10 @@ public class PlayerStatsController : MonoBehaviour
         m_secondaryEnergyShake.UpdateShakeAmount(Mathf.Lerp(1, 0, (m_currentStamina / m_staminaStartShakingAmount)));
         m_hungerShake.UpdateShakeAmount(Mathf.Lerp(1, 0, (m_currentHunger / m_hungerStartShakingAmount)));
     }
-	#endregion
+    #endregion
 
-	#region Appears to be out of use
-	/*
+    #region Appears to be out of use
+    /*
     public float GetCurrentStat(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType p_typeOfStat)
     {
         switch (p_typeOfStat)
@@ -388,5 +390,5 @@ public class PlayerStatsController : MonoBehaviour
         return 0;
     }
     */
-	#endregion
+    #endregion
 }
