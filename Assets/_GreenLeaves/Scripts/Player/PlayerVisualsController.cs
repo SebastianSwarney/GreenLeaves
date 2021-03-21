@@ -72,10 +72,6 @@ public class PlayerVisualsController : MonoBehaviour
     [HideInInspector]
     public Animator m_animator;
 
-    public Transform m_leftFoot;
-
-    public GameObject m_testParticle;
-
     private void Start()
 	{
         m_playerController = GetComponent<PlayerController>();
@@ -102,11 +98,7 @@ public class PlayerVisualsController : MonoBehaviour
 
     public void OnFootUpdate(int p_footSide)
 	{
-		if (p_footSide < 0)
-		{
-            //ParticleSystem ps = Instantiate(m_testParticle, m_leftFoot.position, Quaternion.identity).GetComponent<ParticleSystem>();
-            //ps.Play();
-        }
+
 	}
 
 	#region General Animations
@@ -134,7 +126,7 @@ public class PlayerVisualsController : MonoBehaviour
     public void SetJumpAnimations(float p_airMovement, bool p_hasJumped)
 	{
         m_animator.SetFloat("JumpMovement", p_airMovement);
-        ToggleGrounder(!p_hasJumped);
+        //ToggleGrounder(!p_hasJumped);
     }
 
     public void SetGrounded(bool p_groundedState)
@@ -224,7 +216,7 @@ public class PlayerVisualsController : MonoBehaviour
         }
 
         m_currentGrounderWeight = Mathf.SmoothDamp(m_currentGrounderWeight, weightTarget, ref m_grounderSmoothingVelocity, m_grounderSmoothingTime);
-        m_grounder.weight = m_currentGrounderWeight;
+        //m_grounder.weight = m_currentGrounderWeight;
     }
 
     public void ToggleGrounder(bool p_grounderState)
