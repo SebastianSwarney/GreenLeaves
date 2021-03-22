@@ -1504,7 +1504,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_viewCameraTransform: {fileID: 8243094455889403908}
-  m_debugMode: 1
+  m_debugMode: 0
   m_groundMask:
     serializedVersion: 2
     m_Bits: 2560
@@ -1636,6 +1636,11 @@ MonoBehaviour:
   m_handHeight: 0
   m_climbCamera: {fileID: 3015370234898095962}
   m_logFallDistance: 0
+  m_waterMask:
+    serializedVersion: 2
+    m_Bits: 0
+  m_maxWaterHeight: 0.5
+  m_minMaxWaterSlowness: {x: 0.9, y: 0.3}
 --- !u!114 &98468501379874062
 MonoBehaviour:
   m_ObjectHideFlags: 0

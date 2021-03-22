@@ -158,6 +158,15 @@ public class PlayerController : MonoBehaviour
 	private bool m_passedOut;
 	#endregion
 
+	#region Water Slowing Properties
+	[FoldoutGroup("Water Slowing")]
+	public LayerMask m_waterMask;
+	[FoldoutGroup("Water Slowing")]
+	public float m_maxWaterHeight;
+	[FoldoutGroup("Water Slowing")]
+	public Vector2 m_minMaxWaterSlowness;
+	#endregion
+
 	#region Log Properties
 	[FoldoutGroup("Logging")]
 	public bool m_logFallDistance;
@@ -204,19 +213,14 @@ public class PlayerController : MonoBehaviour
 		UpdatePlayerCastPoints();
 
 		CalculateSlopeVariables();
-
 		GroundMovement();
-
 		RunGravity();
-
 		ClimbLoop();
-
 		CheckSlide();
+		CalculateWaterSlowness();
 
 		CaculateTotalVelocity();
-
 		LandedLoop();
-
 		DecendSlopeBelow();
 		if (!CheckGravityConditions())
 		{
@@ -243,6 +247,7 @@ public class PlayerController : MonoBehaviour
 
 		velocity += m_groundMovementVelocity;
 		velocity *= m_currentSlownessFactor;
+		m_currentSlownessFactor = 1;
 
 		velocity += m_slopeVelocity;
 
@@ -264,6 +269,18 @@ public class PlayerController : MonoBehaviour
 		m_horizontalVelocity = new Vector3(m_characterController.velocity.x, 0, m_characterController.velocity.z);
 	}
 	#endregion
+
+	private void CalculateWaterSlowness()
+	{
+		RaycastHit hit;
+
+		if (Physics.Raycast(m_playerTop, Vector3.down, out hit, Mathf.Infinity, m_waterMask))
+		{
+			float heightValue = Mathf.InverseLerp(m_characterController.height, m_maxWaterHeight, hit.distance);
+			float currentWaterSlowness = Mathf.Lerp(m_minMaxWaterSlowness.x, m_minMaxWaterSlowness.y, heightValue);
+			m_currentSlownessFactor = currentWaterSlowness;
+		}
+	}
 
 	#region Pass Out Code
 	public void PassOut()

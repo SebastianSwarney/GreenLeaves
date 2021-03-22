@@ -94,6 +94,18 @@ public class PlayerVisualsController : MonoBehaviour
 	{
         ArmIK();
         GrounderWeight();
+
+		if (Player_EquipmentUse_Torch.Instance != null)
+		{
+            if (Player_EquipmentUse_Torch.Instance.m_torchEquipped)
+            {
+                m_animator.SetLayerWeight(1, 1);
+            }
+            else
+            {
+                m_animator.SetLayerWeight(1, 0);
+            }
+        }
     }
 
     public void OnFootUpdate(int p_footSide)
