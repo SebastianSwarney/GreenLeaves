@@ -159,7 +159,7 @@ AnimatorStateMachine:
   m_AnyStatePosition: {x: -260, y: 120, z: 0}
   m_EntryPosition: {x: -240, y: 0, z: 0}
   m_ExitPosition: {x: 720, y: 290, z: 0}
-  m_ParentStateMachinePosition: {x: 400, y: 210, z: 0}
+  m_ParentStateMachinePosition: {x: 400, y: 220, z: 0}
   m_DefaultState: {fileID: 5954655090885659925}
 --- !u!1101 &-8471425163902276699
 AnimatorStateTransition:
@@ -636,7 +636,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: c8e64d34238ad2a429dc2c1b5d2be7f3, type: 2}
+  m_Motion: {fileID: 7400000, guid: 725bb2bfd919bd44981b95350a437426, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: IsSliding
@@ -1619,7 +1619,7 @@ AnimatorStateTransition:
     m_EventTreshold: 0
   - m_ConditionMode: 3
     m_ConditionEvent: ForwardMovement
-    m_EventTreshold: 0
+    m_EventTreshold: 0.25
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -4318628708650825967}
   m_Solo: 0
@@ -1786,7 +1786,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.05
   m_TransitionOffset: 0
   m_ExitTime: 1
-  m_HasExitTime: 1
+  m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 1
   m_OrderedInterruption: 1
