@@ -57,6 +57,8 @@ public class PlayerController : MonoBehaviour
 	public Vector2 m_minMaxJumpHeight;
 	[FoldoutGroup("Jumping")]
 	public float m_timeToJumpApex;
+	[FoldoutGroup("Jumping")]
+	public bool m_disableMovementDuringJump;
 
 	private float m_gravity;
 	private float m_maxJumpVelocity;
@@ -388,7 +390,10 @@ public class PlayerController : MonoBehaviour
 
 		m_playerVisuals.EvaluateSkidCondition(m_sprinting, newHorizontalInput, m_horizontalInput);
 
-		m_horizontalInput = newHorizontalInput;
+		if (m_characterController.isGrounded && m_disableMovementDuringJump)
+		{
+			m_horizontalInput = newHorizontalInput;
+		}
 
 		float targetAngle = transform.eulerAngles.y;
 
@@ -890,13 +895,6 @@ public class PlayerController : MonoBehaviour
 			m_slopeTransform.rotation = Quaternion.LookRotation(hit.normal);
 		}
 
-		//m_currentSlopeAngle = Vector3.Angle(m_averageNormal, Vector3.up);
-
-		if (m_averageNormal != Vector3.zero)
-		{
-			//m_slopeTransform.rotation = Quaternion.LookRotation(m_averageNormal);
-		}
-
 		Vector3 normalCross = Vector3.Cross(Vector3.up, m_averageNormal);
 		Vector3 movementSlopeCross = Vector3.Cross(normalCross, m_horizontalDirection).normalized;
 		m_slopeFacingDirection = Mathf.Sign(movementSlopeCross.y);
@@ -955,11 +953,6 @@ public class PlayerController : MonoBehaviour
 			return true;
 		}
 
-		if (m_currentSlopeAngle >= m_slideStartAngle && m_onSlideSurface && m_characterController.isGrounded)
-		{
-			//return true;
-		}
-
 		return false;
 	}
 
@@ -980,8 +973,9 @@ public class PlayerController : MonoBehaviour
 			float currentSlopePercent = Mathf.InverseLerp(m_slideEndAngle, 90f, m_currentSlopeAngle);
 			float currentSlopeSpeed = Mathf.Lerp(m_minMaxSlideSpeed.x, m_minMaxSlideSpeed.y, currentSlopePercent);
 			
-			Vector3 targetSlopeVelocity = -m_slopeTransform.up * m_minMaxSlideSpeed.y;
-			m_slopeVelocity = targetSlopeVelocity;
+			Vector3 downwardSlopeVelocity = -m_slopeTransform.up * m_minMaxSlideSpeed.y;
+			Vector3 shiftSlopeVelocity = transform.right * m_minMaxSlideSpeed.x * m_movementInput.x;
+			m_slopeVelocity = downwardSlopeVelocity + shiftSlopeVelocity;
 
 			//SlideRotation(p_facingDir);
 			//m_playerVisuals.SetSlideOffsetPose(currentSlopePercent);
@@ -1018,7 +1012,6 @@ public class PlayerController : MonoBehaviour
 		m_slopeVelocity = Vector3.zero;
 		m_sliding = false;
 	}
-
 
 	private void SlideRotation(float p_facingDir)
 	{

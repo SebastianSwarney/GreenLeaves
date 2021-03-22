@@ -108,6 +108,7 @@ public class PlayerVisualsController : MonoBehaviour
         }
     }
 
+
     public void OnFootUpdate(int p_footSide)
 	{
 
