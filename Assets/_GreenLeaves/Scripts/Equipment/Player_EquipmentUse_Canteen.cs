@@ -19,6 +19,8 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     private float m_drinkTimer;
     public Sprite m_defaultCanteenSprite;
 
+    public bool m_canteenEquipped;
+
     [System.Serializable]
     public struct RefillType
     {
@@ -50,7 +52,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public bool m_isDebugging;
     public Color m_gizmosColor;
 
-    public void Start()
+    public void AssignSingleton()
     {
         Instance = this;
     }
@@ -230,10 +232,15 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         }
     }*/
 
-
+    public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
+    {
+        base.EquipObject(p_linkedIcon);
+        m_canteenEquipped = true; 
+    }
     public override void UnEquipObject()
     {
         base.UnEquipObject();
+        m_canteenEquipped = false;
     }
 
 
@@ -280,6 +287,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     /// </summary>
     public override void ObjectBroke()
     {
+        m_canteenEquipped = false;
         //Debug.Log("Canteen Empty");
     }
     public override void ReEnableToolComponent()

@@ -5,7 +5,7 @@
 /// </summary>
 public class Player_EquipmentUse : MonoBehaviour
 {
-
+   
 
     public int m_startingDurability;
     public int m_durability;
@@ -20,6 +20,8 @@ public class Player_EquipmentUse : MonoBehaviour
     public float m_staminaLossPerEquipmentUse;
 
     public bool m_enableDurabilityUI;
+
+    
 
     public virtual void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
