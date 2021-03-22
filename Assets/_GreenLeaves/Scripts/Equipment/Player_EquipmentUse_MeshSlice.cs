@@ -9,6 +9,7 @@ using UnityEngine;
 /// </summary>
 public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
 {
+    public static Player_EquipmentUse_MeshSlice Instance;
     public bool m_debug;
     public Color m_debugColor;
 
@@ -24,6 +25,14 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     private List<GameObject> m_objectsInRange = new List<GameObject>();
     private Manipulation_SelfSlice m_currentTarget;
     private Manipulation_HitObject m_currentHittable;
+
+    public bool m_axeEquipped;
+
+    public void AssignSingleton()
+    {
+        Instance = this;
+    }
+    
     public void Update()
     {
         if(Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen)
@@ -41,10 +50,10 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             return;
         }
         DetectCurrentSlicables();
-        if (Input.GetMouseButtonDown(0))
+        /*if (Input.GetMouseButtonDown(0))
         {
             UseEquipment();
-        }
+        }*/
     }
 
     public void DetectCurrentSlicables()
@@ -100,21 +109,33 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     }
     public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
+        m_axeEquipped = true;
         base.EquipObject(p_linkedIcon);
         if (m_playerObject == null)
         {
             m_playerObject = Player_Inventory.Instance.transform;
         }
     }
+
+    public override void UnEquipObject()
+    {
+        base.UnEquipObject();
+        m_axeEquipped = false;
+    }
     public override void UseEquipment()
     {
         
+        
+    }
+
+    public void Chop(Vector3 p_axeWorldPos)
+    {
         ///If an object in the radius can be sliced, call their slice method
         if (m_currentTarget != null)
         {
             base.UseEquipment();
             ///The parameters will determine the angle, and position of the slice
-            m_currentTarget.SliceMe(new Vector3(0, m_playerObject.transform.position.y, 0),m_playerObject.transform.forward);
+            m_currentTarget.SliceMe(new Vector3(0, p_axeWorldPos.y, 0), m_playerObject.transform.forward);
             ReduceDurability();
         }
         else if (m_currentHittable != null)
@@ -124,7 +145,6 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             ReduceDurability();
         }
     }
-
     /// <summary>
     /// Returns a variable if there is one in the radius, and if it can be sliced.
     /// </summary>
@@ -183,6 +203,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     }
     public override void ObjectBroke()
     {
+        m_axeEquipped = false;
         base.ObjectBroke();
         if (m_currentHittable != null)
         {

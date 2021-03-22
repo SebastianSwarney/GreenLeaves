@@ -6,6 +6,11 @@ public class Player_EquipmentUse_Pick : Player_EquipmentUse
 {
     public static Player_EquipmentUse_Pick Instance;
     public bool m_canClimb;
+
+    public void AssignSingleton()
+    {
+        Instance = this;
+    }
     public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
         base.EquipObject(p_linkedIcon);

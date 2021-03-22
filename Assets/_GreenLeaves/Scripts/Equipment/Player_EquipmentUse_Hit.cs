@@ -5,12 +5,19 @@
 /// </summary>
 public class Player_EquipmentUse_Hit : Player_EquipmentUse
 {
+    public static Player_EquipmentUse_Hit Instance;
     public LayerMask m_hitDetectionMask;
     public float m_hitDetectionRadius;
     public Transform m_playerObject;
 
     private Manipulation_HitObject m_currentHit;
 
+    public bool m_knifeEquipped;
+
+    public void AssignSingleton()
+    {
+        Instance = this;
+    }
     private void Awake()
     {
         /*if (m_playerObject == null)
@@ -31,10 +38,10 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
             return;
         }
         PerformCheck();
-        if (Input.GetMouseButtonDown(0))
+        /*if (Input.GetMouseButtonDown(0))
         {
             UseEquipment();
-        }
+        }*/
     }
 
     private void PerformCheck()
@@ -54,6 +61,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     }
     public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
+        m_knifeEquipped = true;
         base.EquipObject(p_linkedIcon);
         if(m_playerObject == null)
         {
@@ -63,6 +71,7 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
 
     public override void UseEquipment()
     {
+        m_knifeEquipped = true;
         if (m_currentHit != null)
         {
             base.UseEquipment();
@@ -92,12 +101,18 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     public override void ObjectBroke()
     {
         base.ObjectBroke();
-        if(m_currentHit != null)
+        m_knifeEquipped = false;
+        if (m_currentHit != null)
         {
             m_currentHit.HideUI();
         }
         PlayerEquipmentBreak.Instance.ShowUI();
 
+    }
+    public override void UnEquipObject()
+    {
+        base.UnEquipObject();
+        m_knifeEquipped = false;
     }
 
     public override void ReEnableToolComponent()

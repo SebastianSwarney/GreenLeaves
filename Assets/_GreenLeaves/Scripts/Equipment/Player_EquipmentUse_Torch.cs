@@ -11,7 +11,7 @@ public class Player_EquipmentUse_Torch : Player_EquipmentUse
     public int m_timeToLoseOneDurability = 1;
 
     private float m_timer = 0;
-    private void Awake()
+    public void AssignSingleton()
     {
         Instance = this;
     }

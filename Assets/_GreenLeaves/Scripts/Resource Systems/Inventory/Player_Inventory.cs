@@ -25,9 +25,13 @@ public class Player_Inventory : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        Player_EquipmentUse_Canteen.Instance = m_canteenTool.GetComponent<Player_EquipmentUse_Canteen>();
-        Player_EquipmentUse_Pick.Instance = m_climbingAxeTool.GetComponent<Player_EquipmentUse_Pick>();
+        m_canteenTool.GetComponent<Player_EquipmentUse_Canteen>().AssignSingleton();
+        m_climbingAxeTool.GetComponent<Player_EquipmentUse_Pick>().AssignSingleton();
+        m_axeTool.GetComponent<Player_EquipmentUse_MeshSlice>().AssignSingleton();
+        m_knifeTool.GetComponent<Player_EquipmentUse_Hit>().AssignSingleton();
+        m_torchTool.GetComponent<Player_EquipmentUse_Torch>().AssignSingleton();
     }
+
     private void Update()
     {
         if (Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen) return;
