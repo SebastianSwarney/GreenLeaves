@@ -79,11 +79,11 @@ public class PlayerVisualsController : MonoBehaviour
 
         m_fullBodyBipedIK = GetComponentInChildren<FullBodyBipedIK>();
 
-        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
-        m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
+        //m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
+        //m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
 
-        m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
-        m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
+        //m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
+        //m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
 
         m_grounder = GetComponentInChildren<GrounderFBBIK>();
 
@@ -92,7 +92,7 @@ public class PlayerVisualsController : MonoBehaviour
 
 	private void Update()
 	{
-        ArmIK();
+        //ArmIK();
         GrounderWeight();
 
 		if (Player_EquipmentUse_Torch.Instance != null)
@@ -106,6 +106,11 @@ public class PlayerVisualsController : MonoBehaviour
                 m_animator.SetLayerWeight(1, 0);
             }
         }
+
+		if (Input.GetMouseButtonDown(0))
+		{
+            m_animator.SetTrigger("SwingAxe");
+		}
     }
 
 
