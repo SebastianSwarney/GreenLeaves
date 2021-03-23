@@ -33,4 +33,9 @@ public class Player_EquipmentUse_Pick : Player_EquipmentUse
         m_canClimb = false;
         PlayerEquipmentBreak.Instance.ShowUI();
     }
+
+    public override void ReEnableToolComponent()
+    {
+        Crafting_Table.CraftingTable.m_toolComponents.EnableToolResource(ResourceContainer_Equip.ToolType.ClimbingAxe);
+    }
 }

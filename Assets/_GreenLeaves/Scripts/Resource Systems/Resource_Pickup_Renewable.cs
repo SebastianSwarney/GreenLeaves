@@ -14,6 +14,8 @@ public class Resource_Pickup_Renewable : Resource_Pickup
 
     public VFX_SpawnParticle m_spawnParticle;
     private bool m_setFromSave = false;
+
+    public Interactable_FloatingParticle m_floatingParticles;
     private void Start()
     {
         if (!m_setFromSave)
@@ -57,6 +59,8 @@ public class Resource_Pickup_Renewable : Resource_Pickup
         {
             TogglePickup(false);
             ToggleAllResourceVisuals(false);
+            m_floatingParticles.TurnOffParticle();
+            m_floatingParticles.enabled = false;
         }
     }
     public void ResetAmount()
@@ -75,6 +79,8 @@ public class Resource_Pickup_Renewable : Resource_Pickup
             m_spawnParticle.SpawnParticlePrefab(m_resourceVisuals[m_currentAmount].transform.position);
             TogglePickup(false);
             ToggleAllResourceVisuals(false);
+            m_floatingParticles.TurnOffParticle();
+            m_floatingParticles.enabled = false;
         }
         else
         {
