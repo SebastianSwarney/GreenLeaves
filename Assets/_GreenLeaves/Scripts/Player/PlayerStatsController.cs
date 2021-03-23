@@ -69,6 +69,8 @@ public class PlayerStatsController : MonoBehaviour
     public Vector2 m_minMaxFallEnergyLossPercent;
     [FoldoutGroup("Stat Actions")]
     public Vector2 m_minMaxFallStaminaLossPercent;
+    [FoldoutGroup("Stat Actions")]
+    public int m_killHeight;
     #endregion
 
     [HideInInspector]
@@ -218,6 +220,11 @@ public class PlayerStatsController : MonoBehaviour
         {
             damageAmount = Mathf.Lerp(m_minMaxFallEnergyLossPercent.x, m_minMaxFallEnergyLossPercent.y, fallPercent);
         }
+
+		if (p_distanceFallen <= m_killHeight)
+		{
+            damageAmount = 200;
+		}
 
         DrainEnergyPercentage(damageAmount);
     }
