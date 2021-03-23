@@ -46,5 +46,14 @@ public class PlayerInput : MonoBehaviour
         {
             m_playerController.OnSprintButtonUp();
         }
+
+        if (m_playerInputController.GetButtonDown("Aim"))
+        {
+            m_playerController.OnAimInputDown();
+        }
+        if (m_playerInputController.GetButtonUp("Aim"))
+        {
+            m_playerController.OnAimInputUp();
+        }
     }
 }

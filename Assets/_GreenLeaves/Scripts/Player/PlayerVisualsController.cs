@@ -109,7 +109,7 @@ public class PlayerVisualsController : MonoBehaviour
 
 		if (Input.GetMouseButtonDown(0))
 		{
-            m_animator.SetTrigger("SwingAxe");
+            //m_animator.SetTrigger("SwingAxe");
 		}
     }
 

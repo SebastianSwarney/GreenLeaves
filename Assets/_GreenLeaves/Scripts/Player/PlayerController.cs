@@ -15,6 +15,8 @@ public class PlayerControllerLandedEvent : UnityEvent<float> { }
 
 public class PlayerController : MonoBehaviour
 {
+	public static PlayerController Instance;
+
 	public Transform m_viewCameraTransform;
 	private Vector3 m_horizontalDirection;
 	private Vector3 m_horizontalVelocity;
@@ -169,10 +171,26 @@ public class PlayerController : MonoBehaviour
 	public Vector2 m_minMaxWaterSlowness;
 	#endregion
 
+	#region Aim Properties
+	private bool m_aiming;
+	#endregion
+
 	#region Log Properties
 	[FoldoutGroup("Logging")]
 	public bool m_logFallDistance;
 	#endregion
+
+	private void Awake()
+	{
+		if (Instance == null)
+		{
+			Instance = this;
+		}
+		else
+		{
+			Destroy(gameObject);
+		}
+	}
 
 	private void Start()
 	{
@@ -231,6 +249,21 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
+	public void OnAimInputDown()
+	{
+		m_aiming = true;
+	}
+
+	public void OnAimInputUp()
+	{
+		m_aiming = false;
+	}
+
+	public void HitTree(Vector3 p_hitPos)
+	{
+		//Player_EquipmentUse_MeshSlice.Instance.Chop(p_hitPos);
+	}
+
 	#region State and Velocity Updates
 	private void UpdatePlayerCastPoints()
 	{
@@ -271,18 +304,6 @@ public class PlayerController : MonoBehaviour
 		m_horizontalVelocity = new Vector3(m_characterController.velocity.x, 0, m_characterController.velocity.z);
 	}
 	#endregion
-
-	private void CalculateWaterSlowness()
-	{
-		RaycastHit hit;
-
-		if (Physics.Raycast(m_playerTop, Vector3.down, out hit, Mathf.Infinity, m_waterMask))
-		{
-			float heightValue = Mathf.InverseLerp(m_characterController.height, m_maxWaterHeight, hit.distance);
-			float currentWaterSlowness = Mathf.Lerp(m_minMaxWaterSlowness.x, m_minMaxWaterSlowness.y, heightValue);
-			m_currentSlownessFactor = currentWaterSlowness;
-		}
-	}
 
 	#region Pass Out Code
 	public void PassOut()
@@ -401,8 +422,11 @@ public class PlayerController : MonoBehaviour
 		{
 			targetAngle = Mathf.Atan2(m_horizontalInput.x, m_horizontalInput.z) * Mathf.Rad2Deg + m_viewCameraTransform.eulerAngles.y;
 			float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_playerTurnSpeed);
-			transform.rotation = Quaternion.Euler(0, angle, 0);
+			//transform.rotation = Quaternion.Euler(0, angle, 0);
 		}
+
+		Vector3 camDir = new Vector3(m_viewCameraTransform.forward.x, 0, m_viewCameraTransform.forward.z);
+		transform.rotation = Quaternion.LookRotation(camDir);
 
 		float horizontalSpeed;
 		float currentAcceleration = m_accelerationTime;
@@ -422,7 +446,19 @@ public class PlayerController : MonoBehaviour
 		Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
 
 		m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
-		m_playerVisuals.SetTurnBlendValue(targetAngle);
+		//m_playerVisuals.SetTurnBlendValue(targetAngle);
+	}
+
+	private void CalculateWaterSlowness()
+	{
+		RaycastHit hit;
+
+		if (Physics.Raycast(m_playerTop, Vector3.down, out hit, Mathf.Infinity, m_waterMask))
+		{
+			float heightValue = Mathf.InverseLerp(m_characterController.height, m_maxWaterHeight, hit.distance);
+			float currentWaterSlowness = Mathf.Lerp(m_minMaxWaterSlowness.x, m_minMaxWaterSlowness.y, heightValue);
+			m_currentSlownessFactor = currentWaterSlowness;
+		}
 	}
 	#endregion
 
