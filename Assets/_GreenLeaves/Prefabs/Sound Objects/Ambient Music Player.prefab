@@ -48,7 +48,7 @@ MonoBehaviour:
   m_maxTimeBetweenTracks: 40
   m_emitter: {fileID: 3590784140763256690}
   m_initialSongEvent: event:/Music/Music - Daytime Exploring Songs
-  m_playRandomInitialSong: 0
+  m_playRandomInitialSong: 1
   m_playSongOnStart: 1
   m_delayInitialTime: 2
   m_daytimeBasedSongs:
@@ -64,6 +64,11 @@ MonoBehaviour:
   - m_daytimeBasedSongEvent: event:/Music/Music - Nighttime Exploring Songs
     m_minDaytime: 19
     m_maxDaytime: 4
+  m_currentMusicType: 2
+  m_summitSongEvent: event:/Music/Music - Summit
+  m_summitSongPlaying: 0
+  m_climbingSongEvent: event:/Music/Music - Nighttime Exploring Songs
+  m_climbingSongPlaying: 0
 --- !u!114 &3590784140763256690
 MonoBehaviour:
   m_ObjectHideFlags: 0
