@@ -419,6 +419,8 @@ public class PlayerController : MonoBehaviour
 		{
 			m_groundMovementVelocity = Vector3.zero;
 			m_groundMovementVelocitySmoothing = Vector3.zero;
+
+			m_playerVisuals.SetTurnBlendValue(0, true);
 			return;
 		}
 
@@ -475,7 +477,7 @@ public class PlayerController : MonoBehaviour
 		Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
 
 		m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
-		//m_playerVisuals.SetTurnBlendValue(targetAngle);
+		m_playerVisuals.SetTurnBlendValue(targetAngle);
 	}
 
 	private void CalculateWaterSlowness()
@@ -1042,8 +1044,15 @@ public class PlayerController : MonoBehaviour
 			Vector3 shiftSlopeVelocity = transform.right * m_minMaxSlideSpeed.x * m_movementInput.x;
 			m_slopeVelocity = downwardSlopeVelocity + shiftSlopeVelocity;
 
-			//SlideRotation(p_facingDir);
-			//m_playerVisuals.SetSlideOffsetPose(currentSlopePercent);
+			SlideRotation(p_facingDir);
+
+			m_playerVisuals.SetSlideRotation(m_currentSlopeAngle);
+
+			float xVel = transform.InverseTransformVector(shiftSlopeVelocity).x;
+			float inverse = Mathf.InverseLerp(-m_minMaxSlideSpeed.x, m_minMaxSlideSpeed.x, xVel);
+			m_playerVisuals.SetSlideShiftTilt(Mathf.Lerp(-1, 1, inverse));
+
+			m_playerVisuals.SetSlideOffsetPose(p_facingDir);
 
 			yield return new WaitForFixedUpdate();
 		}
@@ -1051,7 +1060,9 @@ public class PlayerController : MonoBehaviour
 		m_slopeVelocity = Vector3.zero;
 		m_sliding = false;
 
-		//StartCoroutine(SlideEndPush(p_facingDir));
+		m_playerVisuals.SetSlideRotation(0);
+		m_playerVisuals.SetSlideOffsetPose(0);
+		m_playerVisuals.SetSlideShiftTilt(0);
 	}
 
 	private IEnumerator SlideEndPush(float p_facingDir)

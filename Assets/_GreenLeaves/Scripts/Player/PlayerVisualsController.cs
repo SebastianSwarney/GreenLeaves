@@ -39,6 +39,8 @@ public class PlayerVisualsController : MonoBehaviour
     #region Slide Properties
     [FoldoutGroup("Slide")]
     public OffsetPoseBlend m_slidePose;
+    [FoldoutGroup("Slide")]
+    public OffsetPoseBlend m_shiftSlidePose;
 	#endregion
 
 	#region Climb Properties
@@ -221,12 +223,22 @@ public class PlayerVisualsController : MonoBehaviour
     #region Slide Animations
     public void SetSlideAnimations(bool m_sliding)
     {
-        //m_animator.SetBool("IsSliding", m_sliding);
+        m_animator.SetBool("IsSliding", m_sliding);
     }
 
     public void SetSlideOffsetPose(float p_value)
     {
         m_slidePose.SetBlendValue(p_value);
+    }
+
+    public void SetSlideRotation(float p_slopeAngle)
+	{
+        //m_modelTransform.localRotation = Quaternion.AngleAxis(p_slopeAngle, Vector3.right);
+	}
+
+    public void SetSlideShiftTilt(float p_value)
+	{
+        m_shiftSlidePose.SetBlendValue(p_value);
     }
     #endregion
 
@@ -295,7 +307,7 @@ public class PlayerVisualsController : MonoBehaviour
         Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
         Vector3 targetMoveAmount = (upwardSlopeOffset * transform.forward);
 
-        //m_headEffector.rotation = Quaternion.RotateTowards(m_headEffector.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), m_headEffectorRotateSpeed * Time.deltaTime);
+        m_headEffector.rotation = Quaternion.RotateTowards(m_headEffector.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), m_headEffectorRotateSpeed * Time.deltaTime);
     }
 	#endregion
 
