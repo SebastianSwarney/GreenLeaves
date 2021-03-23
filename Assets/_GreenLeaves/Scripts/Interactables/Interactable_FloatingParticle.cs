@@ -61,4 +61,13 @@ public class Interactable_FloatingParticle : MonoBehaviour
 
         }
     }
+
+    public void TurnOffParticle()
+    {
+        if(m_currentParticle != null && m_particleSystemsParent != null)
+        {
+            m_particleSystemsParent.ToggleParticles(false);
+            enabled = false;
+        }
+    }
 }

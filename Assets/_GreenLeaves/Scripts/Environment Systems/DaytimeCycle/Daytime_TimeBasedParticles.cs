@@ -34,7 +34,7 @@ public class Daytime_TimeBasedParticles : MonoBehaviour
         foreach (TimeBasedParticle part in m_currentParticles)
         {
             bool isInTime = part.IsInTime(DaytimeCycle_Update.Instance.m_timeOfDay);
-            if (isInTime && m_currentParticle == part) return;
+            if (isInTime && m_currentParticle == part && m_canBePlayed == m_currentParticle.m_currentParticle.isPlaying) return;
 
             if (isInTime)
             {
