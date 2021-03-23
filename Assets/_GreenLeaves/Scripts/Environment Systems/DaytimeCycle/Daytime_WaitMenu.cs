@@ -27,7 +27,7 @@ public class Daytime_WaitMenu : MonoBehaviour
 
     public void OpenMenu()
     {
-        m_waitingText.text = "How long to wait?";
+        m_waitingText.text = "How long to rest?";
         m_addButton.SetActive(true);
         m_subtractButton.SetActive(false);
         m_acceptButton.SetActive(true);
@@ -75,7 +75,7 @@ public class Daytime_WaitMenu : MonoBehaviour
         m_subtractButton.SetActive(false);
         m_cancelButton.SetActive(false);
         m_acceptButton.SetActive(false);
-        m_waitingText.text = "Waiting...";
+        m_waitingText.text = "Resting...";
         StartCoroutine(PerformWait(m_howManyHoursToWait));
     }
 
