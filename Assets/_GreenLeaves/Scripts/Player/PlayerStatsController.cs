@@ -53,6 +53,9 @@ public class PlayerStatsController : MonoBehaviour
     [FoldoutGroup("Hunger")]
     public Gradient m_hungerColorGradient;
 
+    [FoldoutGroup("Hunger")]
+    public float m_minCampfireHungerRestore = 25;
+
     private float m_currentDrainMultiplier;
     [HideInInspector]
     public float m_currentHunger;
@@ -258,8 +261,13 @@ public class PlayerStatsController : MonoBehaviour
 
     public void AddStatsFromCampfire(float p_hoursWaited)
     {
+        if (m_currentHunger < m_minCampfireHungerRestore)
+        {
+            m_currentHunger = m_minCampfireHungerRestore;
+        }
         float gainAmount = p_hoursWaited * m_energyGainPerHour;
         AddAmount(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Energy, gainAmount);
+        AddAmount(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Stamina, 1000);
     }
 
     public void AddAmount(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType p_typeOfCosumption, float p_amount, bool p_increasePastMax = false)

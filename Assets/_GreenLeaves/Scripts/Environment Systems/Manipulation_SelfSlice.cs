@@ -134,8 +134,10 @@ public class Manipulation_SelfSlice : MonoBehaviour
 
 
 
-
-        p_lowerHull.AddComponent<MeshCollider>().convex = true;
+        if (!m_cutAtSetPosition)
+        {
+            p_lowerHull.AddComponent<MeshCollider>().convex = true;
+        }
 
         if (m_addRB)
         {
