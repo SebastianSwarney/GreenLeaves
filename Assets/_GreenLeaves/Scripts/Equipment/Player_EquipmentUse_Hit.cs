@@ -38,10 +38,10 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
             return;
         }
         PerformCheck();
-        /*if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             UseEquipment();
-        }*/
+        }
     }
 
     private void PerformCheck()

@@ -32,17 +32,17 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     {
         Instance = this;
     }
-    
+
     public void Update()
     {
-        if(Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen)
+        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen)
         {
-            if(m_currentTarget != null)
+            if (m_currentTarget != null)
             {
                 m_currentTarget.HideUI();
                 m_currentTarget = null;
             }
-            if(m_currentHittable != null)
+            if (m_currentHittable != null)
             {
                 m_currentHittable.HideUI();
                 m_currentHittable = null;
@@ -50,10 +50,10 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             return;
         }
         DetectCurrentSlicables();
-        /*if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             UseEquipment();
-        }*/
+        }
     }
 
     public void DetectCurrentSlicables()
@@ -68,10 +68,10 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             m_currentHittable.HideUI();
             m_currentHittable = null;
         }
-        
+
         if (currentSlice == m_currentTarget && currentSlice != null) return;
 
-        if(currentSlice != null && m_currentTarget == null)
+        if (currentSlice != null && m_currentTarget == null)
         {
             currentSlice.HideUI();
         }
@@ -124,8 +124,9 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
     }
     public override void UseEquipment()
     {
-        
-        
+        Chop(m_playerObject.transform.position);
+
+
     }
 
     public void Chop(Vector3 p_axeWorldPos)
@@ -209,7 +210,7 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
         {
             m_currentHittable.HideUI();
         }
-        if(m_currentTarget != null)
+        if (m_currentTarget != null)
         {
             m_currentTarget.HideUI();
         }
