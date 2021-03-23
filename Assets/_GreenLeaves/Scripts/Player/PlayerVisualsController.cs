@@ -183,7 +183,7 @@ public class PlayerVisualsController : MonoBehaviour
 
     public void SetJumpAnimations(float p_airMovement, bool p_hasJumped)
 	{
-        m_animator.SetFloat("JumpMovement", p_airMovement);
+        //m_animator.SetFloat("JumpMovement", p_airMovement);
         //ToggleGrounder(!p_hasJumped);
     }
 
