@@ -221,7 +221,7 @@ public class PlayerStatsController : MonoBehaviour
             damageAmount = Mathf.Lerp(m_minMaxFallEnergyLossPercent.x, m_minMaxFallEnergyLossPercent.y, fallPercent);
         }
 
-		if (p_distanceFallen <= m_killHeight)
+		if (p_distanceFallen >= m_killHeight)
 		{
             damageAmount = 200;
 		}
