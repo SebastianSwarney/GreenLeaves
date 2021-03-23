@@ -307,7 +307,7 @@ public class PlayerVisualsController : MonoBehaviour
         Quaternion upwardSlopeOffset = Quaternion.FromToRotation(Vector3.up, forwardRotation);
         Vector3 targetMoveAmount = (upwardSlopeOffset * transform.forward);
 
-        m_headEffector.rotation = Quaternion.RotateTowards(m_headEffector.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), m_headEffectorRotateSpeed * Time.deltaTime);
+        //m_headEffector.rotation = Quaternion.RotateTowards(m_headEffector.rotation, Quaternion.LookRotation(targetMoveAmount, Vector3.up), m_headEffectorRotateSpeed * Time.deltaTime);
     }
 	#endregion
 
