@@ -17,8 +17,6 @@ public class PlayerInput : MonoBehaviour
         m_playerInputController = ReInput.players.GetPlayer(m_playerId);
     }
 
-
-
     private void Update()
     {
         GetInput();

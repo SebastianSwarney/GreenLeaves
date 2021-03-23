@@ -72,27 +72,28 @@ public class PlayerVisualsController : MonoBehaviour
     [HideInInspector]
     public Animator m_animator;
 
+    private Cinemachine.CinemachineFreeLook m_freelookCam;
+
     private void Start()
 	{
         m_playerController = GetComponent<PlayerController>();
         m_animator = GetComponentInChildren<Animator>();
-
         m_fullBodyBipedIK = GetComponentInChildren<FullBodyBipedIK>();
-
-        //m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
-        //m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
-
-        //m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
-        //m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
-
         m_grounder = GetComponentInChildren<GrounderFBBIK>();
+
+        m_freelookCam = GetComponentInChildren<Cinemachine.CinemachineFreeLook>();
+
+        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
+        m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
+        m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
+        m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
 
         m_useGrounder = true;
     }
 
 	private void Update()
 	{
-        //ArmIK();
+        ArmIK();
         GrounderWeight();
 
 		if (Player_EquipmentUse_Torch.Instance != null)
@@ -139,6 +140,43 @@ public class PlayerVisualsController : MonoBehaviour
         }
 
         m_animator.SetFloat("ForwardMovement", lerpValue);
+    }
+
+    public void SetAimMovementAnimations(Vector3 p_horizontalVelocity, float p_walkSpeed)
+	{
+        Vector3 localVelocity = transform.InverseTransformDirection(p_horizontalVelocity);
+
+        float forwardInverse = Mathf.InverseLerp(p_walkSpeed, -p_walkSpeed, localVelocity.z);
+        float sideInverse = Mathf.InverseLerp(-p_walkSpeed, p_walkSpeed, localVelocity.x);
+
+        float forwardValue = Mathf.Lerp(1, -1, forwardInverse);
+        float sideValue = Mathf.Lerp(-1, 1, sideInverse);
+
+		if (sideValue == 0 && forwardValue == 0)
+		{
+            float axisValue = m_freelookCam.m_XAxis.m_InputAxisValue;
+
+            if (axisValue != 0)
+            {
+                if (axisValue < 0)
+                {
+                    sideValue = -1;
+                }
+                else
+                {
+                    sideValue = 1;
+                }
+            }
+        }
+
+        m_animator.SetFloat("ForwardMovement", forwardValue);
+        m_animator.SetFloat("SideMovement", sideValue);
+
+    }
+
+    public void SetAiming(bool p_aim)
+	{
+        m_animator.SetBool("Aim", p_aim);
     }
 
     public void SetJumpAnimations(float p_airMovement, bool p_hasJumped)

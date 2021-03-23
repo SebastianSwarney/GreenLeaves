@@ -211,7 +211,17 @@ public class PlayerController : MonoBehaviour
 
 	private void Update()
 	{
-		m_playerVisuals.SetGroundMovementAnimations(m_groundMovementVelocity, m_sprintSpeed, m_runSpeed, m_runSpeed * 0.5f);
+		if (!m_aiming)
+		{
+			m_playerVisuals.SetGroundMovementAnimations(m_groundMovementVelocity, m_sprintSpeed, m_runSpeed, m_runSpeed * 0.5f);
+		}
+		else
+		{
+			m_playerVisuals.SetAimMovementAnimations(m_groundMovementVelocity, m_runSpeed * 0.5f);
+		}
+
+		m_playerVisuals.SetAiming(m_aiming);
+
 		m_playerVisuals.SetJumpAnimations(Mathf.InverseLerp(-m_maxJumpVelocity, m_maxJumpVelocity, m_gravityVelocity.y), m_hasJumped);
 		m_playerVisuals.SetGrounded(m_characterController.isGrounded);
 
@@ -390,6 +400,11 @@ public class PlayerController : MonoBehaviour
 
 	public bool CheckSprintConditions()
 	{
+		if (m_aiming)
+		{
+			return false;
+		}
+
 		if (m_sprinting && m_horizontalInput.magnitude > 0)
 		{
 			return true;
@@ -421,12 +436,22 @@ public class PlayerController : MonoBehaviour
 		if (m_horizontalInput.magnitude > 0)
 		{
 			targetAngle = Mathf.Atan2(m_horizontalInput.x, m_horizontalInput.z) * Mathf.Rad2Deg + m_viewCameraTransform.eulerAngles.y;
-			float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_playerTurnSpeed);
-			//transform.rotation = Quaternion.Euler(0, angle, 0);
 		}
 
-		Vector3 camDir = new Vector3(m_viewCameraTransform.forward.x, 0, m_viewCameraTransform.forward.z);
-		transform.rotation = Quaternion.LookRotation(camDir);
+		if (!m_aiming)
+		{
+			if (m_horizontalInput.magnitude > 0)
+			{
+				//targetAngle = Mathf.Atan2(m_horizontalInput.x, m_horizontalInput.z) * Mathf.Rad2Deg + m_viewCameraTransform.eulerAngles.y;
+				float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref m_playerTurnSmoothingVelocity, m_playerTurnSpeed);
+				transform.rotation = Quaternion.Euler(0, angle, 0);
+			}
+		}
+		else
+		{
+			Vector3 camDir = new Vector3(m_viewCameraTransform.forward.x, 0, m_viewCameraTransform.forward.z);
+			transform.rotation = Quaternion.LookRotation(camDir);
+		}
 
 		float horizontalSpeed;
 		float currentAcceleration = m_accelerationTime;
@@ -436,9 +461,13 @@ public class PlayerController : MonoBehaviour
 			horizontalSpeed = m_sprintSpeed;
 			PlayerStatsController.Instance.SprintEnergyDrain();
 		}
-		else
+		else if (!m_aiming)
 		{
 			horizontalSpeed = m_runSpeed;
+		}
+		else
+		{
+			horizontalSpeed = m_runSpeed * 0.5f;
 		}
 
 		Vector3 actualMovementDir = Quaternion.Euler(0, targetAngle, 0f) * Vector3.forward;
