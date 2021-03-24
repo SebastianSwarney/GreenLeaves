@@ -9,6 +9,7 @@ using UnityEngine;
 public class Durability_UI : MonoBehaviour
 {
     public static Durability_UI Instance;
+    public bool m_becomeSingleton = true;
     public CanvasGroup m_cg;
     public float m_fadeTime;
 
@@ -20,11 +21,15 @@ public class Durability_UI : MonoBehaviour
     public Transform m_playerRoot;
 
     public float m_heightOffset;
+    public bool m_appearing;
     private void Awake()
     {
         m_cg.alpha = 0;
         m_cg.gameObject.SetActive(false);
-        Instance = this;
+        if (m_becomeSingleton)
+        {
+            Instance = this;
+        }
         
     }
     private void Start()
@@ -48,6 +53,7 @@ public class Durability_UI : MonoBehaviour
     }
     public void HideUI()
     {
+        m_appearing = false;
         StopAllCoroutines();
         if (gameObject.activeInHierarchy)
         {
@@ -57,6 +63,7 @@ public class Durability_UI : MonoBehaviour
 
     public void ShowUI(bool p_showText)
     {
+        m_appearing = true;
         gameObject.SetActive(true);
         if (p_showText)
         {
@@ -65,7 +72,10 @@ public class Durability_UI : MonoBehaviour
         }
         else
         {
-            m_promptWithText.SetActive(false);
+            if (m_promptWithText != null)
+            {
+                m_promptWithText.SetActive(false);
+            }
             m_promptWithoutText.SetActive(true);
         }
         m_cg.alpha = 0;

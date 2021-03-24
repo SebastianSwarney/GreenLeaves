@@ -41,12 +41,12 @@ public class PlayerInputToggle : MonoBehaviour
         }
     }
 
-    public void ToggleInputFromGameplay(bool p_newState)
+    public void ToggleInputFromGameplay(bool p_newState, bool p_toggleCamera = true)
     {
         m_frozenFromGameplay = !p_newState;
         if (m_frozenFromPause) return;
         m_playerInput.enabled = p_newState;
-        m_cameraRotation.enabled = p_newState;
+        m_cameraRotation.enabled = p_toggleCamera ? p_newState : true;
 
         if (!p_newState)
         {

@@ -48,6 +48,9 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public GenericWorldEvent m_drinkEvent;
     public GenericWorldEvent m_emptyEvent, m_fillEvent;
 
+    [Header("Use UI")]
+    public Durability_UI m_holdButtonUI;
+
     [Header("Debugging")]
     public bool m_isDebugging;
     public Color m_gizmosColor;
@@ -68,13 +71,29 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public void Update()
     {
 
-        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen) return;
+        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen)
+        {
+            m_holdButtonUI.HideUI();
+
+            return;
+        }
+
+        if (WaterNearby() && m_durability <= 0)
+        {
+            if (!m_holdButtonUI.m_appearing)
+            {
+                m_holdButtonUI.ShowUI(false);
+            }
+        }else if (m_holdButtonUI.m_appearing && !WaterNearby())
+        {
+            m_holdButtonUI.HideUI();
+        }
 
         if (Input.GetMouseButtonDown(0) && m_durability <= 0)
         {
             if (WaterNearby())
             {
-                PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
+                PlayerInputToggle.Instance.ToggleInputFromGameplay(false, false);
                 m_linkedIcon.m_itemData = m_defaultCanteenData;
                 m_energyRefilType = new List<RefillType>(m_defaultCanteenData.m_energyRefilType);
                 m_linkedIcon.m_itemIcon.sprite = m_defaultCanteenSprite;
@@ -91,7 +110,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         }
         else if (Input.GetMouseButton(0) && !m_gettingWater && m_durability > 0)
         {
-            PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(false, false);
             UseEquipment();
 
             Player_EquipmentToolsUi.Instance.AdjustCanteenUI((float)m_durability / (float)m_startingDurability);
@@ -114,9 +133,11 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
+            m_holdButtonUI.HideUI();
+            PlayerInputToggle.Instance.ToggleInputFromGameplay(true, false);
             m_gettingWater = false;
         }
+
         m_drinkTimer += Time.deltaTime;
 
     }
@@ -235,7 +256,7 @@ public class Player_EquipmentUse_Canteen : Player_EquipmentUse
     public override void EquipObject(Inventory_Icon_Durability p_linkedIcon)
     {
         base.EquipObject(p_linkedIcon);
-        m_canteenEquipped = true; 
+        m_canteenEquipped = true;
     }
     public override void UnEquipObject()
     {

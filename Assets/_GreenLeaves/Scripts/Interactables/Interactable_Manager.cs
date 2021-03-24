@@ -98,7 +98,13 @@ public class Interactable_Manager : MonoBehaviour
         if(m_currentInteractable != null)
         {
             transform.position = m_currentInteractable.transform.position;
+            if(!m_currentInteractable.gameObject.activeSelf || !m_currentInteractable.gameObject.activeInHierarchy)
+            {
+                HideButtonMenu(m_currentInteractable, true);
+            }
         }
+
+        
     }
 
     /// <summary>
