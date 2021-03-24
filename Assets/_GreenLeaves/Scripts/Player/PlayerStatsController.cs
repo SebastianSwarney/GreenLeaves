@@ -110,7 +110,7 @@ public class PlayerStatsController : MonoBehaviour
             m_playerVisuals.PauseTiredness();
         }
 
-        if (m_currentStamina < 10)
+        if (m_currentStamina < 5)
         {
             m_playerVisuals.RunTiredness(m_currentEnergy / 100);
         }

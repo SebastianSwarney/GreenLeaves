@@ -684,7 +684,7 @@ public class PlayerController : MonoBehaviour
 		float targetClamberHeight = 0;
 		Vector3 ledgeTopPos = Vector3.zero;
 
-		m_climbCamera.SetActive(true);
+		//m_climbCamera.SetActive(true);
 		m_playerVisuals.ToggleGrounder(false);
 
 		Vector3 lastClimbPos = transform.position;
@@ -918,7 +918,7 @@ public class PlayerController : MonoBehaviour
 		m_playerVisuals.ToggleGrounder(true);
 		m_playerVisuals.CenterHead();
 
-		m_climbCamera.SetActive(false);
+		//m_climbCamera.SetActive(false);
 
 		ResetClimbVelocitys();
 	}
