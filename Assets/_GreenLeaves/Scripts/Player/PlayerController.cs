@@ -478,8 +478,15 @@ public class PlayerController : MonoBehaviour
 		Vector3 targetHorizontalMovement = (actualMovementDir * horizontalSpeed) * m_horizontalInput.magnitude;
 		Vector3 horizontalMovement = Vector3.SmoothDamp(m_groundMovementVelocity, targetHorizontalMovement, ref m_groundMovementVelocitySmoothing, currentAcceleration);
 
+		bool disableBlend = false;
+
+		if (m_aiming)
+		{
+			disableBlend = true;
+		}
+
 		m_groundMovementVelocity = new Vector3(horizontalMovement.x, 0, horizontalMovement.z);
-		m_playerVisuals.SetTurnBlendValue(targetAngle);
+		m_playerVisuals.SetTurnBlendValue(targetAngle, disableBlend);
 	}
 
 	private void CalculateWaterSlowness()
