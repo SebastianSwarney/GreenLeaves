@@ -355,13 +355,19 @@ public class PlayerVisualsController : MonoBehaviour
 
     public void RunTiredness(float p_currentTiredness)
 	{
-		if (!m_sweatParticle.isPlaying)
-		{
+        if (!m_sweatParticle.isPlaying)
+        {
             m_sweatParticle.Play();
         }
 
-        float sweatAmount = Mathf.Lerp(m_minMaxSweatAmount.x, m_minMaxSweatAmount.y, p_currentTiredness);
+        float sweatAmount = Mathf.Lerp(m_minMaxSweatAmount.y, m_minMaxSweatAmount.x, p_currentTiredness);
+
         ParticleSystem.EmissionModule emmision = m_sweatParticle.emission;
         emmision.rateOverTime = sweatAmount;
+    }
+
+    public void PauseTiredness()
+	{
+        if (m_sweatParticle.isPlaying) m_sweatParticle.Stop();
     }
 }

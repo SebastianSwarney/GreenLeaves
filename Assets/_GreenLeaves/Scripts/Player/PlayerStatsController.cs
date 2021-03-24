@@ -80,6 +80,7 @@ public class PlayerStatsController : MonoBehaviour
     public bool m_pauseStatDrain;
 
     private PlayerController m_playerController;
+    private PlayerVisualsController m_playerVisuals;
 
     private void Awake()
     {
@@ -92,26 +93,37 @@ public class PlayerStatsController : MonoBehaviour
         m_pauseStatDrain = false;
 
         m_playerController = GetComponent<PlayerController>();
+        m_playerVisuals = GetComponent<PlayerVisualsController>();
     }
 
     private void Update()
     {
+        m_currentDrainMultiplier = (int)Mathf.Lerp(m_maxDrainMultiplier, 1f, m_currentHunger / 100);
+
         RunPassiveEnergyDrain();
         RunPassiveHungerDrain();
         ReplenishSecondaryEnergy();
 
-        m_currentDrainMultiplier = (int)Mathf.Lerp(m_maxDrainMultiplier, 1f, m_currentHunger / 100);
-
         if (!HasEnergy())
         {
             m_playerController.PassOut();
+            m_playerVisuals.PauseTiredness();
+        }
+
+        if (m_currentStamina < 10)
+        {
+            m_playerVisuals.RunTiredness(m_currentEnergy / 100);
+        }
+        else
+        {
+            m_playerVisuals.PauseTiredness();
         }
 
         UpdateUI();
     }
 
-    #region General Drain Functions
-    public void DrainEnergyPercentage(float p_inputAmountToDrain)
+	#region General Drain Functions
+	public void DrainEnergyPercentage(float p_inputAmountToDrain)
     {
         p_inputAmountToDrain *= 0.01f;
 
