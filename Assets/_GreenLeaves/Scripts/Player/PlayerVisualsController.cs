@@ -210,6 +210,7 @@ public class PlayerVisualsController : MonoBehaviour
         float horizontalRotation = Mathf.Lerp(-m_climbMaxHeadRotation, m_climbMaxHeadRotation, p_animationVector.x);
         float verticalRotation = Mathf.Lerp(m_climbMaxHeadRotation, -m_climbMaxHeadRotation, p_animationVector.y);
         Quaternion headRotation = Quaternion.Euler(verticalRotation, horizontalRotation, 0);
+
         m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
     }
 
@@ -350,7 +351,11 @@ public class PlayerVisualsController : MonoBehaviour
         float t = Mathf.InverseLerp(-1, 1, progress * moveDir);
         float horizontalRotation = Mathf.Lerp(-90, 90, t);
         Quaternion headRotation = Quaternion.Euler(0, horizontalRotation, 0);
-        m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
+
+		if (!p_zeroValue)
+		{
+            m_headEffector.localRotation = Quaternion.RotateTowards(m_headEffector.localRotation, headRotation, m_headEffectorRotateSpeed * Time.deltaTime);
+        }
     }
 
     public void RunTiredness(float p_currentTiredness)
