@@ -23,6 +23,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _CutoutMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -66,6 +70,7 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
+    - _CutoutAlpha: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
@@ -85,9 +90,9 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.4156863, g: 0.3372549, b: 0.24313727, a: 0}
-    - _Emission: {r: 0.33962262, g: 0.2675329, b: 0.2675329, a: 0}
+    - _Color: {r: 0.3490566, g: 0.23904091, b: 0.10702208, a: 0}
+    - _Emission: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _RimColor: {r: 0.2924528, g: 0.16415983, b: 0.16415983, a: 0}
+    - _RimColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1.6820267, g: 0.86481565, b: 0.86481565, a: 0.011764706}
   m_BuildTextureStacks: []
