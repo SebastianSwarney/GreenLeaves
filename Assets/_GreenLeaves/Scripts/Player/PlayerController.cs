@@ -202,6 +202,8 @@ public class PlayerController : MonoBehaviour
 		m_passedOut = false;
 
 		m_characterController.slopeLimit = m_slideStartAngle;
+
+		CalculateJump();
 	}
 
 	private void OnValidate()
