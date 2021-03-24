@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerUIManager : MonoBehaviour
 {
-    public GameObject m_pauseMenu, m_mainPause,  m_audioMenu, m_controlsMenu, m_cameraMenu;
+    public GameObject m_pauseMenu, m_mainPause, m_audioMenu, m_controlsMenu, m_cameraMenu;
 
     public static PlayerUIManager Instance;
     public bool m_isPaused;
@@ -73,7 +73,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         if (!Inventory_2DMenu.Instance.m_isOpen)
         {
-            
+
             PlayerInputToggle.Instance.ToggleInput(!m_isPaused);
         }
 
@@ -86,6 +86,8 @@ public class PlayerUIManager : MonoBehaviour
         m_pauseMenu.SetActive(false);
         StartCoroutine(FadeToMainMenu());
     }
+
+    public void ExitGame() { Application.Quit(); }
 
 
     private IEnumerator FadeToMainMenu()
