@@ -1894,13 +1894,14 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
+  m_minCampfireHungerRestore: 25
   m_currentHunger: 100
   m_sprintStaminaDepletionTime: 10
   m_sprintEnergyDepletionTime: 25
-  m_minMaxFallDistance: {x: 2, y: 35}
-  m_minMaxFallEnergyLossPercent: {x: 0, y: 0}
-  m_minMaxFallStaminaLossPercent: {x: 0, y: 0}
-  m_killHeight: 0
+  m_minMaxFallDistance: {x: 7, y: 34}
+  m_minMaxFallEnergyLossPercent: {x: 3, y: 100}
+  m_minMaxFallStaminaLossPercent: {x: 3, y: 125}
+  m_killHeight: 35
   m_pauseStatDrain: 0
 --- !u!114 &2582617088522548907
 MonoBehaviour:
@@ -4817,7 +4818,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094454564951609}
-  m_LocalRotation: {x: 0.33269015, y: -0.18206964, z: -0.06562861, w: -0.92296314}
+  m_LocalRotation: {x: 0.33268633, y: -0.18212302, z: -0.06564784, w: -0.9229526}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -5035,7 +5036,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455187865214}
-  m_LocalRotation: {x: -0.08092107, y: -0.1928773, z: 0.015963014, w: -0.9777501}
+  m_LocalRotation: {x: -0.08092017, y: -0.19293384, z: 0.015967695, w: -0.977739}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -5109,7 +5110,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455440212644}
-  m_LocalRotation: {x: -0.08205836, y: -0.10070372, z: 0.008334494, w: -0.9914917}
+  m_LocalRotation: {x: -0.08205809, y: -0.10073584, z: 0.008337151, w: -0.99148846}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -5462,7 +5463,7 @@ MonoBehaviour:
   m_AvoidObstacles: 1
   m_DistanceLimit: 0
   m_MinimumOcclusionTime: 0
-  m_CameraRadius: 0.25
+  m_CameraRadius: 0.5
   m_Strategy: 0
   m_MaximumEffort: 4
   m_SmoothingTime: 0
@@ -5497,7 +5498,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455889403909}
-  m_LocalRotation: {x: -0.08092106, y: -0.19287728, z: 0.015963009, w: -0.9777502}
+  m_LocalRotation: {x: -0.0809202, y: -0.19293387, z: 0.015967704, w: -0.977739}
   m_LocalPosition: {x: 0.0000034868713, y: 0.5, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -5611,7 +5612,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDirty: 0
   _preset: 1000
-  _profile: {fileID: 0}
+  _profile: {fileID: 11400000, guid: 3b0c07041320c4edb86c41748136f6d7, type: 2}
   _profileSync: 0
   _useFogVolumes: 0
   _debugPass: 0
@@ -5635,46 +5636,46 @@ MonoBehaviour:
   _timeBetweenTextureUpdates: 0.2
   _sunCopyColor: 1
   _density: 0.2
-  _noiseStrength: 0.398
+  _noiseStrength: 0.56
   _noiseFinalMultiplier: 1
-  _noiseSparse: 1.7
+  _noiseSparse: 1.1
   _distance: 0
-  _maxFogLength: 2200
-  _maxFogLengthFallOff: 0.7
+  _maxFogLength: 1000
+  _maxFogLengthFallOff: 0
   _distanceFallOff: 0
-  _height: 200
-  _heightFallOff: 0.919
-  _deepObscurance: 1
-  _baselineHeight: 36.44865
+  _height: 150
+  _heightFallOff: 0.8
+  _deepObscurance: 2
+  _baselineHeight: 0
   _baselineRelativeToCamera: 0
   _baselineRelativeToCameraDelay: 0
-  _noiseScale: 10
-  _alpha: 0.98
-  _color: {r: 0.89, g: 0.89, b: 0.89, a: 1}
+  _noiseScale: 35
+  _alpha: 1.05
+  _color: {r: 0.89019614, g: 0.89019614, b: 0.89019614, a: 1}
   _specularColor: {r: 1, g: 1, b: 0.8, a: 1}
   _specularThreshold: 0.6
-  _specularIntensity: 0.15
+  _specularIntensity: 0.1
   _lightDirection: {x: 0, y: -1.0000001, z: -0.00000011920929}
-  _lightIntensity: 0.15
+  _lightIntensity: 0.12
   _lightColor: {r: 1, g: 1, b: 1, a: 1}
   _updateTextureSpread: 1
-  _speed: 0.008
-  _windDirection: {x: -1, y: 0, z: 0}
+  _speed: 0.025
+  _windDirection: {x: 1, y: 0, z: 0}
   _useRealTime: 0
-  _skyColor: {r: 0.79, g: 0.79, b: 0.79, a: 0.96}
-  _skyHaze: 60
-  _skyNoiseScale: 1
+  _skyColor: {r: 0.89, g: 0.89, b: 0.89, a: 0.8}
+  _skyHaze: 15
+  _skyNoiseScale: 1.5
   _skySpeed: 0.3
-  _skyNoiseStrength: 0.97
-  _skyAlpha: 0.96
+  _skyNoiseStrength: 0.1
+  _skyAlpha: 0.8
   _skyDepth: 0.999
   _character: {fileID: 0}
   _fogVoidTopology: 0
-  _fogVoidFallOff: 1
+  _fogVoidFallOff: 6
   _fogVoidRadius: 0
-  _fogVoidPosition: {x: 0, y: 0, z: 0}
-  _fogVoidDepth: 0
-  _fogVoidHeight: 0
+  _fogVoidPosition: {x: 0, y: 240, z: 0}
+  _fogVoidDepth: 900
+  _fogVoidHeight: 600
   _fogVoidInverted: 0
   _fogVoidShowGizmos: 0
   _fogAreaShowGizmos: 1
@@ -5792,13 +5793,13 @@ MonoBehaviour:
   _forceComposition: 0
   _edgeImprove: 0
   _edgeThreshold: 0.0005
-  _stepping: 12
+  _stepping: 8
   _steppingNear: 0
-  _dithering: 0
-  _ditherStrength: 0.75
+  _dithering: 1
+  _ditherStrength: 1
   _jitterStrength: 0.5
   _lightScatteringEnabled: 1
-  _lightScatteringDiffusion: 0.221
+  _lightScatteringDiffusion: 0.3
   _lightScatteringSpread: 0.062
   _lightScatteringSamples: 16
   _lightScatteringWeight: 1.9
@@ -5807,8 +5808,8 @@ MonoBehaviour:
   _lightScatteringExposure: 0.02
   _lightScatteringJittering: 0.5
   _lightScatteringBlurDownscale: 1
-  _fogBlur: 0
-  _fogBlurDepth: 0.05
+  _fogBlur: 1
+  _fogBlurDepth: 0.025
   _sunShadows: 1
   _sunShadowsLayerMask:
     serializedVersion: 2
@@ -6408,7 +6409,7 @@ PrefabInstance:
     - target: {fileID: 6761708314861323176, guid: de5f21f88b249e14f9a62be8fbdf8727, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: e5965c34b94e3a14382a16483d8ced0d, type: 2}
+      objectReference: {fileID: 2100000, guid: ca2c4791b33ebf54ebdfc1d1a97e5a3b, type: 2}
     - target: {fileID: 8129263174399075947, guid: de5f21f88b249e14f9a62be8fbdf8727, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
