@@ -180,6 +180,8 @@ public class PlayerController : MonoBehaviour
 	public bool m_logFallDistance;
 	#endregion
 
+	private bool m_chopping;
+
 	private void Awake()
 	{
 		if (Instance == null)
@@ -238,6 +240,12 @@ public class PlayerController : MonoBehaviour
 
 		m_playerVisuals.m_animator.SetBool("IsGrounded", m_characterController.isGrounded);
 		m_playerVisuals.m_animator.SetFloat("YVelocity", m_gravityVelocity.y);
+
+		if (Input.GetMouseButtonDown(0))
+		{
+			m_playerVisuals.m_animator.SetTrigger("SwingAxe");
+			m_chopping = true;
+		}
 	}
 
 	private void FixedUpdate()
@@ -261,19 +269,20 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void OnAimInputDown()
-	{
-		m_aiming = true;
-	}
-
-	public void OnAimInputUp()
-	{
-		m_aiming = false;
-	}
-
 	public void HitTree(Vector3 p_hitPos)
 	{
-		//Player_EquipmentUse_MeshSlice.Instance.Chop(p_hitPos);
+		if (!m_chopping)
+		{
+			return;
+		}
+
+		m_chopping = false;
+		Player_EquipmentUse_MeshSlice.Instance.Chop(p_hitPos);
+	}
+
+	public void SwingEnd()
+	{
+		m_chopping = false;
 	}
 
 	#region State and Velocity Updates
@@ -366,6 +375,16 @@ public class PlayerController : MonoBehaviour
 	#endregion
 
 	#region Ground Movement
+	public void OnAimInputDown()
+	{
+		m_aiming = true;
+	}
+
+	public void OnAimInputUp()
+	{
+		m_aiming = false;
+	}
+
 	public void OnSprintButtonDown()
 	{
 		m_sprinting = true;

@@ -49,10 +49,12 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
             }
             return;
         }
+
         DetectCurrentSlicables();
+
         if (Input.GetMouseButtonDown(0))
         {
-            UseEquipment();
+            //UseEquipment();
         }
     }
 

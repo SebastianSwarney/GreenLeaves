@@ -110,11 +110,6 @@ public class PlayerVisualsController : MonoBehaviour
                 m_animator.SetLayerWeight(1, 0);
             }
         }
-
-        if (Input.GetMouseButtonDown(0))
-		{
-            m_animator.SetTrigger("SwingAxe");
-		}
     }
 
     private void CalculateLookState()

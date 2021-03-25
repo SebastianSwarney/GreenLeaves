@@ -25,6 +25,14 @@ public class AxeHeadCollision : MonoBehaviour
 		}
 	}
 
+	private void OnTriggerStay(Collider other)
+	{
+		if (CheckCollisionLayer(m_treeMask, other.gameObject))
+		{
+			PlayerController.Instance.HitTree(transform.position + m_collider.center);
+		}
+	}
+
 	private void OnTriggerEnter(Collider other)
 	{
 		if (CheckCollisionLayer(m_treeMask, other.gameObject))
