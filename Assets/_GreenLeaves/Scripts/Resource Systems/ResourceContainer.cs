@@ -17,6 +17,11 @@ public class ResourceContainer : ScriptableObject
     {
     }
 
+    public virtual void SecondaryUseItem(bool p_toggle)
+    {
+
+    }
+
     public virtual GameObject DropObject(Inventory_Icon p_icon, Vector3 p_pos, Quaternion p_rot, bool p_returnObject = true)
     {
         if (p_returnObject)

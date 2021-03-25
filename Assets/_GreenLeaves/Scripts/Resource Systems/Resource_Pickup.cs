@@ -29,6 +29,7 @@ public class Resource_Pickup : MonoBehaviour
     }
     public virtual void PickupResource()
     {
+        RespawnResourceManager.Instance.AddNewResourceTimer(this);
         m_resourceAmount = 0;
         TogglePickup(false);
         if (Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allResources.Contains(gameObject))

@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2714891203632654526
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2714891203632654524}
+  - component: {fileID: 2714891203632654527}
+  m_Layer: 0
+  m_Name: PFB_Resource Respawn Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2714891203632654524
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2714891203632654526}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 549.89056, y: 24.858646, z: 586.01355}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2714891203632654527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2714891203632654526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4fa5c09ff1099d4e90ed6f3f3589a28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_performTimers: 1
+  m_allResourcesPrefabs:
+  - {fileID: 149431788818511697, guid: 290d13aa80a2e9e41951425e06c27145, type: 3}
+  - {fileID: 149431788818511697, guid: 9da6138ba78a00848bd5016b6ae6d1b2, type: 3}
+  - {fileID: 149431788818511697, guid: dea127b66b7817246be8c2e312b797c4, type: 3}
+  - {fileID: 7691505683633588397, guid: fa4807555429e0d4692e3d78bfd59879, type: 3}
+  - {fileID: 5328936324707511662, guid: 9ba23c07bbee8ea4e9926b031d0b1914, type: 3}
+  - {fileID: 2302855066384656329, guid: 6429e34f5da69c64db6df52f01121333, type: 3}
+  - {fileID: 3735169774144233282, guid: 8b7301e48c42a7a44b04bba42f220cfd, type: 3}
+  - {fileID: 2756998065156982919, guid: 4f2842d1361ce9240ab58d31c2f743fa, type: 3}
+  m_allPrePlacedResources:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  m_respawnResources: []
+  m_timeToRespawnResources: 240
+  m_berries: []
+  m_berryTimeToRespawnFull: 240
