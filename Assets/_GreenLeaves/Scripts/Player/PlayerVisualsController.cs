@@ -85,8 +85,9 @@ public class PlayerVisualsController : MonoBehaviour
 
         m_freelookCam = GetComponentInChildren<Cinemachine.CinemachineFreeLook>();
 
-        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
-        m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
+        //m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
+        //m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
+        
         m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
         m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
 
@@ -110,12 +111,20 @@ public class PlayerVisualsController : MonoBehaviour
             }
         }
 
-		if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
 		{
-            //m_animator.SetTrigger("SwingAxe");
+            m_animator.SetTrigger("SwingAxe");
 		}
     }
 
+    private void CalculateLookState()
+	{
+        float axisValue = m_freelookCam.m_YAxis.Value;
+        float inverseValue = Mathf.InverseLerp(0.6f, 0.8f, axisValue);
+        float lerpValue = Mathf.Lerp(1, 0, inverseValue);
+
+        m_animator.SetLayerWeight(2, inverseValue);
+    }
 
     public void OnFootUpdate(int p_footSide)
 	{
@@ -162,11 +171,11 @@ public class PlayerVisualsController : MonoBehaviour
             {
                 if (axisValue < 0)
                 {
-                    sideValue = -1;
+                    //sideValue = -1;
                 }
                 else
                 {
-                    sideValue = 1;
+                    //sideValue = 1;
                 }
             }
         }
@@ -260,8 +269,8 @@ public class PlayerVisualsController : MonoBehaviour
 
         m_currentArmIKWeight = Mathf.SmoothDamp(m_currentArmIKWeight, weightTarget, ref m_armIKSmoothingVelocity, m_armIKSmoothingTime);
 
-        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = m_currentArmIKWeight;
-        m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = m_currentArmIKWeight;
+        //m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = m_currentArmIKWeight;
+        //m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = m_currentArmIKWeight;
 
         m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = m_currentArmIKWeight;
         m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = m_currentArmIKWeight;
