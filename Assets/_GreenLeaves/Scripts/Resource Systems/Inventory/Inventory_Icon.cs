@@ -16,6 +16,8 @@ public class Inventory_Icon : MonoBehaviour
     public bool m_isEquipped = false;
     public bool m_inCraftingTable = false;
     public bool m_inCookingTable = false;
+    public bool m_wasInCraftingTable;
+    public bool m_wasInCookingTable;
     public bool m_wasInEatingArea = false;
     public bool m_inEatingArea = false;
     public bool m_wasInEquipment;
@@ -229,9 +231,11 @@ public class Inventory_Icon : MonoBehaviour
         else if (m_inCraftingTable)
         {
             Crafting_Table.CraftingTable.RemoveIconFromTable(this);
+            m_wasInCraftingTable = true;
         }
         else if (m_inCookingTable)
         {
+            m_wasInCookingTable = true;
             Crafting_Table.CookingTable.RemoveIconFromTable(this);
         }
     }

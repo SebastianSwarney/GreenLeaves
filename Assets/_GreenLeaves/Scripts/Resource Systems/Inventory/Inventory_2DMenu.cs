@@ -62,6 +62,7 @@ public class Inventory_2DMenu : MonoBehaviour
     public GameObject m_dropArea;
     public GameObject m_equipArea;
     public GameObject m_eatingArea;
+    public GameObject m_toolComponentArea;
     public Inventory_EatingStagingArea m_eatingStagingArea;
 
     public Transform m_craftedIconPlacement;
@@ -113,10 +114,10 @@ public class Inventory_2DMenu : MonoBehaviour
     public void ToggleInventory(bool p_openCrafting)
     {
         if (!m_canClose) return;
-        
+
         if (m_isOpen)
         {
-            
+
             m_heldItemText.text = "";
             m_craftingMenu.SetActive(false);
             m_cookingMenu.SetActive(false);
@@ -324,7 +325,7 @@ public class Inventory_2DMenu : MonoBehaviour
         else
         {
 
-            if(p_iconRotationType == RotationType.Down || p_iconRotationType == RotationType.Up)
+            if (p_iconRotationType == RotationType.Down || p_iconRotationType == RotationType.Up)
             {
                 if (m_inventoryGrid.CanAddToRow(p_newIcon.m_itemData.m_resourceData, RotationType.Left))
                 {
@@ -389,7 +390,7 @@ public class Inventory_2DMenu : MonoBehaviour
             newIcon = ObjectPooler.Instance.NewObject(m_mainIconPrefab, Vector3.zero, Quaternion.identity).GetComponent<Inventory_Icon>();
         }
 
-        newIcon.GetComponent<RectTransform>().SetParent(m_gameIconsParent,false);
+        newIcon.GetComponent<RectTransform>().SetParent(m_gameIconsParent, false);
         newIcon.transform.localScale = Vector3.one;
         newIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(m_inventoryGrid.m_gridIconSize.x * p_pickedUpResource.m_resourceData.m_inventoryWeight.x, m_inventoryGrid.m_gridIconSize.y * p_pickedUpResource.m_resourceData.m_inventoryWeight.y);
         newIcon.UpdateIcon(p_pickedUpResource, p_rotationType);
@@ -589,7 +590,7 @@ public class Inventory_2DMenu : MonoBehaviour
     /// </summary>
     public void IconTappedOn(Inventory_Icon p_tappedOn)
     {
-        p_tappedOn.GetComponent<RectTransform>().SetParent(m_itemTransferParent,false);
+        p_tappedOn.GetComponent<RectTransform>().SetParent(m_itemTransferParent, false);
         m_currentSelectedIcon = p_tappedOn;
         m_isDraggingObject = true;
         if (p_tappedOn.m_isEquipped)
@@ -758,6 +759,8 @@ public class Inventory_2DMenu : MonoBehaviour
                                         p_holdingIcon.m_inCookingTable = false;
                                         p_holdingIcon.m_inCraftingTable = false;
                                         p_holdingIcon.m_inBackpack = false;
+                                        p_holdingIcon.m_wasInCookingTable = false;
+                                        p_holdingIcon.m_wasInCraftingTable = false;
                                         ObjectPooler.Instance.ReturnToPool(p_holdingIcon.gameObject);
 
 
@@ -789,18 +792,24 @@ public class Inventory_2DMenu : MonoBehaviour
                     {
                         snapBack = false;
                         cooking = true;
+                        p_holdingIcon.m_wasInCookingTable = false;
+                        p_holdingIcon.m_wasInCraftingTable = false;
                     }
                     else if (res.gameObject == m_dropArea)
                     {
                         snapBack = false;
                         crafting = false;
                         cooking = false;
+                        p_holdingIcon.m_wasInCookingTable = false;
+                        p_holdingIcon.m_wasInCraftingTable = false;
                     }
                     else if (res.gameObject == m_equipArea)
                     {
                         snapBack = false;
                         equip = true;
                         crafting = false;
+                        p_holdingIcon.m_wasInCookingTable = false;
+                        p_holdingIcon.m_wasInCraftingTable = false;
                     }
                     else if (res.gameObject == m_eatingArea)
                     {
@@ -808,6 +817,8 @@ public class Inventory_2DMenu : MonoBehaviour
                         crafting = false;
                         cooking = false;
                         eating = true;
+                        p_holdingIcon.m_wasInCookingTable = false;
+                        p_holdingIcon.m_wasInCraftingTable = false;
                     }
                 }
 
@@ -820,11 +831,23 @@ public class Inventory_2DMenu : MonoBehaviour
                     {
                         snapBack = false;
                         crafting = true;
+                        p_holdingIcon.m_wasInCookingTable = false;
+                        p_holdingIcon.m_wasInCraftingTable = false;
                     }
                     else if (res.gameObject == m_cookingTableUI)
                     {
                         snapBack = false;
                         cooking = true;
+                        p_holdingIcon.m_wasInCookingTable = false;
+                        p_holdingIcon.m_wasInCraftingTable = false;
+                    }
+                    else if (res.gameObject == m_toolComponentArea || res.gameObject.GetComponent<Inventory_SlotDetector>() != null)
+                    {
+                        snapBack = true;
+                        cooking = false;
+                        crafting = false;
+                        p_holdingIcon.m_wasInCookingTable = false;
+                        p_holdingIcon.m_wasInCraftingTable = false;
                     }
                 }
             }
@@ -834,7 +857,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
         #region Determine what to do with the icon given the findings
 
-        p_holdingIcon.GetComponent<RectTransform>().SetParent(m_gameIconsParent,false);
+        p_holdingIcon.GetComponent<RectTransform>().SetParent(m_gameIconsParent, false);
         if (!placedIcon)
         {
 
@@ -858,14 +881,16 @@ public class Inventory_2DMenu : MonoBehaviour
                 ///If snapping back and the item was previously not in the backpack, return it to the outer, and it's original orientation
                 else
                 {
-                    if (p_holdingIcon.m_inCraftingTable)
+                    if (p_holdingIcon.m_inCraftingTable || p_holdingIcon.m_wasInCraftingTable)
                     {
+                        p_holdingIcon.m_inCraftingTable = true;
                         p_holdingIcon.m_isEquipped = false;
                         p_holdingIcon.m_inEatingArea = false;
                         Crafting_Table.CraftingTable.AddIconToTable(p_holdingIcon);
                     }
-                    else if (p_holdingIcon.m_inCookingTable)
+                    else if (p_holdingIcon.m_inCookingTable || p_holdingIcon.m_wasInCookingTable)
                     {
+                        p_holdingIcon.m_inCookingTable = true;
                         p_holdingIcon.m_isEquipped = false;
                         p_holdingIcon.m_inEatingArea = false;
                         Crafting_Table.CookingTable.AddIconToTable(p_holdingIcon);
@@ -894,6 +919,7 @@ public class Inventory_2DMenu : MonoBehaviour
                             p_holdingIcon.m_startingCoordPos = p_holdingIcon.GetComponent<Inventory_Icon_ToolResource>().m_toolBeltPlacement;
                         }
                     }
+                    p_holdingIcon.m_wasInCookingTable = p_holdingIcon.m_wasInCraftingTable = false;
                     p_holdingIcon.m_inBackpack = false;
                     p_holdingIcon.ForceIconDrop();
                     p_holdingIcon.ResetRotation();
@@ -920,7 +946,6 @@ public class Inventory_2DMenu : MonoBehaviour
                 }
                 else if (cooking)
                 {
-                    p_holdingIcon.m_inCraftingTable = true;
                     p_holdingIcon.m_inEatingArea = false;
                     p_holdingIcon.m_wasInEatingArea = false;
                     p_holdingIcon.m_wasInEquipment = false;
@@ -1148,7 +1173,7 @@ public class Inventory_2DMenu : MonoBehaviour
     #region Inventory Clear Code
     public void ClearInventory()
     {
-        foreach(BackpackSlot slot in m_backpack.m_itemsInBackpack)
+        foreach (BackpackSlot slot in m_backpack.m_itemsInBackpack)
         {
             Player_Inventory.Instance.DropObject(slot.m_associatedIcon, false);
             ObjectPooler.Instance.ReturnToPool(slot.m_associatedIcon.gameObject);
