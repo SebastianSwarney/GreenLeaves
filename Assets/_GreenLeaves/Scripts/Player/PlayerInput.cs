@@ -53,5 +53,10 @@ public class PlayerInput : MonoBehaviour
         {
             m_playerController.OnAimInputUp();
         }
+
+        if (m_playerInputController.GetButtonDown("Use"))
+        {
+            m_playerController.OnUseInputDown();
+        }
     }
 }

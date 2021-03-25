@@ -240,12 +240,6 @@ public class PlayerController : MonoBehaviour
 
 		m_playerVisuals.m_animator.SetBool("IsGrounded", m_characterController.isGrounded);
 		m_playerVisuals.m_animator.SetFloat("YVelocity", m_gravityVelocity.y);
-
-		if (Input.GetMouseButtonDown(0))
-		{
-			m_playerVisuals.m_animator.SetTrigger("SwingAxe");
-			m_chopping = true;
-		}
 	}
 
 	private void FixedUpdate()
@@ -266,6 +260,15 @@ public class PlayerController : MonoBehaviour
 		{
 			m_gravityVelocity.y = 0;
 			return;
+		}
+	}
+
+	public void OnUseInputDown()
+	{
+		if (Player_EquipmentUse_MeshSlice.Instance.m_axeEquipped)
+		{
+			m_chopping = true;
+			m_playerVisuals.SwingAxeAnimation();
 		}
 	}
 

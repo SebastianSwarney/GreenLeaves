@@ -67,7 +67,12 @@ public class PlayerVisualsController : MonoBehaviour
     public ParticleSystem m_sweatParticle;
     [FoldoutGroup("Tiredness")]
     public Vector2 m_minMaxSweatAmount;
-    #endregion
+	#endregion
+
+	#region Axe Properties
+	[FoldoutGroup("Axe")]
+    public Transform m_axeLeftHandPosition;
+	#endregion
 
 	private PlayerController m_playerController;
     private FullBodyBipedIK m_fullBodyBipedIK;
@@ -85,8 +90,8 @@ public class PlayerVisualsController : MonoBehaviour
 
         m_freelookCam = GetComponentInChildren<Cinemachine.CinemachineFreeLook>();
 
-        //m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
-        //m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
+        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
+        m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 0f;
         
         m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = 0f;
         m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
@@ -96,7 +101,7 @@ public class PlayerVisualsController : MonoBehaviour
 
 	private void Update()
 	{
-        ArmIK();
+        //ArmIK();
         GrounderWeight();
 
 		if (Player_EquipmentUse_Torch.Instance != null)
@@ -110,15 +115,50 @@ public class PlayerVisualsController : MonoBehaviour
                 m_animator.SetLayerWeight(1, 0);
             }
         }
+
+        if (Player_EquipmentUse_MeshSlice.Instance != null)
+        {
+            if (Player_EquipmentUse_MeshSlice.Instance.m_axeEquipped)
+            {
+                EquipAxe();
+            }
+            else
+            {
+                UnEquipAxe();
+            }
+        }
+
+        CalculateLookState();
+    }
+
+    public void SwingAxeAnimation()
+	{
+        m_animator.SetTrigger("SwingAxe");
+	}
+
+    private void EquipAxe()
+	{
+        m_animator.SetLayerWeight(2, 1);
+        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
+        m_fullBodyBipedIK.solver.leftHandEffector.target = m_axeLeftHandPosition;
+    }
+
+    private void UnEquipAxe()
+	{
+        m_animator.SetLayerWeight(2, 0);
+        //m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
+        //m_fullBodyBipedIK.solver.leftHandEffector.target = m_leftArmIKTarget;
     }
 
     private void CalculateLookState()
 	{
         float axisValue = m_freelookCam.m_YAxis.Value;
-        float inverseValue = Mathf.InverseLerp(0.6f, 0.8f, axisValue);
+        float inverseValue = Mathf.InverseLerp(0.25f, 0.5f, axisValue);
         float lerpValue = Mathf.Lerp(1, 0, inverseValue);
 
-        m_animator.SetLayerWeight(2, inverseValue);
+        m_animator.SetFloat("SwingHeight", lerpValue);
+
+        //m_animator.SetLayerWeight(2, inverseValue);
     }
 
     public void OnFootUpdate(int p_footSide)
@@ -264,8 +304,8 @@ public class PlayerVisualsController : MonoBehaviour
 
         m_currentArmIKWeight = Mathf.SmoothDamp(m_currentArmIKWeight, weightTarget, ref m_armIKSmoothingVelocity, m_armIKSmoothingTime);
 
-        //m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = m_currentArmIKWeight;
-        //m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = m_currentArmIKWeight;
+        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = m_currentArmIKWeight;
+        m_fullBodyBipedIK.solver.leftHandEffector.rotationWeight = m_currentArmIKWeight;
 
         m_fullBodyBipedIK.solver.rightHandEffector.positionWeight = m_currentArmIKWeight;
         m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = m_currentArmIKWeight;
