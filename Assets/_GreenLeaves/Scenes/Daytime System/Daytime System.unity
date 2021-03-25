@@ -1010,7 +1010,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 149431788818511697, guid: 290d13aa80a2e9e41951425e06c27145, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 266593246772345614, guid: 290d13aa80a2e9e41951425e06c27145, type: 3}
       propertyPath: m_Enabled
@@ -2064,7 +2064,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6966616323493957151, guid: 86dc056a42d56704c9a408c44a7ca74f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6966616323839875653, guid: 86dc056a42d56704c9a408c44a7ca74f, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 6966616323839875653, guid: 86dc056a42d56704c9a408c44a7ca74f, type: 3}
+      propertyPath: InitialModule.startSizeY.scalar
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 6966616323839875653, guid: 86dc056a42d56704c9a408c44a7ca74f, type: 3}
+      propertyPath: InitialModule.startSizeZ.scalar
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 6966616323839875653, guid: 86dc056a42d56704c9a408c44a7ca74f, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6966616323839875653, guid: 86dc056a42d56704c9a408c44a7ca74f, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 86dc056a42d56704c9a408c44a7ca74f, type: 3}
@@ -2190,8 +2210,8 @@ Camera:
   m_GameObject: {fileID: 1281443620}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 3
-  m_BackGroundColor: {r: 0.69803923, g: 0.5647059, b: 0.47058824, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.73333335, g: 0.6509804, b: 0.5372549, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2939,6 +2959,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1222944409}
     m_Modifications:
+    - target: {fileID: 1701868324759917148, guid: 2d5798c38a70beb46a1efb8855dd5b9a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.42
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701868324759917149, guid: 2d5798c38a70beb46a1efb8855dd5b9a, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701868324759917149, guid: 2d5798c38a70beb46a1efb8855dd5b9a, type: 3}
+      propertyPath: InitialModule.startSizeY.scalar
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701868324759917149, guid: 2d5798c38a70beb46a1efb8855dd5b9a, type: 3}
+      propertyPath: InitialModule.startSizeZ.scalar
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701868324759917149, guid: 2d5798c38a70beb46a1efb8855dd5b9a, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701868324759917149, guid: 2d5798c38a70beb46a1efb8855dd5b9a, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3445642044487136688, guid: 2d5798c38a70beb46a1efb8855dd5b9a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

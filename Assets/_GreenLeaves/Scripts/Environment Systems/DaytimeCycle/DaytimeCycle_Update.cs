@@ -57,6 +57,8 @@ public class DaytimeCycle_Update : MonoBehaviour
         m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent, m_directionalLight, m_nightLight, m_inCave);
     }
 
+
+
     public void UpdateTimeOfDayThroughPass(float p_increaseAmount)
     {
         m_timeOfDay += p_increaseAmount;
@@ -110,7 +112,6 @@ public class DaytimeCycle_Update : MonoBehaviour
                 timer -= Time.deltaTime;
             }
             m_cavePercent = timer / m_lightingAdjustmentTime;
-            m_directionalLight.intensity = m_nightLight.intensity = (1 - m_cavePercent) / 2;
             yield return null;
         }
     }

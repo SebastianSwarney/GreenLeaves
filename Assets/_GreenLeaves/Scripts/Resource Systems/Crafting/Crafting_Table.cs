@@ -144,7 +144,7 @@ public class Crafting_Table : MonoBehaviour
             newContainer.m_itemAmount = icon.m_currentResourceAmount;
             newContainer.m_itemData = icon.m_itemData;
             newContainer.m_relatedIcon = icon;
-            if(icon.GetComponent<Inventory_Icon_Durability>() != null)
+            if (icon.GetComponent<Inventory_Icon_Durability>() != null)
             {
                 newContainer.m_relatedDurabilityIcon = icon.GetComponent<Inventory_Icon_Durability>();
             }
@@ -165,15 +165,15 @@ public class Crafting_Table : MonoBehaviour
     {
         RecipeBook.Instance.UnlockRecipe(m_currentRecipe.m_recipeBookIndex);
         Crafting_Recipe tempRecipe = m_currentRecipe;
-        AdjustResources();
         if (tempRecipe.m_isBuilding)
         {
             tempRecipe.m_craftedItem.UseItem(null);
         }
         else
         {
-            Inventory_2DMenu.Instance.CraftNewIcon(tempRecipe);
+            Inventory_2DMenu.Instance.CraftNewIcon(tempRecipe, GatherCurrentItems());
         }
+        AdjustResources();
 
     }
 

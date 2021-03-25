@@ -216,4 +216,17 @@ public class Player_EquipmentUse_MeshSlice : Player_EquipmentUse
         }
         PlayerEquipmentBreak.Instance.ShowUI();
     }
+
+
+    private void OnDisable()
+    {
+        if (m_currentHittable != null)
+        {
+            m_currentHittable.HideUI();
+        }
+        if (m_currentTarget != null)
+        {
+            m_currentTarget.HideUI();
+        }
+    }
 }

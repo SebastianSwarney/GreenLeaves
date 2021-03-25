@@ -94,6 +94,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
     private void Update()
     {
+
         if (!m_isOpen) return;
         if (Input.GetMouseButtonDown(0) && m_canTap)
         {
@@ -421,14 +422,14 @@ public class Inventory_2DMenu : MonoBehaviour
 
 
 
-    public void CraftNewIcon(Crafting_Recipe p_recipe)
+    public void CraftNewIcon(Crafting_Recipe p_recipe, List<Crafting_Table.Crafting_ItemsContainer> p_givenItems)
     {
         RotationType iconRotationType = p_recipe.m_craftedItem.m_resourceData.m_iconStartingRotation;
         if (p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.x < p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.y)
         {
             p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight = new Vector2Int(p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.y, p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.x);
         }
-        Inventory_Icon newIcon = CreateIcon(p_recipe.m_craftedItem, iconRotationType, p_recipe.m_craftedAmount, p_recipe.m_isToolRecipe, p_recipe.m_startingToolDurability);
+        Inventory_Icon newIcon = CreateIcon(p_recipe.m_craftedItem, iconRotationType, p_recipe.m_craftedAmount, p_recipe.m_isToolRecipe, p_recipe.GetToolDurability(p_givenItems));
 
         newIcon.m_opensInventorySelectButton = p_recipe.m_craftedItem.m_showInventorySelectionButton;
 
@@ -440,6 +441,17 @@ public class Inventory_2DMenu : MonoBehaviour
         newIcon.m_inCookingTable = false;
 
         newIcon.UpdateIconNumber();
+
+        if (Crafting_Table.CraftingTable.enabled)
+        {
+            newIcon.m_inCraftingTable = true;
+            Crafting_Table.CraftingTable.AddIconToTable(newIcon);
+        }
+        else
+        {
+            newIcon.m_inCookingTable = true;
+            Crafting_Table.CookingTable.AddIconToTable(newIcon);
+        }
 
     }
 
@@ -963,6 +975,7 @@ public class Inventory_2DMenu : MonoBehaviour
                             {
                                 m_currentEquippedTool.m_inBackpack = false;
                             }
+
                             m_currentEquippedTool.m_isEquipped = false;
                             Inventory_ItemUsage.Instance.UnEquipCurrent();
 
@@ -970,6 +983,7 @@ public class Inventory_2DMenu : MonoBehaviour
                         m_currentEquippedTool = p_holdingIcon;
                         m_currentEquippedTool.RotateToFaceDir(RotationType.Left);
                         m_currentEquippedTool.m_isEquipped = true;
+
                         m_currentEquippedTool.m_itemData.UseItem(m_currentEquippedTool);
                         p_holdingIcon.transform.localPosition = m_equipArea.transform.localPosition;
                         p_holdingIcon.m_startingCoordPos = p_holdingIcon.transform.localPosition;
@@ -977,7 +991,7 @@ public class Inventory_2DMenu : MonoBehaviour
                     else
                     {
                         p_holdingIcon.m_inCookingTable = false;
-                        p_holdingIcon.m_inCraftingTable = true;
+                        p_holdingIcon.m_inCraftingTable = false;
                         p_holdingIcon.m_inEatingArea = false;
                         p_holdingIcon.m_wasInEatingArea = false;
                         p_holdingIcon.m_wasInEquipment = false;
@@ -1173,22 +1187,41 @@ public class Inventory_2DMenu : MonoBehaviour
     #region Inventory Clear Code
     public void ClearInventory()
     {
+        List<int> removeIndexes = new List<int>();
         foreach (BackpackSlot slot in m_backpack.m_itemsInBackpack)
         {
-            Player_Inventory.Instance.DropObject(slot.m_associatedIcon, false);
-            ObjectPooler.Instance.ReturnToPool(slot.m_associatedIcon.gameObject);
-            slot.m_associatedIcon.m_itemData.DropObject(slot.m_associatedIcon, Vector3.zero, Quaternion.identity, false);
+            if (slot.m_associatedIcon.GetComponent<Inventory_Icon_Durability>())
+            {
+                Player_Inventory.Instance.DropObject(slot.m_associatedIcon, false);
+                ObjectPooler.Instance.ReturnToPool(slot.m_associatedIcon.gameObject);
+                slot.m_associatedIcon.m_itemData.DropObject(slot.m_associatedIcon, Vector3.zero, Quaternion.identity, false);
+                removeIndexes.Add(m_backpack.m_itemsInBackpack.IndexOf(slot));
+            }
         }
-        m_backpack.m_itemsInBackpack.Clear();
+
+        removeIndexes.Sort();
+        removeIndexes.Reverse();
+        for (int i = 0; i < removeIndexes.Count; i++)
+        {
+            m_backpack.m_itemsInBackpack.RemoveAt(removeIndexes[i]);
+        }
 
         for (int y = 0; y < m_inventoryGrid.m_itemGrids.Count; y++)
         {
             for (int x = 0; x < m_inventoryGrid.m_itemGrids[y].m_itemGrids.Count; x++)
             {
-                m_inventoryGrid.m_itemGrids[y].m_itemGrids[x] = null;
+                if (m_inventoryGrid.m_itemGrids[y].m_itemGrids[x] != null)
+                {
+                    if (!m_inventoryGrid.m_itemGrids[y].m_itemGrids[x].gameObject.activeSelf || !m_inventoryGrid.m_itemGrids[y].m_itemGrids[x].gameObject.activeInHierarchy)
+                    {
+                        m_inventoryGrid.m_itemGrids[y].m_itemGrids[x] = null;
+                        m_inventoryGrid.m_currentAmount--;
+                    }
+                }
+                //m_inventoryGrid.m_itemGrids[y].m_itemGrids[x] = null;
             }
         }
-        m_inventoryGrid.m_currentAmount = 0;
+
     }
     #endregion
 
