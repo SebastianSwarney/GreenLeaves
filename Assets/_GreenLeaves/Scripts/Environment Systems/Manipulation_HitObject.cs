@@ -66,6 +66,7 @@ public class Manipulation_HitObject : MonoBehaviour
     }
     public void HideUI()
     {
+        if (Durability_UI.Instance == null) return;
         Durability_UI.Instance.HideUI();
     }
 

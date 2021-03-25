@@ -119,4 +119,12 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
     {
         
     }
+
+    private void OnDisable()
+    {
+        if (m_currentHit != null)
+        {
+            m_currentHit.HideUI();
+        }
+    }
 }
