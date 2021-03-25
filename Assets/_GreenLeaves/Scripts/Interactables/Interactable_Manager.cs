@@ -102,6 +102,9 @@ public class Interactable_Manager : MonoBehaviour
             {
                 HideButtonMenu(m_currentInteractable, true);
             }
+        }else if (m_currentInteractable == null && m_menuOpen)
+        {
+            HideButtonMenu(null, true);
         }
 
         
