@@ -15,6 +15,10 @@ public class Crafting_Table : MonoBehaviour
 
     public UnityEngine.UI.Text m_craftedItemText;
 
+#if UNITY_EDITOR
+    public List<Crafting_Recipe> m_debugRecipes;
+#endif
+
     [System.Serializable]
     public class Crafting_ItemsContainer
     {
@@ -36,10 +40,19 @@ public class Crafting_Table : MonoBehaviour
         {
             CookingTable = this;
         }
+
+#if UNITY_EDITOR
+        foreach (Crafting_Recipe debug in m_debugRecipes)
+        {
+            m_allRecipes.Add(debug);
+        }
+#endif
         for (int i = 0; i < m_allRecipes.Count; i++)
         {
             m_matchingAmount.Add(0);
         }
+
+
     }
 
     private void OnEnable()
