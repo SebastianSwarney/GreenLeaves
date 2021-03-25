@@ -8,22 +8,7 @@ public class RecipeBook : MonoBehaviour
     public UnityEngine.UI.Image[] m_recipePlaces;
     public int m_currentStartingIndex = 0;
 
-    public bool m_debug;
 
-    private void OnValidate()
-    {
-        if (m_debug)
-        {
-            m_debug = false;
-            for (int i = 0; i < m_recipes.Length; i++)
-            {
-                if (m_recipes[i].m_unlocked)
-                {
-                    UnlockRecipe(i);
-                }
-            }
-        }
-    }
     [System.Serializable]
     public class Recipes
     {
