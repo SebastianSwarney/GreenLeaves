@@ -421,14 +421,14 @@ public class Inventory_2DMenu : MonoBehaviour
 
 
 
-    public void CraftNewIcon(Crafting_Recipe p_recipe)
+    public void CraftNewIcon(Crafting_Recipe p_recipe, List<Crafting_Table.Crafting_ItemsContainer> p_givenItems)
     {
         RotationType iconRotationType = p_recipe.m_craftedItem.m_resourceData.m_iconStartingRotation;
         if (p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.x < p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.y)
         {
             p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight = new Vector2Int(p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.y, p_recipe.m_craftedItem.m_resourceData.m_inventoryWeight.x);
         }
-        Inventory_Icon newIcon = CreateIcon(p_recipe.m_craftedItem, iconRotationType, p_recipe.m_craftedAmount, p_recipe.m_isToolRecipe, p_recipe.m_startingToolDurability);
+        Inventory_Icon newIcon = CreateIcon(p_recipe.m_craftedItem, iconRotationType, p_recipe.m_craftedAmount, p_recipe.m_isToolRecipe, p_recipe.GetToolDurability(p_givenItems));
 
         newIcon.m_opensInventorySelectButton = p_recipe.m_craftedItem.m_showInventorySelectionButton;
 
@@ -440,6 +440,17 @@ public class Inventory_2DMenu : MonoBehaviour
         newIcon.m_inCookingTable = false;
 
         newIcon.UpdateIconNumber();
+
+        if (Crafting_Table.CraftingTable.enabled)
+        {
+            newIcon.m_inCraftingTable = true;
+            Crafting_Table.CraftingTable.AddIconToTable(newIcon);
+        }
+        else
+        {
+            newIcon.m_inCookingTable = true;
+            Crafting_Table.CookingTable.AddIconToTable(newIcon);
+        }
 
     }
 

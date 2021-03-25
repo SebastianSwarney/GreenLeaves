@@ -50,4 +50,9 @@ public class Crafting_Recipe : ScriptableObject
     {
         return m_recipe;
     }
+
+    public virtual int GetToolDurability(List<Crafting_Table.Crafting_ItemsContainer> p_givenItems)
+    {
+        return m_startingToolDurability;
+    }
 }
