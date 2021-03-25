@@ -963,6 +963,7 @@ public class Inventory_2DMenu : MonoBehaviour
                             {
                                 m_currentEquippedTool.m_inBackpack = false;
                             }
+                            
                             m_currentEquippedTool.m_isEquipped = false;
                             Inventory_ItemUsage.Instance.UnEquipCurrent();
 
@@ -970,6 +971,7 @@ public class Inventory_2DMenu : MonoBehaviour
                         m_currentEquippedTool = p_holdingIcon;
                         m_currentEquippedTool.RotateToFaceDir(RotationType.Left);
                         m_currentEquippedTool.m_isEquipped = true;
+                        
                         m_currentEquippedTool.m_itemData.UseItem(m_currentEquippedTool);
                         p_holdingIcon.transform.localPosition = m_equipArea.transform.localPosition;
                         p_holdingIcon.m_startingCoordPos = p_holdingIcon.transform.localPosition;
@@ -977,7 +979,7 @@ public class Inventory_2DMenu : MonoBehaviour
                     else
                     {
                         p_holdingIcon.m_inCookingTable = false;
-                        p_holdingIcon.m_inCraftingTable = true;
+                        p_holdingIcon.m_inCraftingTable = false;
                         p_holdingIcon.m_inEatingArea = false;
                         p_holdingIcon.m_wasInEatingArea = false;
                         p_holdingIcon.m_wasInEquipment = false;
