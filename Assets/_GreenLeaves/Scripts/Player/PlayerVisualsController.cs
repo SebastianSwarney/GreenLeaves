@@ -153,8 +153,8 @@ public class PlayerVisualsController : MonoBehaviour
     private void CalculateLookState()
 	{
         float axisValue = m_freelookCam.m_YAxis.Value;
-        float inverseValue = Mathf.InverseLerp(0.25f, 0.5f, axisValue);
-        float lerpValue = Mathf.Lerp(1, 0, inverseValue);
+        float inverseValue = Mathf.InverseLerp(0.5f, 0.7f, axisValue);
+        float lerpValue = Mathf.Lerp(0, 1, inverseValue);
 
         m_animator.SetFloat("SwingHeight", lerpValue);
 

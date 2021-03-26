@@ -286,6 +286,8 @@ public class PlayerController : MonoBehaviour
 	public void SwingEnd()
 	{
 		m_chopping = false;
+
+		m_playerVisuals.m_animator.SetTrigger("SwingDone");
 	}
 
 	#region State and Velocity Updates
