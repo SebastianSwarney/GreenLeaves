@@ -97,6 +97,11 @@ public class Inventory_2DMenu : MonoBehaviour
     private void Update()
     {
 
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            ClearInventory();
+        }
         if (!m_isOpen) return;
         if (Input.GetMouseButtonDown(0) && m_canTap)
         {
@@ -1266,6 +1271,15 @@ public class Inventory_2DMenu : MonoBehaviour
     #region Inventory Clear Code
     public void ClearInventory()
     {
+        if (m_currentToolSlot != null)
+        {
+            m_currentToolSlot.m_itemData.SecondaryUseItem(false);
+            m_currentToolSlot.m_inBackpack = false;
+            m_currentToolSlot.m_inToolSlot = false;
+            m_currentToolSlot = null;
+        }
+
+
         List<int> removeIndexes = new List<int>();
         foreach (BackpackSlot slot in m_backpack.m_itemsInBackpack)
         {
@@ -1300,6 +1314,8 @@ public class Inventory_2DMenu : MonoBehaviour
                 //m_inventoryGrid.m_itemGrids[y].m_itemGrids[x] = null;
             }
         }
+
+
 
     }
     #endregion
