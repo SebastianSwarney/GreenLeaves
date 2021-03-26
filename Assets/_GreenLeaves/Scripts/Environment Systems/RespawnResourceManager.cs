@@ -91,6 +91,40 @@ public class RespawnResourceManager : MonoBehaviour
         }
     }
 
+
+    [Header("Campfire")]
+    public List<CampfireTimer> m_campfires;
+    public float m_campfireLifeTime;
+    [System.Serializable]
+    public class CampfireTimer
+    {
+        public Building_PlacementManager m_campfire;
+        public float m_timer;
+
+        public bool CampfireAlive(float p_lifetime)
+        {
+            if(m_timer > p_lifetime)
+            {
+                m_campfire.PlaceBuildingUnlit();
+                return false;
+            }
+            m_timer += Time.deltaTime;
+            return true;
+        }
+
+        public bool AliveAfterTimeSkip(float p_lifetime, float p_addedTime)
+        {
+            m_timer += p_addedTime;
+            if (m_timer > p_lifetime)
+            {
+                m_campfire.PlaceBuildingUnlit();
+                return false;
+            }
+            return true;
+        }
+
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -146,6 +180,24 @@ public class RespawnResourceManager : MonoBehaviour
             }
             m_removeResourceCounter.Clear();
         }
+
+
+        foreach(CampfireTimer fire in m_campfires)
+        {
+            if (!fire.CampfireAlive(m_campfireLifeTime))
+            {
+                m_removeResourceCounter.Add(m_campfires.IndexOf(fire));
+            }
+        }
+        if(m_removeResourceCounter.Count > 0)
+        {
+            m_removeResourceCounter.Reverse();
+            for (int i = 0; i < m_removeResourceCounter.Count; i++)
+            {
+                m_campfires.RemoveAt(m_removeResourceCounter[i]);
+            }
+            m_removeResourceCounter.Clear();
+        }
     }
 
 
@@ -194,6 +246,13 @@ public class RespawnResourceManager : MonoBehaviour
         m_allPrePlacedResources.Remove(p_pickup.gameObject);
     }
 
+    public void AddCampfire(Building_PlacementManager p_campfire)
+    {
+        CampfireTimer fire = new CampfireTimer();
+        fire.m_campfire = p_campfire;
+        fire.m_timer = 0;
+        m_campfires.Add(fire);
+    }
 
     public void TimeSkipped(float p_amountOfTime)
     {
@@ -234,6 +293,24 @@ public class RespawnResourceManager : MonoBehaviour
             for (int i = 0; i < m_removeResourceCounter.Count; i++)
             {
                 m_respawnResources.RemoveAt(m_removeResourceCounter[i]);
+            }
+            m_removeResourceCounter.Clear();
+        }
+
+
+        foreach (CampfireTimer fire in m_campfires)
+        {
+            if (!fire.AliveAfterTimeSkip(m_campfireLifeTime, p_amountOfTime))
+            {
+                m_removeResourceCounter.Add(m_campfires.IndexOf(fire));
+            }
+        }
+        if (m_removeResourceCounter.Count > 0)
+        {
+            m_removeResourceCounter.Reverse();
+            for (int i = 0; i < m_removeResourceCounter.Count; i++)
+            {
+                m_campfires.RemoveAt(m_removeResourceCounter[i]);
             }
             m_removeResourceCounter.Clear();
         }

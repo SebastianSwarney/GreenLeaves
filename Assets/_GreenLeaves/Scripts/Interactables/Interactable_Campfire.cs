@@ -117,11 +117,12 @@ public class Interactable_Campfire : Interactable
     public override void RightButtonPressed()
     {
         DaytimeCycle_Update.Instance.ToggleDaytimePause(false);
-
+        RespawnResourceManager.Instance.m_performTimers = true;
         m_currentState = InteractionState.Interact;
         m_currentType = InteractionType.Initial;
         Interactable_Manager.Instance.HideButtonMenu(this, true);
         PlayerInputToggle.Instance.ToggleInput(true);
+        PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
     }
 
     public override string RightButtonString()
@@ -188,10 +189,10 @@ public class Interactable_Campfire : Interactable
         {
             case InteractionState.Interact:
                 m_currentState = InteractionState.PickInteraction;
-
+                RespawnResourceManager.Instance.m_performTimers = false;
                 DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
 
-                PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
+                PlayerInputToggle.Instance.ToggleInputFromGameplay(false);
                 PlayerInputToggle.Instance.ToggleInput(false);
                 Interactable_Manager.Instance.DisplayButtonMenu(this, false);
                 break;
@@ -199,8 +200,8 @@ public class Interactable_Campfire : Interactable
             case InteractionState.PickInteraction:
                 DaytimeCycle_Update.Instance.ToggleDaytimePause(true);
 
-                m_currentType = InteractionType.Cook;
-                m_currentState = InteractionState.SubInteraction;
+                /*m_currentType = InteractionType.Cook;
+                m_currentState = InteractionState.SubInteraction;*/
 
                 m_currentState = InteractionState.Interact;
                 m_currentType = InteractionType.Initial;
@@ -231,4 +232,19 @@ public class Interactable_Campfire : Interactable
 
 
     #endregion
+
+    public void FireDied()
+    {
+        if(Interactable_Manager.Instance.m_currentInteractable == this)
+        {
+            if(m_currentState == InteractionState.PickInteraction)
+            {
+                PlayerInputToggle.Instance.ToggleInput(true);
+                PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
+                DaytimeCycle_Update.Instance.ToggleDaytimePause(false);
+                RespawnResourceManager.Instance.m_performTimers = true;
+            }
+            Interactable_Manager.Instance.HideButtonMenu(this, true);
+        }
+    }
 }

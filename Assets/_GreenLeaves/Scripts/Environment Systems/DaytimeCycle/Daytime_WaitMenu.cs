@@ -35,6 +35,7 @@ public class Daytime_WaitMenu : MonoBehaviour
 
         m_isWaiting = true;
         PlayerInputToggle.Instance.ToggleInput(false);
+        RespawnResourceManager.Instance.m_performTimers = false;
         enabled = true;
         m_howManyHoursToWait = 1;
         m_waitHourText.text = m_howManyHoursToWait.ToString();
@@ -46,6 +47,8 @@ public class Daytime_WaitMenu : MonoBehaviour
         m_menuUi.gameObject.SetActive(false);
         enabled = false;
         PlayerInputToggle.Instance.ToggleInput(true);
+        PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
+        RespawnResourceManager.Instance.m_performTimers = true;
         m_isWaiting = false;
     }
 
@@ -97,6 +100,10 @@ public class Daytime_WaitMenu : MonoBehaviour
         PlayerStatsController.Instance.AddStatsFromCampfire(p_hoursToWait);
 
         m_menuUi.SetActive(false);
+
+        PlayerInputToggle.Instance.ToggleInputFromGameplay(true);
+        RespawnResourceManager.Instance.m_performTimers = true;
+
         enabled = false;
 
     }

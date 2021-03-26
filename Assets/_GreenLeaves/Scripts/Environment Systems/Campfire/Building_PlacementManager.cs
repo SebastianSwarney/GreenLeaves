@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class Building_PlacementManager : MonoBehaviour
@@ -13,7 +14,7 @@ public class Building_PlacementManager : MonoBehaviour
     public Vector3 m_placement;
 
 
-    public GenericWorldEvent m_objectPlacedEvent;
+    public GenericWorldEvent m_objectPlacedEvent, m_objectDiedEvent;
 
     public Interactable_Campfire m_interactable;
 
@@ -77,16 +78,31 @@ public class Building_PlacementManager : MonoBehaviour
         //Interactable_Manager.Instance.SearchForInteractable();
 
         Map_LoadingManager.Instance.GetCurrentOccupiedMapArea().m_allCampfires.Add(gameObject);
+        RespawnResourceManager.Instance.AddCampfire(this);
+
     }
 
     public void PlaceBuildingUnlit()
     {
-        m_fireParticle.gameObject.SetActive(false);
+        m_objectDiedEvent.Invoke();
+        m_fireParticle.Stop();
         m_activeModel.SetActive(false);
         m_burntModel.SetActive(true);
-        Durability_UI.Instance.HideUI();
+        
+        //Durability_UI.Instance.HideUI();
         m_currentState = PlacementState.Placed;
         m_interactable.m_canBeInteractedWith = false;
+        m_interactable.FireDied();
+        //m_fireParticle.gameObject.SetActive(false);
+        StartCoroutine(StopParticle());
+    }
+
+    private IEnumerator StopParticle()
+    {
+        while (m_fireParticle.isPlaying)
+        {
+            yield return null;
+        }
         m_fireParticle.gameObject.SetActive(false);
     }
 }

@@ -137,9 +137,17 @@ public class Inventory_2DMenu : MonoBehaviour
             }
 
             CloseInventoryMenu();
+
             //Interactable_Manager.Instance.CheckReopen();
+
+
             Interactable_Manager.Instance.SearchForInteractable();
+
             PlayerStatsController.Instance.m_pauseStatDrain = false;
+
+            RespawnResourceManager.Instance.m_performTimers = true;
+
+
         }
         else
         {
@@ -148,7 +156,22 @@ public class Inventory_2DMenu : MonoBehaviour
             PlayerInputToggle.Instance.ToggleInput(false);
             m_isOpen = true;
 
+            if (Interactable_Manager.Instance.m_currentInteractable != null)
+            {
+                if (Interactable_Manager.Instance.m_currentInteractable.GetComponent<Interactable_Campfire>() != null)
+                {
+                    Interactable_Manager.Instance.m_currentInteractable.GetComponent<Interactable_Campfire>().m_currentState = Interactable_Campfire.InteractionState.Interact;
+                    Interactable_Manager.Instance.m_currentInteractable.GetComponent<Interactable_Campfire>().m_currentType = Interactable_Campfire.InteractionType.Initial;
+                    Interactable_Manager.Instance.HideButtonMenu(Interactable_Manager.Instance.m_currentInteractable, false);
+
+                }
+
+            }
+
             Interactable_Manager.Instance.ForceCloseMenu();
+
+
+
             OpenInventoryMenu();
             m_craftingMenuOpened = p_openCrafting;
 
