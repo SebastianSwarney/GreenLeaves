@@ -19,6 +19,14 @@ public class PlayerUIManager : MonoBehaviour
     FMOD.Studio.Bus m_ambience;
     FMOD.Studio.Bus m_soundEffects;
 
+
+    [Header("Compass")]
+    public GameObject m_compassRoot;
+    public Transform m_compassTracker;
+    public float m_compassAngleOffset;
+
+    [Header("Map")]
+    public GameObject m_map;
     private void Awake()
     {
         Instance = this;
@@ -32,18 +40,51 @@ public class PlayerUIManager : MonoBehaviour
 
     private void Update()
     {
+        UpdateCompass();
         if (Daytime_WaitMenu.Instance.m_isWaiting) return;
         if (m_transitionToMainMenu) return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (Inventory_2DMenu.Instance.m_isOpen)
+            {
+                Inventory_2DMenu.Instance.ToggleInventory(false);
+                Interactable_Manager.Instance.SearchForInteractable();
+                return;
+            }
+            if (m_map.activeSelf)
+            {
+                m_map.SetActive(false);
+                PlayerInputToggle.Instance.ToggleInput(true);
+            }
             if (Interactable_Readable_Menu.Instance.m_isOpen) Interactable_Readable_Menu.Instance.CloseReadableMenu();
 
             TogglePauseMenu(!m_isPaused);
         }
-        else if (Input.GetKey(KeyCode.P))
+        else if (Input.GetKeyDown(KeyCode.M))
         {
-            GlobalSceneManager.Instance.ReloadScene();
+            m_map.gameObject.SetActive(!m_map.activeSelf);
+            if (m_map.gameObject.activeSelf)
+            {
+                Interactable_Manager.Instance.ForceCloseMenu();
+                PlayerInputToggle.Instance.ToggleInput(false);
+
+            }
+            else
+            {
+                Interactable_Manager.Instance.SearchForInteractable();
+                PlayerInputToggle.Instance.ToggleInput(true);
+            }
         }
+    }
+
+    public void UpdateCompass()
+    {
+        m_compassTracker.transform.eulerAngles = new Vector3(0, 0, -(PlayerInputToggle.Instance.transform.eulerAngles.y + m_compassAngleOffset));
+    }
+
+    public void ToggleCompass(bool p_newState)
+    {
+        m_compassRoot.SetActive(p_newState);
     }
 
     public void TogglePauseMenu(bool p_newState)

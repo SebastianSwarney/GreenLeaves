@@ -39,6 +39,7 @@ public class Player_Inventory : MonoBehaviour
     private void Update()
     {
         if (Building_PlayerPlacement.Instance.m_isPlacing || Daytime_WaitMenu.Instance.m_isWaiting || Interactable_Readable_Menu.Instance.m_isOpen) return;
+        if (PlayerUIManager.Instance.m_map.activeSelf) return;
         if (Input.GetKeyDown(m_toggleMenu) || Input.GetKeyDown(m_secondaryToggle))
         {
             if (m_canOpenMenu)

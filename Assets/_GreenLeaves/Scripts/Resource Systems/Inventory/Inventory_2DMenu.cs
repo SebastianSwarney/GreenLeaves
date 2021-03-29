@@ -96,12 +96,6 @@ public class Inventory_2DMenu : MonoBehaviour
 
     private void Update()
     {
-
-
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            ClearInventory();
-        }
         if (!m_isOpen) return;
         if (Input.GetMouseButtonDown(0) && m_canTap)
         {

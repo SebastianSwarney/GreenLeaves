@@ -91,7 +91,7 @@ public class Interactable_Manager : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!Inventory_2DMenu.Instance.m_isOpen && !Interactable_Readable_Menu.Instance.m_isOpen)
+        if (!Inventory_2DMenu.Instance.m_isOpen && !Interactable_Readable_Menu.Instance.m_isOpen && !PlayerUIManager.Instance.m_map.activeSelf)
         {
             SearchForInteractable();
         }
