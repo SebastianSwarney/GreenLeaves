@@ -5,6 +5,8 @@ public class DaytimeCycle_Update : MonoBehaviour
 {
 
     public static DaytimeCycle_Update Instance;
+    public float m_realTimePerHour;
+
     [Header("Daytime Settings")]
     [Range(0, 24)]
     public float m_timeOfDay;
@@ -29,6 +31,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        m_realTimePerHour = m_fullDayDuration / 24;
     }
 
 #if UNITY_EDITOR
@@ -46,6 +49,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     private void Update()
     {
         if (m_isPaused) return;
+        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || PlayerUIManager.Instance || Interactable_Readable_Menu.Instance.m_isOpen) return;
         m_realtime += Time.deltaTime;
         m_timeOfDay += (24 / m_fullDayDuration) * Time.deltaTime;
         if (m_timeOfDay > 24)
@@ -128,6 +132,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     public void PassOut()
     {
         m_timeOfDay += m_passOutAmount;
+        RespawnResourceManager.Instance.TimeSkipped(m_passOutAmount * m_realTimePerHour);
     }
 
     #region Waiting Functionality
@@ -140,6 +145,7 @@ public class DaytimeCycle_Update : MonoBehaviour
 
     public IEnumerator TimeSkip(float p_hoursToWait, UnityEngine.UI.Text p_textEl = null)
     {
+        RespawnResourceManager.Instance.m_performTimers = false;
         int startingTime = (int)p_hoursToWait;
         float startingWait = m_secondsToWait;
         float waitingTime = m_secondsToWait;
@@ -155,6 +161,9 @@ public class DaytimeCycle_Update : MonoBehaviour
             UpdateTimeOfDayThroughPass(m_increaseAmount);
             yield return null;
         }
+
+        RespawnResourceManager.Instance.TimeSkipped(p_hoursToWait * m_realTimePerHour);
+        RespawnResourceManager.Instance.m_performTimers = true;
     }
 
     private bool m_canRun = true;

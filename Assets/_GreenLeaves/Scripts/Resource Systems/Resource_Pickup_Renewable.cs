@@ -68,11 +68,15 @@ public class Resource_Pickup_Renewable : Resource_Pickup
         m_currentAmount = m_amountOfHarvestable;
         TogglePickup(true);
         ToggleAllResourceVisuals(true);
+        m_floatingParticles.enabled = true;
+        GetComponent<Interactable>().m_canBeInteractedWith = true;
+        
     }
     public override void PickupResource()
     {
         if (!m_useUp) return;
 
+        RespawnResourceManager.Instance.AddBerryCollection(this);
         m_currentAmount--;
         if (m_currentAmount <= 0)
         {

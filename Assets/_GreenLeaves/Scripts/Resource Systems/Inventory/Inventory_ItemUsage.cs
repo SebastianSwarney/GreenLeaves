@@ -22,6 +22,11 @@ public class Inventory_ItemUsage : MonoBehaviour
         Player_Inventory.Instance.EquipItem(p_currentIcon,p_toolType);
     }
 
+
+    public void ToolSlotItem(ResourceContainer_Equip.ToolType p_toolType, bool p_toggleType)
+    {
+        Player_Inventory.Instance.ToggleItemOnBackpack(p_toolType, p_toggleType);
+    }
     public void UnEquipCurrent()
     {
         Player_Inventory.Instance.UnEquipCurrentTool();

@@ -178,15 +178,18 @@ public class Crafting_Table : MonoBehaviour
     {
         RecipeBook.Instance.UnlockRecipe(m_currentRecipe.m_recipeBookIndex);
         Crafting_Recipe tempRecipe = m_currentRecipe;
+
+        List<Crafting_ItemsContainer> currentIngreds = GatherCurrentItems();
+        AdjustResources();
         if (tempRecipe.m_isBuilding)
         {
             tempRecipe.m_craftedItem.UseItem(null);
         }
         else
         {
-            Inventory_2DMenu.Instance.CraftNewIcon(tempRecipe, GatherCurrentItems());
+            Inventory_2DMenu.Instance.CraftNewIcon(tempRecipe, currentIngreds);
         }
-        AdjustResources();
+        
 
     }
 

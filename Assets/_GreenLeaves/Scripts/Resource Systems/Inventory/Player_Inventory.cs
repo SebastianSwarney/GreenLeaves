@@ -19,6 +19,10 @@ public class Player_Inventory : MonoBehaviour
     public Player_EquipmentUse m_currentEquipedTool;
     public Player_EquipmentUse m_knifeTool,m_axeTool, m_canteenTool, m_torchTool, m_bootsTool, m_climbingAxeTool;
 
+    [Header("BackpackTools")]
+    public GameObject m_knifeToolSlot;
+    public GameObject m_axeToolSlot, m_torchToolSlot, m_climbingAxeToolSlot;
+
     [Header("Debugging")]
     public bool m_debugging;
     public Color m_debugColor = Color.red;
@@ -116,6 +120,45 @@ public class Player_Inventory : MonoBehaviour
         Inventory_Icon_Durability newIcon = p_icon.GetComponent<Inventory_Icon_Durability>();
         m_currentEquipedTool.EquipObject(newIcon);
         newIcon.UpdateIconNumber();
+    }
+
+
+    public void ToggleItemOnBackpack(ResourceContainer_Equip.ToolType p_toolType, bool p_toggleType)
+    {
+        switch (p_toolType)
+        {
+            case ResourceContainer_Equip.ToolType.Knife:
+                if (m_knifeToolSlot != null)
+                {
+                    m_knifeToolSlot.SetActive(p_toggleType);
+                }
+                break;
+            case ResourceContainer_Equip.ToolType.Axe:
+                m_axeToolSlot.SetActive(p_toggleType);
+                break;
+
+            case ResourceContainer_Equip.ToolType.Canteen:
+                
+                break;
+
+            case ResourceContainer_Equip.ToolType.Torch:
+                if (m_torchToolSlot != null)
+                {
+                    m_torchToolSlot.SetActive(p_toggleType);
+                }
+                break;
+
+            case ResourceContainer_Equip.ToolType.Bow:
+                
+                break;
+
+            case ResourceContainer_Equip.ToolType.ClimbingAxe:
+                if (m_climbingAxeToolSlot != null)
+                {
+                    m_climbingAxeToolSlot.SetActive(p_toggleType);
+                }
+                break;
+        }
     }
 
     public void UnEquipCurrentTool()

@@ -14,11 +14,13 @@ public class Inventory_Icon : MonoBehaviour
     public Inventory_2DMenu.RotationType m_rotatedDir = Inventory_2DMenu.RotationType.Left;
     public bool m_inBackpack = false;
     public bool m_isEquipped = false;
+    public bool m_inToolSlot = false;
     public bool m_inCraftingTable = false;
     public bool m_inCookingTable = false;
     public bool m_wasInCraftingTable;
     public bool m_wasInCookingTable;
     public bool m_wasInEatingArea = false;
+    public bool m_wasInToolSlot = false;
     public bool m_inEatingArea = false;
     public bool m_wasInEquipment;
 
