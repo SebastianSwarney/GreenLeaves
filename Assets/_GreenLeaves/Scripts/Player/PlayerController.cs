@@ -344,6 +344,8 @@ public class PlayerController : MonoBehaviour
 	{
 		m_passedOut = true;
 
+		Inventory_2DMenu.Instance.ClearInventory();
+
 		while (!m_characterController.isGrounded)
 		{
 			yield return null;
@@ -374,7 +376,6 @@ public class PlayerController : MonoBehaviour
 			yield return null;
 		}
 
-		Inventory_2DMenu.Instance.ClearInventory();
 		m_passedOut = false;
 	}
 	#endregion

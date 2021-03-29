@@ -81,6 +81,10 @@ public class PlayerVisualsController : MonoBehaviour
 
     private Cinemachine.CinemachineFreeLook m_freelookCam;
 
+    public Transform m_axeTransform;
+
+    private bool m_usingEquipment;
+
     private void Start()
 	{
         m_playerController = GetComponent<PlayerController>();
@@ -101,8 +105,7 @@ public class PlayerVisualsController : MonoBehaviour
 
 	private void Update()
 	{
-        //ArmIK();
-        GrounderWeight();
+
 
 		if (Player_EquipmentUse_Torch.Instance != null)
 		{
@@ -129,6 +132,9 @@ public class PlayerVisualsController : MonoBehaviour
         }
 
         CalculateLookState();
+
+        ArmIK();
+        GrounderWeight();
     }
 
     public void SwingAxeAnimation()
@@ -139,15 +145,13 @@ public class PlayerVisualsController : MonoBehaviour
     private void EquipAxe()
 	{
         m_animator.SetLayerWeight(2, 1);
-        m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
-        m_fullBodyBipedIK.solver.leftHandEffector.target = m_axeLeftHandPosition;
+        m_usingEquipment = true;
     }
 
     private void UnEquipAxe()
 	{
         m_animator.SetLayerWeight(2, 0);
-        //m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
-        //m_fullBodyBipedIK.solver.leftHandEffector.target = m_leftArmIKTarget;
+        m_usingEquipment = false;
     }
 
     private void CalculateLookState()
@@ -157,8 +161,7 @@ public class PlayerVisualsController : MonoBehaviour
         float lerpValue = Mathf.Lerp(0, 1, inverseValue);
 
         m_animator.SetFloat("SwingHeight", lerpValue);
-
-        //m_animator.SetLayerWeight(2, inverseValue);
+        //m_axeTransform.localRotation = Quaternion.Euler(Mathf.Lerp(60, 100, lerpValue), 11.174f, 102.484f);
     }
 
     public void OnFootUpdate(int p_footSide)
@@ -295,6 +298,16 @@ public class PlayerVisualsController : MonoBehaviour
 
     private void ArmIK()
 	{
+		if (m_usingEquipment)
+		{
+            m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
+            m_fullBodyBipedIK.solver.leftHandEffector.target = m_axeLeftHandPosition;
+            return;
+        }
+
+        m_fullBodyBipedIK.solver.leftHandEffector.target = m_leftArmIKTarget;
+        m_fullBodyBipedIK.solver.rightHandEffector.target = m_rightArmIKTarget;
+
         float weightTarget = 0;
 
 		if (m_useArmIK)
