@@ -37,10 +37,12 @@ public class Player_EquipmentUse_Hit : Player_EquipmentUse
             }
             return;
         }
+        
         PerformCheck();
+        
         if (Input.GetMouseButtonDown(0))
         {
-            UseEquipment();
+            //UseEquipment();
         }
     }
 

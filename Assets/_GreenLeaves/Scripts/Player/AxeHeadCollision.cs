@@ -6,6 +6,8 @@ public class AxeHeadCollision : MonoBehaviour
 {
 	public LayerMask m_treeMask;
 
+	public bool m_isKnife;
+
 	private BoxCollider m_collider;
 
 	private void Start()
@@ -29,7 +31,14 @@ public class AxeHeadCollision : MonoBehaviour
 	{
 		if (CheckCollisionLayer(m_treeMask, other.gameObject))
 		{
-			PlayerController.Instance.HitTree(transform.position + m_collider.center);
+			if (!m_isKnife)
+			{
+				PlayerController.Instance.HitTree(transform.position + m_collider.center);
+			}
+			else
+			{
+				PlayerController.Instance.HitBush();
+			}
 		}
 	}
 
@@ -37,7 +46,14 @@ public class AxeHeadCollision : MonoBehaviour
 	{
 		if (CheckCollisionLayer(m_treeMask, other.gameObject))
 		{
-			PlayerController.Instance.HitTree(transform.position + m_collider.center);
+			if (!m_isKnife)
+			{
+				PlayerController.Instance.HitTree(transform.position + m_collider.center);
+			}
+			else
+			{
+				PlayerController.Instance.HitBush();
+			}
 		}
 	}
 }

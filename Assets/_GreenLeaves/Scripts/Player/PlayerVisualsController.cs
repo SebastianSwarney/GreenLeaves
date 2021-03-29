@@ -85,6 +85,8 @@ public class PlayerVisualsController : MonoBehaviour
 
     private bool m_usingEquipment;
 
+    private bool m_isKnife;
+
     private void Start()
 	{
         m_playerController = GetComponent<PlayerController>();
@@ -125,9 +127,21 @@ public class PlayerVisualsController : MonoBehaviour
             {
                 EquipAxe();
             }
-            else
+            else if(m_usingEquipment)
             {
                 UnEquipAxe();
+            }
+        }
+
+		if (Player_EquipmentUse_Hit.Instance != null)
+		{
+            if (Player_EquipmentUse_Hit.Instance.m_knifeEquipped)
+            {
+                EquipKnife();
+            }
+            else if (m_usingEquipment)
+            {
+                UnEquipKnife();
             }
         }
 
@@ -151,6 +165,25 @@ public class PlayerVisualsController : MonoBehaviour
     private void UnEquipAxe()
 	{
         m_animator.SetLayerWeight(2, 0);
+        m_usingEquipment = false;
+    }
+
+    public void SwingKnifeAnimation()
+	{
+        m_animator.SetTrigger("SwingKnife");
+    }
+
+    private void EquipKnife()
+	{
+        m_animator.SetLayerWeight(2, 1);
+        m_isKnife = true;
+        m_usingEquipment = true;
+    }
+
+    private void UnEquipKnife()
+    {
+        m_animator.SetLayerWeight(2, 0);
+        m_isKnife = false;
         m_usingEquipment = false;
     }
 
@@ -300,8 +333,11 @@ public class PlayerVisualsController : MonoBehaviour
 	{
 		if (m_usingEquipment)
 		{
-            m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
-            m_fullBodyBipedIK.solver.leftHandEffector.target = m_axeLeftHandPosition;
+			if (!m_isKnife)
+			{
+                m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
+                m_fullBodyBipedIK.solver.leftHandEffector.target = m_axeLeftHandPosition;
+            }
             return;
         }
 

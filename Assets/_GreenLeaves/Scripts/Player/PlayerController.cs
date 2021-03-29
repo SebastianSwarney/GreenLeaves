@@ -270,6 +270,11 @@ public class PlayerController : MonoBehaviour
 			m_chopping = true;
 			m_playerVisuals.SwingAxeAnimation();
 		}
+		else if (Player_EquipmentUse_Hit.Instance.m_knifeEquipped)
+		{
+			m_chopping = true;
+			m_playerVisuals.SwingKnifeAnimation();
+		}
 	}
 
 	public void HitTree(Vector3 p_hitPos)
@@ -283,10 +288,20 @@ public class PlayerController : MonoBehaviour
 		Player_EquipmentUse_MeshSlice.Instance.Chop(p_hitPos);
 	}
 
+	public void HitBush()
+	{
+		if (!m_chopping)
+		{
+			return;
+		}
+
+		m_chopping = false;
+		Player_EquipmentUse_Hit.Instance.UseEquipment();
+	}
+
 	public void SwingEnd()
 	{
 		m_chopping = false;
-
 		m_playerVisuals.m_animator.SetTrigger("SwingDone");
 	}
 

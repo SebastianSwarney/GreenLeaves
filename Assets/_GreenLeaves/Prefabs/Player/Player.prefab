@@ -5578,7 +5578,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455440212644}
-  m_LocalRotation: {x: -0.081988364, y: -0.10870877, z: 0.008997015, w: -0.99064595}
+  m_LocalRotation: {x: -0.081988335, y: -0.108708784, z: 0.008997012, w: -0.99064595}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -5951,7 +5951,7 @@ GameObject:
   - component: {fileID: 8243094455889403915}
   - component: {fileID: 1410549379935972189}
   - component: {fileID: 4414542314540065012}
-  - component: {fileID: 6211480489910096782}
+  - component: {fileID: 954936959}
   m_Layer: 0
   m_Name: Player View Camera
   m_TagString: MainCamera
@@ -6073,7 +6073,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455889403909}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e3d446f7ff644b70a8daaa5525fcf56, type: 3}
   m_Name: 
@@ -6106,18 +6106,18 @@ MonoBehaviour:
   _density: 0.2
   _noiseStrength: 0.56
   _noiseFinalMultiplier: 1
-  _noiseSparse: 1.1
+  _noiseSparse: 0.75
   _distance: 0
   _maxFogLength: 1000
   _maxFogLengthFallOff: 0
   _distanceFallOff: 0
-  _height: 150
-  _heightFallOff: 0.8
+  _height: 30
+  _heightFallOff: 0.6
   _deepObscurance: 2
   _baselineHeight: 0
   _baselineRelativeToCamera: 0
   _baselineRelativeToCameraDelay: 0
-  _noiseScale: 35
+  _noiseScale: 1
   _alpha: 1.05
   _color: {r: 0.89019614, g: 0.89019614, b: 0.89019614, a: 1}
   _specularColor: {r: 1, g: 1, b: 0.8, a: 1}
@@ -6316,14 +6316,14 @@ MonoBehaviour:
   _maskBrushFuzziness: 0.5
   _maskBrushOpacity: 0.15
   _fogOfWarTexture: {fileID: 0}
---- !u!114 &6211480489910096782
+--- !u!114 &954936959
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8243094455889403909}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2838e0cbd5a124a0ab52bbe6b14c5ac0, type: 3}
   m_Name: 
@@ -6995,7 +6995,7 @@ PrefabInstance:
     - target: {fileID: 6761708314861323176, guid: de5f21f88b249e14f9a62be8fbdf8727, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: e5965c34b94e3a14382a16483d8ced0d, type: 2}
+      objectReference: {fileID: 2100000, guid: ca2c4791b33ebf54ebdfc1d1a97e5a3b, type: 2}
     - target: {fileID: 8129263174399075947, guid: de5f21f88b249e14f9a62be8fbdf8727, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
