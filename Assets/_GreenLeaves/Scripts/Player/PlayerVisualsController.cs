@@ -87,6 +87,8 @@ public class PlayerVisualsController : MonoBehaviour
 
     private bool m_isKnife;
 
+    public Transform m_knifeAimTransform;
+
     private void Start()
 	{
         m_playerController = GetComponent<PlayerController>();
@@ -103,6 +105,9 @@ public class PlayerVisualsController : MonoBehaviour
         m_fullBodyBipedIK.solver.rightHandEffector.rotationWeight = 0f;
 
         m_useGrounder = true;
+
+        UnEquipAxe();
+        UnEquipKnife();
     }
 
 	private void Update()
@@ -127,7 +132,7 @@ public class PlayerVisualsController : MonoBehaviour
             {
                 EquipAxe();
             }
-            else if(m_usingEquipment)
+            else if(m_usingEquipment && !Player_EquipmentUse_Hit.Instance.m_knifeEquipped)
             {
                 UnEquipAxe();
             }
@@ -139,7 +144,7 @@ public class PlayerVisualsController : MonoBehaviour
             {
                 EquipKnife();
             }
-            else if (m_usingEquipment)
+            else if (m_usingEquipment && !Player_EquipmentUse_MeshSlice.Instance.m_axeEquipped)
             {
                 UnEquipKnife();
             }
@@ -194,6 +199,10 @@ public class PlayerVisualsController : MonoBehaviour
         float lerpValue = Mathf.Lerp(0, 1, inverseValue);
 
         m_animator.SetFloat("SwingHeight", lerpValue);
+
+        //Vector3 forwardPos = transform.position + (transform.forward * 5);
+        //m_knifeAimTransform.position = Vector3.Lerp(forwardPos + Vector3.up, forwardPos + Vector3.down, lerpValue);
+
         //m_axeTransform.localRotation = Quaternion.Euler(Mathf.Lerp(60, 100, lerpValue), 11.174f, 102.484f);
     }
 
@@ -337,6 +346,12 @@ public class PlayerVisualsController : MonoBehaviour
 			{
                 m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
                 m_fullBodyBipedIK.solver.leftHandEffector.target = m_axeLeftHandPosition;
+            }
+
+			if (m_isKnife)
+			{
+                m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
+                m_fullBodyBipedIK.solver.leftHandEffector.target = m_leftArmIKTarget;
             }
             return;
         }
