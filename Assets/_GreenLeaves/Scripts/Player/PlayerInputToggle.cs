@@ -5,11 +5,13 @@ using UnityEngine;
 public class PlayerInputToggle : MonoBehaviour
 {
     public static PlayerInputToggle Instance;
+    public Transform m_physicalCamera;
     public Transform m_playerCamera;
     public Transform m_splineTracker;
     public Cinemachine.CinemachineFreeLook m_cameraRotation;
     public PlayerInput m_playerInput;
     public PlayerController m_playerController;
+    
 
     private bool m_frozenFromGameplay = false;
     private bool m_frozenFromPause = false;

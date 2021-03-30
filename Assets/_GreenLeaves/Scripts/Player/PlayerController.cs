@@ -175,6 +175,15 @@ public class PlayerController : MonoBehaviour
 	private bool m_aiming;
 	#endregion
 
+	#region Sound Event Properties
+	[FoldoutGroup("Sound Events")]
+	public PlayerControllerEvent m_onJumped;
+	[FoldoutGroup("Sound Events")]
+	public PlayerControllerEvent m_onPickHit;
+	[FoldoutGroup("Sound Events")]
+	public PlayerControllerLandedEvent m_onLandedEvent;
+	#endregion
+
 	#region Log Properties
 	[FoldoutGroup("Logging")]
 	public bool m_logFallDistance;
@@ -261,6 +270,11 @@ public class PlayerController : MonoBehaviour
 			m_gravityVelocity.y = 0;
 			return;
 		}
+	}
+
+	public void OnPickHit()
+	{
+		m_onPickHit.Invoke();
 	}
 
 	public void OnUseInputDown()
@@ -602,7 +616,11 @@ public class PlayerController : MonoBehaviour
 			PlayerStatsController.Instance.CalculateFallDamage(m_distanceFallen);
 		}
 
+		SoundEmitter_FootSteps.Instance.PlayLandSound();
+
 		m_playerVisuals.ToggleGrounder(true);
+
+		m_onLandedEvent.Invoke(m_distanceFallen);
 
 		//This should always be last
 		m_distanceFallen = 0;
@@ -684,6 +702,7 @@ public class PlayerController : MonoBehaviour
 		m_gravityVelocity.y = m_maxJumpVelocity;
 
 		m_playerVisuals.m_animator.SetTrigger("Jumped");
+		m_onJumped.Invoke();
 	}
 
 	private void JumpMinVelocity()

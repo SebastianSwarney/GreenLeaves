@@ -29,4 +29,9 @@ public class PlayerAnimationEvent : MonoBehaviour
 	{
 		m_playerController.SwingEnd();
 	}
+
+	public void PickHit()
+	{
+		m_playerController.OnPickHit();
+	}
 }
