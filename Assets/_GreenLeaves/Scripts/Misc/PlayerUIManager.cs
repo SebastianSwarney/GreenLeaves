@@ -79,7 +79,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public void UpdateCompass()
     {
-        m_compassTracker.transform.eulerAngles = new Vector3(0, 0, -(PlayerInputToggle.Instance.transform.eulerAngles.y + m_compassAngleOffset));
+        m_compassTracker.transform.eulerAngles = new Vector3(0, 0, -(PlayerInputToggle.Instance.m_physicalCamera.transform.eulerAngles.y + m_compassAngleOffset));
     }
 
     public void ToggleCompass(bool p_newState)
