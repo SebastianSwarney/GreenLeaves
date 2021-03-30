@@ -11,4 +11,7 @@ public class Interactable_Readable_Data : ScriptableObject
     public bool m_isCraftingRecipe;
     public int m_recipeIndex;
 
+    [Header("Map Unlock")]
+    public bool m_unlockMap = false;
+
 }

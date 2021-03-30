@@ -27,6 +27,7 @@ public class PlayerUIManager : MonoBehaviour
 
     [Header("Map")]
     public GameObject m_map;
+    public bool m_mapUnlocked;
     private void Awake()
     {
         Instance = this;
@@ -60,7 +61,7 @@ public class PlayerUIManager : MonoBehaviour
 
             TogglePauseMenu(!m_isPaused);
         }
-        else if (Input.GetKeyDown(KeyCode.M))
+        else if (Input.GetKeyDown(KeyCode.M) && m_mapUnlocked)
         {
             m_map.gameObject.SetActive(!m_map.activeSelf);
             if (m_map.gameObject.activeSelf)
