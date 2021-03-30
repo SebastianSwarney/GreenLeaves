@@ -24,10 +24,14 @@ public class PlayerUIManager : MonoBehaviour
     public GameObject m_compassRoot;
     public Transform m_compassTracker;
     public float m_compassAngleOffset;
+    public float m_compassLerp;
 
     [Header("Map")]
     public GameObject m_map;
     public bool m_mapUnlocked;
+    private float m_prevLerp, m_currentLerp;
+    public GenericWorldEvent m_mapEvent;
+
     private void Awake()
     {
         Instance = this;
@@ -39,9 +43,13 @@ public class PlayerUIManager : MonoBehaviour
         m_soundEffects = FMODUnity.RuntimeManager.GetBus("bus:/Master/SoundEffects");
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         UpdateCompass();
+    }
+    private void Update()
+    {
+        
         if (Daytime_WaitMenu.Instance.m_isWaiting) return;
         if (m_transitionToMainMenu) return;
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -63,6 +71,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.M) && m_mapUnlocked)
         {
+            m_mapEvent.Invoke();
             m_map.gameObject.SetActive(!m_map.activeSelf);
             if (m_map.gameObject.activeSelf)
             {
@@ -80,7 +89,9 @@ public class PlayerUIManager : MonoBehaviour
 
     public void UpdateCompass()
     {
-        m_compassTracker.transform.eulerAngles = new Vector3(0, 0, -(PlayerInputToggle.Instance.m_physicalCamera.transform.eulerAngles.y + m_compassAngleOffset));
+        m_currentLerp = -(PlayerInputToggle.Instance.m_physicalCamera.transform.eulerAngles.y + m_compassAngleOffset);
+        m_compassTracker.transform.eulerAngles = new Vector3(0, 0, Mathf.Lerp(m_prevLerp,m_currentLerp, m_compassLerp));
+        m_prevLerp = -(PlayerInputToggle.Instance.m_physicalCamera.transform.eulerAngles.y + m_compassAngleOffset);
     }
 
     public void ToggleCompass(bool p_newState)
