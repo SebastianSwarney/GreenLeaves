@@ -30,6 +30,7 @@ public class PlayerUIManager : MonoBehaviour
     public GameObject m_map;
     public bool m_mapUnlocked;
     private float m_prevLerp, m_currentLerp;
+    public GenericWorldEvent m_mapEvent;
 
     private void Awake()
     {
@@ -70,6 +71,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.M) && m_mapUnlocked)
         {
+            m_mapEvent.Invoke();
             m_map.gameObject.SetActive(!m_map.activeSelf);
             if (m_map.gameObject.activeSelf)
             {
