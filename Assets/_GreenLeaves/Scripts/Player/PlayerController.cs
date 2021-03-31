@@ -672,6 +672,11 @@ public class PlayerController : MonoBehaviour
 
 	private bool CheckJump()
 	{
+		if (m_climbing)
+		{
+			return false;
+		}
+
 		if (m_characterController.isGrounded && !m_passedOut && !m_onSlopedSurface)
 		{
 			return true;
@@ -725,6 +730,11 @@ public class PlayerController : MonoBehaviour
 	private bool CanStartClimb()
 	{
 		if (m_passedOut)
+		{
+			return false;
+		}
+
+		if (m_aiming)
 		{
 			return false;
 		}
