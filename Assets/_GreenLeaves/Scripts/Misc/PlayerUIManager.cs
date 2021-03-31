@@ -91,7 +91,7 @@ public class PlayerUIManager : MonoBehaviour
 
         if (Inventory_2DMenu.Instance.m_isOpen || m_isPaused || Interactable_Readable_Menu.Instance.m_isOpen || m_map.activeSelf) return;
         if (!PlayerInputToggle.Instance.m_playerInput.enabled) return;
-        if (Input.GetMouseButtonDown(2))
+        if (Input.GetMouseButtonDown(2) || Input.mouseScrollDelta.magnitude > .3f ||Input.GetKeyDown(KeyCode.R))
         {
             Inventory_2DMenu.Instance.QuickSwapEquipment();
         }

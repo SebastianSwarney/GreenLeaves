@@ -125,7 +125,8 @@ public class Inventory_2DMenu : MonoBehaviour
             Inventory_ItemUsage.Instance.UnEquipCurrent();
             equipped.m_isEquipped = false;
             equipped.m_wasInEquipment = false;
-            equipped.transform.localPosition = m_toolSlotArea.transform.localPosition;
+            equipped.transform.localPosition = equipped.m_startingCoordPos = m_toolSlotArea.transform.localPosition;
+            
             equipped.m_inToolSlot = true;
             equipped.m_wasInToolSlot = false;
         }
@@ -137,7 +138,7 @@ public class Inventory_2DMenu : MonoBehaviour
             toolSlot.m_wasInEquipment = false;
             toolSlot.m_isEquipped = true;
             toolSlot.m_itemData.SecondaryUseItem(false);
-            toolSlot.transform.localPosition = m_equipArea.transform.localPosition;
+            toolSlot.transform.localPosition = toolSlot.m_startingCoordPos = m_equipArea.transform.localPosition;
         }
 
         m_currentToolSlot = equipped;
