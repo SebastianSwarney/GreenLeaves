@@ -57,8 +57,10 @@ public class DaytimeColors : ScriptableObject
             percent = (p_currentTime - pastColor.m_timeOfDay) / (currentColor.m_timeOfDay - pastColor.m_timeOfDay);
         }
 
-
-        p_fog.density = Mathf.Lerp(pastColor.m_fogDensity, currentColor.m_fogDensity, percent);
+        if (p_fog != null)
+        {
+            p_fog.density = Mathf.Lerp(pastColor.m_fogDensity, currentColor.m_fogDensity, percent);
+        }
         RenderSettings.ambientEquatorColor = Color.Lerp(Color.Lerp(pastColor.m_equatorColor, currentColor.m_equatorColor, percent), m_caveColor.m_equatorColor, p_cavePercent);
         RenderSettings.ambientGroundColor = Color.Lerp(Color.Lerp(pastColor.m_groundColor, currentColor.m_groundColor, percent), m_caveColor.m_groundColor, p_cavePercent);
         RenderSettings.ambientSkyColor = Color.Lerp(Color.Lerp(pastColor.m_skyColor, currentColor.m_skyColor, percent), m_caveColor.m_skyColor, p_cavePercent);

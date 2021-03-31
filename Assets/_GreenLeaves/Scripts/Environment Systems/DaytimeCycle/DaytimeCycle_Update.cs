@@ -53,7 +53,10 @@ public class DaytimeCycle_Update : MonoBehaviour
     private void Update()
     {
         if (m_isPaused) return;
-        if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || PlayerUIManager.Instance || Interactable_Readable_Menu.Instance.m_isOpen) return;
+        if (Inventory_2DMenu.Instance != null && PlayerUIManager.Instance != null && Interactable_Readable_Menu.Instance != null)
+        {
+            if (Inventory_2DMenu.Instance.m_isOpen || PlayerUIManager.Instance.m_isPaused || Interactable_Readable_Menu.Instance.m_isOpen) return;
+        }
         m_realtime += Time.deltaTime;
         m_timeOfDay += (24 / m_fullDayDuration) * Time.deltaTime;
         if (m_timeOfDay > 24)
