@@ -46,6 +46,7 @@ public class MusicPlayer : MonoBehaviour
     public float m_lerpTime;
     private Coroutine m_changeLayerCoroutine;
 
+    private Coroutine m_delay;
     private void Awake()
     {
         Instance = this;
@@ -53,7 +54,7 @@ public class MusicPlayer : MonoBehaviour
     private void Start()
     {
         m_delayingInitialTime = true;
-        StartCoroutine(DelayInitialSong());
+        m_delay = StartCoroutine(DelayInitialSong());
     }
 
     private IEnumerator DelayInitialSong()
@@ -144,7 +145,10 @@ public class MusicPlayer : MonoBehaviour
 
     public void ChangeSong(MusicPlayer_Trigger.MusicTriggerType p_newSongType, int p_climbingLevel)
     {
-
+        if(m_delay != null)
+        {
+            StopCoroutine(m_delay);
+        }
         switch (p_newSongType)
         {
             case MusicPlayer_Trigger.MusicTriggerType.Exploration:

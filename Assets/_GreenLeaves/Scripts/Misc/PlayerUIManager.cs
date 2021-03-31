@@ -32,7 +32,7 @@ public class PlayerUIManager : MonoBehaviour
     private float m_prevLerp, m_currentLerp;
     public GenericWorldEvent m_mapEvent;
 
-
+    private float m_timer;
     
     private void Awake()
     {
@@ -91,8 +91,16 @@ public class PlayerUIManager : MonoBehaviour
 
         if (Inventory_2DMenu.Instance.m_isOpen || m_isPaused || Interactable_Readable_Menu.Instance.m_isOpen || m_map.activeSelf) return;
         if (!PlayerInputToggle.Instance.m_playerInput.enabled) return;
+
+        if (m_timer < .05f)
+        {
+            m_timer += Time.deltaTime;
+            return;
+        }
+        
         if (Input.GetMouseButtonDown(2) || Input.mouseScrollDelta.magnitude > .3f ||Input.GetKeyDown(KeyCode.R))
         {
+            m_timer = 0;
             Inventory_2DMenu.Instance.QuickSwapEquipment();
         }
     }

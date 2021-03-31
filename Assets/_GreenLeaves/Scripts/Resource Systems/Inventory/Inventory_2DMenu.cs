@@ -1100,11 +1100,20 @@ public class Inventory_2DMenu : MonoBehaviour
                         {
                             if (m_currentEquippedTool != null)
                             {
-                                if (!CanAddToInventory(m_currentEquippedTool, m_currentEquippedTool.m_rotatedDir))
+                                if (m_currentToolSlot != null)
                                 {
-                                    m_currentEquippedTool.m_inBackpack = false;
+                                    if (!CanAddToInventory(m_currentEquippedTool, m_currentEquippedTool.m_rotatedDir))
+                                    {
+                                        m_currentEquippedTool.m_inBackpack = false;
+                                    }
                                 }
-
+                                else
+                                {
+                                    m_currentEquippedTool.m_inToolSlot = true;
+                                    m_currentEquippedTool.m_itemData.SecondaryUseItem(true);
+                                    m_currentToolSlot = m_currentEquippedTool;
+                                    m_currentEquippedTool.m_startingCoordPos = m_currentEquippedTool.transform.localPosition = m_toolSlotArea.transform.localPosition;
+                                }
                                 m_currentEquippedTool.m_isEquipped = false;
                                 Inventory_ItemUsage.Instance.UnEquipCurrent();
 
