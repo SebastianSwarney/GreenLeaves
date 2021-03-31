@@ -112,6 +112,48 @@ public class Inventory_2DMenu : MonoBehaviour
         }
     }
 
+    #region Equipment Quickswap
+
+    public void QuickSwapEquipment()
+    {
+        Inventory_Icon equipped = m_currentEquippedTool;
+        Inventory_Icon toolSlot = m_currentToolSlot;
+
+
+        if (equipped != null)
+        {
+            Inventory_ItemUsage.Instance.UnEquipCurrent();
+            equipped.m_isEquipped = false;
+            equipped.m_wasInEquipment = false;
+            equipped.transform.localPosition = m_toolSlotArea.transform.localPosition;
+            equipped.m_inToolSlot = true;
+            equipped.m_wasInToolSlot = false;
+        }
+
+        if (toolSlot != null)
+        {
+            toolSlot.m_inToolSlot = false;
+            toolSlot.m_wasInToolSlot = false;
+            toolSlot.m_wasInEquipment = false;
+            toolSlot.m_isEquipped = true;
+            toolSlot.m_itemData.SecondaryUseItem(false);
+            toolSlot.transform.localPosition = m_equipArea.transform.localPosition;
+        }
+
+        m_currentToolSlot = equipped;
+        m_currentEquippedTool = toolSlot;
+
+        if(m_currentToolSlot != null)
+        {
+            m_currentToolSlot.m_itemData.SecondaryUseItem(true);
+        }
+        if(m_currentEquippedTool != null)
+        {
+            m_currentEquippedTool.m_itemData.UseItem(m_currentEquippedTool);
+        }
+    }
+    #endregion
+
     #region Inventory Toggle
     public void ToggleInventory(bool p_openCrafting)
     {

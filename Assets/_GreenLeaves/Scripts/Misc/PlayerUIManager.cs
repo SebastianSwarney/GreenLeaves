@@ -32,6 +32,8 @@ public class PlayerUIManager : MonoBehaviour
     private float m_prevLerp, m_currentLerp;
     public GenericWorldEvent m_mapEvent;
 
+
+    
     private void Awake()
     {
         Instance = this;
@@ -84,6 +86,14 @@ public class PlayerUIManager : MonoBehaviour
                 Interactable_Manager.Instance.SearchForInteractable();
                 PlayerInputToggle.Instance.ToggleInput(true);
             }
+        }
+
+
+        if (Inventory_2DMenu.Instance.m_isOpen || m_isPaused || Interactable_Readable_Menu.Instance.m_isOpen || m_map.activeSelf) return;
+        if (!PlayerInputToggle.Instance.m_playerInput.enabled) return;
+        if (Input.GetMouseButtonDown(2))
+        {
+            Inventory_2DMenu.Instance.QuickSwapEquipment();
         }
     }
 

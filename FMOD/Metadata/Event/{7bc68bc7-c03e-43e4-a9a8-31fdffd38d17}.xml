@@ -97,8 +97,7 @@
 		</relationship>
 		<relationship name="sounds">
 			<destination>{60a4fc49-0b17-4cae-a600-5d48b692a3b0}</destination>
-			<destination>{32b80e76-95c6-4f01-8485-e4172763da31}</destination>
-			<destination>{4c3bdbc3-b9f8-4967-b801-9cd6db21a974}</destination>
+			<destination>{d49c15ac-a430-421e-9417-98934c05a6fa}</destination>
 		</relationship>
 	</object>
 	<object class="EventMixerGroup" id="{78b88711-2300-43d7-bdf7-74125748e352}">
@@ -138,14 +137,9 @@
 			<destination>{7a1a6e3b-2408-4346-96d1-a3acc0db4e9e}</destination>
 		</relationship>
 	</object>
-	<object class="SingleSound" id="{32b80e76-95c6-4f01-8485-e4172763da31}">
+	<object class="SingleSound" id="{d49c15ac-a430-421e-9417-98934c05a6fa}">
 		<relationship name="audioFile">
-			<destination>{3849b52a-68d5-483b-84a4-5e030c40eba9}</destination>
-		</relationship>
-	</object>
-	<object class="SingleSound" id="{4c3bdbc3-b9f8-4967-b801-9cd6db21a974}">
-		<relationship name="audioFile">
-			<destination>{4b443925-8687-4128-a656-94e82cef7ad7}</destination>
+			<destination>{e546c4b5-12e3-4384-82b3-020a67bb9f83}</destination>
 		</relationship>
 	</object>
 	<object class="ADSRModulator" id="{87a198c1-3888-434f-98cb-5c0305bc92db}">
@@ -155,8 +149,11 @@
 		<property name="initialValue">
 			<value>-80</value>
 		</property>
+		<property name="attackTime">
+			<value>2000</value>
+		</property>
 		<property name="releaseTime">
-			<value>3000</value>
+			<value>2000</value>
 		</property>
 		<property name="finalValue">
 			<value>-80</value>

@@ -453,6 +453,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_crossSectionMaterials: {fileID: 2100000, guid: 360d9820fedb35341bebb5d06ef3661f, type: 2}
+  m_choppedTreePhysicsMaterial: {fileID: 0}
   m_hitsToSlice: 5
   m_choppingParticle: {fileID: 91996952944225422}
   m_addRB: 0
@@ -544,6 +545,8 @@ MonoBehaviour:
   m_durabilityObject: {fileID: 3602983759634063633}
   m_meshCollider: 1
   m_startingTreeMass: 100
+  m_cutAtSetPosition: 0
+  m_cutPosition: {x: 0, y: 0, z: 0}
   m_debug: 0
   m_debugColor: {r: 0, g: 0, b: 0, a: 0}
   m_debugColor2: {r: 0, g: 0, b: 0, a: 0}
@@ -581,7 +584,7 @@ GameObject:
   m_Layer: 10
   m_Name: Tree RotationRoot
   m_TagString: Untagged
-  m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -613,7 +616,7 @@ GameObject:
   m_Layer: 10
   m_Name: TreeRoot
   m_TagString: Untagged
-  m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

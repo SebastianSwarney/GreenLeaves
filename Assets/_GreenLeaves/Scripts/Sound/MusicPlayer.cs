@@ -41,6 +41,10 @@ public class MusicPlayer : MonoBehaviour
     public string m_climbingSongEvent;
     public bool m_climbingSongPlaying;
 
+    private float m_currentLevel;
+    private int m_currentLayer;
+    public float m_lerpTime;
+    private Coroutine m_changeLayerCoroutine;
 
     private void Awake()
     {
@@ -138,20 +142,41 @@ public class MusicPlayer : MonoBehaviour
         return "oof";
     }
 
-    public void ChangeSong(MusicPlayer_Trigger.MusicTriggerType p_newSongType)
+    public void ChangeSong(MusicPlayer_Trigger.MusicTriggerType p_newSongType, int p_climbingLevel)
     {
 
         switch (p_newSongType)
         {
             case MusicPlayer_Trigger.MusicTriggerType.Exploration:
+                if (m_changeLayerCoroutine != null)
+                {
+                    StopCoroutine(m_changeLayerCoroutine);
+                }
                 StartCoroutine(FadeOutCurrentMusic(GetCurrentSongType(), p_newSongType));
                 break;
             case MusicPlayer_Trigger.MusicTriggerType.Climbing:
                 StartCoroutine(FadeOutCurrentMusic(m_climbingSongEvent, p_newSongType));
+                if (m_changeLayerCoroutine != null)
+                {
+                    StopCoroutine(m_changeLayerCoroutine);
+                }
+                m_changeLayerCoroutine = StartCoroutine(ChangeClimbingLevel(p_climbingLevel));
                 break;
             case MusicPlayer_Trigger.MusicTriggerType.Summit:
+                if (m_changeLayerCoroutine != null)
+                {
+                    StopCoroutine(m_changeLayerCoroutine);
+                }
                 StartCoroutine(FadeOutCurrentMusic(m_summitSongEvent, p_newSongType));
                 break;
+            case MusicPlayer_Trigger.MusicTriggerType.Stop:
+                if (m_changeLayerCoroutine != null)
+                {
+                    StopCoroutine(m_changeLayerCoroutine);
+                }
+                StartCoroutine(FadeOutCurrentMusic("", p_newSongType));
+                break;
+
         }
 
     }
@@ -159,6 +184,8 @@ public class MusicPlayer : MonoBehaviour
 
     private IEnumerator FadeOutCurrentMusic(string p_currentEvent, MusicPlayer_Trigger.MusicTriggerType p_newSongType)
     {
+
+        if (p_newSongType == m_currentMusicType) yield break;
         bool playing = false;
 
         switch (p_newSongType)
@@ -184,7 +211,7 @@ public class MusicPlayer : MonoBehaviour
             m_emitter.AllowFadeout = true;
             m_emitter.Stop();
         }
-
+        
 
         while (playing)
         {
@@ -194,6 +221,9 @@ public class MusicPlayer : MonoBehaviour
                 playing = false;
             }
         }
+
+        if (string.IsNullOrWhiteSpace(p_currentEvent)) yield break;
+
         m_emitter.Event = p_currentEvent;
         m_emitter.Lookup();
         m_emitter.Play();
@@ -216,5 +246,37 @@ public class MusicPlayer : MonoBehaviour
                 m_climbingSongPlaying = false;
                 break;
         }
+    }
+
+
+    private IEnumerator ChangeClimbingLevel(int p_newLevel)
+    {
+        if (p_newLevel == m_currentLayer) yield break;
+        float newLevel = (float)p_newLevel;
+        float startingLevel = m_currentLevel;
+
+
+        float timer = 0;
+
+        float currentPercent = (m_currentLevel - (float)(int)m_currentLevel) * Mathf.Abs(p_newLevel - m_currentLayer);
+        m_currentLayer = p_newLevel;
+        if (newLevel < startingLevel)
+        {
+            currentPercent = 1 - currentPercent;
+        }
+
+        timer = Mathf.Lerp(0, m_lerpTime, currentPercent);
+
+        while (timer < m_lerpTime)
+        {
+            yield return null;
+            timer += Time.deltaTime;
+            m_currentLevel = Mathf.Lerp(startingLevel, newLevel, timer / m_lerpTime);
+            m_emitter.EventInstance.setParameterByName("SummitClimbSection", m_currentLevel);
+        }
+        m_emitter.EventInstance.setParameterByName("SummitClimbSection", newLevel);
+        m_currentLevel = newLevel;
+
+
     }
 }
