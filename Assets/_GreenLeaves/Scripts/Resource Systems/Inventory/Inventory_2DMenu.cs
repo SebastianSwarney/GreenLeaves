@@ -1337,6 +1337,18 @@ public class Inventory_2DMenu : MonoBehaviour
     #endregion
 
 
+    #region Camera Stand
+    [Header("Camera Stand")]
+    public GameObject m_cameraStandPrefab;
+
+    public void PlaceCamera()
+    {
+        Inventory_2DMenu.Instance.CloseInventoryMenu(true);
+        
+        Building_PlayerPlacement.Instance.StartPlacement(ObjectPooler.Instance.NewObject(m_cameraStandPrefab, Vector3.zero, Quaternion.identity));
+    }
+    #endregion
+
     #region Inventory Clear Code
     public void ClearInventory()
     {

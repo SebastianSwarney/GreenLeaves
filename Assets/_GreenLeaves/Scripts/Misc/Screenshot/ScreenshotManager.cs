@@ -11,6 +11,7 @@ public class ScreenshotManager : MonoBehaviour
 
     public float m_delayTime;
     public bool m_disableOnAwake = true;
+    public bool m_disableAfterScreenshot = false;
     private void Awake()
     {
         Instance = this;
@@ -42,10 +43,10 @@ public class ScreenshotManager : MonoBehaviour
     {
 
         m_canTakeImage = false;
+        gameObject.SetActive(true);
 
         m_screenshotCamera.targetTexture = RenderTexture.GetTemporary(Screen.width, Screen.height, 16);
         m_takeScreenshot = true;
-        gameObject.SetActive(true);
         m_screenshotCamera.gameObject.SetActive(true);
         StartCoroutine(ScreenshotBuffer());
     }
@@ -85,6 +86,10 @@ public class ScreenshotManager : MonoBehaviour
         Debug.Log("Screenshot Taken");
         RenderTexture.ReleaseTemporary(tempText);
         m_screenshotCamera.targetTexture = null;
+        if (m_disableAfterScreenshot)
+        {
+            DisableCamera();
+        }
     }
 
     private IEnumerator ScreenshotBuffer()

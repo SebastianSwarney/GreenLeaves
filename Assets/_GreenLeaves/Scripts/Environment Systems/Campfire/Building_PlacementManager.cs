@@ -6,8 +6,7 @@ using UnityEngine;
 public class Building_PlacementManager : MonoBehaviour
 {
 
-    public enum PlacementState { Placing, Placed }
-    public PlacementState m_currentState;
+
     public Building_PlacementDetection m_buildingPlacer;
 
     public ParticleSystem m_fireParticle;
@@ -16,10 +15,11 @@ public class Building_PlacementManager : MonoBehaviour
 
     public GenericWorldEvent m_objectPlacedEvent, m_objectDiedEvent;
 
-    public Interactable_Campfire m_interactable;
+    public Interactable m_interactable;
 
     public GameObject m_activeModel, m_burntModel;
-    public void InitializePlacement()
+    public bool m_rotateWithLand = true;
+    public virtual void InitializePlacement()
     {
         m_activeModel.SetActive(true);
         m_burntModel.SetActive(false);
@@ -29,17 +29,31 @@ public class Building_PlacementManager : MonoBehaviour
     private bool m_togglePrompt = false;
     public bool AttemptPlacement(Vector3 p_placement)
     {
-        transform.position =  p_placement;
+        transform.position = p_placement;
         Vector3 hitNormal;
         if (m_buildingPlacer.CanPlace(out hitNormal))
         {
-            transform.rotation *= Quaternion.FromToRotation(transform.up, hitNormal);
+            if (m_rotateWithLand)
+            {
+                transform.rotation *= Quaternion.FromToRotation(transform.up, hitNormal);
+            }
+            else
+            {
+                transform.rotation = Quaternion.Euler(0, PlayerInputToggle.Instance.m_physicalCamera.transform.eulerAngles.y, 0);
+            }
 
             return true;
         }
         else
         {
-            transform.rotation = Quaternion.identity;
+            if (m_rotateWithLand)
+            {
+                transform.rotation = Quaternion.identity;
+            }
+            else
+            {
+                transform.rotation = Quaternion.Euler(0, PlayerInputToggle.Instance.m_physicalCamera.transform.eulerAngles.y, 0);
+            }
 
             return false;
         }
@@ -68,10 +82,10 @@ public class Building_PlacementManager : MonoBehaviour
     }
 
 
-    public void PlaceBuilding()
+    public virtual void PlaceBuilding()
     {
         Durability_UI.Instance.HideUI();
-        m_currentState = PlacementState.Placed;
+
         m_fireParticle.gameObject.SetActive(true);
         m_interactable.m_canBeInteractedWith = true;
         m_objectPlacedEvent.Invoke();
@@ -88,11 +102,8 @@ public class Building_PlacementManager : MonoBehaviour
         m_fireParticle.Stop();
         m_activeModel.SetActive(false);
         m_burntModel.SetActive(true);
-        
-        //Durability_UI.Instance.HideUI();
-        m_currentState = PlacementState.Placed;
         m_interactable.m_canBeInteractedWith = false;
-        m_interactable.FireDied();
+        m_interactable.GetComponent<Interactable_Campfire>().FireDied();
         //m_fireParticle.gameObject.SetActive(false);
         StartCoroutine(StopParticle());
     }

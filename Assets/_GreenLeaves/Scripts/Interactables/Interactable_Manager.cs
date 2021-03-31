@@ -314,6 +314,16 @@ public class Interactable_Manager : MonoBehaviour
 
     }
 
+    public void SetInteractable(Interactable p_selected)
+    {
+        if(m_currentInteractable != null)
+        {
+            m_currentInteractable.ItemDeselect();
+        }
+        m_currentInteractable = p_selected;
+        m_currentInteractable.DisplayInteractableMessage();
+    }
+
     public bool FoundObject(out Interactable p_closestInteractable)
     {
 

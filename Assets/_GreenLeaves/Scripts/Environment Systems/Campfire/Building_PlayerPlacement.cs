@@ -6,7 +6,6 @@ public class Building_PlayerPlacement : MonoBehaviour
 {
     public static Building_PlayerPlacement Instance;
     //public GameObject m_buildingPrefab;
-    public ResourceContainer m_buildingResourceData;
 
     public bool m_isPlacing;
 
@@ -21,9 +20,8 @@ public class Building_PlayerPlacement : MonoBehaviour
     {
         Instance = this;
     }
-    public void StartPlacement(GameObject p_buildingPrefab, ResourceContainer p_resourceContainer)
+    public void StartPlacement(GameObject p_buildingPrefab)
     {
-        m_buildingResourceData = p_resourceContainer;
         m_currentPrefab = ObjectPooler.Instance.NewObject(p_buildingPrefab, transform.position, Quaternion.identity).transform;
         m_currentPrefab.GetComponent<Building_PlacementManager>().InitializePlacement();
         //m_currentPrefab = ObjectPooler.Instance.NewObject(m_buildingPrefab, transform.position, Quaternion.identity).transform;
@@ -49,7 +47,7 @@ public class Building_PlayerPlacement : MonoBehaviour
             }
             else
             {
-                p_buildingObject.transform.rotation = Quaternion.identity;
+                p_buildingObject.transform.rotation = Quaternion.Euler(0,PlayerInputToggle.Instance.transform.eulerAngles.y,0);
                 p_buildingObject.transform.position = m_detectionOrigin.position + m_detectionOrigin.forward * m_maxDis;
             }
 
