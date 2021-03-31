@@ -171,7 +171,7 @@ public class PlayerStatsController : MonoBehaviour
     #region Drain Actions
     private void RunPassiveEnergyDrain()
     {
-        if (!m_pauseStatDrain)
+        if (!m_pauseStatDrain && !PauseStatsInMenu())
         {
             float depletionSpeed = 100 / m_energyDepletionRate;
 
@@ -186,7 +186,7 @@ public class PlayerStatsController : MonoBehaviour
 
     private void RunPassiveHungerDrain()
     {
-        if (!m_pauseStatDrain)
+        if (!m_pauseStatDrain && !PauseStatsInMenu())
         {
             float depletionSpeed = 100 / m_hungerDepletionRate;
 
@@ -260,7 +260,7 @@ public class PlayerStatsController : MonoBehaviour
             return;
         }
 
-        if (!m_pauseStatDrain)
+        if (!m_pauseStatDrain && !PauseStatsInMenu())
         {
             if (m_currentStamina < 100)
             {
@@ -379,43 +379,13 @@ public class PlayerStatsController : MonoBehaviour
     }
     #endregion
 
-    #region Appears to be out of use
-    /*
-    public float GetCurrentStat(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType p_typeOfStat)
-    {
-        switch (p_typeOfStat)
-        {
-            case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Energy:
-                return m_currentMainEnergy;
-                break;
-            case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Hunger:
-                return m_currentHunger;
-                break;
-            case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Stamina:
-                return m_currentSecondaryEnergy;
-                break;
-        }
-        Debug.Log("Error in stats controller | No matching stat type for: " + p_typeOfStat, this);
-        return 0;
-    }
+    private bool PauseStatsInMenu()
+	{
+		if (PlayerUIManager.Instance.m_isPaused)
+		{
+            return true;
+		}
 
-    public float GetMaxStat(ResourceContainer_Cosume.TypeOfCosumption.ConsumeType p_typeOfStat)
-    {
-        switch (p_typeOfStat)
-        {
-            case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Energy:
-                return m_mainEnergyMax;
-                break;
-            case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Hunger:
-                return m_hungerMax;
-                break;
-            case ResourceContainer_Cosume.TypeOfCosumption.ConsumeType.Stamina:
-                return m_secondaryEnergyMax;
-                break;
-        }
-        Debug.Log("Error in stats controller | No matching stat type for: " + p_typeOfStat, this);
-        return 0;
-    }
-    */
-    #endregion
+        return false;
+	}
 }
