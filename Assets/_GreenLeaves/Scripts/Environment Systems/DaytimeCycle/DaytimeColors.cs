@@ -16,9 +16,10 @@ public class DaytimeColors : ScriptableObject
         [ColorUsage(true, true)]
         public Color m_skyColor, m_equatorColor, m_groundColor;
         public float m_morningLightIntensity, m_nightLightIntensity;
+        public float m_fogDensity;
     }
 
-    public void ChangeColors(float p_currentTime, float p_cavePercent, Light p_morningLight, Light p_nightLight, bool p_inCave)
+    public void ChangeColors(float p_currentTime, float p_cavePercent, Light p_morningLight, Light p_nightLight, bool p_inCave, VolumetricFogAndMist.VolumetricFog p_fog)
     {
         DayColors pastColor = m_dayColors[0], currentColor = m_dayColors[0];
 
@@ -55,6 +56,9 @@ public class DaytimeColors : ScriptableObject
 
             percent = (p_currentTime - pastColor.m_timeOfDay) / (currentColor.m_timeOfDay - pastColor.m_timeOfDay);
         }
+
+
+        p_fog.density = Mathf.Lerp(pastColor.m_fogDensity, currentColor.m_fogDensity, percent);
         RenderSettings.ambientEquatorColor = Color.Lerp(Color.Lerp(pastColor.m_equatorColor, currentColor.m_equatorColor, percent), m_caveColor.m_equatorColor, p_cavePercent);
         RenderSettings.ambientGroundColor = Color.Lerp(Color.Lerp(pastColor.m_groundColor, currentColor.m_groundColor, percent), m_caveColor.m_groundColor, p_cavePercent);
         RenderSettings.ambientSkyColor = Color.Lerp(Color.Lerp(pastColor.m_skyColor, currentColor.m_skyColor, percent), m_caveColor.m_skyColor, p_cavePercent);

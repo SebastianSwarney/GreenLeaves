@@ -22,6 +22,10 @@ public class DaytimeCycle_Update : MonoBehaviour
 
     public bool m_isPaused;
 
+
+    [Header("Fog")]
+    public VolumetricFogAndMist.VolumetricFog m_fog;
+
     [Header("Gradient Colors")]
     public DaytimeColors m_currentGradientData;
 
@@ -41,7 +45,7 @@ public class DaytimeCycle_Update : MonoBehaviour
     {
         if (!m_updateInEditor) return;
         UpdateLightRotation();
-        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent, m_directionalLight, m_nightLight, m_inCave);
+        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent, m_directionalLight, m_nightLight, m_inCave, m_fog);
     }
 
 #endif
@@ -58,7 +62,7 @@ public class DaytimeCycle_Update : MonoBehaviour
         }
 
         UpdateLightRotation();
-        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent, m_directionalLight, m_nightLight, m_inCave);
+        m_currentGradientData.ChangeColors(m_timeOfDay, m_cavePercent, m_directionalLight, m_nightLight, m_inCave, m_fog);
     }
 
 
