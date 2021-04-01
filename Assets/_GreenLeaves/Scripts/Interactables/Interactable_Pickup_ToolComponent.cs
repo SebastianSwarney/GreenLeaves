@@ -11,7 +11,14 @@ public class Interactable_Pickup_ToolComponent : Interactable
     /// </summary>
     public override void LeftButtonPressed()
     {
-        Inventory_2DMenu.Instance.m_toolComponents.EnableToolResource(m_toolType);
+        if (m_toolType == ResourceContainer_Equip.ToolType.Map)
+        {
+            PlayerUIManager.Instance.m_mapUnlocked = true;
+        }
+        else
+        {
+            Inventory_2DMenu.Instance.m_toolComponents.EnableToolResource(m_toolType);
+        }
         m_objectPickedUp.Invoke();
         if (DisableMenu())
         {
