@@ -9,7 +9,7 @@ public class Interactable_Readable : Interactable
     {
         Interactable_Readable_Menu.Instance.OpenReadable(m_data);
         Interactable_Manager.Instance.HideButtonMenu(this, true);
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
 
     }
 

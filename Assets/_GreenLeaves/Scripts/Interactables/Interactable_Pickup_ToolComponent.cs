@@ -2,6 +2,7 @@
 public class Interactable_Pickup_ToolComponent : Interactable
 {
 
+    public string m_message;
     public ResourceContainer_Equip.ToolType m_toolType;
 
     public GenericWorldEvent m_objectPickedUp;
@@ -11,6 +12,7 @@ public class Interactable_Pickup_ToolComponent : Interactable
     /// </summary>
     public override void LeftButtonPressed()
     {
+        PopUpMessage.Instance.ShowMessage(m_message);
         if (m_toolType == ResourceContainer_Equip.ToolType.Map)
         {
             PlayerUIManager.Instance.m_mapUnlocked = true;

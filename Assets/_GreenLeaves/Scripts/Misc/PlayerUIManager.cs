@@ -73,6 +73,8 @@ public class PlayerUIManager : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.M) && m_mapUnlocked)
         {
+            if (m_isPaused) return;
+            if (Inventory_2DMenu.Instance.m_isOpen || Interactable_Readable_Menu.Instance.m_isOpen || Credits.Instance.m_isPlaying) return;
             m_mapEvent.Invoke();
             m_map.gameObject.SetActive(!m_map.activeSelf);
             if (m_map.gameObject.activeSelf)
