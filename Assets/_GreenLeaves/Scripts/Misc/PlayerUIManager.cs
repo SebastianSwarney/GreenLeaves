@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerUIManager : MonoBehaviour
@@ -33,7 +34,12 @@ public class PlayerUIManager : MonoBehaviour
     public GenericWorldEvent m_mapEvent;
 
     private float m_timer;
-    
+
+    [Header("Toggleable UI")]
+    public bool m_canDisableUI;
+    public List<CanvasGroup> m_cgs;
+    private bool m_uiEnabled = true;
+
     private void Awake()
     {
         Instance = this;
@@ -51,6 +57,19 @@ public class PlayerUIManager : MonoBehaviour
     }
     private void Update()
     {
+
+        if (m_canDisableUI)
+        {
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                m_uiEnabled = !m_uiEnabled;
+                foreach (CanvasGroup cg in m_cgs)
+                {
+                    cg.alpha = m_uiEnabled ? 1 : 0;
+                }
+            }
+        }
+
         if (Credits.Instance.m_isPlaying) return;
         if (Daytime_WaitMenu.Instance.m_isWaiting) return;
         if (m_transitionToMainMenu) return;
@@ -99,18 +118,20 @@ public class PlayerUIManager : MonoBehaviour
             m_timer += Time.deltaTime;
             return;
         }
-        
-        if (Input.GetMouseButtonDown(2) || Input.mouseScrollDelta.magnitude > .3f ||Input.GetKeyDown(KeyCode.R))
+
+        if (Input.GetMouseButtonDown(2) || Input.mouseScrollDelta.magnitude > .3f || Input.GetKeyDown(KeyCode.R))
         {
             m_timer = 0;
             Inventory_2DMenu.Instance.QuickSwapEquipment();
         }
+
+        
     }
 
     public void UpdateCompass()
     {
         m_currentLerp = -(PlayerInputToggle.Instance.m_physicalCamera.transform.eulerAngles.y + m_compassAngleOffset);
-        m_compassTracker.transform.eulerAngles = new Vector3(0, 0, Mathf.Lerp(m_prevLerp,m_currentLerp, m_compassLerp));
+        m_compassTracker.transform.eulerAngles = new Vector3(0, 0, Mathf.Lerp(m_prevLerp, m_currentLerp, m_compassLerp));
         m_prevLerp = -(PlayerInputToggle.Instance.m_physicalCamera.transform.eulerAngles.y + m_compassAngleOffset);
     }
 
