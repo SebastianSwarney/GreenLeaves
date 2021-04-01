@@ -4,6 +4,7 @@
 public class Interactable_Readable_Data : ScriptableObject
 {
     public string m_readableTitle;
+    [TextAreaAttribute(15,20)]
     public string m_readableDescription;
     public Sprite m_sprite;
 
