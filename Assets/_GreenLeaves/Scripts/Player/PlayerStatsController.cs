@@ -386,6 +386,11 @@ public class PlayerStatsController : MonoBehaviour
             return true;
 		}
 
+		if (m_playerController.m_isCredits)
+		{
+            return true;
+		}
+
         return false;
 	}
 }

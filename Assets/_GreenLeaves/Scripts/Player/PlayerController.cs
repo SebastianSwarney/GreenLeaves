@@ -191,6 +191,9 @@ public class PlayerController : MonoBehaviour
 
 	private bool m_chopping;
 
+	[HideInInspector]
+	public bool m_isCredits;
+
 	private void Awake()
 	{
 		if (Instance == null)
@@ -364,7 +367,7 @@ public class PlayerController : MonoBehaviour
 	#region Pass Out Code
 	public void PassOut()
 	{
-		if (!m_passedOut)
+		if (!m_passedOut && !m_isCredits)
 		{
 			StartCoroutine(RunPassOut());
 		}
@@ -432,6 +435,11 @@ public class PlayerController : MonoBehaviour
 
 	public bool CheckGroundMovement()
 	{
+		if (m_isCredits)
+		{
+			return false;
+		}
+
 		if (!PlayerStatsController.Instance.HasEnergy())
 		{
 			return false;
@@ -457,6 +465,11 @@ public class PlayerController : MonoBehaviour
 
 	public bool CheckSprintConditions()
 	{
+		if (m_isCredits)
+		{
+			return false;
+		}
+
 		if (m_aiming)
 		{
 			return false;
@@ -673,6 +686,11 @@ public class PlayerController : MonoBehaviour
 
 	private bool CheckJump()
 	{
+		if (m_isCredits)
+		{
+			return false;
+		}
+
 		if (m_climbing)
 		{
 			return false;
