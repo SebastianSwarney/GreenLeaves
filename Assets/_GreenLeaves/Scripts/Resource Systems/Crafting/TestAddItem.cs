@@ -16,8 +16,11 @@ public class TestAddItem : MonoBehaviour
         }
     }
 
+
+#if UNITY_EDITOR
     private void Update()
     {
+
         if (m_debugTools)
         {
             foreach(DebugToolsComponents current in m_debugComponents)
@@ -29,4 +32,7 @@ public class TestAddItem : MonoBehaviour
             }
         }
     }
+#endif
+
+
 }
