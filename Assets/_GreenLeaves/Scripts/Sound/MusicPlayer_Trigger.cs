@@ -6,6 +6,7 @@ public class MusicPlayer_Trigger : MonoBehaviour
 {
     public enum MusicTriggerType { Summit, Climbing, Exploration, Stop}
     public MusicTriggerType m_triggerType;
+    
 
     public string m_playerTag;
     [Header("Climbing Song")]
@@ -18,9 +19,15 @@ public class MusicPlayer_Trigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        
         if (other.gameObject.tag == m_playerTag)
         {
             MusicPlayer.Instance.ChangeSong(m_triggerType, m_climbingLevel);
+            if (m_triggerType == MusicTriggerType.Summit)
+            {
+                Credits.Instance.StartCredits();
+                gameObject.SetActive(false);
+            }
         }
     }
 

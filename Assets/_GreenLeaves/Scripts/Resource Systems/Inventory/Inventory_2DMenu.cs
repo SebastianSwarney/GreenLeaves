@@ -96,6 +96,7 @@ public class Inventory_2DMenu : MonoBehaviour
 
     private void Update()
     {
+        if (Credits.Instance.m_isPlaying) return;
         if (!m_isOpen) return;
         if (Input.GetMouseButtonDown(0) && m_canTap)
         {
