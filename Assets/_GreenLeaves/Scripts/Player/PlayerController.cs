@@ -191,7 +191,7 @@ public class PlayerController : MonoBehaviour
 
 	private bool m_chopping;
 
-	[HideInInspector]
+	//[HideInInspector]
 	public bool m_isCredits;
 
 	private void Awake()
@@ -435,11 +435,6 @@ public class PlayerController : MonoBehaviour
 
 	public bool CheckGroundMovement()
 	{
-		if (m_isCredits)
-		{
-			return false;
-		}
-
 		if (!PlayerStatsController.Instance.HasEnergy())
 		{
 			return false;
