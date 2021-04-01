@@ -85,9 +85,10 @@ public class PlayerVisualsController : MonoBehaviour
 
     private bool m_usingEquipment;
 
-    private bool m_isKnife;
-
     public Transform m_knifeAimTransform;
+
+    private bool m_axeEquipped;
+    private bool m_knifeEquipped;
 
     private void Start()
 	{
@@ -136,22 +137,34 @@ public class PlayerVisualsController : MonoBehaviour
 	{
         if (Player_EquipmentUse_MeshSlice.Instance.m_axeEquipped)
         {
-            UnEquipKnife();
-            if (m_usingEquipment) return;
-            EquipAxe();
+			if (m_knifeEquipped)
+			{
+                UnEquipKnife();
+            }
+
+			if (!m_axeEquipped)
+			{
+                EquipAxe();
+            }
         }
 
         if (Player_EquipmentUse_Hit.Instance.m_knifeEquipped)
         {
-            UnEquipAxe();
-            if (m_usingEquipment) return;
-            EquipKnife();
+            if (m_axeEquipped)
+            {
+                UnEquipAxe();
+            }
+
+            if (!m_knifeEquipped)
+            {
+                EquipKnife();
+            }
         }
 
-        if (!Player_EquipmentUse_MeshSlice.Instance.m_axeEquipped && !Player_EquipmentUse_Hit.Instance.m_knifeEquipped)
-        {
-            UnEquipKnife();
+		if (!Player_EquipmentUse_Hit.Instance.m_knifeEquipped && !Player_EquipmentUse_MeshSlice.Instance.m_axeEquipped)
+		{
             UnEquipAxe();
+            UnEquipKnife();
         }
     }
 
@@ -165,12 +178,14 @@ public class PlayerVisualsController : MonoBehaviour
         m_animator.SetTrigger("EquipAxe");
         m_animator.SetLayerWeight(2, 1);
         m_usingEquipment = true;
+        m_axeEquipped = true;
     }
 
     private void UnEquipAxe()
 	{
         m_animator.SetLayerWeight(2, 0);
         m_usingEquipment = false;
+        m_axeEquipped = false;
     }
 
     public void SwingKnifeAnimation()
@@ -182,23 +197,20 @@ public class PlayerVisualsController : MonoBehaviour
 	{
         m_animator.SetTrigger("EquipKnife");
         m_animator.SetLayerWeight(2, 1);
-        m_isKnife = true;
+        m_knifeEquipped = true;
         m_usingEquipment = true;
     }
 
     private void UnEquipKnife()
     {
         m_animator.SetLayerWeight(2, 0);
-        m_isKnife = false;
+        m_knifeEquipped = false;
         m_usingEquipment = false;
     }
 
     public void SwingDone()
 	{
-		if (m_isKnife)
-		{
-            //m_animator.SetLayerWeight(2, 0);
-        }
+
     }
 
     private void CalculateLookState()
@@ -351,13 +363,13 @@ public class PlayerVisualsController : MonoBehaviour
 	{
 		if (m_usingEquipment)
 		{
-			if (!m_isKnife)
+			if (m_axeEquipped)
 			{
                 m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
                 m_fullBodyBipedIK.solver.leftHandEffector.target = m_axeLeftHandPosition;
             }
 
-			if (m_isKnife)
+			if (m_knifeEquipped)
 			{
                 m_fullBodyBipedIK.solver.leftHandEffector.positionWeight = 0f;
                 m_fullBodyBipedIK.solver.leftHandEffector.target = m_leftArmIKTarget;
