@@ -58,7 +58,7 @@ public class PlayerUIManager : MonoBehaviour
     private void Update()
     {
 
-        if (m_canDisableUI)
+        /*if (m_canDisableUI)
         {
             if (Input.GetKeyDown(KeyCode.K))
             {
@@ -68,7 +68,7 @@ public class PlayerUIManager : MonoBehaviour
                     cg.alpha = m_uiEnabled ? 1 : 0;
                 }
             }
-        }
+        }*/
 
         if (Credits.Instance.m_isPlaying) return;
         if (Daytime_WaitMenu.Instance.m_isWaiting) return;
