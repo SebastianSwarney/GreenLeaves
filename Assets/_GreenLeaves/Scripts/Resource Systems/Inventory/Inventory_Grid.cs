@@ -539,6 +539,20 @@ public class Inventory_Grid : MonoBehaviour
             ClearOldPos(p_icon.m_previousGridPos, Vector2Int.zero, p_icon.m_itemData.m_resourceData.m_inventoryWeight, p_icon.m_rotatedDir);
             RemoveWeight(p_icon.m_itemData.m_resourceData);
         }
+
+        p_icon.m_isEquipped = false;
+        p_icon.m_wasInEquipment = false;
+        p_icon.m_inToolSlot = false;
+        p_icon.m_wasInToolSlot = false;
+        for (int i = 0; i < Inventory_2DMenu.Instance.m_backpack.m_itemsInBackpack.Count; i++)
+        {
+            if(Inventory_2DMenu.Instance.m_backpack.m_itemsInBackpack[i].m_associatedIcon == p_icon)
+            {
+                Inventory_2DMenu.Instance.m_backpack.m_itemsInBackpack.RemoveAt(i);
+                break;
+            }
+        }
+        
         ObjectPooler.Instance.ReturnToPool(p_icon.gameObject);
     }
     #endregion
