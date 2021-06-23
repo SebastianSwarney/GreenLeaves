@@ -102,7 +102,7 @@ public class MainMenuManager : MonoBehaviour
     public void StartFade()
     {
         m_startTransition.Invoke();
-        GlobalSceneManager.Instance.LoadNewScene(1, true);
+        GlobalSceneManager.Instance.LoadNewScene(2, true);
     }
     private IEnumerator RandomSounds()
     {

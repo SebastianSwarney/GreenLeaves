@@ -187,7 +187,7 @@ public class PlayerUIManager : MonoBehaviour
     private IEnumerator FadeToMainMenu()
     {
         yield return StartCoroutine(FadeScreen(true));
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
     }
     private IEnumerator FadeScreen(bool p_newFadeState)
     {
